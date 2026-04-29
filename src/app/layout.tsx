@@ -1,34 +1,36 @@
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import './globals.css'
 
-const sans = Inter({
+const headline = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-sans',
+  variable: '--font-headline',
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
 })
 
-const display = Playfair_Display({
+const body = Manrope({
   subsets: ['latin'],
-  variable: '--font-display',
+  variable: '--font-body',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: {
-    default: 'Book My Counselling',
+    default: 'Book My Counselling | Find Your Mentor',
     template: '%s | Book My Counselling',
   },
   description:
-    'Professional counselling services made easy. Book your session with qualified counsellors and take the first step towards better mental health.',
+    'Connect with world-class mentors from industry giants and top universities to navigate your professional growth with precision.',
   keywords: [
-    'counselling',
-    'therapy',
-    'mental health',
-    'book counsellor',
-    'online therapy',
-    'mental wellness',
+    'career mentorship',
+    'professional mentors',
+    'career guidance',
+    'admissions counseling',
+    'tech mentors',
+    'career coaching',
   ],
   authors: [{ name: 'Book My Counselling' }],
   openGraph: {
@@ -36,9 +38,9 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://bookmycounselling.com',
     siteName: 'Book My Counselling',
-    title: 'Book My Counselling - Professional Counselling Services',
+    title: 'Book My Counselling - Your Career Journey, Curated',
     description:
-      'Professional counselling services made easy. Book your session with qualified counsellors.',
+      'Connect with world-class mentors from industry giants and top universities.',
     images: [
       {
         url: '/og-image.png',
@@ -51,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Book My Counselling',
-    description: 'Professional counselling services made easy.',
+    description: 'Your Career Journey, Curated.',
     images: ['/og-image.png'],
   },
   robots: {
@@ -76,13 +78,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${display.variable}`}
+      className={`${headline.variable} ${body.variable} scroll-smooth`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased">
         <ThemeProvider
-          attribute="data-theme"
-          defaultTheme="system"
+          attribute="class"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
