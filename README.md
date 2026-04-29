@@ -1,10 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Book My Counselling
+
+A modern, production-ready Next.js application for booking professional counselling services. Built with Next.js 15, React 19, TypeScript, Tailwind CSS v4, and shadcn/ui.
+
+## Features
+
+- 🎨 Modern, responsive design with Tailwind CSS v4
+- 🌗 Dark mode support with next-themes
+- ♿ Accessibility-first approach
+- 🎭 Smooth animations with Framer Motion
+- 📱 Mobile-first responsive design
+- 🔒 Type-safe with TypeScript
+- 🎯 SEO optimized with Next.js metadata API
+- 🚀 Optimized performance with Next.js 15
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS v4
+- **UI Components:** shadcn/ui (new-york style)
+- **Icons:** Lucide React
+- **Animations:** Framer Motion
+- **Theme:** next-themes
+- **Image Optimization:** Sharp
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
+- Node.js 18+ 
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository:
+
+\`\`\`bash
+git clone <repository-url>
+cd book-my-counselling
+\`\`\`
+
+2. Install dependencies:
+
+\`\`\`bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+# or
+bun install
+\`\`\`
+
+3. Run the development server:
+
+\`\`\`bash
 npm run dev
 # or
 yarn dev
@@ -12,25 +62,86 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
+\`\`\`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+\`\`\`
+src/
+├── app/                    # Next.js App Router
+│   ├── layout.tsx         # Root layout with metadata
+│   ├── page.tsx           # Home page
+│   ├── not-found.tsx      # 404 page
+│   └── globals.css        # Global styles & Tailwind config
+├── components/
+│   ├── ui/                # shadcn/ui components
+│   ├── layout/            # Layout components (Navbar, Footer)
+│   ├── sections/          # Page sections (Hero, Services, etc.)
+│   └── common/            # Reusable components
+├── lib/
+│   ├── utils.ts           # Utility functions
+│   └── constants.ts       # Site configuration
+├── hooks/                 # Custom React hooks
+├── types/                 # TypeScript type definitions
+└── public/                # Static assets
+\`\`\`
 
-## Learn More
+## Available Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- \`npm run dev\` - Start development server
+- \`npm run build\` - Build for production
+- \`npm run start\` - Start production server
+- \`npm run lint\` - Run ESLint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Customization
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Design Tokens
 
-## Deploy on Vercel
+All design tokens (colors, fonts, spacing) are defined in \`src/app/globals.css\` using Tailwind v4's \`@theme\` directive.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Site Configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Update site metadata and navigation in \`src/lib/constants.ts\`.
+
+### Adding Components
+
+Add new shadcn/ui components:
+
+\`\`\`bash
+npx shadcn@latest add [component-name]
+\`\`\`
+
+## Performance
+
+This project is optimized for performance:
+
+- Server Components by default
+- Optimized fonts with next/font
+- Image optimization with next/image
+- Code splitting and lazy loading
+- Minimal client-side JavaScript
+
+## Accessibility
+
+- Semantic HTML
+- ARIA labels where needed
+- Keyboard navigation support
+- Focus visible states
+- Screen reader friendly
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
