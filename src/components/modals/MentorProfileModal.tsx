@@ -147,9 +147,12 @@ export function MentorProfileModal({ isOpen, onClose, mentor }: MentorProfileMod
 
           {/* Primary CTA */}
           <div className="mt-auto">
-            <button className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-5 font-[family-name:var(--font-headline)] text-xl font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02]">
+            <a
+              href="/booking"
+              className="block w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-5 text-center font-[family-name:var(--font-headline)] text-xl font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02]"
+            >
               Book a Session
-            </button>
+            </a>
             <p className="mt-4 text-center text-sm text-[#434655]">{mentor.responseTime}</p>
           </div>
         </div>
