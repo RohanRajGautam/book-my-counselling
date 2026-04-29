@@ -45,7 +45,8 @@ export const validateCardNumber = (cardNumber: string): boolean => {
   let isEven = false
   
   for (let i = cleaned.length - 1; i >= 0; i--) {
-    let digit = parseInt(cleaned[i], 10)
+    const char = cleaned.charAt(i)
+    let digit = parseInt(char, 10)
     
     if (isEven) {
       digit *= 2
@@ -64,7 +65,7 @@ export const validateExpiry = (expiry: string): boolean => {
   const cleaned = expiry.replace(/\s/g, '')
   const match = cleaned.match(/^(\d{2})\/(\d{2})$/)
   
-  if (!match) return false
+  if (!match || !match[1] || !match[2]) return false
   
   const month = parseInt(match[1], 10)
   const year = parseInt(match[2], 10)
