@@ -14,6 +14,7 @@ interface MentorCardProps {
   price: number
   imageUrl: string
   verified?: boolean
+  onClick?: () => void
 }
 
 export function MentorCard({
@@ -27,9 +28,13 @@ export function MentorCard({
   price,
   imageUrl,
   verified = true,
+  onClick,
 }: MentorCardProps) {
   return (
-    <div className="group flex h-full flex-col rounded-[2rem] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-all hover:shadow-[0_12px_32px_rgba(18,28,42,0.08)]">
+    <div
+      className="group flex h-full flex-col rounded-[2rem] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-all hover:shadow-[0_12px_32px_rgba(18,28,42,0.08)] cursor-pointer"
+      onClick={onClick}
+    >
       {/* Header */}
       <div className="mb-6 flex items-start gap-5">
         <div className="relative">
