@@ -1,8 +1,11 @@
 'use client'
 
 import { SlidersHorizontal, ChevronDown } from 'lucide-react'
+import { useFilters } from '@/contexts/FilterContext'
 
 export function FiltersSidebar() {
+  const { filters, updateFilter, clearFilters } = useFilters()
+
   return (
     <aside className="space-y-10">
       <div className="sticky top-32 rounded-2xl bg-[#eff4ff] p-8">
@@ -17,7 +20,11 @@ export function FiltersSidebar() {
             Industry
           </label>
           <div className="relative">
-            <select className="w-full appearance-none rounded-xl border-none bg-white px-4 py-3 text-[#121c2a] shadow-sm focus:ring-2 focus:ring-[#004ac6]/10">
+            <select
+              value={filters.industry}
+              onChange={(e) => updateFilter('industry', e.target.value)}
+              className="w-full appearance-none rounded-xl border-none bg-white px-4 py-3 text-[#121c2a] shadow-sm focus:ring-2 focus:ring-[#004ac6]/10"
+            >
               <option>All Industries</option>
               <option>Technology</option>
               <option>Creative Arts</option>
@@ -36,6 +43,8 @@ export function FiltersSidebar() {
           <input
             type="text"
             placeholder="e.g. UX Designer"
+            value={filters.jobTitle}
+            onChange={(e) => updateFilter('jobTitle', e.target.value)}
             className="w-full rounded-xl border-none bg-white px-4 py-3 text-[#121c2a] shadow-sm focus:ring-2 focus:ring-[#004ac6]/10"
           />
         </div>
@@ -46,13 +55,14 @@ export function FiltersSidebar() {
             <label className="text-sm font-bold uppercase tracking-wider text-[#434655]">
               Price Range
             </label>
-            <span className="font-bold text-[#004ac6]">$20 - $250</span>
+            <span className="font-bold text-[#004ac6]">$20 - ${filters.priceRange}</span>
           </div>
           <input
             type="range"
             min="20"
             max="250"
-            defaultValue="250"
+            value={filters.priceRange}
+            onChange={(e) => updateFilter('priceRange', Number(e.target.value))}
             className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#d9e3f6] accent-[#004ac6]"
           />
         </div>
@@ -66,6 +76,8 @@ export function FiltersSidebar() {
             <label className="group flex cursor-pointer items-center gap-3">
               <input
                 type="checkbox"
+                checked={filters.availableThisWeek}
+                onChange={(e) => updateFilter('availableThisWeek', e.target.checked)}
                 className="h-5 w-5 rounded border-[#c3c6d7] text-[#004ac6] focus:ring-[#004ac6]/20"
               />
               <span className="text-[#434655] transition-colors group-hover:text-[#121c2a]">
@@ -75,6 +87,8 @@ export function FiltersSidebar() {
             <label className="group flex cursor-pointer items-center gap-3">
               <input
                 type="checkbox"
+                checked={filters.instantBooking}
+                onChange={(e) => updateFilter('instantBooking', e.target.checked)}
                 className="h-5 w-5 rounded border-[#c3c6d7] text-[#004ac6] focus:ring-[#004ac6]/20"
               />
               <span className="text-[#434655] transition-colors group-hover:text-[#121c2a]">
@@ -84,6 +98,8 @@ export function FiltersSidebar() {
             <label className="group flex cursor-pointer items-center gap-3">
               <input
                 type="checkbox"
+                checked={filters.eveningsWeekends}
+                onChange={(e) => updateFilter('eveningsWeekends', e.target.checked)}
                 className="h-5 w-5 rounded border-[#c3c6d7] text-[#004ac6] focus:ring-[#004ac6]/20"
               />
               <span className="text-[#434655] transition-colors group-hover:text-[#121c2a]">
@@ -93,7 +109,10 @@ export function FiltersSidebar() {
           </div>
         </div>
 
-        <button className="w-full rounded-xl py-3 font-bold text-[#004ac6] transition-colors hover:bg-[#004ac6]/5">
+        <button
+          onClick={clearFilters}
+          className="w-full rounded-xl py-3 font-bold text-[#004ac6] transition-colors hover:bg-[#004ac6]/5"
+        >
           Clear All Filters
         </button>
       </div>

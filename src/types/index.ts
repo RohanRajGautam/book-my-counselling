@@ -34,3 +34,13 @@ export interface Testimonial {
   rating: number
   image?: string
 }
+
+export interface FilterState {
+  industry: string
+  jobTitle: string
+  priceRange: number
+  availableThisWeek: boolean
+  instantBooking: boolean
+  eveningsWeekends: boolean
+  sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high'
+}
