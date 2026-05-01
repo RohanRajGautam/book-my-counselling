@@ -43,7 +43,7 @@ export function Navbar() {
             <button className="px-4 py-2 font-medium text-slate-600 transition-all duration-150 hover:text-blue-500 active:scale-95">
               Login
             </button>
-            <button className="rounded-xl bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-2.5 font-semibold text-white shadow-lg transition-all duration-150 hover:shadow-[#004ac6]/20 active:scale-95">
+            <button className="rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-2.5 font-semibold text-white shadow-lg transition-all duration-150 hover:shadow-[#004ac6]/20 active:scale-95">
               Sign Up
             </button>
 

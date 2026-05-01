@@ -6,7 +6,7 @@ import { Globe, MessageCircle, Mail } from 'lucide-react'
 export function Footer() {
   return (
     <footer className="mt-20 w-full bg-slate-100 font-[family-name:var(--font-body)] text-sm dark:bg-slate-900">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-12 py-16 md:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-8 py-16 md:grid-cols-4">
         {/* Brand */}
         <div className="space-y-4">
           <div className="text-lg font-bold text-slate-900 dark:text-slate-100">

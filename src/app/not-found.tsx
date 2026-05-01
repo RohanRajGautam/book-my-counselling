@@ -11,7 +11,7 @@ export default function NotFound() {
         Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved or deleted.
       </p>
       <Link href="/">
-        <Button>
+        <Button className='text-white cursor-pointer p-6'>
           <Home className="mr-2 h-4 w-4" />
           Back to Home
         </Button>

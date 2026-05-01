@@ -96,7 +96,7 @@ export function MentorCard({
           </span>
           <span className="text-xl font-extrabold">${price}</span>
         </div>
-        <button className="rounded-xl bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-3 font-bold text-white shadow-md transition-all hover:shadow-lg active:scale-95">
+        <button className="rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-3 font-bold text-white shadow-md transition-all hover:shadow-lg active:scale-95">
           Book Session
         </button>
       </div>
