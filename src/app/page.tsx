@@ -3,6 +3,7 @@ import { Footer } from '@/components/layout/Footer'
 import { HeroSection } from '@/components/sections/HeroSection'
 import { FiltersSidebar } from '@/components/sections/FiltersSidebar'
 import { MentorGrid } from '@/components/sections/MentorGrid'
+import { BecomeCounsellorSection } from '@/components/sections/BecomeCounsellorSection'
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <BecomeCounsellorSection />
       <Footer />
     </>
   )
