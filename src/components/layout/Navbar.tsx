@@ -2,37 +2,58 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isActive = (path: string) => pathname === path
 
   return (
     <>
       <nav className="fixed top-0 z-50 w-full bg-white/80 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
           {/* Logo */}
-          <Link href="/" className="font-[family-name:var(--font-headline)] text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-300">
+          <Link
+            href="/"
+            className="font-[family-name:var(--font-headline)] text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-300"
+          >
             Book My Counselling
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden items-center space-x-8 md:flex">
             <Link
-              href="#search"
-              className="border-b-2 border-blue-600 font-[family-name:var(--font-headline)] font-semibold tracking-tight text-blue-600 transition-colors hover:text-blue-500 dark:border-blue-400 dark:text-blue-400"
+              href="/#search"
+              className={`font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
+                isActive('/')
+                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  : 'text-slate-600 dark:text-slate-400'
+              } `}
             >
               Search Mentors
             </Link>
+
             <Link
-              href="#how-it-works"
-              className="font-[family-name:var(--font-headline)] font-medium tracking-tight text-slate-600 transition-colors hover:text-blue-500 dark:text-slate-400"
+              href="/how-it-works"
+              className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
+                isActive('/how-it-works')
+                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  : 'text-slate-600 dark:text-slate-400'
+              } `}
             >
               How it Works
             </Link>
+
             <Link
-              href="#about"
-              className="font-[family-name:var(--font-headline)] font-medium tracking-tight text-slate-600 transition-colors hover:text-blue-500 dark:text-slate-400"
+              href="/#about"
+              className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
+                isActive('/')
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : 'text-slate-600 dark:text-slate-400'
+              } `}
             >
               About Us
             </Link>
@@ -43,6 +64,7 @@ export function Navbar() {
             <button className="px-4 py-2 font-medium text-slate-600 transition-all duration-150 hover:text-blue-500 active:scale-95">
               Login
             </button>
+
             <button className="rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-2.5 font-semibold text-white shadow-lg transition-all duration-150 hover:shadow-[#004ac6]/20 active:scale-95">
               Sign Up
             </button>
@@ -65,25 +87,33 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[72px] z-40 bg-white dark:bg-slate-900 md:hidden">
+        <div className="fixed inset-0 top-[72px] z-40 bg-white md:hidden dark:bg-slate-900">
           <div className="flex flex-col space-y-4 p-8">
             <Link
-              href="#search"
-              className="font-[family-name:var(--font-headline)] text-lg font-semibold text-blue-600"
+              href="/#search"
+              className={`font-[family-name:var(--font-headline)] text-lg font-semibold ${
+                isActive('/') ? 'text-blue-600' : 'text-slate-600'
+              } `}
               onClick={() => setMobileMenuOpen(false)}
             >
               Search Mentors
             </Link>
+
             <Link
-              href="#how-it-works"
-              className="font-[family-name:var(--font-headline)] text-lg font-medium text-slate-600"
+              href="/how-it-works"
+              className={`font-[family-name:var(--font-headline)] text-lg font-medium ${
+                isActive('/how-it-works') ? 'text-blue-600' : 'text-slate-600'
+              } `}
               onClick={() => setMobileMenuOpen(false)}
             >
               How it Works
             </Link>
+
             <Link
-              href="#about"
-              className="font-[family-name:var(--font-headline)] text-lg font-medium text-slate-600"
+              href="/#about"
+              className={`font-[family-name:var(--font-headline)] text-lg font-medium ${
+                isActive('/') ? 'text-blue-600' : 'text-slate-600'
+              } `}
               onClick={() => setMobileMenuOpen(false)}
             >
               About Us
