@@ -5,6 +5,7 @@ import { HowItWorksHero } from '@/components/sections/HowItWorksHero'
 import { HowItWorksSteps } from '@/components/sections/HowItWorksSteps'
 import { VerifiedMentorSection } from '@/components/sections/VerifiedMentorSection'
 import { HowItWorksFaq } from '@/components/sections/HowItWorksFaq'
+import { GetStartedSection } from '@/components/sections/GetStartedSection'
 
 export default function HowItWorksPage() {
   return (
@@ -15,6 +16,7 @@ export default function HowItWorksPage() {
         <HowItWorksSteps />
         <VerifiedMentorSection />
         <HowItWorksFaq />
+        <GetStartedSection />
       </main>
       <Footer />
     </>

@@ -1,6 +1,6 @@
 export function GetStartedSection() {
   return (
-    <div className="flex min-h-[224px] items-center justify-between py-22">
+    <div className="flex min-h-[224px] items-center justify-between px-6 py-22">
       <div className="m-auto w-3xl rounded-lg bg-[#004ac6] px-8 py-16 text-center">
         <h1 className="font-[family-name:var(--font-headline)] text-3xl font-extrabold text-white">
           Ready to find your curator?
