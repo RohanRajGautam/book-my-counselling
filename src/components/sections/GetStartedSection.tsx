@@ -1,0 +1,19 @@
+export function GetStartedSection() {
+  return (
+    <div className="flex min-h-[224px] items-center justify-between py-22">
+      <div className="m-auto w-3xl rounded-lg bg-[#004ac6] px-8 py-16 text-center">
+        <h1 className="font-[family-name:var(--font-headline)] text-3xl font-extrabold text-white">
+          Ready to find your curator?
+        </h1>
+
+        <p className="my-2 text-slate-300 dark:text-slate-100">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto, aspernatur?
+        </p>
+
+        <button className="mt-3 rounded-md bg-white px-8 py-3 font-bold text-[#004ac6] shadow-md transition-all hover:shadow-lg active:scale-95">
+          Book Session
+        </button>
+      </div>
+    </div>
+  )
+}
