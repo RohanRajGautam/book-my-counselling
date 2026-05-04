@@ -145,3 +145,13 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+## Screenshots
+
+<img width="3024" height="5257" alt="image" src="https://github.com/user-attachments/assets/bc861ef1-7e1b-4dbd-b410-445bce1bd362" />
+
+<img width="3024" height="1952" alt="image" src="https://github.com/user-attachments/assets/f2646e26-86c2-4bfc-95af-a2a2764bfa8c" />
+
+<img width="3024" height="3314" alt="image" src="https://github.com/user-attachments/assets/246d1fc6-ddc8-448a-ac4a-edfa7ff405c7" />
+
