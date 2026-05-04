@@ -149,7 +149,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Screenshots
 
-<img width="3024" height="5257" alt="image" src="https://github.com/user-attachments/assets/bc861ef1-7e1b-4dbd-b410-445bce1bd362" />
+<img width="3024" height="5257" alt="image" src="https://github.com/user-attachments/assets/f80e092f-fa3c-4782-88d2-f92ffc704bd2" />
+
 
 <img width="3024" height="1952" alt="image" src="https://github.com/user-attachments/assets/f2646e26-86c2-4bfc-95af-a2a2764bfa8c" />
 
