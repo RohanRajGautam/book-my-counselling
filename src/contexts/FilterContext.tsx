@@ -1,7 +1,7 @@
 'use client'
 
+import { FilterState } from '@/types/filter.types'
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { FilterState } from '@/types'
 
 interface FilterContextType {
   filters: FilterState

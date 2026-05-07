@@ -35,12 +35,12 @@ export interface Testimonial {
   image?: string
 }
 
-export interface FilterState {
-  industry: string
-  jobTitle: string
-  priceRange: number
-  availableThisWeek: boolean
-  instantBooking: boolean
-  eveningsWeekends: boolean
-  sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high'
-}
+// export interface FilterState {
+//   industry: string
+//   jobTitle: string
+//   priceRange: number
+//   availableThisWeek: boolean
+//   instantBooking: boolean
+//   eveningsWeekends: boolean
+//   sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high'
+// }

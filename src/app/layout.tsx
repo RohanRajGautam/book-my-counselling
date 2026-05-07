@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
-import { ThemeProvider } from 'next-themes'
+
 import './globals.css'
+import { Providers } from '@/providers'
 
 const headline = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -39,8 +40,7 @@ export const metadata: Metadata = {
     url: 'https://bookmycounselling.com',
     siteName: 'Book My Counselling',
     title: 'Book My Counselling - Your Career Journey, Curated',
-    description:
-      'Connect with world-class mentors from industry giants and top universities.',
+    description: 'Connect with world-class mentors from industry giants and top universities.',
     images: [
       {
         url: '/og-image.png',
@@ -88,14 +88,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

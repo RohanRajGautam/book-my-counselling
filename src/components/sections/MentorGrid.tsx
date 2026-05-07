@@ -1,128 +1,60 @@
 'use client'
-
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { MentorCard } from '@/components/cards/MentorCard'
 import { MentorProfileModal } from '@/components/modals/MentorProfileModal'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useFilters } from '@/contexts/FilterContext'
-import { mentorsDatabase, MentorData } from '@/lib/mockData'
-
-const MENTORS_PER_PAGE = 6
+import { MENTORS_PER_PAGE } from '@/lib/api/mentors'
+import { useMentors } from '@/hooks/queries/mentors/useMentors'
 
 export function MentorGrid() {
-  const [selectedMentor, setSelectedMentor] = useState<MentorData | null>(null)
+  const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
   const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
+  const { data, isLoading, isError } = useMentors(filters)
 
-  // Filter and sort mentors
-  const filteredMentors = useMemo(() => {
-    let result = mentorsDatabase.filter((mentor) => {
-      // Industry filter
-      if (filters.industry !== 'All Industries' && mentor.industry !== filters.industry) {
-        return false
-      }
-
-      // Job title filter
-      if (filters.jobTitle && !mentor.role.toLowerCase().includes(filters.jobTitle.toLowerCase())) {
-        return false
-      }
-
-      // Price range filter
-      if (mentor.price > filters.priceRange) {
-        return false
-      }
-
-      // Availability filters
-      if (filters.availableThisWeek && !mentor.availableThisWeek) {
-        return false
-      }
-
-      if (filters.instantBooking && !mentor.instantBooking) {
-        return false
-      }
-
-      if (filters.eveningsWeekends && !mentor.eveningsWeekends) {
-        return false
-      }
-
-      return true
-    })
-
-    // Sort mentors
-    switch (filters.sortBy) {
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating)
-        break
-      case 'reviews':
-        result.sort((a, b) => b.reviews - a.reviews)
-        break
-      case 'price-low':
-        result.sort((a, b) => a.price - b.price)
-        break
-      case 'price-high':
-        result.sort((a, b) => b.price - a.price)
-        break
-    }
-
-    return result
-  }, [filters])
-
-  // Pagination
-  const totalPages = Math.ceil(filteredMentors.length / MENTORS_PER_PAGE)
-  const startIndex = (currentPage - 1) * MENTORS_PER_PAGE
-  const endIndex = startIndex + MENTORS_PER_PAGE
-  const currentMentors = filteredMentors.slice(startIndex, endIndex)
+  console.log('Mentors data:', data)
+  const totalPages = data?.total_pages ?? 1
+  const currentMentors = data?.items ?? []
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Generate page numbers for pagination
   const getPageNumbers = () => {
     const pages: (number | string)[] = []
-    
     if (totalPages <= 7) {
-      // Show all pages if 7 or fewer
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
     } else {
-      // Always show first page
       pages.push(1)
-      
-      if (currentPage > 3) {
-        pages.push('...')
-      }
-      
-      // Show pages around current page
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      if (currentPage > 3) pages.push('...')
+      for (
+        let i = Math.max(2, currentPage - 1);
+        i <= Math.min(totalPages - 1, currentPage + 1);
+        i++
+      ) {
         pages.push(i)
       }
-      
-      if (currentPage < totalPages - 2) {
-        pages.push('...')
-      }
-      
-      // Always show last page
+      if (currentPage < totalPages - 2) pages.push('...')
       pages.push(totalPages)
     }
-    
     return pages
   }
 
   return (
     <>
       <section>
-        {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-bold">
-            {filteredMentors.length} Mentor{filteredMentors.length !== 1 ? 's' : ''} available
+            {isLoading
+              ? 'Loading mentors...'
+              : `${data?.total ?? 0} Mentor${data?.total === 1 ? '' : 's'} available`}
           </h2>
           <div className="flex items-center gap-2 text-[#434655]">
             <span>Sort by:</span>
             <select
               value={filters.sortBy}
-              onChange={(e) => updateFilter('sortBy', e.target.value as any)}
+              onChange={(e) => updateFilter('sortBy', e.target.value as typeof filters.sortBy)}
               className="cursor-pointer border-none bg-transparent py-0 font-bold text-[#121c2a] focus:ring-0"
             >
               <option value="rating">Highest Rated</option>
@@ -133,22 +65,38 @@ export function MentorGrid() {
           </div>
         </div>
 
-        {/* Grid */}
-        {currentMentors.length > 0 ? (
+        {isError ? (
+          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
+            <div className="text-center">
+              <p className="mb-2 text-xl font-bold text-[#121c2a]">Unable to load mentors</p>
+              <p className="text-[#434655]">Please try again in a moment</p>
+            </div>
+          </div>
+        ) : isLoading ? (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {Array.from({ length: MENTORS_PER_PAGE }).map((_, index) => (
+              <div
+                key={index}
+                className="h-[420px] animate-pulse rounded-[2rem] bg-white shadow-[0_8px_24px_rgba(18,28,42,0.04)]"
+              />
+            ))}
+          </div>
+        ) : currentMentors.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {currentMentors.map((mentor) => (
               <MentorCard
                 key={mentor.id}
-                name={mentor.name}
-                role={mentor.role}
-                company={mentor.company}
-                tags={mentor.tags}
-                rating={mentor.rating}
-                reviews={mentor.reviews}
-                description={mentor.description}
-                price={mentor.price}
-                imageUrl={mentor.imageUrl}
-                onClick={() => setSelectedMentor(mentor)}
+                name={mentor.full_name}
+                role={mentor.title}
+                company={mentor.company ?? 'Independent'}
+                tags={mentor.tags?.slice(0, 4).map((t) => (t.startsWith('#') ? t : `#${t}`)) || []}
+                rating={mentor.average_rating}
+                reviews={mentor.total_reviews}
+                description={`Mentor in ${mentor.industries?.join(', ') || 'various fields'} with ${mentor.total_sessions} sessions`}
+                price={Number(mentor.hourly_rate)}
+                imageUrl={mentor.avatar_url ?? '/globe.svg'}
+                verified={mentor.is_verified}
+                onClick={() => setSelectedMentorId(mentor.id)}
               />
             ))}
           </div>
@@ -156,18 +104,17 @@ export function MentorGrid() {
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
             <div className="text-center">
               <p className="mb-2 text-xl font-bold text-[#121c2a]">No mentors found</p>
-              <p className="text-[#434655]">Try adjusting your filters to see more results</p>
+              <p className="text-[#434655]">Try adjusting your filters</p>
             </div>
           </div>
         )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+        {!isLoading && !isError && totalPages > 1 && (
           <div className="mt-16 flex items-center justify-center gap-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] transition-colors hover:bg-[#e6eeff] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] hover:bg-[#e6eeff] disabled:opacity-50"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
@@ -179,10 +126,8 @@ export function MentorGrid() {
                 disabled={page === '...'}
                 className={`flex h-12 w-12 items-center justify-center rounded-full font-bold transition-colors ${
                   page === currentPage
-                    ? 'bg-[#004ac6] text-white shadow-md'
-                    : page === '...'
-                      ? 'cursor-default text-[#434655]'
-                      : 'text-[#434655] hover:bg-[#e6eeff]'
+                    ? 'bg-[#004ac6] text-white'
+                    : 'text-[#434655] hover:bg-[#e6eeff]'
                 }`}
               >
                 {page}
@@ -192,7 +137,7 @@ export function MentorGrid() {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] transition-colors hover:bg-[#e6eeff] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] hover:bg-[#e6eeff] disabled:opacity-50"
             >
               <ChevronRight className="h-6 w-6" />
             </button>
@@ -200,26 +145,11 @@ export function MentorGrid() {
         )}
       </section>
 
-      {/* Mentor Profile Modal */}
-      {selectedMentor && (
-        <MentorProfileModal
-          isOpen={!!selectedMentor}
-          onClose={() => setSelectedMentor(null)}
-          mentor={{
-            name: selectedMentor.name,
-            title: selectedMentor.title,
-            imageUrl: selectedMentor.imageUrl,
-            verified: true,
-            about: selectedMentor.about,
-            services: selectedMentor.services,
-            availability: selectedMentor.availability,
-            reviews: selectedMentor.reviewsDetail,
-            responseTime: selectedMentor.responseTime,
-            linkedIn: selectedMentor.linkedIn,
-            portfolio: selectedMentor.portfolio,
-          }}
-        />
-      )}
+      <MentorProfileModal
+        isOpen={!!selectedMentorId}
+        onClose={() => setSelectedMentorId(null)}
+        mentorId={selectedMentorId!}
+      />
     </>
   )
 }

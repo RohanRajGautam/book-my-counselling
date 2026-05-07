@@ -2,9 +2,11 @@
 
 import { SlidersHorizontal, ChevronDown } from 'lucide-react'
 import { useFilters } from '@/contexts/FilterContext'
+import { useIndustries } from '@/hooks/queries/mentors/useIndustries'
 
 export function FiltersSidebar() {
   const { filters, updateFilter, clearFilters } = useFilters()
+  const { data: industries = [] } = useIndustries()
 
   return (
     <aside className="space-y-10">
@@ -14,9 +16,8 @@ export function FiltersSidebar() {
           Filters
         </h3>
 
-        {/* Industry Dropdown */}
         <div className="mb-8">
-          <label className="mb-3 block text-sm font-bold uppercase tracking-wider text-[#434655]">
+          <label className="mb-3 block text-sm font-bold tracking-wider text-[#434655] uppercase">
             Industry
           </label>
           <div className="relative">
@@ -26,18 +27,18 @@ export function FiltersSidebar() {
               className="w-full appearance-none rounded-xl border-none bg-white px-4 py-3 text-[#121c2a] shadow-sm focus:ring-2 focus:ring-[#004ac6]/10"
             >
               <option>All Industries</option>
-              <option>Technology</option>
-              <option>Creative Arts</option>
-              <option>Business & Finance</option>
-              <option>Healthcare</option>
+              {industries.map((industry) => (
+                <option key={industry.id} value={industry.name}>
+                  {industry.name}
+                </option>
+              ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3 h-6 w-6 text-[#737686]" />
+            <ChevronDown className="pointer-events-none absolute top-3 right-3 h-6 w-6 text-[#737686]" />
           </div>
         </div>
 
-        {/* Job Title Input */}
         <div className="mb-8">
-          <label className="mb-3 block text-sm font-bold uppercase tracking-wider text-[#434655]">
+          <label className="mb-3 block text-sm font-bold tracking-wider text-[#434655] uppercase">
             Job Title
           </label>
           <input
@@ -49,10 +50,9 @@ export function FiltersSidebar() {
           />
         </div>
 
-        {/* Price Range */}
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">
-            <label className="text-sm font-bold uppercase tracking-wider text-[#434655]">
+            <label className="text-sm font-bold tracking-wider text-[#434655] uppercase">
               Price Range
             </label>
             <span className="font-bold text-[#004ac6]">$20 - ${filters.priceRange}</span>
@@ -67,9 +67,8 @@ export function FiltersSidebar() {
           />
         </div>
 
-        {/* Availability */}
         <div className="mb-8">
-          <label className="mb-4 block text-sm font-bold uppercase tracking-wider text-[#434655]">
+          <label className="mb-4 block text-sm font-bold tracking-wider text-[#434655] uppercase">
             Availability
           </label>
           <div className="space-y-4">
