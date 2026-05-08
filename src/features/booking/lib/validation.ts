@@ -132,24 +132,8 @@ export const validateBookingForm = (data: BookingFormData): ValidationError[] =>
     errors.push({ field: 'message', message: 'Please provide at least 20 characters' })
   }
 
-  // Payment
-  if (!data.cardNumber.trim()) {
-    errors.push({ field: 'cardNumber', message: 'Card number is required' })
-  } else if (!validateCardNumber(data.cardNumber)) {
-    errors.push({ field: 'cardNumber', message: 'Please enter a valid card number' })
-  }
-
-  if (!data.expiry.trim()) {
-    errors.push({ field: 'expiry', message: 'Expiry date is required' })
-  } else if (!validateExpiry(data.expiry)) {
-    errors.push({ field: 'expiry', message: 'Please enter a valid expiry date (MM/YY)' })
-  }
-
-  if (!data.cvc.trim()) {
-    errors.push({ field: 'cvc', message: 'CVC is required' })
-  } else if (!validateCVC(data.cvc)) {
-    errors.push({ field: 'cvc', message: 'Please enter a valid CVC (3-4 digits)' })
-  }
+  // Note: card fields (cardNumber, expiry, cvc) are no longer validated here
+  // because payment is handled by Fonepay after booking creation.
 
   return errors
 }

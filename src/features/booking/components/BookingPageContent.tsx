@@ -5,7 +5,7 @@ import { FormInput } from '@/features/booking/components/FormInput'
 import { FormSelect } from '@/features/booking/components/FormSelect'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
 import { OrderSummary } from '@/features/booking/components/OrderSummary'
-import { PaymentSection } from '@/features/booking/components/PaymentSection'
+import { FonepayPaymentSection } from '@/features/booking/components/FonepayPaymentSection'
 import {
   validateBookingForm,
   formatPhone,
@@ -14,7 +14,7 @@ import {
 import { BOOKING_SUMMARY, EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
 
 export function BookingPageContent() {
-  // Form state
+  // Form state (card fields removed — payment handled by Fonepay)
   const [formData, setFormData] = useState<BookingFormData>({
     fullName: '',
     email: '',
@@ -31,7 +31,9 @@ export function BookingPageContent() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
-
+  // bookingId will come from the API after form submission; using placeholder for now
+  const [bookingId, setBookingId] = useState<string | null>(null)
+  const [bookingAmount] = useState<number>(BOOKING_SUMMARY.price)
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
@@ -83,14 +85,16 @@ export function BookingPageContent() {
     // Submit form
     setIsSubmitting(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // TODO: Replace with real booking API call
+      // const booking = await createBooking(formData)
+      // setBookingId(booking.id)
+      // setBookingAmount(booking.agreed_price)
 
-      // Success - redirect to confirmation page
-      console.log('Booking submitted:', formData)
-      alert('Booking successful! You will receive a confirmation email shortly.')
-
-      // In real app: router.push('/booking/confirmation')
+      // Simulate API call — in production this creates the booking and returns an ID
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const mockBookingId = 'mock-booking-id-' + Date.now()
+      setBookingId(mockBookingId)
+      console.log('Booking created, proceeding to payment:', mockBookingId)
     } catch (error) {
       console.error('Booking error:', error)
       alert('An error occurred. Please try again.')
@@ -223,17 +227,23 @@ export function BookingPageContent() {
               session={BOOKING_SUMMARY.session}
               price={BOOKING_SUMMARY.price}
             />
-            <PaymentSection
-              cardNumber={formData.cardNumber}
-              expiry={formData.expiry}
-              cvc={formData.cvc}
-              errors={errors}
-              onCardNumberChange={(value) => handleInputChange('cardNumber', value)}
-              onExpiryChange={(value) => handleInputChange('expiry', value)}
-              onCvcChange={(value) => handleInputChange('cvc', value)}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-            />
+            {bookingId ? (
+              <FonepayPaymentSection
+                bookingId={bookingId}
+                amount={bookingAmount}
+                onSuccess={() => {
+                  alert('Payment successful! You will receive a confirmation email shortly.')
+                }}
+              />
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? 'Creating booking…' : 'Proceed to Payment'}
+              </button>
+            )}
           </div>
         </div>
       </div>
