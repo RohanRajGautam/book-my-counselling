@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -52,7 +52,7 @@
   --color-tertiary-fixed: #ffdf9f;
   --color-outline-variant: #c3c6d7;
   --color-on-tertiary: #ffffff;
-  
+
   /* Border Radius Scale */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
@@ -60,11 +60,11 @@
   --radius-xl: 1.5rem;
   --radius-2xl: 2rem;
   --radius-full: 9999px;
-  
+
   /* Font Families */
-  --font-headline: "Plus Jakarta Sans", sans-serif;
-  --font-body: "Manrope", sans-serif;
-  --font-label: "Manrope", sans-serif;
+  --font-headline: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-label: 'Manrope', sans-serif;
 }
 
 :root {
@@ -128,9 +128,4 @@
   h4 {
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
-}
-
-/* Material Symbols Icons */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }

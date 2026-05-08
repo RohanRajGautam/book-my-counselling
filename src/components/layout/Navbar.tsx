@@ -26,14 +26,14 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden items-center space-x-8 md:flex">
             <Link
-              href="/#search"
+              href="/explore-mentors"
               className={`font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
-                isActive('/')
+                isActive('/explore-mentors')
                   ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                   : 'text-slate-600 dark:text-slate-400'
               } `}
             >
-              Search Mentors
+              Explore Mentors
             </Link>
 
             <Link
@@ -48,14 +48,25 @@ export function Navbar() {
             </Link>
 
             <Link
-              href="/#about"
+              href="/about"
               className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
-                isActive('/')
+                isActive('/about')
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-slate-600 dark:text-slate-400'
               } `}
             >
               About Us
+            </Link>
+
+            <Link
+              href="/privacy"
+              className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
+                isActive('/privacy')
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : 'text-slate-600 dark:text-slate-400'
+              } `}
+            >
+              Privacy Policy
             </Link>
           </div>
 
