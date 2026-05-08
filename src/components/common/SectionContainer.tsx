@@ -10,7 +10,10 @@ export function SectionContainer({ children, className, id }: SectionContainerPr
   return (
     <section
       id={id}
-      className={cn('mx-auto w-full max-w-7xl px-4 py-12 md:px-8 md:py-20 lg:px-16 lg:py-28', className)}
+      className={cn(
+        'mx-auto w-full max-w-7xl px-4 py-12 md:px-8 md:py-20 lg:px-16 lg:py-28',
+        className
+      )}
     >
       {children}
     </section>
