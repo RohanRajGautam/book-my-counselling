@@ -62,6 +62,7 @@ export interface MentorResponse {
   requires_24h_approval: boolean
   linkedin_url: string | null
   website_url: string | null
+  calendly_link: string | null
   tags: TagResponse[]
   created_at: string
 }

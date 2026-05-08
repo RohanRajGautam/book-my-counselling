@@ -12,6 +12,8 @@ export const BOOKING_SUMMARY = {
     time: '2:00 PM EST',
   },
   price: 45.0,
+  // Placeholder mentor profile ID — in production this comes from the route/query params
+  mentorId: '',
 }
 
 export const EDUCATION_LEVEL_OPTIONS = [

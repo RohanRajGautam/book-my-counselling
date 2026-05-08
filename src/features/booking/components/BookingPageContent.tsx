@@ -6,6 +6,7 @@ import { FormSelect } from '@/features/booking/components/FormSelect'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
 import { OrderSummary } from '@/features/booking/components/OrderSummary'
 import { FonepayPaymentSection } from '@/features/booking/components/FonepayPaymentSection'
+import { CalendlySection } from '@/features/booking/components/CalendlySection'
 import {
   validateBookingForm,
   formatPhone,
@@ -34,6 +35,8 @@ export function BookingPageContent() {
   // bookingId will come from the API after form submission; using placeholder for now
   const [bookingId, setBookingId] = useState<string | null>(null)
   const [bookingAmount] = useState<number>(BOOKING_SUMMARY.price)
+  // mentorId will come from the booking context / route params in production
+  const [mentorId] = useState<string>(BOOKING_SUMMARY.mentorId ?? '')
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
@@ -228,13 +231,22 @@ export function BookingPageContent() {
               price={BOOKING_SUMMARY.price}
             />
             {bookingId ? (
-              <FonepayPaymentSection
-                bookingId={bookingId}
-                amount={bookingAmount}
-                onSuccess={() => {
-                  alert('Payment successful! You will receive a confirmation email shortly.')
-                }}
-              />
+              <>
+                <FonepayPaymentSection
+                  bookingId={bookingId}
+                  amount={bookingAmount}
+                  onSuccess={() => {
+                    alert('Payment successful! You will receive a confirmation email shortly.')
+                  }}
+                />
+                <CalendlySection
+                  mentorId={mentorId}
+                  bookingId={bookingId}
+                  onScheduled={() => {
+                    alert('Your intro call is scheduled! Check your email for details.')
+                  }}
+                />
+              </>
             ) : (
               <button
                 onClick={handleSubmit}
