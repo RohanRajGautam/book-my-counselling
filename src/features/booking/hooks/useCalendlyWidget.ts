@@ -86,6 +86,12 @@ export function useCalendlyWidget({
       return
     }
 
+    if (!mentorId) {
+      setError('Mentor information is missing')
+      setStep('ERROR')
+      return
+    }
+
     setStep('LOADING')
     setError(null)
 

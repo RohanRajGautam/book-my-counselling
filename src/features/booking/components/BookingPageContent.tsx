@@ -239,13 +239,15 @@ export function BookingPageContent() {
                     alert('Payment successful! You will receive a confirmation email shortly.')
                   }}
                 />
-                <CalendlySection
-                  mentorId={mentorId}
-                  bookingId={bookingId}
-                  onScheduled={() => {
-                    alert('Your intro call is scheduled! Check your email for details.')
-                  }}
-                />
+                {mentorId && (
+                  <CalendlySection
+                    mentorId={mentorId}
+                    bookingId={bookingId}
+                    onScheduled={() => {
+                      alert('Your intro call is scheduled! Check your email for details.')
+                    }}
+                  />
+                )}
               </>
             ) : (
               <button

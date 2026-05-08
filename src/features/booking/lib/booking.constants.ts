@@ -13,7 +13,7 @@ export const BOOKING_SUMMARY = {
   },
   price: 45.0,
   // Placeholder mentor profile ID — in production this comes from the route/query params
-  mentorId: '',
+  mentorId: '64fcb260-4924-44ab-9167-2a2ed0a77f63',
 }
 
 export const EDUCATION_LEVEL_OPTIONS = [

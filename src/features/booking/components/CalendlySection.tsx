@@ -10,21 +10,6 @@ interface CalendlySectionProps {
   onScheduled?: () => void
 }
 
-/**
- * CalendlySection
- *
- * Renders a "Schedule your intro call" card that embeds the Calendly inline
- * widget after the user has created a booking. The widget is prefilled with
- * the user's name, email, and booking_id so the backend webhook can link the
- * Calendly event back to the platform booking.
- *
- * States:
- *  IDLE       — "Schedule your 30-min intro call" button
- *  LOADING    — spinner while fetching prefill data
- *  OPEN       — Calendly inline widget rendered inside the card
- *  SCHEDULED  — success confirmation
- *  ERROR      — error message with retry button
- */
 export function CalendlySection({
   mentorId,
   bookingId,
@@ -109,8 +94,8 @@ export function CalendlySection({
           {/* The Calendly widget renders itself into this div */}
           <div
             ref={widgetContainerRef}
-            className="min-h-[600px] w-full overflow-hidden rounded-xl border border-[#e8eaf0]"
-            style={{ minHeight: 600 }}
+            className="w-full overflow-hidden rounded-xl border border-[#e8eaf0]"
+            style={{ height: 450 }}
           />
           <button
             onClick={resetWidget}
