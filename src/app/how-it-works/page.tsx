@@ -17,7 +17,6 @@ export default function HowItWorksPage() {
         <HowItWorksFaq />
         <GetStartedSection />
       </main>
-      <Footer />
     </>
   )
 }

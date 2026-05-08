@@ -6,6 +6,7 @@ import { useMentor } from '../hooks/useMentor'
 import { useMentorAvailability } from '../hooks/useMentorAvailability'
 import { useMentorPackages } from '../hooks/useMentorPackages'
 import { useMentorReviews } from '../hooks/useMentorReviews'
+import { getInitials } from './MentorCard'
 
 interface Props {
   isOpen: boolean
@@ -29,6 +30,8 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
     isOpen ? mentorId : null,
     reviewPage
   )
+
+  const initials = getInitials(mentor?.user?.full_name || '')
 
   // Extract items and pagination info
   const reviews = reviewsData?.items ?? []
@@ -79,13 +82,30 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             <div className="absolute top-0 left-0 -z-0 h-32 w-full rounded-t-[24px] bg-[#eff4ff]"></div>
             <div className="relative z-10">
               <div className="mx-auto mb-6 h-32 w-32 overflow-hidden rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
-                <Image
+                {/* <Image
                   src={mentor.user?.avatar_url || '/globe.svg'}
                   alt={`${mentor.user?.full_name} profile`}
                   width={128}
                   height={128}
                   className="h-full w-full object-cover"
-                />
+                /> */}
+
+                {mentor.user?.avatar_url ? (
+                  <Image
+                    src={mentor.user.avatar_url}
+                    alt={`${mentor.user.full_name} profile`}
+                    width={80}
+                    height={80}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    aria-label={`${name} profile initials`}
+                    className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]"
+                  >
+                    {initials}
+                  </div>
+                )}
               </div>
               <h2 className="mb-2 font-[family-name:var(--font-headline)] text-3xl font-extrabold tracking-tight text-[#121c2a]">
                 {mentor.user?.full_name}
@@ -126,7 +146,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             )}
           </div>
 
-          <div className="mt-auto">
+          <div className="sticky bottom-0 mt-auto rounded-[24px] p-6">
             <div className="mt-auto">
               <a
                 href="/booking"
@@ -134,7 +154,6 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               >
                 Book a Session
               </a>
-              <p className="mt-4 text-center text-sm text-[#434655]">{mentor.user_id}</p>
             </div>
           </div>
         </div>

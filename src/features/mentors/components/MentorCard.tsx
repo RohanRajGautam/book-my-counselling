@@ -12,9 +12,21 @@ interface MentorCardProps {
   reviews: number
   description: string
   price: number
-  imageUrl: string
+  imageUrl?: string | null
   verified?: boolean
   onClick?: () => void
+}
+
+export function getInitials(name: string) {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+
+  return initials || 'M'
 }
 
 export function MentorCard({
@@ -30,6 +42,9 @@ export function MentorCard({
   verified = true,
   onClick,
 }: MentorCardProps) {
+  const imageSrc = imageUrl?.trim() || null
+  const initials = getInitials(name)
+
   return (
     <div
       className="group flex h-full cursor-pointer flex-col rounded-[2rem] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-all hover:shadow-[0_12px_32px_rgba(18,28,42,0.08)]"
@@ -38,14 +53,23 @@ export function MentorCard({
       {/* Header */}
       <div className="mb-6 flex items-start gap-5">
         <div className="relative">
-          <div className="h-20 w-20 overflow-hidden rounded-full bg-[#f8f9ff] p-1 ring-2 ring-[#0053db]">
-            <Image
-              src={imageUrl}
-              alt={`${name} profile`}
-              width={80}
-              height={80}
-              className="h-full w-full rounded-full object-cover"
-            />
+          <div className="flex h-20 w-20 overflow-hidden rounded-full bg-[#f8f9ff] p-1 ring-2 ring-[#0053db]">
+            {imageSrc ? (
+              <Image
+                src={imageSrc}
+                alt={`${name} profile`}
+                width={80}
+                height={80}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              <div
+                aria-label={`${name} profile initials`}
+                className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-2xl font-extrabold text-[#004ac6]"
+              >
+                {initials}
+              </div>
+            )}
           </div>
           {verified && (
             <div className="absolute -right-1 -bottom-1 rounded-full border-2 border-white bg-[#006c49] p-1">

@@ -16,7 +16,6 @@ export default function PrivacyPage() {
       <main className="min-h-screen overflow-hidden bg-[#f7f8ff] pt-20">
         <PrivacyContent />
       </main>
-      <Footer />
     </>
   )
 }

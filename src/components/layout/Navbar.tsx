@@ -13,14 +13,14 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full bg-white/80 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/80">
+      <nav className="fixed top-0 z-50 w-full bg-white/80 py-4 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
           {/* Logo */}
           <Link
             href="/"
             className="font-[family-name:var(--font-headline)] text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-300"
           >
-            Book My Counselling
+            Book Your Counselling
           </Link>
 
           {/* Desktop Navigation */}
@@ -37,21 +37,10 @@ export function Navbar() {
             </Link>
 
             <Link
-              href="/how-it-works"
-              className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
-                isActive('/how-it-works')
-                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400'
-              } `}
-            >
-              How it Works
-            </Link>
-
-            <Link
               href="/about"
               className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
                 isActive('/about')
-                  ? 'text-blue-600 dark:text-blue-400'
+                  ? 'border-b-2 text-blue-600 dark:text-blue-400'
                   : 'text-slate-600 dark:text-slate-400'
               } `}
             >
@@ -59,19 +48,27 @@ export function Navbar() {
             </Link>
 
             <Link
-              href="/privacy"
-              className={`font-[family-name:var(--font-headline)] font-medium tracking-tight transition-colors hover:text-blue-500 ${
-                isActive('/privacy')
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400'
-              } `}
+              href="/school-to-startup"
+              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
             >
-              Privacy Policy
+              {/* The Moving Stroke Layer */}
+              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
+
+              {/* The Content Layer */}
+              <span
+                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
+                  isActive('/school-to-startup')
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
+                } `}
+              >
+                School to Startup
+              </span>
             </Link>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4">
+          {/* <div className="flex items-center space-x-4">
             <button className="px-4 py-2 font-medium text-slate-600 transition-all duration-150 hover:text-blue-500 active:scale-95">
               Login
             </button>
@@ -80,7 +77,7 @@ export function Navbar() {
               Sign Up
             </button>
 
-            {/* Mobile Menu Button */}
+         
             <button
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -92,7 +89,7 @@ export function Navbar() {
                 <Menu className="h-6 w-6 text-slate-600" />
               )}
             </button>
-          </div>
+          </div> */}
         </div>
       </nav>
 

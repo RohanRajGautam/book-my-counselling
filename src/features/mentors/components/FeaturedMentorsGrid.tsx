@@ -9,7 +9,7 @@ import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentor.api'
 import { MentorProfileModal } from './MentorProfileModal'
 import { useFilters } from '@/features/filters/context/filter-context'
 
-export function MentorGrid() {
+export function FeaturedMentorsGrid() {
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
   const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, currentPage)
@@ -45,7 +45,7 @@ export function MentorGrid() {
   return (
     <>
       <section>
-        <div className="mb-8 flex items-center justify-between">
+        {/* <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-bold">
             {isLoading
               ? 'Loading mentors...'
@@ -64,7 +64,7 @@ export function MentorGrid() {
               <option value="price-high">Price: High to Low</option>
             </select>
           </div>
-        </div>
+        </div> */}
 
         {isError ? (
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
@@ -84,7 +84,7 @@ export function MentorGrid() {
           </div>
         ) : currentMentors.length > 0 ? (
           <div
-            className={`grid grid-cols-1 gap-8 transition-opacity md:grid-cols-2 ${
+            className={`grid grid-cols-1 gap-8 transition-opacity md:grid-cols-3 ${
               isFetching ? 'opacity-60' : 'opacity-100'
             }`}
           >
@@ -114,40 +114,7 @@ export function MentorGrid() {
           </div>
         )}
 
-        {!isLoading && !isError && totalPages > 1 && (
-          <div className="mt-16 flex items-center justify-center gap-4">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || isFetching}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] hover:bg-[#e6eeff] disabled:opacity-50"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-
-            {getPageNumbers().map((page, index) => (
-              <button
-                key={index}
-                onClick={() => typeof page === 'number' && handlePageChange(page)}
-                disabled={page === '...' || isFetching}
-                className={`flex h-12 w-12 items-center justify-center rounded-full font-bold transition-colors ${
-                  page === currentPage
-                    ? 'bg-[#004ac6] text-white'
-                    : 'text-[#434655] hover:bg-[#e6eeff]'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || isFetching}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] hover:bg-[#e6eeff] disabled:opacity-50"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
-          </div>
-        )}
+        {/* */}
       </section>
 
       <MentorProfileModal
