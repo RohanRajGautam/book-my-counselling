@@ -6,6 +6,9 @@ import { BecomeCounsellorSection } from '@/features/home/components/BecomeCounse
 
 import { MentorDiscovery } from '@/features/mentors/components/MentorDiscovery'
 import { FilterProvider } from '@/features/filters/context/filter-context'
+import Statistics from '@/features/home/components/Statistics'
+import { FeaturedMentors } from '@/features/home/components/FeaturedMentors'
+import { TestimonialsSection } from '@/features/home/components/TestimonialsSection'
 
 export default function Home() {
   return (
@@ -14,11 +17,12 @@ export default function Home() {
       <main className="min-h-screen pt-24">
         <FilterProvider>
           <HeroSection />
-          <MentorDiscovery />
+          <FeaturedMentors />
+          <Statistics />
+          <TestimonialsSection />
         </FilterProvider>
       </main>
       <BecomeCounsellorSection />
-      <Footer />
     </>
   )
 }

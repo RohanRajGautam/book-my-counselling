@@ -22,7 +22,6 @@ export default function AboutUsPage() {
         <AboutMissionValues />
         <AboutTeam />
       </main>
-      <Footer />
     </>
   )
 }
