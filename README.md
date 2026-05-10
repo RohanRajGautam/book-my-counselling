@@ -1,4 +1,4 @@
-# Book My Counselling
+# Book Your Counselling
 
 A modern, production-ready Next.js application for booking professional counselling services. Built with Next.js 15, React 19, TypeScript, Tailwind CSS v4, and shadcn/ui.
 

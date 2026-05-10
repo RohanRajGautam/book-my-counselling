@@ -40,7 +40,7 @@ export function AboutTeam() {
             Meet the Visionaries
           </h2>
           <p className="mt-5 text-base leading-7 text-[#434655]">
-            The architects of Book My Counselling come from diverse backgrounds in academia,
+            The architects of Book Your Counselling come from diverse backgrounds in academia,
             technology, and career strategy.
           </p>
         </div>

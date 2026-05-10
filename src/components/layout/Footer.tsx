@@ -10,10 +10,10 @@ export function Footer() {
         {/* Brand */}
         <div className="space-y-4">
           <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            Book My Counselling
+            Book Your Counselling
           </div>
           <p className="text-slate-500 dark:text-slate-400">
-            © 2026 Book My Counselling. Guided Fluidity in Career Growth.
+            © 2026 Book Your Counselling. Guided Fluidity in Career Growth.
           </p>
         </div>
 

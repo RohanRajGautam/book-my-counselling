@@ -9,7 +9,7 @@ import { AboutTeam } from '@/features/about/components/AboutTeam'
 export const metadata: Metadata = {
   title: 'About Us',
   description:
-    'Learn how Book My Counselling is redefining access to expert mentorship and career guidance.',
+    'Learn how Book Your Counselling is redefining access to expert mentorship and career guidance.',
 }
 
 export default function AboutUsPage() {

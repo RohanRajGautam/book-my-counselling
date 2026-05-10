@@ -13,7 +13,7 @@ export function AboutHero() {
             Landscape.
           </h1>
           <p className="mt-8 max-w-xl text-lg leading-8 text-[#434655]">
-            At Book My Counselling, we believe that the distance between academic potential and
+            At Book Your Counselling, we believe that the distance between academic potential and
             career excellence should not be determined by geography or network, but by ambition.
           </p>
         </div>

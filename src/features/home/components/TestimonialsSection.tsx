@@ -27,7 +27,7 @@ const testimonials = [
     image:
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80',
     quote:
-      'Book My Counselling matched me with someone who knew my target schools and my field. The guidance was specific, warm, and exactly what I needed before applying.',
+      'Book Your Counselling matched me with someone who knew my target schools and my field. The guidance was specific, warm, and exactly what I needed before applying.',
   },
 ]
 

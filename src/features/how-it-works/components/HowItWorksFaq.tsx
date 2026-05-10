@@ -52,7 +52,7 @@ export function HowItWorksFaq() {
             Frequently Asked Questions
           </h2>
           <p className="mt-4 text-base leading-7 text-[#434655]">
-            Everything you need to know about starting your journey with Book My Counselling.
+            Everything you need to know about starting your journey with Book Your Counselling.
           </p>
         </div>
 
