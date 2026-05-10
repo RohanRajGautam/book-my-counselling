@@ -14,7 +14,7 @@ interface FilterContextType {
 const defaultFilters: FilterState = {
   industry: 'All Industries',
   jobTitle: '',
-  priceRange: 250,
+  priceRange: 2050,
   availableThisWeek: false,
   instantBooking: false,
   eveningsWeekends: false,
@@ -29,7 +29,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
-    setCurrentPage(1) // Reset to first page when filters change
+    setCurrentPage(1)
   }
 
   const clearFilters = () => {

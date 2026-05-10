@@ -1,6 +1,8 @@
 import { FilterState } from '@/features/filters/types/filter.types'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { getMentors } from '../api/mentor.api'
+import { getMentors } from '../api/mentors.api'
+import { Mentor } from '../types/mentors.types'
+import { PaginatedResponse } from '@/lib/api/api.types'
 
 export function useMentors(filters: FilterState, page: number) {
   const normalizedFilters = {
@@ -18,7 +20,7 @@ export function useMentors(filters: FilterState, page: number) {
     jobTitle: normalizedFilters.jobTitle,
   }
 
-  return useQuery({
+  return useQuery<PaginatedResponse<Mentor>>({
     queryKey: ['mentors', normalizedFilters, page],
     queryFn: () => getMentors(queryFilters, page),
     placeholderData: keepPreviousData,

@@ -1,10 +1,12 @@
 // Form validation utilities
 
+// Single field-level validation issue shown in booking forms.
 export interface ValidationError {
   field: string
   message: string
 }
 
+// Client-side booking form state before submission.
 export interface BookingFormData {
   // Personal Details
   fullName: string

@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { X, Check, Link, Globe, Calendar, Star, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useMentor } from '../hooks/useMentor'
-import { useMentorAvailability } from '../hooks/useMentorAvailability'
-import { useMentorPackages } from '../hooks/useMentorPackages'
-import { useMentorReviews } from '../hooks/useMentorReviews'
+import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
+import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
+import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
 import { getInitials } from './MentorCard'
 
 interface Props {
@@ -100,7 +100,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   />
                 ) : (
                   <div
-                    aria-label={`${name} profile initials`}
+                    aria-label={`${mentor.user?.full_name} profile initials`}
                     className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]"
                   >
                     {initials}

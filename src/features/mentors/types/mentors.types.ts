@@ -1,14 +1,7 @@
-export interface Industry {
-  id: string
-  name: string
-  slug: string
-  description?: string | null
-}
-
-export interface AvailabilitySlot {
-  start: string
-  end: string
-}
+import { IndustryResponse } from '@/features/industries/types/industries.types'
+import { AvailabilitySlot } from '@/features/availability/types/availability.types'
+import { TagResponse } from '@/features/tags/types/tags.types'
+import { UserPublic } from '@/features/users/types/users.types'
 
 export interface Mentor {
   id: string
@@ -49,26 +42,6 @@ export interface MentorListResponse {
   tags: TagResponse[]
 }
 
-export interface UserPublic {
-  id: string
-  full_name: string
-  avatar_url: string | null
-  role: 'mentor' | 'mentee' | 'admin'
-}
-
-export interface TagResponse {
-  id: string
-  name: string
-  slug: string
-}
-
-export interface IndustryResponse {
-  id: string
-  name: string
-  slug: string
-  description?: string | null
-}
-
 export interface MentorResponse {
   id: string
   user_id: string
@@ -91,39 +64,4 @@ export interface MentorResponse {
   website_url: string | null
   tags: TagResponse[]
   created_at: string
-}
-
-export interface ServicePackageResponse {
-  id: string
-  mentor_id: string
-  title: string
-  description: string | null
-  duration_minutes: number
-  price: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface AvailabilitySlotResponse {
-  id: string
-  mentor_id: string
-  start_time: string
-  end_time: string
-  is_booked: boolean
-  is_recurring: boolean
-  recurrence_rule: string | null
-  created_at: string
-}
-
-export interface ReviewResponse {
-  id: string
-  mentor_id: string
-  reviewer_id: string
-  booking_id: string
-  rating: number
-  comment: string | null
-  reviewer: UserPublic
-  created_at: string
-  updated_at: string
 }

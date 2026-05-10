@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
 import { PrivacyContent } from '@/features/privacy/components/PrivacyContent'
 
 export const metadata: Metadata = {
@@ -12,7 +10,6 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <Navbar />
       <main className="min-h-screen overflow-hidden bg-[#f7f8ff] pt-20">
         <PrivacyContent />
       </main>

@@ -1,5 +1,3 @@
-import { RotateCcw, ShieldCheck } from 'lucide-react'
-
 export function ExploreMentorsHero() {
   return (
     <section className="mx-auto max-w-7xl">

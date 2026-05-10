@@ -1,4 +1,4 @@
-import { FiltersSidebar } from '@/features/mentors/components/FiltersSidebar'
+import { FiltersSidebar } from '@/features/filters/components/FiltersSidebar'
 import { MentorGrid } from '@/features/mentors/components/MentorGrid'
 
 export function MentorDiscovery() {
