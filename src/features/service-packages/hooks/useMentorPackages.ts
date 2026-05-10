@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getMentorPackages } from '../api/mentor.api'
+import { getMentorPackages } from '../api/service-packages.api'
 
 export function useMentorPackages(mentorId: string | null) {
   const enabled = !!mentorId

@@ -1,71 +1,23 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { MentorCard } from '@/features/mentors/components/MentorCard'
-
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-
 import { useMentors } from '@/features/mentors/hooks/useMentors'
-import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentor.api'
 import { MentorProfileModal } from './MentorProfileModal'
-import { useFilters } from '@/features/filters/context/filter-context'
+import { useFilters } from '@/features/filters/context/FilterContext'
+
+const FEATURED_MENTOR_LIMIT = 6
 
 export function FeaturedMentorsGrid() {
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
-  const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
-  const { data, isLoading, isFetching, isError } = useMentors(filters, currentPage)
+  const { filters } = useFilters()
+  const { data, isLoading, isFetching, isError } = useMentors(filters, 1)
 
-  const totalPages = data?.total_pages ?? 1
-  const currentMentors = data?.items ?? []
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = []
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i)
-    } else {
-      pages.push(1)
-      if (currentPage > 3) pages.push('...')
-      for (
-        let i = Math.max(2, currentPage - 1);
-        i <= Math.min(totalPages - 1, currentPage + 1);
-        i++
-      ) {
-        pages.push(i)
-      }
-      if (currentPage < totalPages - 2) pages.push('...')
-      pages.push(totalPages)
-    }
-    return pages
-  }
+  const featuredMentors = data?.items.slice(0, FEATURED_MENTOR_LIMIT) ?? []
 
   return (
     <>
       <section>
-        {/* <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
-            {isLoading
-              ? 'Loading mentors...'
-              : `${data?.total ?? 0} Mentor${data?.total === 1 ? '' : 's'} available`}
-          </h2>
-          <div className="flex items-center gap-2 text-[#434655]">
-            <span>Sort by:</span>
-            <select
-              value={filters.sortBy}
-              onChange={(e) => updateFilter('sortBy', e.target.value as typeof filters.sortBy)}
-              className="cursor-pointer border-none bg-transparent py-0 font-bold text-[#121c2a] focus:ring-0"
-            >
-              <option value="rating">Highest Rated</option>
-              <option value="reviews">Most Reviews</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
-          </div>
-        </div> */}
-
         {isError ? (
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
             <div className="text-center">
@@ -74,21 +26,21 @@ export function FeaturedMentorsGrid() {
             </div>
           </div>
         ) : isLoading ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            {Array.from({ length: MENTORS_PER_PAGE }).map((_, index) => (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {Array.from({ length: FEATURED_MENTOR_LIMIT }).map((_, index) => (
               <div
                 key={index}
                 className="h-[420px] animate-pulse rounded-[2rem] bg-white shadow-[0_8px_24px_rgba(18,28,42,0.04)]"
               />
             ))}
           </div>
-        ) : currentMentors.length > 0 ? (
+        ) : featuredMentors.length > 0 ? (
           <div
             className={`grid grid-cols-1 gap-8 transition-opacity md:grid-cols-3 ${
               isFetching ? 'opacity-60' : 'opacity-100'
             }`}
           >
-            {currentMentors.map((mentor) => (
+            {featuredMentors.map((mentor) => (
               <MentorCard
                 key={mentor.id}
                 name={mentor.full_name}
@@ -114,7 +66,16 @@ export function FeaturedMentorsGrid() {
           </div>
         )}
 
-        {/* */}
+        {!isLoading && !isError && featuredMentors.length > 0 && (
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/explore-mentors"
+              className="rounded-lg bg-[#004ac6] px-6 py-3 font-bold text-white shadow-[0_12px_28px_rgba(0,74,198,0.2)] transition hover:bg-[#003fa8]"
+            >
+              Explore all mentors
+            </Link>
+          </div>
+        )}
       </section>
 
       <MentorProfileModal

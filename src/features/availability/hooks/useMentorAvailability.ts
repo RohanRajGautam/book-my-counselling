@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getMentorAvailability } from '../api/mentor.api'
+import { getMentorAvailability } from '../api/availability.api'
 
 export function useMentorAvailability(mentorId: string | null) {
   const enabled = !!mentorId

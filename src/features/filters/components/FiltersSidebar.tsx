@@ -2,8 +2,8 @@
 
 import { SlidersHorizontal, ChevronDown } from 'lucide-react'
 
-import { useIndustries } from '@/features/mentors/hooks/useIndustries'
-import { useFilters } from '@/features/filters/context/filter-context'
+import { useIndustries } from '@/features/industries/hooks/useIndustries'
+import { useFilters } from '@/features/filters/context/FilterContext'
 
 export function FiltersSidebar() {
   const { filters, updateFilter, clearFilters } = useFilters()
@@ -61,7 +61,7 @@ export function FiltersSidebar() {
           <input
             type="range"
             min="20"
-            max="250"
+            max="50000"
             value={filters.priceRange}
             onChange={(e) => updateFilter('priceRange', Number(e.target.value))}
             className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#d9e3f6] accent-[#004ac6]"

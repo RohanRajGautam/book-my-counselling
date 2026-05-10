@@ -1,6 +1,6 @@
 'use client'
 
-import { useFilters } from '@/features/filters/context/filter-context'
+import { useFilters } from '@/features/filters/context/FilterContext'
 import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
 
 export function HeroSection() {

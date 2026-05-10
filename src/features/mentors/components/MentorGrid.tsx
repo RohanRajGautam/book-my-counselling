@@ -5,9 +5,9 @@ import { MentorCard } from '@/features/mentors/components/MentorCard'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { useMentors } from '@/features/mentors/hooks/useMentors'
-import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentor.api'
+import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
 import { MentorProfileModal } from './MentorProfileModal'
-import { useFilters } from '@/features/filters/context/filter-context'
+import { useFilters } from '@/features/filters/context/FilterContext'
 
 export function MentorGrid() {
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)

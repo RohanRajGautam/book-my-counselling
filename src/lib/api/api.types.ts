@@ -1,3 +1,4 @@
+// Standard paginated response returned by list endpoints.
 export interface PaginatedResponse<T> {
   items: T[]
   total: number
