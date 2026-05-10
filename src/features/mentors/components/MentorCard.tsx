@@ -116,7 +116,7 @@ export function MentorCard({
           <span className="text-xs font-bold tracking-widest text-[#737686] uppercase">
             Starting at
           </span>
-          <span className="text-xl font-extrabold">${price}</span>
+          <span className="text-xl font-extrabold">NPR {price}</span>
         </div>
         <button className="rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-3 font-bold text-white shadow-md transition-all hover:shadow-lg active:scale-95">
           Book Session

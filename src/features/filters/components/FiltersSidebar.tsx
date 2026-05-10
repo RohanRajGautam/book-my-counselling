@@ -53,10 +53,12 @@ export function FiltersSidebar() {
 
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">
-            <label className="text-sm font-bold tracking-wider text-[#434655] uppercase">
-              Price Range
+            <label className="text-[12px] font-bold tracking-wider text-[#434655] uppercase">
+              Price
             </label>
-            <span className="font-bold text-[#004ac6]">$20 - ${filters.priceRange}</span>
+            <span className="text-[14px] font-bold text-[#004ac6]">
+              NPR 20 - NPR {filters.priceRange}
+            </span>
           </div>
           <input
             type="range"
