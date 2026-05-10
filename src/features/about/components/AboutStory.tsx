@@ -11,7 +11,7 @@ export function AboutStory() {
 
         <div className="max-w-3xl space-y-9 text-lg leading-8 text-[#434655]">
           <p className="font-medium text-[#121c2a]">
-            Book My Counselling was born from a simple observation: the transition from higher
+            Book Your Counselling was born from a simple observation: the transition from higher
             education to a high-impact career is often the most vulnerable period in a
             professional&apos;s life.
           </p>

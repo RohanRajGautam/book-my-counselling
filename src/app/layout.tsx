@@ -22,8 +22,8 @@ const body = Manrope({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Book My Counselling | Find Your Mentor',
-    template: '%s | Book My Counselling',
+    default: 'Book Your Counselling | Find Your Mentor',
+    template: '%s | Book Your Counselling',
   },
   description:
     'Connect with world-class mentors from industry giants and top universities to navigate your professional growth with precision.',
@@ -35,26 +35,26 @@ export const metadata: Metadata = {
     'tech mentors',
     'career coaching',
   ],
-  authors: [{ name: 'Book My Counselling' }],
+  authors: [{ name: 'Book Your Counselling' }],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://bookmycounselling.com',
-    siteName: 'Book My Counselling',
-    title: 'Book My Counselling - Your Career Journey, Curated',
+    siteName: 'Book Your Counselling',
+    title: 'Book Your Counselling - Your Career Journey, Curated',
     description: 'Connect with world-class mentors from industry giants and top universities.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Book My Counselling',
+        alt: 'Book Your Counselling',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Book My Counselling',
+    title: 'Book Your Counselling',
     description: 'Your Career Journey, Curated.',
     images: ['/og-image.png'],
   },

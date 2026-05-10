@@ -4,7 +4,7 @@ import { PrivacyContent } from '@/features/privacy/components/PrivacyContent'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
-    'Review how Book My Counselling collects, protects, and manages personal information.',
+    'Review how Book Your Counselling collects, protects, and manages personal information.',
 }
 
 export default function PrivacyPage() {

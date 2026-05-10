@@ -12,7 +12,7 @@ export function PrivacyHero() {
             Privacy Policy
           </h1>
           <p className="mt-7 max-w-xl text-base leading-7 text-[#434655]">
-            At Book My Counselling, your well-being and data security are our highest priorities.
+            At Book Your Counselling, your well-being and data security are our highest priorities.
             This policy outlines how we curate, protect, and handle your information with absolute
             integrity.
           </p>
