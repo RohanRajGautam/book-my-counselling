@@ -1,20 +1,32 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { FormInput } from '@/features/booking/components/FormInput'
 import { FormSelect } from '@/features/booking/components/FormSelect'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
 import { OrderSummary } from '@/features/booking/components/OrderSummary'
-import { PaymentSection } from '@/features/booking/components/PaymentSection'
+import { FonepayPaymentSection } from '@/features/booking/components/FonepayPaymentSection'
+import { CalendlySection } from '@/features/booking/components/CalendlySection'
 import {
   validateBookingForm,
   formatPhone,
   type BookingFormData,
 } from '@/features/booking/lib/validation'
-import { BOOKING_SUMMARY, EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
+import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
+import { useMentor } from '@/features/mentors/hooks/useMentor'
+import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 
 export function BookingPageContent() {
-  // Form state
+  const searchParams = useSearchParams()
+  const mentorId = searchParams.get('mentorId')
+  const packageId = searchParams.get('packageId')
+
+  const { data: mentor, isPending: isMentorLoading } = useMentor(mentorId)
+  const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(mentorId)
+
+  const selectedPackage = packages.find((p) => p.id === packageId) ?? null
+
   const [formData, setFormData] = useState<BookingFormData>({
     fullName: '',
     email: '',
@@ -31,10 +43,10 @@ export function BookingPageContent() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [bookingId, setBookingId] = useState<string | null>(null)
 
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
         const newErrors = { ...prev }
@@ -54,11 +66,9 @@ export function BookingPageContent() {
   }
 
   const handleSubmit = async () => {
-    // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
     setTouched(allTouched)
 
-    // Validate form
     const validationErrors = validateBookingForm(formData)
 
     if (validationErrors.length > 0) {
@@ -68,7 +78,6 @@ export function BookingPageContent() {
       )
       setErrors(errorMap)
 
-      // Scroll to first error
       const firstError = validationErrors[0]
       if (firstError) {
         const element = document.getElementById(firstError.field)
@@ -80,17 +89,14 @@ export function BookingPageContent() {
       return
     }
 
-    // Submit form
     setIsSubmitting(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Success - redirect to confirmation page
-      console.log('Booking submitted:', formData)
-      alert('Booking successful! You will receive a confirmation email shortly.')
-
-      // In real app: router.push('/booking/confirmation')
+      // TODO: Replace with real booking API call once auth is wired up:
+      // const booking = await createBooking({ ...formData, mentorId, packageId })
+      // setBookingId(booking.id)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Placeholder booking ID for local testing
+      setBookingId('00000000-0000-0000-0000-000000000001')
     } catch (error) {
       console.error('Booking error:', error)
       alert('An error occurred. Please try again.')
@@ -98,6 +104,26 @@ export function BookingPageContent() {
       setIsSubmitting(false)
     }
   }
+
+  const isLoading = isMentorLoading || isPackagesLoading
+
+  // Build order summary data from real mentor + selected package
+  const orderSummaryMentor = mentor
+    ? {
+        name: mentor.user?.full_name ?? '',
+        title: mentor.title,
+        imageUrl: mentor.user?.avatar_url ?? null,
+      }
+    : null
+
+  const orderSummarySession = selectedPackage
+    ? {
+        type: selectedPackage.title,
+        duration: `${selectedPackage.duration_minutes} mins`,
+      }
+    : null
+
+  const orderSummaryPrice = selectedPackage ? Number(selectedPackage.price) : 0
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-20 lg:px-8">
@@ -218,22 +244,50 @@ export function BookingPageContent() {
         {/* Right Column: Summary & Payment */}
         <div className="w-full lg:w-[400px]">
           <div className="sticky top-32 space-y-8">
-            <OrderSummary
-              mentor={BOOKING_SUMMARY.mentor}
-              session={BOOKING_SUMMARY.session}
-              price={BOOKING_SUMMARY.price}
-            />
-            <PaymentSection
-              cardNumber={formData.cardNumber}
-              expiry={formData.expiry}
-              cvc={formData.cvc}
-              errors={errors}
-              onCardNumberChange={(value) => handleInputChange('cardNumber', value)}
-              onExpiryChange={(value) => handleInputChange('expiry', value)}
-              onCvcChange={(value) => handleInputChange('cvc', value)}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-            />
+            {isLoading ? (
+              <div className="h-[280px] animate-pulse rounded-[24px] bg-white shadow-[0_8px_24px_rgba(18,28,42,0.06)]" />
+            ) : orderSummaryMentor && orderSummarySession ? (
+              <OrderSummary
+                mentor={orderSummaryMentor}
+                session={orderSummarySession}
+                price={orderSummaryPrice}
+              />
+            ) : (
+              <div className="rounded-[24px] bg-white p-8 text-center text-[#434655] shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
+                <p className="font-semibold text-[#121c2a]">No session selected</p>
+                <p className="mt-1 text-sm">Go back and select a mentor and package.</p>
+              </div>
+            )}
+
+            {bookingId ? (
+              <>
+                <FonepayPaymentSection
+                  bookingId={bookingId}
+                  amount={orderSummaryPrice}
+                  onSuccess={() => {
+                    console.log('Payment successful for booking:', bookingId)
+                    alert('Payment successful!')
+                  }}
+                />
+                {mentorId && (
+                  <CalendlySection
+                    mentorId={mentorId}
+                    bookingId={bookingId}
+                    onScheduled={() => {
+                      alert('Your intro call is scheduled! Check your email for details.')
+                    }}
+                  />
+                )}
+              </>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting || !orderSummaryMentor || !orderSummarySession}
+                className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? 'Creating booking…' : 'Proceed to Payment'}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -83,7 +83,7 @@ export function MentorCard({
             Verified Mentor
           </div>
           <p className="mt-1 font-medium text-[#434655]">
-            {role} at {company}
+            {role}{company ? ` at ${company}` : ''}
           </p>
         </div>
       </div>

@@ -93,7 +93,7 @@ export function MentorGrid() {
                 key={mentor.id}
                 name={mentor.full_name}
                 role={mentor.title}
-                company={mentor.company ?? 'Independent'}
+                company={mentor.company ?? ''}
                 tags={mentor.tags?.slice(0, 4).map((t) => (t.startsWith('#') ? t : `#${t}`)) || []}
                 rating={mentor.average_rating}
                 reviews={mentor.total_reviews}

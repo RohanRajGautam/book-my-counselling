@@ -1,24 +1,26 @@
 'use client'
 
 import Image from 'next/image'
-import { Video, Calendar } from 'lucide-react'
+import { Video } from 'lucide-react'
+import { getInitials } from '@/features/mentors/components/MentorCard'
 
 interface OrderSummaryProps {
   mentor: {
     name: string
     title: string
-    imageUrl: string
+    imageUrl?: string | null
   }
   session: {
     type: string
     duration: string
-    date: string
-    time: string
   }
   price: number
 }
 
 export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
+  const initials = getInitials(mentor.name)
+  const imageSrc = mentor.imageUrl?.trim() || null
+
   return (
     <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
       <h3 className="mb-6 font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
@@ -27,14 +29,23 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
 
       {/* Mentor Info */}
       <div className="mb-6 flex items-center gap-4 border-b border-[#c3c6d7]/15 pb-6">
-        <div className="h-16 w-16 overflow-hidden rounded-full ring-2 ring-[#0053db]/20">
-          <Image
-            src={mentor.imageUrl}
-            alt={mentor.name}
-            width={64}
-            height={64}
-            className="h-full w-full object-cover"
-          />
+        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full ring-2 ring-[#0053db]/20">
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={mentor.name}
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div
+              aria-label={`${mentor.name} profile initials`}
+              className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-xl font-extrabold text-[#004ac6]"
+            >
+              {initials}
+            </div>
+          )}
         </div>
         <div>
           <p className="font-[family-name:var(--font-headline)] font-bold text-[#121c2a]">
@@ -53,17 +64,6 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
           </span>
           <span className="font-semibold text-[#121c2a]">{session.duration}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-2 text-[#434655]">
-            <Calendar className="h-4 w-4" />
-            Date & Time
-          </span>
-          <span className="text-right font-semibold text-[#121c2a]">
-            {session.date}
-            <br />
-            <span className="text-sm font-normal text-[#434655]">{session.time}</span>
-          </span>
-        </div>
       </div>
 
       {/* Total */}
@@ -72,7 +72,7 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
           Total
         </span>
         <span className="font-[family-name:var(--font-headline)] text-2xl font-bold text-[#004ac6]">
-          ${price.toFixed(2)}
+          NPR {price.toLocaleString()}
         </span>
       </div>
     </div>

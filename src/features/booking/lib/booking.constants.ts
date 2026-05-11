@@ -12,6 +12,11 @@ export const BOOKING_SUMMARY = {
     time: '2:00 PM EST',
   },
   price: 45.0,
+  // Placeholder mentor profile ID — in production this comes from the route/query params
+  mentorId: '64fcb260-4924-44ab-9167-2a2ed0a77f63',
+  // Mock booking ID for local testing (must be a real UUID that exists in the DB)
+  // In production, this is returned by POST /bookings after form submission
+  bookingId: '00000000-0000-0000-0000-000000000001',
 }
 
 export const EDUCATION_LEVEL_OPTIONS = [
