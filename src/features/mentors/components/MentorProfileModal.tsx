@@ -190,7 +190,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   </h4>
                   <p className="mb-4 text-sm text-[#434655]">{service.duration_minutes} minutes</p>
                   <div className="font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#004ac6]">
-                    ${Number(service.price)}
+                    NPR {Number(service.price)}
                   </div>
                 </div>
               ))
