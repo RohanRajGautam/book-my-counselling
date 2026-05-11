@@ -1,8 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fetchPaymentStatus, initiatePayment } from '../api/paymentApi'
-import type { PaymentError, PaymentStep, QRData, WebSocketMessage } from '../types/payment'
+import { fetchBanks, fetchPaymentStatus, initiatePayment } from '../api/paymentApi'
+import type { BankInfo, PaymentError, PaymentStep, QRData, WebSocketMessage } from '../types/payment'
 import { useFonepayWebSocket } from './useFonepayWebSocket'
 
 export interface UseFonepayPaymentReturn {
@@ -10,9 +10,16 @@ export interface UseFonepayPaymentReturn {
   qrData: QRData | null
   error: PaymentError | null
   timeRemaining: number | null // seconds
-  startPayment: () => Promise<void>
+  banks: BankInfo[]
+  banksLoading: boolean
+  banksError: string | null
+  selectedBank: BankInfo | null
+  selectBank: (bank: BankInfo) => void
+  startPayment: () => void
+  initiateWithBank: (bank: BankInfo) => Promise<void>
   cancelPayment: () => void
   retryPayment: () => void
+  retryBankFetch: () => void
 }
 
 export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
@@ -21,8 +28,29 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
   const [error, setError] = useState<PaymentError | null>(null)
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
 
+  // Bank selection state
+  const [banks, setBanks] = useState<BankInfo[]>([])
+  const [banksLoading, setBanksLoading] = useState(false)
+  const [banksError, setBanksError] = useState<string | null>(null)
+  const [selectedBank, setSelectedBank] = useState<BankInfo | null>(null)
+
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // ── Bank list fetching ───────────────────────────────────────────────────
+
+  const loadBanks = useCallback(async () => {
+    setBanksLoading(true)
+    setBanksError(null)
+    try {
+      const data = await fetchBanks()
+      setBanks(data)
+    } catch {
+      setBanksError('Failed to load banks. Please try again.')
+    } finally {
+      setBanksLoading(false)
+    }
+  }, [])
 
   // ── Countdown timer ──────────────────────────────────────────────────────
 
@@ -51,7 +79,7 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
     }
   }, [])
 
-  // ── Fallback REST polling (when WS is unavailable) ───────────────────────
+  // ── Fallback REST polling (when WS relay is unavailable) ─────────────────
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) {
@@ -62,7 +90,7 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
 
   const startFallbackPolling = useCallback(
     (transactionId: string) => {
-      if (pollRef.current) return // already polling
+      if (pollRef.current) return
       pollRef.current = setInterval(async () => {
         try {
           const status = await fetchPaymentStatus(transactionId)
@@ -108,16 +136,17 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
         stopPolling()
         setStep('EXPIRED')
       }
-      // 'ping' messages are keepalives — no state change needed
+      // 'ping' = keepalive, no state change needed
     },
     [stopCountdown, stopPolling],
   )
 
   const handleWsDisconnected = useCallback(() => {
-    // WS unavailable — fall back to REST polling
+    // Backend WS relay unavailable — fall back to direct REST polling
     if (qrData) startFallbackPolling(qrData.transaction_id)
   }, [qrData, startFallbackPolling])
 
+  // Only connect WS once we have a transaction_id (qrData is set)
   const { disconnect } = useFonepayWebSocket({
     transactionId: qrData?.transaction_id ?? null,
     onMessage: handleWsMessage,
@@ -126,20 +155,49 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
-  const startPayment = useCallback(async () => {
-    setStep('QR_DISPLAY')
+  /** Move from IDLE → BANK_SELECTION, loading banks if needed */
+  const startPayment = useCallback(() => {
     setError(null)
-    try {
-      const data = await initiatePayment(bookingId)
-      setQrData(data)
-      startCountdown(data.expires_at)
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Failed to generate QR. Please try again.'
-      setError({ error_code: 'INITIATE_FAILED', message: msg })
-      setStep('FAILED')
+    setStep('BANK_SELECTION')
+    if (banks.length === 0 && !banksLoading) {
+      loadBanks()
     }
-  }, [bookingId, startCountdown])
+  }, [banks.length, banksLoading, loadBanks])
+
+  const selectBank = useCallback((bank: BankInfo) => {
+    setSelectedBank(bank)
+  }, [])
+
+  /** Called when user confirms bank selection — initiates QR generation */
+  const initiateWithBank = useCallback(
+    async (bank: BankInfo) => {
+      setSelectedBank(bank)
+      // Show loading state immediately (qrData is null → spinner shows in QRDisplay)
+      setStep('QR_DISPLAY')
+      setError(null)
+      try {
+        const data = await initiatePayment(bookingId, bank.bank_code)
+        setQrData(data)
+        startCountdown(data.expires_at)
+      } catch (err: unknown) {
+        let msg = 'Failed to generate QR. Please try again.'
+        if (err && typeof err === 'object') {
+          const axiosErr = err as {
+            response?: { data?: { detail?: string; message?: string } }
+            message?: string
+          }
+          msg =
+            axiosErr.response?.data?.detail ||
+            axiosErr.response?.data?.message ||
+            axiosErr.message ||
+            msg
+        }
+        setError({ error_code: 'INITIATE_FAILED', message: msg })
+        setStep('FAILED')
+      }
+    },
+    [bookingId, startCountdown],
+  )
 
   const cancelPayment = useCallback(() => {
     stopCountdown()
@@ -147,6 +205,7 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
     disconnect()
     setQrData(null)
     setError(null)
+    setSelectedBank(null)
     setStep('IDLE')
   }, [stopCountdown, stopPolling, disconnect])
 
@@ -156,9 +215,16 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
     disconnect()
     setQrData(null)
     setError(null)
-    // Re-initiate immediately
-    setStep('IDLE')
-  }, [stopCountdown, stopPolling, disconnect])
+    setSelectedBank(null)
+    setStep('BANK_SELECTION')
+    if (banks.length === 0 && !banksLoading) {
+      loadBanks()
+    }
+  }, [stopCountdown, stopPolling, disconnect, banks.length, banksLoading, loadBanks])
+
+  const retryBankFetch = useCallback(() => {
+    loadBanks()
+  }, [loadBanks])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -173,8 +239,15 @@ export function useFonepayPayment(bookingId: string): UseFonepayPaymentReturn {
     qrData,
     error,
     timeRemaining,
+    banks,
+    banksLoading,
+    banksError,
+    selectedBank,
+    selectBank,
     startPayment,
+    initiateWithBank,
     cancelPayment,
     retryPayment,
+    retryBankFetch,
   }
 }

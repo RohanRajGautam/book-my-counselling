@@ -21,6 +21,7 @@ export interface QRData {
 
 export type PaymentStep =
   | 'IDLE'
+  | 'BANK_SELECTION'
   | 'QR_DISPLAY'
   | 'PROCESSING'
   | 'SUCCESS'

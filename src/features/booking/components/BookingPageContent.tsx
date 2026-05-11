@@ -88,16 +88,16 @@ export function BookingPageContent() {
     // Submit form
     setIsSubmitting(true)
     try {
-      // TODO: Replace with real booking API call
+      // TODO: Replace with real booking API call once auth is wired up:
       // const booking = await createBooking(formData)
       // setBookingId(booking.id)
       // setBookingAmount(booking.agreed_price)
 
-      // Simulate API call — in production this creates the booking and returns an ID
+      // Simulate API call — uses a real UUID format so the backend accepts it
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      const mockBookingId = 'mock-booking-id-' + Date.now()
-      setBookingId(mockBookingId)
-      console.log('Booking created, proceeding to payment:', mockBookingId)
+      // Use the hardcoded mentor booking ID from constants for local testing
+      setBookingId(BOOKING_SUMMARY.bookingId)
+      console.log('Booking created, proceeding to payment:', BOOKING_SUMMARY.bookingId)
     } catch (error) {
       console.error('Booking error:', error)
       alert('An error occurred. Please try again.')

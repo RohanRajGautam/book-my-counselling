@@ -1,11 +1,11 @@
 'use client'
 
-import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react'
+import { AlertTriangle, Loader2, RefreshCw, Wifi } from 'lucide-react'
 import Image from 'next/image'
 import type { QRData } from '../types/payment'
 
 interface QRDisplayProps {
-  qrData: QRData
+  qrData: QRData | null  // null while the API call is in flight
   timeRemaining: number | null
   onCancel: () => void
 }
@@ -17,15 +17,12 @@ function formatTime(seconds: number): string {
 }
 
 /**
- * Resolve the QR image source.
+ * Resolve the QR image source from the backend response.
  *
- * Fonepay Dynamic QR returns either:
- *   - A base64 string (no prefix) → we add the data URI prefix
- *   - A full data URI already (data:image/...)
- *   - A URL (https://...)
+ * Fonepay Intent QR returns qrMessage / qrString as the raw EMV QR payload.
+ * There is no pre-rendered image — we render it client-side via qrserver.com.
  *
- * If none of the above, fall back to rendering the qr_message payload
- * via a public QR-code-as-a-service API.
+ * If qr_code_url is ever populated (future API versions), we use it directly.
  */
 function resolveQrSrc(qrData: QRData): string {
   const { qr_code_url, qr_message } = qrData
@@ -33,20 +30,37 @@ function resolveQrSrc(qrData: QRData): string {
   if (qr_code_url) {
     if (qr_code_url.startsWith('data:')) return qr_code_url
     if (qr_code_url.startsWith('http')) return qr_code_url
-    // Assume raw base64 PNG
+    // Raw base64 PNG
     return `data:image/png;base64,${qr_code_url}`
   }
 
   if (qr_message) {
-    return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qr_message)}`
+    return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(qr_message)}`
   }
 
   return ''
 }
 
 export function QRDisplay({ qrData, timeRemaining, onCancel }: QRDisplayProps) {
+  // Still fetching QR from backend
+  if (!qrData) {
+    return (
+      <div className="space-y-5">
+        <div className="flex flex-col items-center gap-4 py-6">
+          <Loader2 className="h-10 w-10 animate-spin text-[#004ac6]" />
+          <p className="text-sm text-[#434655]">Generating QR code…</p>
+        </div>
+        <button
+          onClick={onCancel}
+          className="w-full rounded-xl py-2.5 text-sm text-[#434655] transition hover:bg-[#f8f9ff]"
+        >
+          Cancel
+        </button>
+      </div>
+    )
+  }
+
   const isExpiringSoon = timeRemaining !== null && timeRemaining > 0 && timeRemaining < 120
-  const isLoading = !qrData.qr_code_url && !qrData.qr_message
   const qrSrc = resolveQrSrc(qrData)
 
   return (
@@ -55,9 +69,7 @@ export function QRDisplay({ qrData, timeRemaining, onCancel }: QRDisplayProps) {
       {timeRemaining !== null && (
         <div
           className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium ${
-            isExpiringSoon
-              ? 'bg-amber-50 text-amber-700'
-              : 'bg-[#eff4ff] text-[#434655]'
+            isExpiringSoon ? 'bg-amber-50 text-amber-700' : 'bg-[#eff4ff] text-[#434655]'
           }`}
         >
           {isExpiringSoon && <AlertTriangle className="h-4 w-4 shrink-0" />}
@@ -76,9 +88,7 @@ export function QRDisplay({ qrData, timeRemaining, onCancel }: QRDisplayProps) {
         </p>
 
         <div className="relative flex h-56 w-56 items-center justify-center rounded-2xl border-2 border-[#e6eeff] bg-white p-3 shadow-[0_4px_16px_rgba(0,74,198,0.08)]">
-          {isLoading ? (
-            <Loader2 className="h-10 w-10 animate-spin text-[#004ac6]" />
-          ) : qrSrc ? (
+          {qrSrc ? (
             <Image
               src={qrSrc}
               alt="Fonepay QR Code"
@@ -117,9 +127,11 @@ export function QRDisplay({ qrData, timeRemaining, onCancel }: QRDisplayProps) {
           </li>
         </ol>
 
-        <p className="text-center text-xs text-[#434655]">
-          This page updates automatically once payment is confirmed.
-        </p>
+        {/* Live update indicator */}
+        <div className="flex items-center gap-1.5 text-xs text-[#434655]">
+          <Wifi className="h-3.5 w-3.5 text-[#006c49]" />
+          <span>This page updates automatically once payment is confirmed.</span>
+        </div>
       </div>
 
       <button
