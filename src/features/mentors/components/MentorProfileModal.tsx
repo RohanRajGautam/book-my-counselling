@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Check, Link, Globe, Calendar, Star, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useMentor } from '../hooks/useMentor'
@@ -15,7 +16,9 @@ interface Props {
 }
 
 export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
+  const router = useRouter()
   const [reviewPage, setReviewPage] = useState(1)
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null)
 
   const { data: mentor, isPending: isMentorLoading } = useMentor(isOpen ? mentorId : null)
   const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(
@@ -148,12 +151,17 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
 
           <div className="sticky bottom-0 mt-auto rounded-[24px] p-6">
             <div className="mt-auto">
-              <a
-                href="/booking"
-                className="block w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-5 text-center font-[family-name:var(--font-headline)] text-xl font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02]"
+              <button
+                disabled={!selectedPackageId}
+                onClick={() => {
+                  if (selectedPackageId) {
+                    router.push(`/booking?mentorId=${mentorId}&packageId=${selectedPackageId}`)
+                  }
+                }}
+                className="block w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-5 text-center font-[family-name:var(--font-headline)] text-xl font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
               >
-                Book a Session
-              </a>
+                {selectedPackageId ? 'Book a Session' : 'Select a Package'}
+              </button>
             </div>
           </div>
         </div>
@@ -175,23 +183,53 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               packages.map((service, index) => (
                 <div
                   key={service.id}
-                  className="group relative cursor-pointer overflow-hidden rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-colors hover:bg-[#eff4ff]/50"
+                  onClick={() =>
+                    setSelectedPackageId(selectedPackageId === service.id ? null : service.id)
+                  }
+                  className={`group relative cursor-pointer overflow-hidden rounded-[24px] p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-all ${selectedPackageId === service.id
+                      ? 'bg-[#004ac6] text-white ring-2 ring-[#004ac6]'
+                      : 'bg-white hover:bg-[#eff4ff]/50'
+                    }`}
                 >
                   {index === 0 && (
-                    <div className="absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] bg-[#6cf8bb] px-3 py-1 text-xs font-bold text-[#00714d]">
+                    <div
+                      className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-xs font-bold ${selectedPackageId === service.id
+                          ? 'bg-white/20 text-white'
+                          : 'bg-[#6cf8bb] text-[#00714d]'
+                        }`}
+                    >
                       Popular
                     </div>
                   )}
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#004ac6]/10 text-[#004ac6] transition-transform group-hover:scale-110">
+                  <div
+                    className={`mb-4 flex h-12 w-12 items-center justify-center rounded-[16px] transition-transform group-hover:scale-110 ${selectedPackageId === service.id ? 'bg-white/20' : 'bg-[#004ac6]/10'
+                      }`}
+                  >
                     <span className="text-2xl">☕</span>
                   </div>
-                  <h4 className="mb-1 font-[family-name:var(--font-headline)] text-lg font-bold">
+                  <h4
+                    className={`mb-1 font-[family-name:var(--font-headline)] text-lg font-bold ${selectedPackageId === service.id ? 'text-white' : ''
+                      }`}
+                  >
                     {service.title}
                   </h4>
-                  <p className="mb-4 text-sm text-[#434655]">{service.duration_minutes} minutes</p>
-                  <div className="font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#004ac6]">
+                  <p
+                    className={`mb-4 text-sm ${selectedPackageId === service.id ? 'text-white/80' : 'text-[#434655]'
+                      }`}
+                  >
+                    {service.duration_minutes} minutes
+                  </p>
+                  <div
+                    className={`font-[family-name:var(--font-headline)] text-2xl font-extrabold ${selectedPackageId === service.id ? 'text-white' : 'text-[#004ac6]'
+                      }`}
+                  >
                     NPR {Number(service.price)}
                   </div>
+                  {selectedPackageId === service.id && (
+                    <div className="absolute top-4 left-4 flex h-6 w-6 items-center justify-center rounded-full bg-white">
+                      <Check className="h-4 w-4 text-[#004ac6]" strokeWidth={3} />
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -215,9 +253,8 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                 {availability.slice(0, 4).map((slot, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between rounded-[16px] p-4 ${
-                      index === 0 ? 'bg-[#eff4ff]' : 'bg-[#f8f9ff]'
-                    }`}
+                    className={`flex items-center justify-between rounded-[16px] p-4 ${index === 0 ? 'bg-[#eff4ff]' : 'bg-[#f8f9ff]'
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <Calendar
@@ -238,7 +275,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                         })}
                       </span>
                     </div>
-                    <span className="rounded-full bg-[#004ac6]/10 px-3 py-1 text-sm font-bold text-[#004ac6]">
+                    <span className="whitespace-nowrap rounded-full bg-[#004ac6]/10 px-3 py-1 text-sm font-bold text-[#004ac6]">
                       1 Slot
                     </span>
                   </div>

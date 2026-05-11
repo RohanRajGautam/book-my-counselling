@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { FormInput } from '@/features/booking/components/FormInput'
 import { FormSelect } from '@/features/booking/components/FormSelect'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
@@ -12,10 +13,20 @@ import {
   formatPhone,
   type BookingFormData,
 } from '@/features/booking/lib/validation'
-import { BOOKING_SUMMARY, EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
+import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
+import { useMentor } from '@/features/mentors/hooks/useMentor'
+import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 
 export function BookingPageContent() {
-  // Form state (card fields removed — payment handled by Fonepay)
+  const searchParams = useSearchParams()
+  const mentorId = searchParams.get('mentorId')
+  const packageId = searchParams.get('packageId')
+
+  const { data: mentor, isPending: isMentorLoading } = useMentor(mentorId)
+  const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(mentorId)
+
+  const selectedPackage = packages.find((p) => p.id === packageId) ?? null
+
   const [formData, setFormData] = useState<BookingFormData>({
     fullName: '',
     email: '',
@@ -32,14 +43,10 @@ export function BookingPageContent() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
-  // bookingId will come from the API after form submission; using placeholder for now
   const [bookingId, setBookingId] = useState<string | null>(null)
-  const [bookingAmount] = useState<number>(BOOKING_SUMMARY.price)
-  // mentorId will come from the booking context / route params in production
-  const [mentorId] = useState<string>(BOOKING_SUMMARY.mentorId ?? '')
+
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
         const newErrors = { ...prev }
@@ -59,11 +66,9 @@ export function BookingPageContent() {
   }
 
   const handleSubmit = async () => {
-    // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
     setTouched(allTouched)
 
-    // Validate form
     const validationErrors = validateBookingForm(formData)
 
     if (validationErrors.length > 0) {
@@ -73,7 +78,6 @@ export function BookingPageContent() {
       )
       setErrors(errorMap)
 
-      // Scroll to first error
       const firstError = validationErrors[0]
       if (firstError) {
         const element = document.getElementById(firstError.field)
@@ -85,19 +89,14 @@ export function BookingPageContent() {
       return
     }
 
-    // Submit form
     setIsSubmitting(true)
     try {
       // TODO: Replace with real booking API call once auth is wired up:
-      // const booking = await createBooking(formData)
+      // const booking = await createBooking({ ...formData, mentorId, packageId })
       // setBookingId(booking.id)
-      // setBookingAmount(booking.agreed_price)
-
-      // Simulate API call — uses a real UUID format so the backend accepts it
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      // Use the hardcoded mentor booking ID from constants for local testing
-      setBookingId(BOOKING_SUMMARY.bookingId)
-      console.log('Booking created, proceeding to payment:', BOOKING_SUMMARY.bookingId)
+      // Placeholder booking ID for local testing
+      setBookingId('00000000-0000-0000-0000-000000000001')
     } catch (error) {
       console.error('Booking error:', error)
       alert('An error occurred. Please try again.')
@@ -105,6 +104,26 @@ export function BookingPageContent() {
       setIsSubmitting(false)
     }
   }
+
+  const isLoading = isMentorLoading || isPackagesLoading
+
+  // Build order summary data from real mentor + selected package
+  const orderSummaryMentor = mentor
+    ? {
+        name: mentor.user?.full_name ?? '',
+        title: mentor.title,
+        imageUrl: mentor.user?.avatar_url ?? null,
+      }
+    : null
+
+  const orderSummarySession = selectedPackage
+    ? {
+        type: selectedPackage.title,
+        duration: `${selectedPackage.duration_minutes} mins`,
+      }
+    : null
+
+  const orderSummaryPrice = selectedPackage ? Number(selectedPackage.price) : 0
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-20 lg:px-8">
@@ -225,18 +244,27 @@ export function BookingPageContent() {
         {/* Right Column: Summary & Payment */}
         <div className="w-full lg:w-[400px]">
           <div className="sticky top-32 space-y-8">
-            <OrderSummary
-              mentor={BOOKING_SUMMARY.mentor}
-              session={BOOKING_SUMMARY.session}
-              price={BOOKING_SUMMARY.price}
-            />
+            {isLoading ? (
+              <div className="h-[280px] animate-pulse rounded-[24px] bg-white shadow-[0_8px_24px_rgba(18,28,42,0.06)]" />
+            ) : orderSummaryMentor && orderSummarySession ? (
+              <OrderSummary
+                mentor={orderSummaryMentor}
+                session={orderSummarySession}
+                price={orderSummaryPrice}
+              />
+            ) : (
+              <div className="rounded-[24px] bg-white p-8 text-center text-[#434655] shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
+                <p className="font-semibold text-[#121c2a]">No session selected</p>
+                <p className="mt-1 text-sm">Go back and select a mentor and package.</p>
+              </div>
+            )}
+
             {bookingId ? (
               <>
                 <FonepayPaymentSection
                   bookingId={bookingId}
-                  amount={bookingAmount}
+                  amount={orderSummaryPrice}
                   onSuccess={() => {
-                    // TODO: redirect to a success page or show inline confirmation
                     console.log('Payment successful for booking:', bookingId)
                     alert('Payment successful!')
                   }}
@@ -254,7 +282,7 @@ export function BookingPageContent() {
             ) : (
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !orderSummaryMentor || !orderSummarySession}
                 className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? 'Creating booking…' : 'Proceed to Payment'}
