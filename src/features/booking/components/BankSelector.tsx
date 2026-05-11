@@ -1,7 +1,6 @@
 'use client'
 
 import { Search } from 'lucide-react'
-import Image from 'next/image'
 import { useState } from 'react'
 import type { BankInfo } from '../types/payment'
 
@@ -23,10 +22,15 @@ export function BankSelector({
   onRetry,
 }: BankSelectorProps) {
   const [query, setQuery] = useState('')
+  const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set())
 
   const filtered = banks.filter((b) =>
     b.bank_name.toLowerCase().includes(query.toLowerCase())
   )
+
+  const handleLogoError = (bankCode: string) => {
+    setFailedLogos((prev) => new Set(prev).add(bankCode))
+  }
 
   if (loading) {
     return (
@@ -76,6 +80,7 @@ export function BankSelector({
         <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto pr-1">
           {filtered.map((bank) => {
             const isSelected = selectedBank?.bank_code === bank.bank_code
+            const showLogo = bank.logo_url && !failedLogos.has(bank.bank_code)
             return (
               <button
                 key={bank.bank_code}
@@ -86,17 +91,17 @@ export function BankSelector({
                     : 'border-transparent bg-[#f8f9ff] hover:border-[#004ac6]/30 hover:bg-[#eff4ff]'
                 }`}
               >
-                {bank.logo_url ? (
-                  <Image
-                    src={bank.logo_url}
+                {showLogo ? (
+                  <img
+                    src={bank.logo_url!}
                     alt={bank.bank_name}
                     width={32}
                     height={32}
                     className="h-8 w-8 rounded object-contain"
-                    unoptimized
+                    onError={() => handleLogoError(bank.bank_code)}
                   />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded bg-[#004ac6] text-xs font-bold text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-[#004ac6] text-xs font-bold text-white">
                     {bank.bank_name.charAt(0)}
                   </div>
                 )}
