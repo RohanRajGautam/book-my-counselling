@@ -1,4 +1,5 @@
-import api from '@/lib/api/axios'
+
+import apiClient from '@/lib/api/api-client'
 import type { CalendlyLinkResponse, CalendlyPrefillResponse } from '../types/calendly'
 
 /**
@@ -8,7 +9,7 @@ import type { CalendlyLinkResponse, CalendlyPrefillResponse } from '../types/cal
 export async function getMentorCalendlyLink(
   mentorId: string
 ): Promise<CalendlyLinkResponse> {
-  const response = await api.get<CalendlyLinkResponse>(
+  const response = await apiClient.get<CalendlyLinkResponse>(
     `/calendly/mentors/${mentorId}/link`
   )
   return response.data
@@ -22,7 +23,7 @@ export async function getCalendlyPrefill(
   mentorId: string,
   bookingId: string
 ): Promise<CalendlyPrefillResponse> {
-  const response = await api.get<CalendlyPrefillResponse>(
+  const response = await apiClient.get<CalendlyPrefillResponse>(
     `/calendly/mentors/${mentorId}/prefill`,
     { params: { booking_id: bookingId } }
   )
