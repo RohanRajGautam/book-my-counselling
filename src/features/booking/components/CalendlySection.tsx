@@ -1,12 +1,14 @@
 'use client'
 
-import { CalendarCheck, CalendarClock, CheckCircle, Loader2, XCircle } from 'lucide-react'
+import { CalendarCheck, CalendarClock, CheckCircle, XCircle } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useCalendlyWidget } from '../hooks/useCalendlyWidget'
 
 interface CalendlySectionProps {
   mentorId: string
   bookingId: string | null
+  userName?: string
+  userEmail?: string
   onScheduled?: () => void
 }
 
@@ -26,6 +28,9 @@ export function CalendlySection({
   // Initialise the Calendly inline widget once prefill data is ready
   useEffect(() => {
     if (step !== 'OPEN' || !prefillData || !widgetContainerRef.current) return
+
+    // Clear any previous widget content before re-initialising
+    widgetContainerRef.current.innerHTML = ''
 
     // Wait for the Calendly script to be available
     const init = () => {
@@ -74,14 +79,6 @@ export function CalendlySection({
             <CalendarCheck className="h-5 w-5" />
             {bookingId ? 'Schedule Now' : 'Complete booking first'}
           </button>
-        </div>
-      )}
-
-      {/* LOADING */}
-      {step === 'LOADING' && (
-        <div className="flex flex-col items-center gap-3 py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-[#004ac6]" />
-          <p className="text-sm text-[#434655]">Loading scheduling widget…</p>
         </div>
       )}
 

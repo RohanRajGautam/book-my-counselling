@@ -1,16 +1,20 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getCalendlyPrefill } from '../api/calendlyApi'
 import type {
   CalendlyEventScheduled,
   CalendlyPrefillResponse,
   CalendlyWidgetStep,
 } from '../types/calendly'
 
+// Platform-wide default Calendly link used until mentors configure their own
+const DEFAULT_CALENDLY_URL = 'https://calendly.com/nabin-webpoint/30min'
+
 interface UseCalendlyWidgetOptions {
   mentorId: string
   bookingId: string | null
+  userName?: string
+  userEmail?: string
   onScheduled?: () => void
 }
 
@@ -18,7 +22,7 @@ interface UseCalendlyWidgetReturn {
   step: CalendlyWidgetStep
   prefillData: CalendlyPrefillResponse | null
   error: string | null
-  openWidget: () => Promise<void>
+  openWidget: () => void
   resetWidget: () => void
 }
 
@@ -26,17 +30,17 @@ interface UseCalendlyWidgetReturn {
  * Manages the Calendly inline embed widget lifecycle.
  *
  * Flow:
- *   IDLE → LOADING (fetching prefill) → OPEN (widget visible) → SCHEDULED (success)
- *                                                              ↘ ERROR (fetch failed)
+ *   IDLE → OPEN (widget visible) → SCHEDULED (success)
+ *                                ↘ ERROR
  *
- * The Calendly widget is loaded via the official embed script
- * (https://assets.calendly.com/assets/external/widget.js).
- * We listen for the `calendly.event_scheduled` window message to detect
- * when the user completes booking.
+ * Uses the platform default Calendly URL directly — no backend round-trip
+ * needed until per-mentor links are configured.
  */
 export function useCalendlyWidget({
   mentorId,
   bookingId,
+  userName = '',
+  userEmail = '',
   onScheduled,
 }: UseCalendlyWidgetOptions): UseCalendlyWidgetReturn {
   const [step, setStep] = useState<CalendlyWidgetStep>('IDLE')
@@ -68,7 +72,6 @@ export function useCalendlyWidget({
         event.data?.event === 'calendly.event_scheduled'
       ) {
         const data = event.data as CalendlyEventScheduled
-        // Log for debugging; the webhook will handle the actual DB sync
         console.info('[Calendly] Event scheduled:', data.payload?.event?.uri)
         setStep('SCHEDULED')
         onScheduled?.()
@@ -79,36 +82,34 @@ export function useCalendlyWidget({
     return () => window.removeEventListener('message', handleMessage)
   }, [onScheduled])
 
-  const openWidget = useCallback(async () => {
+  const openWidget = useCallback(() => {
     if (!bookingId) {
       setError('Booking must be created before scheduling a call')
       setStep('ERROR')
       return
     }
 
-    if (!mentorId) {
-      setError('Mentor information is missing')
-      setStep('ERROR')
-      return
+    // Build prefill data locally — no backend call needed
+    const data: CalendlyPrefillResponse = {
+      calendly_url: DEFAULT_CALENDLY_URL,
+      prefill: {
+        name: userName,
+        email: userEmail,
+        customAnswers: {
+          a1: bookingId,
+        },
+      },
+      utm: {
+        utmSource: 'byc_platform',
+        utmCampaign: 'intro_call',
+        utmContent: mentorId,
+      },
     }
 
-    setStep('LOADING')
-    setError(null)
-
-    try {
-      const data = await getCalendlyPrefill(mentorId, bookingId)
-      setPrefillData(data)
-      ensureScript()
-      setStep('OPEN')
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Failed to load scheduling widget. Please try again.'
-      setError(message)
-      setStep('ERROR')
-    }
-  }, [bookingId, mentorId, ensureScript])
+    setPrefillData(data)
+    ensureScript()
+    setStep('OPEN')
+  }, [bookingId, mentorId, userName, userEmail, ensureScript])
 
   const resetWidget = useCallback(() => {
     setStep('IDLE')
