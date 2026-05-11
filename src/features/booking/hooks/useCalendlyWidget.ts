@@ -8,7 +8,7 @@ import type {
 } from '../types/calendly'
 
 // Platform-wide default Calendly link used until mentors configure their own
-const DEFAULT_CALENDLY_URL = 'https://calendly.com/nabin-webpoint/30min'
+const DEFAULT_CALENDLY_URL = 'https://calendly.com/bookyourcounselling/30min'
 
 interface UseCalendlyWidgetOptions {
   mentorId: string
