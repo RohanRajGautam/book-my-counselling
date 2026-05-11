@@ -1,18 +1,9 @@
 import apiClient from '@/lib/api/api-client'
-import type { BankInfo, QRData, PaymentStatus } from '../types/payment'
+import type { QRData, PaymentStatus } from '../types/payment'
 
-export async function fetchBanks(): Promise<BankInfo[]> {
-  const response = await apiClient.get<BankInfo[]>('/payments/banks')
-  return response.data
-}
-
-export async function initiatePayment(
-  bookingId: string,
-  bankCode: string
-): Promise<QRData> {
+export async function initiatePayment(bookingId: string): Promise<QRData> {
   const response = await apiClient.post<QRData>('/payments/initiate', {
     booking_id: bookingId,
-    bank_code: bankCode,
   })
   return response.data
 }

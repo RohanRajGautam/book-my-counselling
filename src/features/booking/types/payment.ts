@@ -9,9 +9,11 @@ export interface BankInfo {
 export interface QRData {
   transaction_id: string
   fonepay_transaction_id: string
+  /** Base64-encoded QR image (data:image/png;base64,...) or a URL */
   qr_code_url: string
-  deep_link: string
+  /** QR payload string — used as fallback to render QR client-side */
   qr_message: string
+  deep_link: string
   amount: number
   expires_at: string
   websocket_id: string
@@ -19,7 +21,6 @@ export interface QRData {
 
 export type PaymentStep =
   | 'IDLE'
-  | 'BANK_SELECTION'
   | 'QR_DISPLAY'
   | 'PROCESSING'
   | 'SUCCESS'

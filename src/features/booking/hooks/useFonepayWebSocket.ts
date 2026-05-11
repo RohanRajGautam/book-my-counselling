@@ -9,27 +9,32 @@ const RETRY_DELAYS = [1000, 2000, 4000, 8000, 16000]
 interface UseFonepayWebSocketOptions {
   transactionId: string | null
   onMessage: (message: WebSocketMessage) => void
-  onMaxRetriesExceeded?: () => void
+  /** Called when the connection is permanently lost (max retries exceeded). */
+  onDisconnected?: () => void
 }
 
 interface UseFonepayWebSocketReturn {
   connectionState: ConnectionState
-  lastMessage: WebSocketMessage | null
   disconnect: () => void
 }
 
 export function useFonepayWebSocket({
   transactionId,
   onMessage,
-  onMaxRetriesExceeded,
+  onDisconnected,
 }: UseFonepayWebSocketOptions): UseFonepayWebSocketReturn {
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected')
-  const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null)
 
   const wsRef = useRef<WebSocket | null>(null)
   const retriesRef = useRef(0)
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shouldReconnectRef = useRef(true)
+
+  // Keep stable refs to callbacks so connect() doesn't need them as deps
+  const onMessageRef = useRef(onMessage)
+  const onDisconnectedRef = useRef(onDisconnected)
+  useEffect(() => { onMessageRef.current = onMessage }, [onMessage])
+  useEffect(() => { onDisconnectedRef.current = onDisconnected }, [onDisconnected])
 
   const disconnect = useCallback(() => {
     shouldReconnectRef.current = false
@@ -47,16 +52,12 @@ export function useFonepayWebSocket({
   const connect = useCallback(() => {
     if (!transactionId || !shouldReconnectRef.current) return
 
-    const wsBase =
-      process.env.NEXT_PUBLIC_WS_URL ||
-      (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000')
-        .replace(/^http/, 'ws')
-        .replace('/api/v1', '')
-
-    const url = `${wsBase}/api/v1/payments/ws/${transactionId}`
+    // Build WS URL from the API base URL
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+    const wsBase = apiBase.replace(/^http/, 'ws')
+    const url = `${wsBase}/payments/ws/${transactionId}`
 
     setConnectionState('connecting')
-
     const ws = new WebSocket(url)
     wsRef.current = ws
 
@@ -67,11 +68,10 @@ export function useFonepayWebSocket({
 
     ws.onmessage = (event) => {
       try {
-        const message: WebSocketMessage = JSON.parse(event.data)
-        setLastMessage(message)
-        onMessage(message)
+        const message: WebSocketMessage = JSON.parse(event.data as string)
+        onMessageRef.current(message)
       } catch {
-        // ignore malformed messages
+        // ignore malformed frames
       }
     }
 
@@ -86,7 +86,7 @@ export function useFonepayWebSocket({
       retriesRef.current += 1
       if (retriesRef.current > MAX_RETRIES) {
         setConnectionState('disconnected')
-        onMaxRetriesExceeded?.()
+        onDisconnectedRef.current?.()
         return
       }
 
@@ -94,7 +94,7 @@ export function useFonepayWebSocket({
       setConnectionState('connecting')
       retryTimerRef.current = setTimeout(connect, delay)
     }
-  }, [transactionId, onMessage, onMaxRetriesExceeded])
+  }, [transactionId]) // connect only re-creates when transactionId changes
 
   useEffect(() => {
     if (!transactionId) return
@@ -109,5 +109,5 @@ export function useFonepayWebSocket({
     }
   }, [transactionId, connect])
 
-  return { connectionState, lastMessage, disconnect }
+  return { connectionState, disconnect }
 }

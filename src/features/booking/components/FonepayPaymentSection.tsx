@@ -3,7 +3,6 @@
 import { ShieldCheck } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect } from 'react'
-import { BankSelector } from './BankSelector'
 import { PaymentStatusDisplay } from './PaymentStatusDisplay'
 import { QRDisplay } from './QRDisplay'
 import { useFonepayPayment } from '../hooks/useFonepayPayment'
@@ -21,21 +20,15 @@ export function FonepayPaymentSection({
 }: FonepayPaymentSectionProps) {
   const {
     step,
-    banks,
-    banksLoading,
-    banksError,
-    selectedBank,
     qrData,
     error,
     timeRemaining,
-    selectBank,
     startPayment,
-    initiatePaymentFlow,
     cancelPayment,
     retryPayment,
   } = useFonepayPayment(bookingId)
 
-  // Notify parent on success (in effect, not during render)
+  // Notify parent on success
   useEffect(() => {
     if (step === 'SUCCESS') {
       onSuccess?.()
@@ -78,36 +71,6 @@ export function FonepayPaymentSection({
         >
           Pay with Fonepay
         </button>
-      )}
-
-      {/* Step: BANK_SELECTION */}
-      {step === 'BANK_SELECTION' && (
-        <div className="space-y-4">
-          <p className="text-sm font-medium text-[#121c2a]">Select your bank</p>
-          <BankSelector
-            banks={banks}
-            loading={banksLoading}
-            error={banksError}
-            selectedBank={selectedBank}
-            onSelect={selectBank}
-            onRetry={retryPayment}
-          />
-          <div className="flex gap-3">
-            <button
-              onClick={cancelPayment}
-              className="flex-1 rounded-lg border border-[#e0e0e0] py-3 text-sm font-medium text-[#434655] hover:bg-[#f8f9ff]"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={initiatePaymentFlow}
-              disabled={!selectedBank?.bank_code}
-              className="flex-1 rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Continue
-            </button>
-          </div>
-        </div>
       )}
 
       {/* Step: QR_DISPLAY */}

@@ -236,7 +236,9 @@ export function BookingPageContent() {
                   bookingId={bookingId}
                   amount={bookingAmount}
                   onSuccess={() => {
-                    alert('Payment successful! You will receive a confirmation email shortly.')
+                    // TODO: redirect to a success page or show inline confirmation
+                    console.log('Payment successful for booking:', bookingId)
+                    alert('Payment successful!')
                   }}
                 />
                 {mentorId && (
