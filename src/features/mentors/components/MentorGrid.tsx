@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { MentorCard } from '@/features/mentors/components/MentorCard'
+import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -89,8 +89,9 @@ export function MentorGrid() {
             }`}
           >
             {currentMentors.map((mentor) => (
-              <MentorCard
+              <MentorCardWithPackages
                 key={mentor.id}
+                mentorId={mentor.id}
                 name={mentor.full_name}
                 role={mentor.title}
                 company={mentor.company ?? ''}
@@ -98,7 +99,7 @@ export function MentorGrid() {
                 rating={mentor.average_rating}
                 reviews={mentor.total_reviews}
                 description={`Mentor in ${mentor.industries?.join(', ') || 'various fields'} with ${mentor.total_sessions} sessions`}
-                price={Number(mentor.hourly_rate)}
+                fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
                 verified={mentor.is_verified}
                 onClick={() => setSelectedMentorId(mentor.id)}
