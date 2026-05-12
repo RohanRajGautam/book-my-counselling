@@ -1,15 +1,31 @@
 'use client'
 
-import { ChevronDown, ListFilter } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Check, ListFilter, Search } from 'lucide-react'
 
 import { useIndustries } from '@/features/industries/hooks/useIndustries'
 import { useFilters } from '@/features/filters/context/FilterContext'
 
-const experienceLevels = ['0-2 Years', '3-5 Years', '5-10 Years', '10+ Years']
-
 export function FiltersSidebar() {
   const { filters, updateFilter } = useFilters()
   const { data: industries = [] } = useIndustries()
+  const [industrySearch, setIndustrySearch] = useState('')
+
+  const visibleIndustries = useMemo(() => {
+    const query = industrySearch.trim().toLowerCase()
+
+    if (!query) return industries
+
+    return industries.filter((industry) => industry.name.toLowerCase().includes(query))
+  }, [industries, industrySearch])
+
+  const toggleIndustry = (industryName: string) => {
+    const nextIndustries = filters.industries.includes(industryName)
+      ? filters.industries.filter((industry) => industry !== industryName)
+      : [...filters.industries, industryName]
+
+    updateFilter('industries', nextIndustries)
+  }
 
   return (
     <aside className="h-full bg-[#eff4ff] px-6 py-10 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
@@ -18,28 +34,75 @@ export function FiltersSidebar() {
         Advanced Filters
       </h2>
 
-      <div className="space-y-9">
+      <div className="space-y-7">
         <section>
-          <h3 className="mb-4 text-[11px] font-extrabold tracking-wider text-[#434655] uppercase">
-            Field / Industry
-          </h3>
-          <div className="relative">
-            <select
-              value={filters.industries[0] ?? ''}
-              onChange={(event) =>
-                updateFilter('industries', event.target.value ? [event.target.value] : [])
-              }
-              className="h-11 w-full appearance-none rounded-lg border-0 bg-white px-4 pr-10 text-sm font-bold text-[#121c2a] shadow-sm ring-1 ring-[#e2e8f0] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30"
-            >
-              <option value="">All Industry</option>
-              {industries.map((industry) => (
-                <option key={industry.id} value={industry.name}>
-                  {industry.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#0053db]" />
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-[11px] font-extrabold tracking-wider text-[#434655] uppercase">
+              Field / Industry
+            </h3>
+            {filters.industries.length > 0 && (
+              <button
+                type="button"
+                onClick={() => updateFilter('industries', [])}
+                className="text-[11px] font-extrabold text-[#0053db] transition hover:text-[#003fa8]"
+              >
+                Clear
+              </button>
+            )}
           </div>
+          <div className="mb-3 flex h-10 items-center rounded-lg bg-white px-3 shadow-sm ring-1 ring-[#e2e8f0] ring-inset">
+            <Search className="mr-2 size-4 shrink-0 text-[#0053db]" />
+            <input
+              type="search"
+              value={industrySearch}
+              onChange={(event) => setIndustrySearch(event.target.value)}
+              placeholder="Search industries"
+              className="h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#121c2a] outline-none placeholder:text-[#9aa3b2]"
+            />
+          </div>
+          <div className="custom-scrollbar max-h-[300px] space-y-2 overflow-y-auto pr-2">
+            {visibleIndustries.map((industry) => {
+              const isSelected = filters.industries.includes(industry.name)
+
+              return (
+                <button
+                  key={industry.id}
+                  type="button"
+                  onClick={() => toggleIndustry(industry.name)}
+                  aria-pressed={isSelected}
+                  className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-bold shadow-sm ring-1 transition ring-inset ${
+                    isSelected
+                      ? 'bg-[#0053db] text-white shadow-[0_8px_18px_rgba(0,83,219,0.18)] ring-[#0053db]'
+                      : 'bg-white text-[#121c2a] ring-[#e2e8f0] hover:bg-[#f8f9ff]'
+                  }`}
+                >
+                  <span className="min-w-0 flex-1">{industry.name}</span>
+                  <span
+                    className={`flex size-5 shrink-0 items-center justify-center rounded-full ${
+                      isSelected ? 'bg-white/20' : 'bg-[#eff4ff]'
+                    }`}
+                  >
+                    {isSelected && <Check className="size-3.5 text-white" strokeWidth={4} />}
+                  </span>
+                </button>
+              )
+            })}
+            {industries.length === 0 && (
+              <div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#737686] shadow-sm ring-1 ring-[#e2e8f0] ring-inset">
+                No industries available.
+              </div>
+            )}
+            {industries.length > 0 && visibleIndustries.length === 0 && (
+              <div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#737686] shadow-sm ring-1 ring-[#e2e8f0] ring-inset">
+                No matching industries.
+              </div>
+            )}
+          </div>
+          {filters.industries.length > 0 && (
+            <p className="mt-3 text-xs font-bold text-[#737686]">
+              {filters.industries.length} selected
+            </p>
+          )}
         </section>
 
         {/* <section>

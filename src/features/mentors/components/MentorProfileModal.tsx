@@ -53,12 +53,15 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const selectedPackageId = selection.mentorId === mentorId ? selection.packageId : null
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
-  const ctaLabel = !selectedSlotId
-    ? 'Choose a Date'
-    : !selectedPackageId
-      ? 'Choose a Package'
+  const ctaLabel = !selectedPackageId
+    ? 'Choose a Package'
+    : !selectedSlotId
+      ? 'Choose a Date'
       : 'Book a Session'
   const canBook = Boolean(selectedSlotId && selectedPackageId)
+  const ratingLabel = Number(mentor?.average_rating || 0)
+    .toFixed(1)
+    .replace('.0', '')
 
   const isInitialLoading = isMentorLoading || isPackagesLoading || isAvailabilityLoading
 
@@ -86,23 +89,23 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
       onClick={onClose}
     >
       <div
-        className="relative grid max-h-[90vh] w-full max-w-7xl grid-cols-1 gap-6 overflow-y-auto rounded-[32px] bg-[#f8f9ff] p-6 shadow-[0_16px_48px_rgba(18,28,42,0.12)] lg:grid-cols-12 lg:p-6"
+        className="custom-scrollbar relative grid max-h-[90vh] w-full max-w-7xl grid-cols-1 gap-5 overflow-y-auto rounded-[32px] bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:p-6 lg:grid-cols-12"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 flex items-center justify-center rounded-full p-3 text-[#434655] transition-colors hover:bg-[#dee9fc]"
+          className="absolute top-5 right-5 z-10 flex size-11 items-center justify-center rounded-full bg-white/90 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.08)] transition-colors hover:bg-[#dee9fc]"
           aria-label="Close modal"
         >
           <X className="h-6 w-6" />
         </button>
 
         {/* LEFT COLUMN: Identity & Quick Actions */}
-        <div className="flex flex-col gap-6 lg:col-span-4">
-          <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-8 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-            <div className="absolute top-0 left-0 -z-0 h-32 w-full rounded-t-[24px] bg-[#eff4ff]"></div>
+        <div className="flex flex-col gap-5 lg:col-span-4">
+          <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-7 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+            <div className="absolute top-0 left-0 -z-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]"></div>
             <div className="relative z-10">
-              <div className="mx-auto mb-6 h-32 w-32 overflow-hidden rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
+              <div className="mx-auto mb-5 h-28 w-28 overflow-hidden rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
                 {/* <Image
                   src={mentor.user?.avatar_url || '/globe.svg'}
                   alt={`${mentor.user?.full_name} profile`}
@@ -128,22 +131,42 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   </div>
                 )}
               </div>
-              <h2 className="mb-2 font-[family-name:var(--font-headline)] text-3xl font-extrabold tracking-tight text-[#121c2a]">
+              <h2 className="mb-2 font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-3xl">
                 {mentor.user?.full_name}
               </h2>
-              <p className="mb-4 text-lg text-[#434655]">
+              <p className="mx-auto mb-4 max-w-[320px] text-base leading-7 font-medium text-[#434655]">
                 {mentor.title} {mentor.company && `at ${mentor.company}`}
               </p>
 
               {mentor.is_verified && (
-                <div className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-[#6cf8bb]/30 px-3 py-1.5 text-sm font-bold text-[#00714d]">
+                <div className="mb-5 inline-flex items-center gap-1.5 rounded-full bg-[#6cf8bb]/30 px-3 py-1.5 text-sm font-bold text-[#00714d]">
                   <Check className="h-[18px] w-[18px]" strokeWidth={3} />
                   Verified Mentor
                 </div>
               )}
 
-              <div className="flex gap-8">
-                {' '}
+              <div className="mb-5 grid grid-cols-3 overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]">
+                <div className="px-3 py-3">
+                  <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                    {ratingLabel}
+                  </p>
+                  <p className="text-[11px] font-bold text-[#737686]">Rating</p>
+                </div>
+                <div className="border-x border-[#eff4ff] px-3 py-3">
+                  <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                    {mentor.total_reviews}
+                  </p>
+                  <p className="text-[11px] font-bold text-[#737686]">Reviews</p>
+                </div>
+                <div className="px-3 py-3">
+                  <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                    {mentor.total_sessions}
+                  </p>
+                  <p className="text-[11px] font-bold text-[#737686]">Sessions</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <a
                   href={linkedinHref}
                   target={mentor.linkedin_url ? '_blank' : undefined}
@@ -151,7 +174,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   onClick={(event) => {
                     if (!mentor.linkedin_url) event.preventDefault()
                   }}
-                  className={`flex items-center gap-2 rounded-[16px] bg-[#eff4ff] px-5 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
+                  className={`flex items-center justify-center gap-2 rounded-[16px] bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
                     !mentor.linkedin_url ? 'cursor-not-allowed opacity-55' : ''
                   }`}
                 >
@@ -165,7 +188,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   onClick={(event) => {
                     if (!mentor.website_url) event.preventDefault()
                   }}
-                  className={`flex items-center gap-2 rounded-[16px] bg-[#eff4ff] px-5 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
+                  className={`flex items-center justify-center gap-2 rounded-[16px] bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
                     !mentor.website_url ? 'cursor-not-allowed opacity-55' : ''
                   }`}
                 >
@@ -176,11 +199,14 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             </div>
           </div>
 
-          <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-            <h3 className="mb-4 font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
-              Services Provided
-            </h3>
-            <div className="flex flex-wrap gap-3">
+          <div className="flex h-[190px] flex-col rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
+                Services Provided
+              </h3>
+              <span className="text-xs font-bold text-[#737686]">{services.length} total</span>
+            </div>
+            <div className="custom-scrollbar flex min-h-0 flex-1 flex-wrap content-start gap-3 overflow-y-auto pr-2">
               {services.length > 0 ? (
                 services.map((tag) => (
                   <span
@@ -229,8 +255,8 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             </a>
           </div> */}
 
-          <div className="sticky bottom-0 mt-auto rounded-[24px] p-6">
-            <div className="mt-auto">
+          <div className="sticky bottom-0 mt-auto rounded-[24px] bg-[#f8f9ff]/90 p-3 backdrop-blur">
+            <div className="mt-auto rounded-[24px] bg-white p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
               <button
                 disabled={!canBook}
                 onClick={() => {
@@ -240,7 +266,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                     )
                   }
                 }}
-                className="block w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-5 text-center font-[family-name:var(--font-headline)] text-xl font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+                className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-4 text-center font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
               >
                 {ctaLabel}
               </button>
@@ -249,23 +275,105 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
         </div>
 
         {/* RIGHT COLUMN: Details Bento */}
-        <div className="flex flex-col gap-6 lg:col-span-8">
-          <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)] lg:p-10">
-            <h3 className="mb-4 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
+        <div className="flex flex-col gap-5 lg:col-span-8">
+          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)] lg:p-8">
+            <h3 className="mb-3 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
               About {mentor.user?.full_name?.split(' ')[0]}
             </h3>
-            <p className="text-lg leading-relaxed text-[#434655]">
+            <p className="text-base leading-8 font-medium text-[#434655]">
               {mentor.bio ||
                 `${mentor.user?.full_name} is an experienced ${mentor.title} passionate about mentoring professionals.`}
             </p>
           </div>
 
-          <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
-                Upcoming Availability
-              </h3>
-              <span className="text-sm font-bold text-[#004ac6]">Choose one date</span>
+              <div>
+                <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
+                  Packages
+                </h3>
+                <p className="mt-1 text-sm font-medium text-[#737686]">
+                  Select a package before choosing a time.
+                </p>
+              </div>
+              <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+                Choose one
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {packages.length > 0 ? (
+                packages.map((service, index) => (
+                  <button
+                    key={service.id}
+                    type="button"
+                    onClick={() =>
+                      setSelection({
+                        mentorId,
+                        slotId: null,
+                        packageId: selectedPackageId === service.id ? null : service.id,
+                      })
+                    }
+                    className={`group relative cursor-pointer overflow-hidden rounded-[24px] p-5 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset ${
+                      selectedPackageId === service.id
+                        ? 'bg-[#004ac6] text-white ring-[#004ac6]'
+                        : 'bg-[#f8f9ff] ring-[#eff4ff] hover:bg-[#eff4ff]/70'
+                    }`}
+                  >
+                    {index === 0 && (
+                      <div
+                        className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-xs font-bold ${
+                          selectedPackageId === service.id
+                            ? 'bg-white/20 text-white'
+                            : 'bg-[#6cf8bb] text-[#00714d]'
+                        }`}
+                      >
+                        Popular
+                      </div>
+                    )}
+                    <h4
+                      className={`mb-1 font-[family-name:var(--font-headline)] text-lg font-bold ${
+                        selectedPackageId === service.id ? 'text-white' : 'text-[#121c2a]'
+                      }`}
+                    >
+                      {service.title}
+                    </h4>
+                    <p
+                      className={`mb-5 text-sm font-semibold ${
+                        selectedPackageId === service.id ? 'text-white/80' : 'text-[#434655]'
+                      }`}
+                    >
+                      {service.duration_minutes} minutes
+                    </p>
+                    <div
+                      className={`font-[family-name:var(--font-headline)] text-2xl font-extrabold ${
+                        selectedPackageId === service.id ? 'text-white' : 'text-[#004ac6]'
+                      }`}
+                    >
+                      NPR {Number(service.price)}
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="col-span-full rounded-[16px] bg-[#f8f9ff] p-6 text-center font-medium text-[#737686]">
+                  No service packages available yet.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
+                  Upcoming Availability
+                </h3>
+                <p className="mt-1 text-sm font-medium text-[#737686]">
+                  Times are shown in your local browser timezone.
+                </p>
+              </div>
+              <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+                {selectedPackageId ? 'Choose one date' : 'Choose a package first'}
+              </span>
             </div>
             {availability.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -276,17 +384,18 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                     <button
                       key={slot.id}
                       type="button"
+                      disabled={!selectedPackageId}
                       onClick={() => {
                         setSelection({
                           mentorId,
                           slotId: isSelected ? null : slot.id,
-                          packageId: null,
+                          packageId: selectedPackageId,
                         })
                       }}
-                      className={`flex items-center justify-between rounded-[16px] p-4 text-left transition ${
+                      className={`flex items-center justify-between rounded-[16px] p-4 text-left ring-1 transition ring-inset disabled:cursor-not-allowed disabled:opacity-45 ${
                         isSelected
-                          ? 'bg-[#004ac6] text-white ring-2 ring-[#004ac6]'
-                          : 'bg-[#f8f9ff] text-[#434655] hover:bg-[#eff4ff]'
+                          ? 'bg-[#004ac6] text-white ring-[#004ac6]'
+                          : 'bg-[#f8f9ff] text-[#434655] ring-[#eff4ff] hover:bg-[#eff4ff]'
                       }`}
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -320,86 +429,14 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             )}
           </div>
 
-          <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
-                Packages
-              </h3>
-              <span className="text-sm font-bold text-[#004ac6]">Choose one package</span>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {packages.length > 0 ? (
-                packages.map((service, index) => (
-                  <button
-                    key={service.id}
-                    type="button"
-                    disabled={!selectedSlotId}
-                    onClick={() =>
-                      setSelection({
-                        mentorId,
-                        slotId: selectedSlotId,
-                        packageId: selectedPackageId === service.id ? null : service.id,
-                      })
-                    }
-                    className={`group relative cursor-pointer overflow-hidden rounded-[24px] p-6 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-all disabled:cursor-not-allowed disabled:opacity-45 ${
-                      selectedPackageId === service.id
-                        ? 'bg-[#004ac6] text-white ring-2 ring-[#004ac6]'
-                        : 'bg-[#f8f9ff] hover:bg-[#eff4ff]/70'
-                    }`}
-                  >
-                    {index === 0 && (
-                      <div
-                        className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-xs font-bold ${
-                          selectedPackageId === service.id
-                            ? 'bg-white/20 text-white'
-                            : 'bg-[#6cf8bb] text-[#00714d]'
-                        }`}
-                      >
-                        Popular
-                      </div>
-                    )}
-                    <h4
-                      className={`mb-1 font-[family-name:var(--font-headline)] text-lg font-bold ${
-                        selectedPackageId === service.id ? 'text-white' : 'text-[#121c2a]'
-                      }`}
-                    >
-                      {service.title}
-                    </h4>
-                    <p
-                      className={`mb-4 text-sm ${
-                        selectedPackageId === service.id ? 'text-white/80' : 'text-[#434655]'
-                      }`}
-                    >
-                      {service.duration_minutes} minutes
-                    </p>
-                    <div
-                      className={`font-[family-name:var(--font-headline)] text-2xl font-extrabold ${
-                        selectedPackageId === service.id ? 'text-white' : 'text-[#004ac6]'
-                      }`}
-                    >
-                      NPR {Number(service.price)}
-                    </div>
-                    {selectedPackageId === service.id && (
-                      <div className="absolute top-4 left-4 flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                        <Check className="h-4 w-4 text-[#004ac6]" strokeWidth={3} />
-                      </div>
-                    )}
-                  </button>
-                ))
-              ) : (
-                <div className="col-span-full rounded-[16px] bg-[#f8f9ff] p-6 text-center font-medium text-[#737686]">
-                  No service packages available yet.
-                </div>
-              )}
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 gap-6">
-            <div className="rounded-[24px] bg-white p-4 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+            <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
               {totalReviews > 0 || isReviewsLoading ? (
                 <div className="flex flex-col gap-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-[#121c2a]">Customer Reviews</h3>
+                    <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
+                      Customer Reviews
+                    </h3>
                     <div className="flex items-center gap-2">
                       {isReviewsLoading && (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#004ac6] border-t-transparent" />

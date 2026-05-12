@@ -8,5 +8,5 @@ export interface FilterState {
   eveningsWeekends?: boolean
   experienceLevel?: string
   counselingType: 'academic' | 'professional'
-  sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high'
+  sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high' | 'newest'
 }

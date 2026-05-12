@@ -30,6 +30,13 @@ export function getInitials(name: string) {
   return initials || 'M'
 }
 
+function formatDisplayName(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
+}
+
 export function MentorCard({
   name,
   role,
@@ -44,6 +51,7 @@ export function MentorCard({
   onClick,
 }: MentorCardProps) {
   const imageSrc = imageUrl?.trim() || null
+  const displayName = formatDisplayName(name)
   const initials = getInitials(name)
   const services = tags.slice(0, 4).map((tag) => tag.replace(/^#/, ''))
 
@@ -58,14 +66,14 @@ export function MentorCard({
             {imageSrc ? (
               <Image
                 src={imageSrc}
-                alt={`${name} profile`}
+                alt={`${displayName} profile`}
                 width={78}
                 height={78}
                 className="size-full rounded-full object-cover"
               />
             ) : (
               <div
-                aria-label={`${name} profile initials`}
+                aria-label={`${displayName} profile initials`}
                 className="flex size-full items-center justify-center rounded-full bg-[#e6eeff] text-xl font-extrabold text-[#004ac6]"
               >
                 {initials}
@@ -81,7 +89,7 @@ export function MentorCard({
 
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-2 font-[family-name:var(--font-headline)] text-lg font-extrabold tracking-tight text-[#121c2a] transition group-hover:text-[#004ac6]">
-            {name}
+            {displayName}
           </h3>
           {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>}
           <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
@@ -121,7 +129,7 @@ export function MentorCard({
         </div>
       </div>
 
-      <div className="mb-5 flex items-center gap-2">
+      <div className="mt-auto mb-5 flex items-center gap-2">
         <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
         <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
           {Number(rating || 0)
@@ -143,7 +151,7 @@ export function MentorCard({
         {description}
       </p> */}
 
-      <div className="mt-auto flex items-center justify-between gap-4 border-t border-[#dfe7f5] pt-5">
+      <div className="flex items-center justify-between gap-4 border-t border-[#dfe7f5] pt-5">
         <div>
           <p className="text-xs font-extrabold tracking-widest text-[#737686] uppercase">
             Starting at

@@ -1,13 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 import { MentorCard } from '@/features/mentors/components/MentorCard'
 import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
 import { MentorProfileModal } from './MentorProfileModal'
+
+const SORT_OPTIONS = [
+  { value: 'rating', label: 'Top rated' },
+  { value: 'reviews', label: 'Most reviewed' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-low', label: 'Price: low to high' },
+  { value: 'price-high', label: 'Price: high to low' },
+] as const
 
 export function MentorGrid() {
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
@@ -93,22 +101,48 @@ export function MentorGrid() {
           </div>
         </div>
 
-        <div className="mb-3 mb-8 flex h-18 items-center rounded-full bg-white px-4 shadow-[0_10px_30px_rgba(18,28,42,0.035)]">
-          <Search className="mr-3 size-6 text-[#0053db]" />
-          <input
-            type="search"
-            value={filters.jobTitle ?? ''}
-            onChange={(event) => updateFilter('jobTitle', event.target.value)}
-            placeholder="Search by name, role, or company..."
-            className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[#121c2a] outline-none placeholder:text-[#b5bbc8]"
-          />
-          <button
-            type="button"
-            onClick={() => updateFilter('jobTitle', filters.jobTitle ?? '')}
-            className="h-10 rounded-lg bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
-          >
-            Search
-          </button>
+        <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
+          <div className="flex h-16 min-w-0 flex-1 items-center rounded-full bg-white px-4 shadow-[0_10px_30px_rgba(18,28,42,0.035)]">
+            <Search className="mr-3 size-6 text-[#0053db]" />
+            <input
+              type="search"
+              value={filters.jobTitle ?? ''}
+              onChange={(event) => updateFilter('jobTitle', event.target.value)}
+              placeholder="Search by name, role, or company..."
+              className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[#121c2a] outline-none placeholder:text-[#b5bbc8]"
+            />
+            <button
+              type="button"
+              onClick={() => updateFilter('jobTitle', filters.jobTitle ?? '')}
+              className="ml-2 h-10 rounded-lg bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+            >
+              Search
+            </button>
+          </div>
+
+          <label className="flex h-14 shrink-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_10px_30px_rgba(18,28,42,0.035)]">
+            <ArrowUpDown className="size-5 text-[#0053db]" />
+            <span className="text-sm font-extrabold text-[#434655]">Sort</span>
+            <span className="relative">
+              <select
+                value={filters.sortBy}
+                onChange={(event) =>
+                  updateFilter(
+                    'sortBy',
+                    event.target.value as (typeof SORT_OPTIONS)[number]['value']
+                  )
+                }
+                className="h-10 min-w-[180px] appearance-none rounded-lg bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#0053db]" />
+            </span>
+          </label>
         </div>
 
         {/* <div className="mb-10 flex flex-wrap items-center gap-2 text-xs font-extrabold">

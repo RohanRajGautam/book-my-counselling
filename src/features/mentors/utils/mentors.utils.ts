@@ -2,9 +2,13 @@ import { FilterState } from '@/features/filters/types/filter.types'
 import { Mentor } from '../types/mentors.types'
 
 export function mapSort(filters: FilterState): {
-  sort_by: 'rating' | 'reviews' | 'price'
+  sort_by: 'rating' | 'reviews' | 'price' | 'created_at'
   sort_order: 'asc' | 'desc'
 } {
+  if (filters.sortBy === 'newest') {
+    return { sort_by: 'created_at', sort_order: 'desc' }
+  }
+
   if (filters.sortBy === 'reviews') {
     return { sort_by: 'reviews', sort_order: 'desc' }
   }
