@@ -16,11 +16,14 @@ import {
 import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
+import { createGuestBooking } from '@/features/booking/api/bookingApi'
 
 export function BookingPageContent() {
   const searchParams = useSearchParams()
   const mentorId = searchParams.get('mentorId')
   const packageId = searchParams.get('packageId')
+  // slotId is selected in the mentor profile modal and passed via URL
+  const slotId = searchParams.get('slotId')
 
   const { data: mentor, isPending: isMentorLoading } = useMentor(mentorId)
   const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(mentorId)
@@ -39,26 +42,26 @@ export function BookingPageContent() {
     expiry: '',
     cvc: '',
   })
-
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [bookingId, setBookingId] = useState<string | null>(null)
+  const [bookingAmount, setBookingAmount] = useState<number>(0)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) {
       setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
+        const next = { ...prev }
+        delete next[field]
+        return next
       })
     }
   }
 
   const handlePhoneChange = (field: 'phone' | 'guardianPhone', value: string) => {
-    const formatted = formatPhone(value)
-    handleInputChange(field, formatted)
+    handleInputChange(field, formatPhone(value))
   }
 
   const handleBlur = (field: keyof BookingFormData) => {
@@ -66,40 +69,59 @@ export function BookingPageContent() {
   }
 
   const handleSubmit = async () => {
-    const allTouched = Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+    const allTouched = Object.keys(formData).reduce(
+      (acc, key) => ({ ...acc, [key]: true }),
+      {} as Record<string, boolean>,
+    )
     setTouched(allTouched)
+    setSubmitError(null)
 
     const validationErrors = validateBookingForm(formData)
 
     if (validationErrors.length > 0) {
       const errorMap = validationErrors.reduce(
-        (acc, error) => ({ ...acc, [error.field]: error.message }),
-        {}
+        (acc, e) => ({ ...acc, [e.field]: e.message }),
+        {} as Record<string, string>,
       )
       setErrors(errorMap)
-
       const firstError = validationErrors[0]
       if (firstError) {
-        const element = document.getElementById(firstError.field)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          element.focus()
-        }
+        const el = document.getElementById(firstError.field)
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el?.focus()
       }
       return
     }
 
+    if (!mentorId || !slotId) return
+
     setIsSubmitting(true)
     try {
-      // TODO: Replace with real booking API call once auth is wired up:
-      // const booking = await createBooking({ ...formData, mentorId, packageId })
-      // setBookingId(booking.id)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      // Placeholder booking ID for local testing
-      setBookingId('00000000-0000-0000-0000-000000000001')
-    } catch (error) {
-      console.error('Booking error:', error)
-      alert('An error occurred. Please try again.')
+      const result = await createGuestBooking({
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        mentor_id: mentorId,
+        slot_id: slotId,
+        package_id: packageId ?? undefined,
+        goals: formData.message,
+        current_school: formData.school || undefined,
+        guardian_phone: formData.guardianPhone || undefined,
+        mentee_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+
+      setBookingId(result.booking_id)
+      setBookingAmount(parseFloat(result.agreed_price))
+    } catch (err: unknown) {
+      let msg = 'Failed to create booking. Please try again.'
+      if (err && typeof err === 'object') {
+        const axiosErr = err as {
+          response?: { data?: { detail?: string } }
+          message?: string
+        }
+        msg = axiosErr.response?.data?.detail || axiosErr.message || msg
+      }
+      setSubmitError(msg)
     } finally {
       setIsSubmitting(false)
     }
@@ -107,7 +129,6 @@ export function BookingPageContent() {
 
   const isLoading = isMentorLoading || isPackagesLoading
 
-  // Build order summary data from real mentor + selected package
   const orderSummaryMentor = mentor
     ? {
         name: mentor.user?.full_name ?? '',
@@ -117,17 +138,25 @@ export function BookingPageContent() {
     : null
 
   const orderSummarySession = selectedPackage
-    ? {
-        type: selectedPackage.title,
-        duration: `${selectedPackage.duration_minutes} mins`,
-      }
+    ? { type: selectedPackage.title, duration: `${selectedPackage.duration_minutes} mins` }
     : null
 
   const orderSummaryPrice = selectedPackage ? Number(selectedPackage.price) : 0
 
+  // Guard: if required URL params are missing, show a helpful message
+  if (!mentorId || !packageId || !slotId) {
+    return (
+      <main className="mx-auto min-h-dvh max-w-7xl flex flex-col justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
+        <p className="text-lg font-semibold text-[#121c2a]">Missing booking details</p>
+        <p className="mt-2 text-[#434655]">
+          Please go back and select a mentor, package, and session time.
+        </p>
+      </main>
+    )
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-20 lg:px-8">
-      {/* Header */}
       <div className="my-12">
         <h1 className="my-4 font-[family-name:var(--font-headline)] text-4xl font-bold tracking-tight text-[#121c2a] md:text-5xl">
           Complete your booking
@@ -137,7 +166,6 @@ export function BookingPageContent() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="flex flex-col gap-12 lg:flex-row lg:gap-24">
         {/* Left Column: Form */}
         <div className="flex-1 space-y-12">
@@ -172,7 +200,7 @@ export function BookingPageContent() {
                   id="phone"
                   label="Phone Number"
                   type="tel"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+977 98XXXXXXXX"
                   value={formData.phone}
                   onChange={(e) => handlePhoneChange('phone', e.target.value)}
                   onBlur={() => handleBlur('phone')}
@@ -193,7 +221,7 @@ export function BookingPageContent() {
                   id="school"
                   label="Current School/College"
                   type="text"
-                  placeholder="e.g. Stanford University"
+                  placeholder="e.g. Tribhuvan University"
                   value={formData.school}
                   onChange={(e) => handleInputChange('school', e.target.value)}
                   onBlur={() => handleBlur('school')}
@@ -213,7 +241,7 @@ export function BookingPageContent() {
                 id="guardianPhone"
                 label="Guardian's Phone Number"
                 type="tel"
-                placeholder="+1 (555) 000-0000"
+                placeholder="+977 98XXXXXXXX"
                 value={formData.guardianPhone || ''}
                 onChange={(e) => handlePhoneChange('guardianPhone', e.target.value)}
                 onBlur={() => handleBlur('guardianPhone')}
@@ -252,21 +280,15 @@ export function BookingPageContent() {
                 session={orderSummarySession}
                 price={orderSummaryPrice}
               />
-            ) : (
-              <div className="rounded-[24px] bg-white p-8 text-center text-[#434655] shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
-                <p className="font-semibold text-[#121c2a]">No session selected</p>
-                <p className="mt-1 text-sm">Go back and select a mentor and package.</p>
-              </div>
-            )}
+            ) : null}
 
             {bookingId ? (
               <>
                 <FonepayPaymentSection
                   bookingId={bookingId}
-                  amount={orderSummaryPrice}
+                  amount={bookingAmount}
                   onSuccess={() => {
                     console.log('Payment successful for booking:', bookingId)
-                    alert('Payment successful!')
                   }}
                 />
                 {mentorId && (
@@ -274,19 +296,26 @@ export function BookingPageContent() {
                     mentorId={mentorId}
                     bookingId={bookingId}
                     onScheduled={() => {
-                      alert('Your intro call is scheduled! Check your email for details.')
+                      console.log('Session scheduled for booking:', bookingId)
                     }}
                   />
                 )}
               </>
             ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting || !orderSummaryMentor || !orderSummarySession}
-                className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isSubmitting ? 'Creating booking…' : 'Proceed to Payment'}
-              </button>
+              <div className="space-y-3">
+                {submitError && (
+                  <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-[#ba1a1a]">
+                    {submitError}
+                  </p>
+                )}
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !orderSummaryMentor || !orderSummarySession}
+                  className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Creating booking…' : 'Proceed to Payment'}
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -294,3 +323,4 @@ export function BookingPageContent() {
     </main>
   )
 }
+
