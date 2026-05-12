@@ -3,7 +3,6 @@
 import { ShieldCheck } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect } from 'react'
-import { BankSelector } from './BankSelector'
 import { PaymentStatusDisplay } from './PaymentStatusDisplay'
 import { QRDisplay } from './QRDisplay'
 import { useFonepayPayment } from '../hooks/useFonepayPayment'
@@ -24,22 +23,13 @@ export function FonepayPaymentSection({
     qrData,
     error,
     timeRemaining,
-    banks,
-    banksLoading,
-    banksError,
-    selectedBank,
     startPayment,
-    initiateWithBank,
     cancelPayment,
     retryPayment,
-    retryBankFetch,
   } = useFonepayPayment(bookingId)
 
-  // Notify parent on success
   useEffect(() => {
-    if (step === 'SUCCESS') {
-      onSuccess?.()
-    }
+    if (step === 'SUCCESS') onSuccess?.()
   }, [step, onSuccess])
 
   return (
@@ -70,7 +60,7 @@ export function FonepayPaymentSection({
         </p>
       </div>
 
-      {/* Step: IDLE */}
+      {/* IDLE — single button, no bank selection */}
       {step === 'IDLE' && (
         <button
           onClick={startPayment}
@@ -80,28 +70,7 @@ export function FonepayPaymentSection({
         </button>
       )}
 
-      {/* Step: BANK_SELECTION */}
-      {step === 'BANK_SELECTION' && (
-        <div className="space-y-5">
-          <p className="text-sm font-medium text-[#121c2a]">Select your bank</p>
-          <BankSelector
-            banks={banks}
-            loading={banksLoading}
-            error={banksError}
-            selectedBank={selectedBank}
-            onSelect={initiateWithBank}
-            onRetry={retryBankFetch}
-          />
-          <button
-            onClick={cancelPayment}
-            className="w-full rounded-xl py-2.5 text-sm text-[#434655] transition hover:bg-[#f8f9ff]"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-
-      {/* Step: QR_DISPLAY — shows spinner while fetching, then QR once ready */}
+      {/* QR_DISPLAY — spinner while generating, then QR code */}
       {step === 'QR_DISPLAY' && (
         <QRDisplay
           qrData={qrData}
@@ -110,7 +79,7 @@ export function FonepayPaymentSection({
         />
       )}
 
-      {/* Steps: PROCESSING, SUCCESS, FAILED, EXPIRED */}
+      {/* PROCESSING / SUCCESS / FAILED / EXPIRED */}
       {(step === 'PROCESSING' ||
         step === 'SUCCESS' ||
         step === 'FAILED' ||
@@ -123,7 +92,6 @@ export function FonepayPaymentSection({
         />
       )}
 
-      {/* Security badge */}
       {step !== 'SUCCESS' && (
         <div className="mt-6 flex items-center justify-center gap-2 text-sm text-[#434655]">
           <ShieldCheck className="h-4 w-4 text-[#006c49]" />
