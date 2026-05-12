@@ -3,9 +3,6 @@ import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
 
 import './globals.css'
 import { Providers } from './providers'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
-
 const headline = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-headline',
@@ -85,9 +82,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased">
         <Providers>
-          <Navbar />
           {children}
-          <Footer />
         </Providers>
       </body>
     </html>
