@@ -8,7 +8,7 @@ import { ArrowRight, Menu, X } from 'lucide-react'
 const navItems = [
   { href: '/explore-mentors', label: 'Explore Mentors' },
   { href: '/how-it-works', label: 'How it Works' },
-  { href: '/about', label: 'About Us' },
+  // { href: '/about', label: 'About Us' },
 ]
 
 export function Navbar() {
@@ -16,11 +16,28 @@ export function Navbar() {
   const pathname = usePathname()
 
   const isActive = (path: string) => pathname === path
+  const showAnnouncement = pathname === '/' || pathname === '/school-to-startup'
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88">
-        <div className="max-w-8xl mx-auto flex items-center justify-between px-4 py-4 sm:px-8">
+      {showAnnouncement && (
+        <Link
+          href="/explore-mentors"
+          className="fixed inset-x-0 top-0 z-50 flex min-h-10 items-center justify-center gap-2 bg-[#004ac6] px-4 py-2 text-center text-xs font-extrabold text-white shadow-[0_8px_22px_rgba(0,74,198,0.18)] sm:text-sm"
+        >
+          <span>Completed SEE or +2 and confused about career?</span>
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            Find Mentor <ArrowRight className="size-4" />
+          </span>
+        </Link>
+      )}
+
+      <nav
+        className={`fixed z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88 ${
+          showAnnouncement ? 'top-10' : 'top-0'
+        }`}
+      >
+        <div className="mx-auto flex max-w-[1380px] items-center justify-between px-4 py-4 sm:px-8">
           <Link
             href="/"
             className="font-[family-name:var(--font-headline)] text-xl font-bold tracking-tight text-blue-700 sm:text-2xl dark:text-blue-300"
@@ -76,7 +93,11 @@ export function Navbar() {
       </nav>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-[77px] z-40 border-b border-[#c3c6d7]/20 bg-white/96 px-4 pb-5 shadow-[0_18px_42px_rgba(18,28,42,0.14)] backdrop-blur-md md:hidden dark:bg-slate-900/96">
+        <div
+          className={`fixed inset-x-0 z-40 border-b border-[#c3c6d7]/20 bg-white/96 px-4 pb-5 shadow-[0_18px_42px_rgba(18,28,42,0.14)] backdrop-blur-md md:hidden dark:bg-slate-900/96 ${
+            showAnnouncement ? 'top-[117px]' : 'top-[77px]'
+          }`}
+        >
           <div className="mx-auto flex max-w-7xl flex-col gap-2 pt-3">
             {navItems.map((item) => (
               <Link

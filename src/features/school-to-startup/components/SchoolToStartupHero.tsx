@@ -3,13 +3,13 @@ import { Award, Users } from 'lucide-react'
 
 export function SchoolToStartupHero() {
   return (
-    <section className="mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-10 md:grid-cols-[0.94fr_1.06fr] md:px-8 lg:gap-16 lg:py-14">
+    <section className="mx-auto mb-6 grid w-full max-w-[1350px] items-center gap-12 px-6 md:grid-cols-[0.94fr_1.06fr] md:px-8 lg:gap-16">
       <div className="max-w-2xl">
         <span className="inline-flex items-center rounded-full bg-[#6ffbbe] px-5 py-2 text-sm font-semibold text-[#005236]">
           BYC Events
         </span>
 
-        <h1 className="mt-7 max-w-xl font-[family-name:var(--font-headline)] text-5xl leading-[0.98] font-extrabold tracking-normal text-[#121c2a] sm:text-6xl lg:text-7xl">
+        <h1 className="mt-4 max-w-xl font-[family-name:var(--font-headline)] text-4xl leading-[0.98] font-extrabold tracking-tight text-[#121c2a] sm:text-6xl md:text-[62px]">
           School to <span className="text-[#0053db]">Startup Series</span>
         </h1>
 

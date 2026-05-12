@@ -101,7 +101,7 @@ export function MentorCard({
 
       <div className="mb-5">
         <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
-          Services provided
+          Services offered
         </p>
         <div className="flex min-h-[30px] flex-wrap gap-2">
           {services.length > 0 ? (

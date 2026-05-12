@@ -12,7 +12,7 @@ export function MentorDiscovery() {
   return (
     <div
       id="mentor-discovery"
-      className="m-auto grid min-h-screen max-w-[1380] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[250px_minmax(0,1fr)]"
+      className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[260px_minmax(0,1fr)]"
     >
       <div className="hidden lg:block">
         <FiltersSidebar />
@@ -23,7 +23,7 @@ export function MentorDiscovery() {
           <button
             type="button"
             onClick={() => setShowMobileFilters(true)}
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-white px-4 text-sm font-extrabold text-[#0053db] shadow-[0_10px_24px_rgba(18,28,42,0.06)]"
+            className="inline-flex h-11 items-center gap-2 rounded-xl bg-white px-4 text-sm font-extrabold text-[#0053db] shadow-[0_10px_24px_rgba(18,28,42,0.06)] ring-1 ring-[#eff4ff] ring-inset"
           >
             <SlidersHorizontal className="size-4" />
             Filters

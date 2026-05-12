@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 import { MentorCard } from '@/features/mentors/components/MentorCard'
 import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
-import { MentorProfileModal } from './MentorProfileModal'
 
 const SORT_OPTIONS = [
   { value: 'rating', label: 'Top rated' },
@@ -18,7 +17,7 @@ const SORT_OPTIONS = [
 ] as const
 
 export function MentorGrid() {
-  const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
+  const router = useRouter()
   const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, currentPage)
 
@@ -30,6 +29,14 @@ export function MentorGrid() {
     document
       .getElementById('mentor-results')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const toggleCounselingType = (type: 'academic' | 'professional') => {
+    const nextTypes = filters.counselingType.includes(type)
+      ? filters.counselingType.filter((selectedType) => selectedType !== type)
+      : [...filters.counselingType, type]
+
+    updateFilter('counselingType', nextTypes)
   }
 
   const getPageNumbers = () => {
@@ -59,24 +66,25 @@ export function MentorGrid() {
 
   return (
     <>
-      <section id="mentor-results" className="px-6 py-9 lg:px-8 xl:px-9">
-        <div className="mb-10 flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+      <section id="mentor-results" className="px-5 py-8 sm:px-6 lg:px-8 xl:px-10">
+        <div className="mb-4 flex flex-col gap-6 rounded-[24px] p-6 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold tracking-tight text-[#121c2a] md:text-[42px]">
-              Explore Expert Mentors
+            <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold text-[#121c2a] md:text-[48px]">
+              Explore <span className="text-[#0053db]"> Expert Mentors</span>
             </h1>
-            <p className="mt-3 max-w-[590px] text-lg leading-8 font-medium text-[#5f6472]">
+            <p className="mt-4 max-w-[590px] text-base leading-8 font-medium text-[#5f6472]">
               Connect with world-class guides to navigate your academic journey or professional
               career path.
             </p>
           </div>
 
-          <div className="grid h-[60px] w-full max-w-[334px] grid-cols-2 rounded-full bg-[#e6eeff] p-1.5 shadow-[inset_0_0_0_1px_rgba(195,198,215,0.18)]">
+          <div className="grid min-h-[60px] w-full max-w-[350px] grid-cols-2 gap-1.5 rounded-2xl bg-[#e6eeff] p-1.5 shadow-[inset_0_0_0_1px_rgba(195,198,215,0.18)]">
             <button
               type="button"
-              onClick={() => updateFilter('counselingType', 'academic')}
+              onClick={() => toggleCounselingType('academic')}
+              aria-pressed={filters.counselingType.includes('academic')}
               className={`rounded-xl text-sm leading-tight font-extrabold transition ${
-                filters.counselingType === 'academic'
+                filters.counselingType.includes('academic')
                   ? 'bg-white text-[#0053db] shadow-[0_8px_20px_rgba(18,28,42,0.08)]'
                   : 'text-[#263247]'
               }`}
@@ -87,22 +95,23 @@ export function MentorGrid() {
             </button>
             <button
               type="button"
-              onClick={() => updateFilter('counselingType', 'professional')}
+              onClick={() => toggleCounselingType('professional')}
+              aria-pressed={filters.counselingType.includes('professional')}
               className={`rounded-xl text-sm leading-tight font-extrabold transition ${
-                filters.counselingType === 'professional'
+                filters.counselingType.includes('professional')
                   ? 'bg-white text-[#0053db] shadow-[0_8px_20px_rgba(18,28,42,0.08)]'
                   : 'text-[#263247]'
               }`}
             >
               Professional
               <br />
-              Mentorship
+              Coaching
             </button>
           </div>
         </div>
 
         <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
-          <div className="flex h-16 min-w-0 flex-1 items-center rounded-full bg-white px-4 shadow-[0_10px_30px_rgba(18,28,42,0.035)]">
+          <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
             <Search className="mr-3 size-6 text-[#0053db]" />
             <input
               type="search"
@@ -114,13 +123,13 @@ export function MentorGrid() {
             <button
               type="button"
               onClick={() => updateFilter('jobTitle', filters.jobTitle ?? '')}
-              className="ml-2 h-10 rounded-lg bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+              className="ml-2 h-10 rounded-xl bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
             >
               Search
             </button>
           </div>
 
-          <label className="flex h-14 shrink-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_10px_30px_rgba(18,28,42,0.035)]">
+          <label className="flex h-14 shrink-0 items-center gap-3 rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
             <ArrowUpDown className="size-5 text-[#0053db]" />
             <span className="text-sm font-extrabold text-[#434655]">Sort</span>
             <span className="relative">
@@ -132,7 +141,7 @@ export function MentorGrid() {
                     event.target.value as (typeof SORT_OPTIONS)[number]['value']
                   )
                 }
-                className="h-10 min-w-[180px] appearance-none rounded-lg bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30"
+                className="h-10 min-w-[180px] appearance-none rounded-xl bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -160,7 +169,7 @@ export function MentorGrid() {
         </div> */}
 
         {isError ? (
-          <div className="flex min-h-[360px] items-center justify-center rounded-lg bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)]">
+          <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
             <div>
               <p className="mb-2 text-xl font-extrabold text-[#121c2a]">Unable to load mentors</p>
               <p className="font-medium text-[#5f6472]">Please try again in a moment.</p>
@@ -169,7 +178,10 @@ export function MentorGrid() {
         ) : isLoading ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: MENTORS_PER_PAGE }).map((_, index) => (
-              <div key={index} className="h-[390px] animate-pulse rounded-[18px] bg-white" />
+              <div
+                key={index}
+                className="h-[390px] animate-pulse rounded-[20px] bg-white shadow-[0_16px_40px_rgba(18,28,42,0.04)]"
+              />
             ))}
           </div>
         ) : currentMentors.length > 0 ? (
@@ -196,12 +208,12 @@ export function MentorGrid() {
                 imageUrl={mentor.avatar_url}
                 totalSessions={mentor.total_sessions}
                 verified={mentor.is_verified}
-                onClick={() => setSelectedMentorId(mentor.id)}
+                onClick={() => router.push(`/explore-mentors/${mentor.id}`)}
               />
             ))}
           </div>
         ) : (
-          <div className="flex min-h-[360px] items-center justify-center rounded-lg bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)]">
+          <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
             <div>
               <p className="mb-2 text-xl font-extrabold text-[#121c2a]">No mentors found</p>
             </div>
@@ -248,12 +260,6 @@ export function MentorGrid() {
           </div>
         )}
       </section>
-
-      <MentorProfileModal
-        isOpen={!!selectedMentorId}
-        onClose={() => setSelectedMentorId(null)}
-        mentorId={selectedMentorId!}
-      />
     </>
   )
 }

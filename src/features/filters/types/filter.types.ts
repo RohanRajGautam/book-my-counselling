@@ -7,6 +7,6 @@ export interface FilterState {
   instantBooking?: boolean
   eveningsWeekends?: boolean
   experienceLevel?: string
-  counselingType: 'academic' | 'professional'
+  counselingType: ('academic' | 'professional')[]
   sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high' | 'newest'
 }

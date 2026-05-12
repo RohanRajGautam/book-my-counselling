@@ -1,15 +1,14 @@
 'use client'
-import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { MentorCard } from '@/features/mentors/components/MentorCard'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
-import { MentorProfileModal } from './MentorProfileModal'
 import { useFilters } from '@/features/filters/context/FilterContext'
 
 const FEATURED_MENTOR_LIMIT = 6
 
 export function FeaturedMentorsGrid() {
-  const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
+  const router = useRouter()
   const { filters } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, 1)
 
@@ -54,7 +53,7 @@ export function FeaturedMentorsGrid() {
                 imageUrl={mentor.avatar_url}
                 verified={mentor.is_verified}
                 totalSessions={mentor.total_sessions}
-                onClick={() => setSelectedMentorId(mentor.id)}
+                onClick={() => router.push(`/explore-mentors/${mentor.id}`)}
               />
             ))}
           </div>
@@ -77,12 +76,6 @@ export function FeaturedMentorsGrid() {
           </div>
         )}
       </section>
-
-      <MentorProfileModal
-        isOpen={!!selectedMentorId}
-        onClose={() => setSelectedMentorId(null)}
-        mentorId={selectedMentorId!}
-      />
     </>
   )
 }

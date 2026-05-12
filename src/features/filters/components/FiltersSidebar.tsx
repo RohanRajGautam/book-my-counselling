@@ -28,11 +28,15 @@ export function FiltersSidebar() {
   }
 
   return (
-    <aside className="h-full bg-[#eff4ff] px-6 py-10 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
-      <h2 className="mb-8 flex items-center gap-3 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-        <ListFilter className="size-5 text-[#004ac6]" strokeWidth={3} />
-        Advanced Filters
-      </h2>
+    <aside className="h-full border-r border-gray-200 px-4 py-8 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
+      {/* <div className="mt-5 mb-7 rounded-[18px] bg-white p-4 ring-1 ring-[#dfe7f5] ring-inset">
+        <h2 className="flex items-center gap-3 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-[#e6eeff]">
+            <ListFilter className="size-5 text-[#004ac6]" strokeWidth={3} />
+          </span>
+          Filters
+        </h2>
+      </div> */}
 
       <div className="space-y-7">
         <section>
@@ -50,7 +54,7 @@ export function FiltersSidebar() {
               </button>
             )}
           </div>
-          <div className="mb-3 flex h-10 items-center rounded-lg bg-white px-3 shadow-sm ring-1 ring-[#e2e8f0] ring-inset">
+          <div className="mb-3 flex h-11 items-center rounded-xl bg-white px-3 shadow-sm ring-1 ring-[#dfe7f5] ring-inset">
             <Search className="mr-2 size-4 shrink-0 text-[#0053db]" />
             <input
               type="search"
@@ -60,7 +64,7 @@ export function FiltersSidebar() {
               className="h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#121c2a] outline-none placeholder:text-[#9aa3b2]"
             />
           </div>
-          <div className="custom-scrollbar max-h-[300px] space-y-2 overflow-y-auto pr-2">
+          <div className="custom-scrollbar max-h-[280px] space-y-2 overflow-y-auto pr-2">
             {visibleIndustries.map((industry) => {
               const isSelected = filters.industries.includes(industry.name)
 
@@ -70,7 +74,7 @@ export function FiltersSidebar() {
                   type="button"
                   onClick={() => toggleIndustry(industry.name)}
                   aria-pressed={isSelected}
-                  className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-bold shadow-sm ring-1 transition ring-inset ${
+                  className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-bold shadow-sm ring-1 transition ring-inset ${
                     isSelected
                       ? 'bg-[#0053db] text-white shadow-[0_8px_18px_rgba(0,83,219,0.18)] ring-[#0053db]'
                       : 'bg-white text-[#121c2a] ring-[#e2e8f0] hover:bg-[#f8f9ff]'
@@ -88,12 +92,12 @@ export function FiltersSidebar() {
               )
             })}
             {industries.length === 0 && (
-              <div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#737686] shadow-sm ring-1 ring-[#e2e8f0] ring-inset">
+              <div className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-[#737686] shadow-sm ring-1 ring-[#dfe7f5] ring-inset">
                 No industries available.
               </div>
             )}
             {industries.length > 0 && visibleIndustries.length === 0 && (
-              <div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#737686] shadow-sm ring-1 ring-[#e2e8f0] ring-inset">
+              <div className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-[#737686] shadow-sm ring-1 ring-[#dfe7f5] ring-inset">
                 No matching industries.
               </div>
             )}
@@ -131,18 +135,22 @@ export function FiltersSidebar() {
           <h3 className="mb-4 text-[11px] font-extrabold tracking-wider text-[#434655] uppercase">
             Hourly Rate
           </h3>
-          <input
-            type="range"
-            min="20"
-            max="10000"
-            step="100"
-            value={filters.priceRange}
-            onChange={(event) => updateFilter('priceRange', Number(event.target.value))}
-            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9e3f6] accent-[#0053db]"
-          />
-          <div className="mt-2 flex items-center justify-between text-sm font-semibold text-[#434655]">
-            <span>NPR 20</span>
-            <span>NPR {filters.priceRange?.toLocaleString()}</span>
+          <div className="rounded-[18px] bg-white p-4 shadow-sm ring-1 ring-[#dfe7f5] ring-inset">
+            <input
+              type="range"
+              min="20"
+              max="10000"
+              step="100"
+              value={filters.priceRange}
+              onChange={(event) => updateFilter('priceRange', Number(event.target.value))}
+              className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9e3f6] accent-[#0053db]"
+            />
+            <div className="mt-3 flex items-center justify-between text-sm font-semibold text-[#434655]">
+              <span>NPR 20</span>
+              <span className="font-extrabold text-[#121c2a]">
+                NPR {filters.priceRange?.toLocaleString()}
+              </span>
+            </div>
           </div>
         </section>
 
@@ -164,15 +172,11 @@ export function FiltersSidebar() {
               />
               <span>Available Today</span>
             </label> */}
-            <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold text-[#434655]">
+            <label className="flex cursor-pointer items-center gap-3 rounded-[18px] bg-white p-4 text-sm font-semibold text-[#434655] shadow-sm ring-1 ring-[#dfe7f5] ring-inset">
               <input
-                type="radio"
-                name="availability"
+                type="checkbox"
                 checked={Boolean(filters.availableThisWeek)}
-                onChange={() => {
-                  updateFilter('availableToday', false)
-                  updateFilter('availableThisWeek', true)
-                }}
+                onChange={(event) => updateFilter('availableThisWeek', event.target.checked)}
                 className="size-4 border-0 bg-white text-[#0053db] shadow-sm ring-1 ring-[#e2e8f0] ring-inset focus:ring-2 focus:ring-[#0053db]/20"
               />
               <span>This Week</span>

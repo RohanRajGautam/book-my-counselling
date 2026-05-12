@@ -202,7 +202,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
           <div className="flex h-[190px] flex-col rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
-                Services Provided
+                Services offered
               </h3>
               <span className="text-xs font-bold text-[#737686]">{services.length} total</span>
             </div>
@@ -319,9 +319,9 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                         : 'bg-[#f8f9ff] ring-[#eff4ff] hover:bg-[#eff4ff]/70'
                     }`}
                   >
-                    {index === 0 && (
+                    {index === 1 && (
                       <div
-                        className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-xs font-bold ${
+                        className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-[10px] font-bold ${
                           selectedPackageId === service.id
                             ? 'bg-white/20 text-white'
                             : 'bg-[#6cf8bb] text-[#00714d]'

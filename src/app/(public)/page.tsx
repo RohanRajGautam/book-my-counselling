@@ -1,4 +1,3 @@
-import { Navbar } from '@/components/layout/Navbar'
 import { HeroSection } from '@/features/home/components/HeroSection'
 import { BecomeCounsellorSection } from '@/features/home/components/BecomeCounsellorSection'
 import { FilterProvider } from '@/features/filters/context/FilterContext'
@@ -9,8 +8,7 @@ import { TestimonialsSection } from '@/features/home/components/TestimonialsSect
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <main className="min-h-screen pt-24">
+      <main className="min-h-screen pt-36">
         <FilterProvider>
           <HeroSection />
           <FeaturedMentors />

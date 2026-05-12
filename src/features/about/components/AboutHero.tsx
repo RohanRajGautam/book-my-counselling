@@ -5,7 +5,7 @@ export function AboutHero() {
     <section className="relative overflow-hidden bg-[#f7f8ff]">
       <div className="mx-auto grid min-h-[720px] max-w-7xl items-center gap-14 px-6 py-16 sm:px-8 lg:grid-cols-[0.92fr_1fr] lg:gap-20 lg:py-20">
         <div className="max-w-2xl">
-          <p className="mb-8 inline-flex rounded-full bg-[#62f2ad] px-4 py-2 font-[family-name:var(--font-headline)] text-[11px] font-bold tracking-[0.16em] text-[#0b5b4c] uppercase">
+          <p className="mb-4 inline-flex rounded-full bg-[#62f2ad] px-4 py-2 font-[family-name:var(--font-headline)] text-[11px] font-bold tracking-[0.16em] text-[#0b5b4c] uppercase">
             Our Philosophy
           </p>
           <h1 className="font-[family-name:var(--font-headline)] text-[clamp(3rem,8vw,4.7rem)] leading-[1.07] font-extrabold tracking-tight text-[#121c2a]">
