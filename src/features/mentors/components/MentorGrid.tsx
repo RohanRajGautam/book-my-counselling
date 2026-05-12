@@ -209,7 +209,6 @@ export function MentorGrid() {
                 }
                 fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
-                totalSessions={mentor.total_sessions}
                 verified={mentor.is_verified}
                 onClick={() => router.push(`/explore-mentors/${mentor.id}`)}
               />
