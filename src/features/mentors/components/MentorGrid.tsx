@@ -1,4 +1,6 @@
 'use client'
+import { useState } from 'react'
+import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 
 import { useRouter } from 'next/navigation'
 import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
@@ -191,8 +193,9 @@ export function MentorGrid() {
             }`}
           >
             {currentMentors.map((mentor) => (
-              <MentorCard
+              <MentorCardWithPackages
                 key={mentor.id}
+                mentorId={mentor.id}
                 name={mentor.full_name}
                 role={mentor.title}
                 company={mentor.company ?? ''}
@@ -204,7 +207,7 @@ export function MentorGrid() {
                     ? `Mentor in ${mentor.industries.slice(0, 2).join(' and ')} with ${mentor.total_sessions} sessions`
                     : `${mentor.title} with ${mentor.total_sessions} sessions`
                 }
-                price={Number(mentor.hourly_rate)}
+                fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
                 totalSessions={mentor.total_sessions}
                 verified={mentor.is_verified}

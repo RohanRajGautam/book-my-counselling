@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { MentorCard } from '@/features/mentors/components/MentorCard'
+import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
 
@@ -40,8 +40,9 @@ export function FeaturedMentorsGrid() {
             }`}
           >
             {featuredMentors.map((mentor) => (
-              <MentorCard
+              <MentorCardWithPackages
                 key={mentor.id}
+                mentorId={mentor.id}
                 name={mentor.full_name}
                 role={mentor.title}
                 company={mentor.company ?? ''}
@@ -49,7 +50,7 @@ export function FeaturedMentorsGrid() {
                 rating={mentor.average_rating}
                 reviews={mentor.total_reviews}
                 description={`Mentor in ${mentor.industries?.join(', ') || 'various fields'} with ${mentor.total_sessions} sessions`}
-                price={Number(mentor.hourly_rate)}
+                fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
                 verified={mentor.is_verified}
                 totalSessions={mentor.total_sessions}
