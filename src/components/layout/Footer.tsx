@@ -38,10 +38,10 @@ export function Footer() {
         <div className="flex flex-col space-y-4">
           <h4 className="font-bold text-slate-900 dark:text-slate-100">Support</h4>
           <Link
-            href="/support"
+            href="/about"
             className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
           >
-            Contact Support
+            About us
           </Link>
           <Link
             href="/faq"

@@ -39,7 +39,7 @@ const steps: HowItWorksStep[] = [
 export function HowItWorksSteps() {
   return (
     <section id="process" className="bg-[#eef4ff] px-6 py-20 sm:px-8 lg:py-28">
-      <div className="mx-auto max-w-7xl px-8 py-4">
+      <div className="mx-auto max-w-[1350px] px-8 py-4">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-[family-name:var(--font-headline)] text-3xl font-extrabold tracking-tight text-[#121c2a] sm:text-4xl">
             Three Steps to Mastery

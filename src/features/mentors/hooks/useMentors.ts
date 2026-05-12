@@ -7,11 +7,14 @@ import { PaginatedResponse } from '@/lib/api/api.types'
 export function useMentors(filters: FilterState, page: number) {
   const normalizedFilters = {
     jobTitle: filters.jobTitle?.trim() ?? '',
-    industry: filters.industry,
+    industries: filters.industries,
     priceRange: filters.priceRange ?? null,
+    availableToday: Boolean(filters.availableToday),
     availableThisWeek: Boolean(filters.availableThisWeek),
     instantBooking: Boolean(filters.instantBooking),
     eveningsWeekends: Boolean(filters.eveningsWeekends),
+    experienceLevel: filters.experienceLevel ?? '',
+    counselingType: filters.counselingType,
     sortBy: filters.sortBy,
   }
 

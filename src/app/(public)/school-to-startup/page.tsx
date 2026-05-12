@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function SchoolToStartupPage() {
   return (
-    <main className="min-h-screen bg-[#f7f8ff] pt-24 pb-20">
+    <main className="min-h-screen bg-[#f7f8ff] pt-36 pb-20">
       <SchoolToStartupHero />
       <SchoolToStartupForm />
     </main>

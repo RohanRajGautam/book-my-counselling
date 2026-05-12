@@ -1,15 +1,14 @@
 'use client'
-import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
-import { MentorProfileModal } from './MentorProfileModal'
 import { useFilters } from '@/features/filters/context/FilterContext'
 
 const FEATURED_MENTOR_LIMIT = 6
 
 export function FeaturedMentorsGrid() {
-  const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
+  const router = useRouter()
   const { filters } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, 1)
 
@@ -54,7 +53,7 @@ export function FeaturedMentorsGrid() {
                 fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
                 verified={mentor.is_verified}
-                onClick={() => setSelectedMentorId(mentor.id)}
+                onClick={() => router.push(`/explore-mentors/${mentor.id}`)}
               />
             ))}
           </div>
@@ -62,7 +61,6 @@ export function FeaturedMentorsGrid() {
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
             <div className="text-center">
               <p className="mb-2 text-xl font-bold text-[#121c2a]">No mentors found</p>
-              <p className="text-[#434655]">Try adjusting your filters</p>
             </div>
           </div>
         )}
@@ -78,12 +76,6 @@ export function FeaturedMentorsGrid() {
           </div>
         )}
       </section>
-
-      <MentorProfileModal
-        isOpen={!!selectedMentorId}
-        onClose={() => setSelectedMentorId(null)}
-        mentorId={selectedMentorId!}
-      />
     </>
   )
 }

@@ -10,7 +10,8 @@ interface MentorCardProps {
   tags: string[]
   rating: number
   reviews: number
-  description: string
+  description?: string
+  totalSessions?: number
   price: number
   imageUrl?: string | null
   verified?: boolean
@@ -29,6 +30,13 @@ export function getInitials(name: string) {
   return initials || 'M'
 }
 
+function formatDisplayName(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
+}
+
 export function MentorCard({
   name,
   role,
@@ -36,92 +44,133 @@ export function MentorCard({
   tags,
   rating,
   reviews,
-  description,
+  totalSessions,
   price,
   imageUrl,
   verified = true,
   onClick,
 }: MentorCardProps) {
   const imageSrc = imageUrl?.trim() || null
+  const displayName = formatDisplayName(name)
   const initials = getInitials(name)
+  const services = tags.slice(0, 4).map((tag) => tag.replace(/^#/, ''))
 
   return (
-    <div
-      className="group flex h-full cursor-pointer flex-col rounded-[2rem] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.04)] transition-all hover:shadow-[0_12px_32px_rgba(18,28,42,0.08)]"
+    <article
+      className="group flex min-h-[320px] cursor-pointer flex-col rounded-[18px] bg-white p-5 shadow-[0_16px_40px_rgba(18,28,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(18,28,42,0.08)]"
       onClick={onClick}
     >
-      {/* Header */}
-      <div className="mb-6 flex items-start gap-5">
+      <div className="mb-5 flex items-center gap-4">
         <div className="relative">
-          <div className="flex h-20 w-20 overflow-hidden rounded-full bg-[#f8f9ff] p-1 ring-2 ring-[#0053db]">
+          <div className="size-[78px] rounded-full border-[3px] border-[#0053db] bg-white p-1 shadow-[0_0_0_6px_#f3f7ff]">
             {imageSrc ? (
               <Image
                 src={imageSrc}
-                alt={`${name} profile`}
-                width={80}
-                height={80}
-                className="h-full w-full rounded-full object-cover"
+                alt={`${displayName} profile`}
+                width={78}
+                height={78}
+                className="size-full rounded-full object-cover"
               />
             ) : (
               <div
-                aria-label={`${name} profile initials`}
-                className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-2xl font-extrabold text-[#004ac6]"
+                aria-label={`${displayName} profile initials`}
+                className="flex size-full items-center justify-center rounded-full bg-[#e6eeff] text-xl font-extrabold text-[#004ac6]"
               >
                 {initials}
               </div>
             )}
           </div>
           {verified && (
-            <div className="absolute -right-1 -bottom-1 rounded-full border-2 border-white bg-[#006c49] p-1">
-              <Check className="h-4 w-4 text-white" strokeWidth={3} />
+            <div className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#00714d]">
+              <Check className="size-4 text-white" strokeWidth={4} />
             </div>
           )}
         </div>
-        <div>
-          <h3 className="text-xl font-bold transition-colors group-hover:text-[#004ac6]">{name}</h3>
-          <div className="flex items-center gap-1 text-sm font-semibold text-[#006c49]">
-            Verified Mentor
-          </div>
-          <p className="mt-1 font-medium text-[#434655]">
-            {role}{company ? ` at ${company}` : ''}
+
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-2 font-[family-name:var(--font-headline)] text-lg font-extrabold tracking-tight text-[#121c2a] transition group-hover:text-[#004ac6]">
+            {displayName}
+          </h3>
+          {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>}
+          <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
+            {role}
+            {company ? `, ${company}` : ''}
           </p>
         </div>
       </div>
 
-      {/* Tags */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <span
-            key={tag}
-            className="rounded-full bg-[#e6eeff] px-3 py-1 text-xs font-bold text-[#004ac6]"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
+      <div className="mb-5">
+        <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
+          Services offered
+        </p>
+        <div className="flex min-h-[30px] flex-wrap gap-2">
+          {services.length > 0 ? (
+            <>
+              {services.slice(0, 3).map((service) => (
+                <span
+                  key={service}
+                  className="max-w-full truncate rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]"
+                >
+                  {service}
+                </span>
+              ))}
 
-      {/* Rating */}
-      <div className="mb-4 flex items-center gap-1">
-        <Star className="h-[18px] w-[18px] fill-yellow-500 text-yellow-500" />
-        <span className="font-bold">{rating}</span>
-        <span className="text-sm font-medium text-[#737686]">({reviews} reviews)</span>
-      </div>
-
-      {/* Description */}
-      <p className="mb-8 flex-grow text-sm leading-relaxed text-[#434655]">{description}</p>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between border-t border-[#e6eeff] pt-6">
-        <div className="flex flex-col">
-          <span className="text-xs font-bold tracking-widest text-[#737686] uppercase">
-            Starting at
-          </span>
-          <span className="text-xl font-extrabold">NPR {price}</span>
+              {services.length > 3 && (
+                <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+                  +{services.length - 3} more
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+              Mentorship
+            </span>
+          )}
         </div>
-        <button className="rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-3 font-bold text-white shadow-md transition-all hover:shadow-lg active:scale-95">
+      </div>
+
+      <div className="mt-auto mb-5 flex items-center gap-2">
+        <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
+        <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
+          {Number(rating || 0)
+            .toFixed(1)
+            .replace('.0', '')}
+        </span>
+        <span className="flex w-full items-center justify-between">
+          <span className="text-sm font-medium text-[#737686]">({reviews} reviews)</span>
+
+          {typeof totalSessions === 'number' && (
+            <span className="ml-2 text-sm font-medium text-[#737686]">
+              {totalSessions} total sessions
+            </span>
+          )}
+        </span>
+      </div>
+
+      {/* <p className="mb-5 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
+        {description}
+      </p> */}
+
+      <div className="flex items-center justify-between gap-4 border-t border-[#dfe7f5] pt-5">
+        <div>
+          <p className="text-xs font-extrabold tracking-widest text-[#737686] uppercase">
+            Starting at
+          </p>
+          <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[#121c2a]">
+            NPR {Math.round(price).toLocaleString()}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            onClick?.()
+          }}
+          className="h-11 shrink-0 rounded-xl bg-[#1f5bdc] px-5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+        >
           Book Session
         </button>
       </div>
-    </div>
+    </article>
   )
 }

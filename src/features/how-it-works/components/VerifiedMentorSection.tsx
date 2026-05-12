@@ -52,7 +52,7 @@ const verificationPoints: VerificationPoint[] = [
 export function VerifiedMentorSection() {
   return (
     <section className="bg-[#f7f8ff] px-6 py-20 sm:px-8 lg:py-28">
-      <div className="mx-auto grid max-w-7xl gap-14 px-8 py-4 lg:grid-cols-[1fr_1.05fr] lg:items-center">
+      <div className="mx-auto grid max-w-[1380px] gap-14 px-8 py-4 lg:grid-cols-[1fr_1.05fr] lg:items-center">
         <div className="flex flex-col gap-6 sm:flex-row lg:pt-16">
           {mentorPreviews.map((mentor) => (
             <article

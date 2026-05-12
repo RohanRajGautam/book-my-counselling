@@ -1,49 +1,28 @@
 import { PaginatedResponse } from '@/lib/api/api.types'
-import { Mentor, MentorListResponse, MentorResponse } from '../types/mentors.types'
+import { Mentor, MentorResponse } from '../types/mentors.types'
 import { FilterState } from '@/features/filters/types/filter.types'
 import apiClient from '@/lib/api/api-client'
-import {
-  shouldUseSearchEndpoint,
-  normalizeSearchMentor,
-  mapSort,
-  normalizeListMentor,
-} from '../utils/mentors.utils'
+import { normalizeSearchMentor, mapSort } from '../utils/mentors.utils'
 
-export const MENTORS_PER_PAGE = 6
+export const MENTORS_PER_PAGE = 9
 
 export async function getMentors(
   filters: FilterState,
   page = 1
 ): Promise<PaginatedResponse<Mentor>> {
-  if (shouldUseSearchEndpoint(filters)) {
-    // Uses search when availability filters are applied.
-    const response = await apiClient.get<PaginatedResponse<Mentor>>('/search', {
-      params: {
-        keyword: filters.jobTitle?.trim() || undefined,
-        title: filters.jobTitle?.trim() || undefined,
-        industry: filters.industry === 'All Industries' ? undefined : filters.industry,
-        max_price: filters.priceRange,
-        available_this_week: filters.availableThisWeek || undefined,
-        instant_booking: filters.instantBooking || undefined,
-        evenings_weekends: filters.eveningsWeekends || undefined,
-        page,
-        page_size: MENTORS_PER_PAGE,
-      },
-    })
-
-    return {
-      ...response.data,
-      items: response.data.items.map(normalizeSearchMentor),
-    }
-  }
-
   const { sort_by, sort_order } = mapSort(filters)
-  const response = await apiClient.get<PaginatedResponse<MentorListResponse>>('/mentors', {
+  const response = await apiClient.get<PaginatedResponse<Mentor>>('/search', {
     params: {
       keyword: filters.jobTitle?.trim() || undefined,
-      industry: filters.industry === 'All Industries' ? undefined : filters.industry,
+      industry: filters.industries.length > 0 ? filters.industries : undefined,
       max_price: filters.priceRange,
-      is_instant_booking: filters.instantBooking || undefined,
+      available_this_week: filters.availableThisWeek || undefined,
+      instant_booking: filters.instantBooking || undefined,
+      evenings_weekends: filters.eveningsWeekends || undefined,
+      is_academic_counselor: filters.counselingType.includes('academic') ? true : undefined,
+      is_professional_counselor: filters.counselingType.includes('professional')
+        ? true
+        : undefined,
       sort_by,
       sort_order,
       page,
@@ -53,7 +32,7 @@ export async function getMentors(
 
   return {
     ...response.data,
-    items: response.data.items.map(normalizeListMentor),
+    items: response.data.items.map(normalizeSearchMentor),
   }
 }
 

@@ -1,0 +1,3417 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Mentorship Platform",
+    "description": "\n## Mentorship Booking Platform API\n\nA production-ready backend for connecting mentors and mentees.\n\n### Features\n- 🔐 JWT Authentication with role-based access (mentor, mentee, admin)\n- 👨‍🏫 Rich mentor profiles with tags, ratings, and reviews\n- 📅 Availability slot management with conflict detection\n- 📋 Booking system with full status lifecycle\n- ⭐ Review system tied to completed bookings\n- 🔍 Advanced search with keyword, industry, price, and tag filters\n- ⚡ Redis caching for search results\n- 📧 Background email notifications\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register",
+        "description": "Register a new user.\n\n**Example response:**\n```json\n{\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"email\": \"jane@example.com\",\n    \"full_name\": \"Jane Doe\",\n    \"role\": \"mentee\",\n    \"is_active\": true,\n    \"is_verified\": false,\n    \"avatar_url\": null,\n    \"created_at\": \"2024-01-15T10:30:00Z\"\n}\n```",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UserCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login",
+        "description": "Login with email and password. Returns JWT tokens.\n\n**Example response:**\n```json\n{\n    \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"token_type\": \"bearer\",\n    \"user\": { \"id\": \"...\", \"email\": \"jane@example.com\", ... }\n}\n```",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": { "$ref": "#/components/schemas/Body_login_api_v1_auth_login_post" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Refresh Token",
+        "description": "Refresh access token using a valid refresh token.",
+        "operationId": "refresh_token_api_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefreshRequest" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Token" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get Me",
+        "description": "Get current authenticated user's profile.",
+        "operationId": "get_me_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/mentors/profile": {
+      "post": {
+        "tags": ["Mentors"],
+        "summary": "Create Mentor Profile",
+        "description": "Create a mentor profile. Only users with the 'mentor' role can call this.\n\n**Example response:**\n```json\n{\n    \"id\": \"abc123...\",\n    \"user_id\": \"user-uuid...\",\n    \"title\": \"Senior Software Engineer\",\n    \"company\": \"Google\",\n    \"bio\": \"10 years of experience in backend engineering...\",\n    \"industry\": \"Technology\",\n    \"hourly_rate\": \"150.00\",\n    \"average_rating\": 0.0,\n    \"total_reviews\": 0,\n    \"tags\": [{\"id\": \"...\", \"name\": \"Python\", \"slug\": \"python\"}]\n}\n```",
+        "operationId": "create_mentor_profile_api_v1_mentors_profile_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/MentorProfileCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MentorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/mentors/profile/me": {
+      "get": {
+        "tags": ["Mentors"],
+        "summary": "Get My Mentor Profile",
+        "description": "Get the current mentor's own profile.",
+        "operationId": "get_my_mentor_profile_api_v1_mentors_profile_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MentorResponse" } }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      },
+      "put": {
+        "tags": ["Mentors"],
+        "summary": "Update My Mentor Profile",
+        "description": "Update the current mentor's profile.",
+        "operationId": "update_my_mentor_profile_api_v1_mentors_profile_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/MentorProfileUpdate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MentorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/mentors": {
+      "get": {
+        "tags": ["Mentors"],
+        "summary": "List Mentors",
+        "description": "List and search mentors with filtering and sorting.\n\n**Sort options:** `rating`, `price`, `reviews`, `created_at`\n\n**Example response:**\n```json\n{\n    \"items\": [\n        {\n            \"id\": \"...\",\n            \"user\": {\"id\": \"...\", \"full_name\": \"Alice Smith\"},\n            \"title\": \"Principal Engineer\",\n            \"company\": \"Meta\",\n            \"hourly_rate\": \"200.00\",\n            \"average_rating\": 4.8,\n            \"total_reviews\": 23,\n            \"tags\": [{\"name\": \"React\"}, {\"name\": \"System Design\"}]\n        }\n    ],\n    \"total\": 142,\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total_pages\": 8,\n    \"has_next\": true,\n    \"has_prev\": false\n}\n```",
+        "operationId": "list_mentors_api_v1_mentors_get",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Search keyword",
+              "title": "Keyword"
+            },
+            "description": "Search keyword"
+          },
+          {
+            "name": "industry",
+            "in": "query",
+            "required": false,
+            "schema": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Industry" }
+          },
+          {
+            "name": "min_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "number" }, { "type": "string" }, { "type": "null" }],
+              "title": "Min Price"
+            }
+          },
+          {
+            "name": "max_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "number" }, { "type": "string" }, { "type": "null" }],
+              "title": "Max Price"
+            }
+          },
+          {
+            "name": "min_rating",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "number", "maximum": 5.0, "minimum": 0.0 }, { "type": "null" }],
+              "title": "Min Rating"
+            }
+          },
+          {
+            "name": "tag_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "array", "items": { "type": "string", "format": "uuid" } },
+                { "type": "null" }
+              ],
+              "title": "Tag Ids"
+            }
+          },
+          {
+            "name": "is_accepting_bookings",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "title": "Is Accepting Bookings"
+            }
+          },
+          {
+            "name": "is_instant_booking",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Only show mentors with instant booking enabled",
+              "title": "Is Instant Booking"
+            },
+            "description": "Only show mentors with instant booking enabled"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(rating|price|reviews|created_at)$",
+              "default": "created_at",
+              "title": "Sort By"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(asc|desc)$",
+              "default": "desc",
+              "title": "Sort Order"
+            }
+          },
+          {
+            "name": "is_professional_counselor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Filter to professional counselors only",
+              "title": "Is Professional Counselor"
+            },
+            "description": "Filter to professional counselors only"
+          },
+          {
+            "name": "is_academic_counselor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Filter to academic counselors only",
+              "title": "Is Academic Counselor"
+            },
+            "description": "Filter to academic counselors only"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedResponse_MentorListResponse_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mentors/{mentor_id}": {
+      "get": {
+        "tags": ["Mentors"],
+        "summary": "Get Mentor",
+        "description": "Get a specific mentor's full profile by ID.",
+        "operationId": "get_mentor_api_v1_mentors__mentor_id__get",
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MentorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/availability": {
+      "post": {
+        "tags": ["Availability"],
+        "summary": "Create Slot",
+        "description": "Create an availability slot. Mentors only.\n\n**Example request:**\n```json\n{\n    \"start_time\": \"2024-02-01T10:00:00Z\",\n    \"end_time\": \"2024-02-01T11:00:00Z\",\n    \"is_recurring\": false\n}\n```",
+        "operationId": "create_slot_api_v1_availability_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AvailabilitySlotCreate" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AvailabilitySlotResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/availability/{slot_id}": {
+      "delete": {
+        "tags": ["Availability"],
+        "summary": "Delete Slot",
+        "description": "Delete an availability slot (cannot delete booked slots).",
+        "operationId": "delete_slot_api_v1_availability__slot_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "slot_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Slot Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/availability/mentor/{mentor_id}": {
+      "get": {
+        "tags": ["Availability"],
+        "summary": "Get Mentor Availability",
+        "description": "Get available slots for a specific mentor.\n\n**Example response:**\n```json\n{\n    \"items\": [\n        {\n            \"id\": \"...\",\n            \"mentor_id\": \"...\",\n            \"start_time\": \"2024-02-01T10:00:00Z\",\n            \"end_time\": \"2024-02-01T11:00:00Z\",\n            \"is_booked\": false\n        }\n    ],\n    \"total\": 5,\n    \"page\": 1,\n    \"page_size\": 20\n}\n```",
+        "operationId": "get_mentor_availability_api_v1_availability_mentor__mentor_id__get",
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          },
+          {
+            "name": "from_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Filter slots from this datetime",
+              "title": "From Time"
+            },
+            "description": "Filter slots from this datetime"
+          },
+          {
+            "name": "only_available",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only show unbooked slots",
+              "default": true,
+              "title": "Only Available"
+            },
+            "description": "Only show unbooked slots"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_AvailabilitySlotResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings": {
+      "post": {
+        "tags": ["Bookings"],
+        "summary": "Create Booking",
+        "description": "Book a mentor session. Mentee role required.\n\n**Example request:**\n```json\n{\n    \"mentor_id\": \"mentor-uuid\",\n    \"slot_id\": \"slot-uuid\",\n    \"topic\": \"Career transition to ML\",\n    \"notes\": \"I have 3 years of backend experience...\"\n}\n```\n\n**Example response:**\n```json\n{\n    \"id\": \"booking-uuid\",\n    \"status\": \"pending\",\n    \"agreed_price\": \"150.00\",\n    \"session_start\": \"2024-02-01T10:00:00Z\",\n    \"session_end\": \"2024-02-01T11:00:00Z\",\n    \"mentee\": {\"id\": \"...\", \"full_name\": \"John Doe\"}\n}\n```",
+        "operationId": "create_booking_api_v1_bookings_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/BookingCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BookingResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/bookings/me": {
+      "get": {
+        "tags": ["Bookings"],
+        "summary": "List My Bookings",
+        "description": "List bookings for the current user (mentee sees their bookings, mentor sees received bookings).\n\n**Filter by status:** `pending`, `confirmed`, `completed`, `cancelled`",
+        "operationId": "list_my_bookings_api_v1_bookings_me_get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/BookingStatus" }, { "type": "null" }],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedResponse_BookingResponse_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}": {
+      "get": {
+        "tags": ["Bookings"],
+        "summary": "Get Booking",
+        "description": "Get a specific booking by ID.",
+        "operationId": "get_booking_api_v1_bookings__booking_id__get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Booking Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BookingResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookings/{booking_id}/status": {
+      "patch": {
+        "tags": ["Bookings"],
+        "summary": "Update Booking Status",
+        "description": "Update booking status.\n\n- **Mentor**: can confirm or complete\n- **Mentee**: can only cancel\n- **Admin**: can do any transition\n\n**Valid transitions:**\n- `pending → confirmed | cancelled`\n- `confirmed → completed | cancelled`",
+        "operationId": "update_booking_status_api_v1_bookings__booking_id__status_patch",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Booking Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/BookingStatusUpdate" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BookingResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Create Review",
+        "description": "Leave a review for a completed session. Only one review per booking allowed.\n\n**Example request:**\n```json\n{\n    \"booking_id\": \"booking-uuid\",\n    \"rating\": 5,\n    \"comment\": \"Amazing session! Very insightful and practical advice.\"\n}\n```\n\n**Example response:**\n```json\n{\n    \"id\": \"review-uuid\",\n    \"mentor_id\": \"mentor-uuid\",\n    \"rating\": 5,\n    \"comment\": \"Amazing session!\",\n    \"reviewer\": {\"id\": \"...\", \"full_name\": \"John Doe\"},\n    \"created_at\": \"2024-02-01T12:00:00Z\"\n}\n```",
+        "operationId": "create_review_api_v1_reviews_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReviewCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ReviewResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/reviews/mentor/{mentor_id}": {
+      "get": {
+        "tags": ["Reviews"],
+        "summary": "List Mentor Reviews",
+        "description": "Get paginated reviews for a specific mentor.\nPublic endpoint - no authentication required.",
+        "operationId": "list_mentor_reviews_api_v1_reviews_mentor__mentor_id__get",
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedResponse_ReviewResponse_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/{review_id}": {
+      "delete": {
+        "tags": ["Reviews"],
+        "summary": "Delete Review",
+        "description": "Delete your own review.",
+        "operationId": "delete_review_api_v1_reviews__review_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "review_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Review Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/stats": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get Platform Stats",
+        "description": "Get platform-wide statistics.",
+        "operationId": "get_platform_stats_api_v1_admin_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List All Users",
+        "description": "List all users on the platform.",
+        "operationId": "list_all_users_api_v1_admin_users_get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedResponse_UserResponse_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users/{user_id}/deactivate": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Deactivate User",
+        "description": "Deactivate a user account.",
+        "operationId": "deactivate_user_api_v1_admin_users__user_id__deactivate_patch",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "User Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/mentors/{mentor_id}/feature": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Toggle Feature Mentor",
+        "description": "Toggle featured status for a mentor.",
+        "operationId": "toggle_feature_mentor_api_v1_admin_mentors__mentor_id__feature_patch",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          },
+          {
+            "name": "featured",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "boolean", "title": "Featured" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/tags": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Create Tag",
+        "description": "Create a new tag/skill. Tag names may include a leading '#' (e.g. '#ProductManagement').",
+        "operationId": "create_tag_api_v1_admin_tags_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/TagCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TagResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/admin/tags/{tag_id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Delete Tag",
+        "description": "Delete a tag.",
+        "operationId": "delete_tag_api_v1_admin_tags__tag_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "tag_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Tag Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/industries": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Create Industry",
+        "description": "Create a new industry that mentors can select.",
+        "operationId": "create_industry_api_v1_admin_industries_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/IndustryCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/IndustryResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/admin/es/reindex": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Reindex Elasticsearch",
+        "description": "Full reindex of all mentor profiles into Elasticsearch.",
+        "operationId": "reindex_elasticsearch_api_v1_admin_es_reindex_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/admin/es/index": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Delete Es Index",
+        "description": "Delete and recreate the Elasticsearch index (destructive).",
+        "operationId": "delete_es_index_api_v1_admin_es_index_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/admin/users/{user_id}/role": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Update User Role",
+        "description": "Update a user's role (admin only).\n\nExample:\n```json\n{\n    \"role\": \"mentor\"\n}\n```\nValid roles: mentor, mentee, admin",
+        "operationId": "update_user_role_api_v1_admin_users__user_id__role_patch",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "User Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RoleUpdateRequest" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-packages": {
+      "post": {
+        "tags": ["Service Packages"],
+        "summary": "Create Package",
+        "description": "Create a new service tier for the current mentor.\n\n**Example request:**\n```json\n{\n    \"title\": \"60-min Portfolio Review\",\n    \"description\": \"Deep-dive review of your ML project portfolio with actionable feedback.\",\n    \"duration_minutes\": 60,\n    \"price\": \"150.00\"\n}\n```\n\n**Example response:**\n```json\n{\n    \"id\": \"pkg-uuid\",\n    \"mentor_id\": \"mentor-uuid\",\n    \"title\": \"60-min Portfolio Review\",\n    \"duration_minutes\": 60,\n    \"price\": \"150.00\",\n    \"is_active\": true\n}\n```",
+        "operationId": "create_package_api_v1_service_packages_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ServicePackageCreate" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServicePackageResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/service-packages/mentor/{mentor_id}": {
+      "get": {
+        "tags": ["Service Packages"],
+        "summary": "List Mentor Packages",
+        "description": "List all service packages for a mentor. Public endpoint.",
+        "operationId": "list_mentor_packages_api_v1_service_packages_mentor__mentor_id__get",
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          },
+          {
+            "name": "only_active",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean", "default": true, "title": "Only Active" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ServicePackageResponse" },
+                  "title": "Response List Mentor Packages Api V1 Service Packages Mentor  Mentor Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-packages/me": {
+      "get": {
+        "tags": ["Service Packages"],
+        "summary": "List My Packages",
+        "description": "List all packages for the current mentor (including inactive).",
+        "operationId": "list_my_packages_api_v1_service_packages_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/ServicePackageResponse" },
+                  "type": "array",
+                  "title": "Response List My Packages Api V1 Service Packages Me Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/service-packages/{package_id}": {
+      "put": {
+        "tags": ["Service Packages"],
+        "summary": "Update Package",
+        "description": "Update a service package. Only the owning mentor can update.",
+        "operationId": "update_package_api_v1_service_packages__package_id__put",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "package_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Package Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ServicePackageUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServicePackageResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Service Packages"],
+        "summary": "Delete Package",
+        "description": "Delete a service package.",
+        "operationId": "delete_package_api_v1_service_packages__package_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "package_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Package Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendar/connect": {
+      "post": {
+        "tags": ["Calendar Integration"],
+        "summary": "Connect Calendar",
+        "description": "Connect a Google or Outlook calendar via OAuth.\n\nThe frontend should complete the OAuth flow and send the authorization `code`\nand `redirect_uri` here. The backend exchanges the code for tokens and stores them.\n\n**Providers:** `google` | `outlook`\n\n**Example request:**\n```json\n{\n    \"provider\": \"google\",\n    \"code\": \"4/0AX4XfWh...\",\n    \"redirect_uri\": \"https://app.example.com/oauth/callback\"\n}\n```",
+        "operationId": "connect_calendar_api_v1_calendar_connect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CalendarConnectRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarIntegrationResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/calendar/connections": {
+      "get": {
+        "tags": ["Calendar Integration"],
+        "summary": "List Connections",
+        "description": "List all connected calendars for the current mentor.",
+        "operationId": "list_connections_api_v1_calendar_connections_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/CalendarIntegrationResponse" },
+                  "type": "array",
+                  "title": "Response List Connections Api V1 Calendar Connections Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/calendar/sync/{integration_id}": {
+      "post": {
+        "tags": ["Calendar Integration"],
+        "summary": "Sync Calendar",
+        "description": "Sync the connected calendar: pull busy blocks and block overlapping\navailability slots automatically.\n\n**Example response:**\n```json\n{\n    \"slots_created\": 0,\n    \"slots_blocked\": 3,\n    \"message\": \"Sync complete. 3 slot(s) blocked, 0 slot(s) created.\"\n}\n```",
+        "operationId": "sync_calendar_api_v1_calendar_sync__integration_id__post",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Integration Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarSyncResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendar/connections/{integration_id}": {
+      "delete": {
+        "tags": ["Calendar Integration"],
+        "summary": "Disconnect Calendar",
+        "description": "Disconnect and remove a calendar integration.",
+        "operationId": "disconnect_calendar_api_v1_calendar_connections__integration_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Integration Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Search",
+        "description": "Search and filter mentors.\n\n**Keyword search** (`keyword`) matches across:\n- `full_name` (boosted 3×)\n- `industries` (boosted 2×)\n- `tags` (boosted 1.5×)\n- `title`\n\n**Filters** (all optional, combinable):\n- `title` — fuzzy match on the mentor's job title\n- `industry` — one or more industry names; repeatable: `?industry=Fintech&industry=SaaS`\n- `tags` — one or more tag slugs/names (with or without `#`); repeatable: `?tags=ProductManagement&tags=UX`\n- `min_price` / `max_price` — hourly rate range\n- `available_this_week` — mentors with free slots in the next 7 days\n- `instant_booking` — instant booking, no 24 h approval required\n- `evenings_weekends` — slots after 17:00 or on Saturday / Sunday\n- `is_professional_counselor` — professional counselors only\n- `is_academic_counselor` — academic counselors only (combine both flags to find mentors who are both)\n\n**Sorting** (optional):\n- `sort_by` — `rating` | `price` | `reviews` | `created_at`\n- `sort_order` — `asc` | `desc` (default: `desc`)\n- When `keyword` is set and `sort_by` is omitted, results rank by relevance score.\n\nUse `GET /catalog/tags` and `GET /catalog/industries` for the full public lists.",
+        "operationId": "search_api_v1_search_get",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Search for your interest or dream career (e.g. 'Data Scientist' or 'Art School'). Matches across mentor name, industries, and tags.",
+              "title": "Keyword"
+            },
+            "description": "Search for your interest or dream career (e.g. 'Data Scientist' or 'Art School'). Matches across mentor name, industries, and tags."
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by job title (e.g. 'UX Designer'). Fuzzy match against mentor's current role.",
+              "title": "Title"
+            },
+            "description": "Filter by job title (e.g. 'UX Designer'). Fuzzy match against mentor's current role."
+          },
+          {
+            "name": "industry",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "array", "items": { "type": "string" } }, { "type": "null" }],
+              "description": "Filter by one or more industry names (e.g. `?industry=Fintech&industry=Healthcare`). Mentors matching ANY of the given industries are returned. Use `GET /catalog/industries` for the full list.",
+              "title": "Industry"
+            },
+            "description": "Filter by one or more industry names (e.g. `?industry=Fintech&industry=Healthcare`). Mentors matching ANY of the given industries are returned. Use `GET /catalog/industries` for the full list."
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "array", "items": { "type": "string" } }, { "type": "null" }],
+              "description": "Filter by one or more tag slugs or names. Accepts with or without leading `#` — `#ProductManagement` and `ProductManagement` both work. Mentors matching ANY of the given tags are returned. Use `GET /catalog/tags` for the full list.",
+              "title": "Tags"
+            },
+            "description": "Filter by one or more tag slugs or names. Accepts with or without leading `#` — `#ProductManagement` and `ProductManagement` both work. Mentors matching ANY of the given tags are returned. Use `GET /catalog/tags` for the full list."
+          },
+          {
+            "name": "min_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "number", "minimum": 0.0 }, { "type": "null" }],
+              "description": "Minimum hourly rate (inclusive).",
+              "title": "Min Price"
+            },
+            "description": "Minimum hourly rate (inclusive)."
+          },
+          {
+            "name": "max_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "number", "minimum": 0.0 }, { "type": "null" }],
+              "description": "Maximum hourly rate (inclusive).",
+              "title": "Max Price"
+            },
+            "description": "Maximum hourly rate (inclusive)."
+          },
+          {
+            "name": "available_this_week",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only show mentors with free slots in the next 7 days.",
+              "default": false,
+              "title": "Available This Week"
+            },
+            "description": "Only show mentors with free slots in the next 7 days."
+          },
+          {
+            "name": "instant_booking",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only show mentors with instant booking (no approval needed).",
+              "default": false,
+              "title": "Instant Booking"
+            },
+            "description": "Only show mentors with instant booking (no approval needed)."
+          },
+          {
+            "name": "evenings_weekends",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only show mentors with evening (after 17:00) or weekend slots.",
+              "default": false,
+              "title": "Evenings Weekends"
+            },
+            "description": "Only show mentors with evening (after 17:00) or weekend slots."
+          },
+          {
+            "name": "is_professional_counselor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Filter to professional counselors only (`true`) or exclude them (`false`).",
+              "title": "Is Professional Counselor"
+            },
+            "description": "Filter to professional counselors only (`true`) or exclude them (`false`)."
+          },
+          {
+            "name": "is_academic_counselor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Filter to academic counselors only (`true`) or exclude them (`false`). Pass both `is_professional_counselor=true&is_academic_counselor=true` to find mentors who are both.",
+              "title": "Is Academic Counselor"
+            },
+            "description": "Filter to academic counselors only (`true`) or exclude them (`false`). Pass both `is_professional_counselor=true&is_academic_counselor=true` to find mentors who are both."
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/SortBy" }, { "type": "null" }],
+              "description": "Field to sort results by. One of: `rating`, `price`, `reviews`, `created_at`. Defaults to relevance score when a `keyword` is provided, or `created_at` otherwise.",
+              "title": "Sort By"
+            },
+            "description": "Field to sort results by. One of: `rating`, `price`, `reviews`, `created_at`. Defaults to relevance score when a `keyword` is provided, or `created_at` otherwise."
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/SortOrder" }],
+              "description": "Sort direction: `asc` or `desc`. Defaults to `desc`.",
+              "default": "desc",
+              "title": "Sort Order"
+            },
+            "description": "Sort direction: `asc` or `desc`. Defaults to `desc`."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedResponse_MentorSearchHit_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mentor-requests": {
+      "post": {
+        "tags": ["Mentor Requests"],
+        "summary": "Submit Mentor Request",
+        "description": "Submit a request to become a mentor. Only authenticated users can apply.\n\nThis is a lightweight signal. After admin reviews and changes the user's role\nto \"mentor\", they can create their full profile at POST /mentors/profile.\n\n**Example request:**\n```json\n{\n    \"keyword\": \"System Design, Distributed Systems\",\n    \"industry\": \"Technology\",\n    \"note\": \"I have 8 years experience leading engineering teams...\"\n}\n```",
+        "operationId": "submit_mentor_request_api_v1_mentor_requests_post",
+        "security": [{ "HTTPBearer": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/MentorRequestCreate" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MentorRequestResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Mentor Requests"],
+        "summary": "List Mentor Requests",
+        "description": "Admin-only: view all submitted mentor requests for demand analysis.",
+        "operationId": "list_mentor_requests_api_v1_mentor_requests_get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_MentorRequestResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/tags": {
+      "get": {
+        "tags": ["Catalog"],
+        "summary": "List Tags",
+        "description": "List all available tags (public).\n\nTag names use a leading `#` (e.g. `#ProductManagement`).\nUse the `slug` field when filtering search results.",
+        "operationId": "list_tags_api_v1_catalog_tags_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/TagResponse" },
+                  "type": "array",
+                  "title": "Response List Tags Api V1 Catalog Tags Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/industries": {
+      "get": {
+        "tags": ["Catalog"],
+        "summary": "List Industries",
+        "description": "List all available industries (public).\n\nUse the `name` field when filtering search results via `?industry=...`.\nMaximum 100 industries returned.",
+        "operationId": "list_industries_api_v1_catalog_industries_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/IndustryResponse" },
+                  "type": "array",
+                  "title": "Response List Industries Api V1 Catalog Industries Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/upload/avatar": {
+      "post": {
+        "tags": ["Upload"],
+        "summary": "Upload Avatar",
+        "description": "Upload or update user avatar.\n\nThe image is automatically:\n- Resized and cropped to 400x400 focusing on the face\n- Optimized (WebP when possible)\n- Overwrites previous avatar for the same user",
+        "operationId": "upload_avatar_api_v1_upload_avatar_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_avatar_api_v1_upload_avatar_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/upload/avatar/signed-url": {
+      "get": {
+        "tags": ["Upload"],
+        "summary": "Get Signed Avatar Upload Url",
+        "description": "Get a signed upload URL that the frontend can use to upload directly\nto Cloudinary. This is the recommended production approach as it\nbypasses your API server for large file uploads.",
+        "operationId": "get_signed_avatar_upload_url_api_v1_upload_avatar_signed_url_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/payments/banks": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "Get Banks",
+        "description": "Return available banks.\n\nDynamic QR payments don't require bank selection — returns an empty list.\nKept for frontend compatibility.",
+        "operationId": "get_banks_api_v1_payments_banks_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/BankInfo" },
+                  "type": "array",
+                  "title": "Response Get Banks Api V1 Payments Banks Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/initiate": {
+      "post": {
+        "tags": ["Payments"],
+        "summary": "Initiate Payment",
+        "description": "Initiate a Fonepay Dynamic QR payment for a booking.\n\nReturns a base64 QR image and a PRN for status polling.\nIdempotent: returns the existing pending transaction if one is still valid.\n\nNo authentication required — the booking UUID itself acts as the secret.",
+        "operationId": "initiate_payment_api_v1_payments_initiate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PaymentInitiateRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaymentInitiateResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/status/{transaction_id}": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "Get Payment Status",
+        "description": "Poll payment status for a transaction.\n\nIf the transaction is still pending, calls the Fonepay status API and\nupdates the record if payment has completed.\n\nNo authentication required — the transaction UUID itself acts as the secret.",
+        "operationId": "get_payment_status_api_v1_payments_status__transaction_id__get",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Transaction Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaymentStatusResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/transactions": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "List Transactions",
+        "description": "List all transactions within a date range. Admin only.",
+        "operationId": "list_transactions_api_v1_payments_transactions_get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Start of date range (ISO 8601)",
+              "title": "Start Date"
+            },
+            "description": "Start of date range (ISO 8601)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "End of date range (ISO 8601)",
+              "title": "End Date"
+            },
+            "description": "End of date range (ISO 8601)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionListResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/transactions/export": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "Export Transactions Csv",
+        "description": "Export transactions as CSV. Admin only.",
+        "operationId": "export_transactions_csv_api_v1_payments_transactions_export_get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date-time", "title": "Start Date" }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date-time", "title": "End Date" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payments/transactions/{transaction_id}": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "Get Transaction",
+        "description": "Get a single transaction by ID. Admin only.",
+        "operationId": "get_transaction_api_v1_payments_transactions__transaction_id__get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Transaction Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TransactionResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendly/link": {
+      "put": {
+        "tags": ["Calendly"],
+        "summary": "Update Calendly Link",
+        "description": "Save or clear the authenticated mentor's Calendly scheduling URL.\n\n**Example request:**\n```json\n{ \"calendly_link\": \"https://calendly.com/your-name/30min\" }\n```",
+        "operationId": "update_calendly_link_api_v1_calendly_link_put",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CalendlyLinkUpdate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendlyLinkResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/calendly/link/me": {
+      "get": {
+        "tags": ["Calendly"],
+        "summary": "Get My Calendly Link",
+        "description": "Return the authenticated mentor's own Calendly link.",
+        "operationId": "get_my_calendly_link_api_v1_calendly_link_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendlyLinkResponse" }
+              }
+            }
+          }
+        },
+        "security": [{ "HTTPBearer": [] }]
+      }
+    },
+    "/api/v1/calendly/mentors/{mentor_id}/link": {
+      "get": {
+        "tags": ["Calendly"],
+        "summary": "Get Mentor Calendly Link",
+        "description": "Return a mentor's Calendly scheduling URL (public).\n\nUsed by the booking page to decide whether to show the Calendly widget.",
+        "operationId": "get_mentor_calendly_link_api_v1_calendly_mentors__mentor_id__link_get",
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendlyLinkResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendly/mentors/{mentor_id}/prefill": {
+      "get": {
+        "tags": ["Calendly"],
+        "summary": "Get Calendly Prefill",
+        "description": "Return prefill data for the Calendly embed widget.\n\nThe frontend calls this after creating a booking to get the data needed\nto open the Calendly widget with the user's name, email, and booking_id\npre-populated.\n\n**Query params:**\n- `booking_id` — the platform booking UUID to link the Calendly event to\n- `name` — user's full name (optional, prefills the widget form)\n- `email` — user's email (optional, prefills the widget form)",
+        "operationId": "get_calendly_prefill_api_v1_calendly_mentors__mentor_id__prefill_get",
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          },
+          {
+            "name": "booking_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Platform booking ID to link the Calendly event to",
+              "title": "Booking Id"
+            },
+            "description": "Platform booking ID to link the Calendly event to"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "User's full name for widget prefill",
+              "default": "",
+              "title": "Name"
+            },
+            "description": "User's full name for widget prefill"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "User's email for widget prefill",
+              "default": "",
+              "title": "Email"
+            },
+            "description": "User's email for widget prefill"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendlyPrefillResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendly/webhook": {
+      "post": {
+        "tags": ["Calendly"],
+        "summary": "Calendly Webhook",
+        "description": "Receive and process Calendly webhook events.\n\nSupported events:\n- `invitee.created` — a new booking was made via Calendly\n- `invitee.canceled` — a Calendly booking was cancelled\n\nSignature verification uses HMAC-SHA256 with the `CALENDLY_WEBHOOK_SIGNING_KEY`\nenvironment variable. Set this to the signing key from your Calendly\ndeveloper settings.\n\nThis endpoint is idempotent: duplicate events for the same Calendly event URI\nare silently ignored.",
+        "operationId": "calendly_webhook_api_v1_calendly_webhook_post",
+        "parameters": [
+          {
+            "name": "Calendly-Webhook-Signature",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "HMAC-SHA256 signature from Calendly",
+              "default": "",
+              "title": "Calendly-Webhook-Signature"
+            },
+            "description": "HMAC-SHA256 signature from Calendly"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": ["Root"],
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AvailabilitySlotCreate": {
+        "properties": {
+          "start_time": { "type": "string", "format": "date-time", "title": "Start Time" },
+          "end_time": { "type": "string", "format": "date-time", "title": "End Time" },
+          "is_recurring": { "type": "boolean", "title": "Is Recurring", "default": false },
+          "recurrence_rule": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Recurrence Rule"
+          }
+        },
+        "type": "object",
+        "required": ["start_time", "end_time"],
+        "title": "AvailabilitySlotCreate"
+      },
+      "AvailabilitySlotHit": {
+        "properties": {
+          "start": { "type": "string", "title": "Start" },
+          "end": { "type": "string", "title": "End" }
+        },
+        "type": "object",
+        "required": ["start", "end"],
+        "title": "AvailabilitySlotHit",
+        "description": "A single future, unbooked slot as stored in ES."
+      },
+      "AvailabilitySlotResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "start_time": { "type": "string", "format": "date-time", "title": "Start Time" },
+          "end_time": { "type": "string", "format": "date-time", "title": "End Time" },
+          "is_booked": { "type": "boolean", "title": "Is Booked" },
+          "is_recurring": { "type": "boolean", "title": "Is Recurring" },
+          "recurrence_rule": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Recurrence Rule"
+          },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mentor_id",
+          "start_time",
+          "end_time",
+          "is_booked",
+          "is_recurring",
+          "recurrence_rule",
+          "created_at"
+        ],
+        "title": "AvailabilitySlotResponse"
+      },
+      "BankInfo": {
+        "properties": {
+          "bank_code": { "type": "string", "title": "Bank Code" },
+          "bank_name": { "type": "string", "title": "Bank Name" },
+          "logo_url": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Logo Url" },
+          "package_name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Package Name"
+          },
+          "intent_scheme": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Intent Scheme"
+          }
+        },
+        "type": "object",
+        "required": ["bank_code", "bank_name"],
+        "title": "BankInfo",
+        "description": "Bank information for payment selection"
+      },
+      "Body_login_api_v1_auth_login_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [{ "type": "string", "pattern": "password" }, { "type": "null" }],
+            "title": "Grant Type"
+          },
+          "username": { "type": "string", "title": "Username" },
+          "password": { "type": "string", "title": "Password" },
+          "scope": { "type": "string", "title": "Scope", "default": "" },
+          "client_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": ["username", "password"],
+        "title": "Body_login_api_v1_auth_login_post"
+      },
+      "Body_upload_avatar_api_v1_upload_avatar_post": {
+        "properties": { "file": { "type": "string", "format": "binary", "title": "File" } },
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_upload_avatar_api_v1_upload_avatar_post"
+      },
+      "BookingCreate": {
+        "properties": {
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "slot_id": { "type": "string", "format": "uuid", "title": "Slot Id" },
+          "package_id": {
+            "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }],
+            "title": "Package Id"
+          },
+          "topic": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Topic"
+          },
+          "notes": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Notes" },
+          "goals": { "type": "string", "maxLength": 2000, "minLength": 10, "title": "Goals" },
+          "current_school": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Current School"
+          },
+          "guardian_phone": {
+            "anyOf": [{ "type": "string", "maxLength": 50 }, { "type": "null" }],
+            "title": "Guardian Phone"
+          },
+          "preparation_notes": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Preparation Notes"
+          },
+          "mentee_timezone": {
+            "anyOf": [{ "type": "string", "maxLength": 100 }, { "type": "null" }],
+            "title": "Mentee Timezone"
+          }
+        },
+        "type": "object",
+        "required": ["mentor_id", "slot_id", "goals"],
+        "title": "BookingCreate"
+      },
+      "BookingResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "mentee_id": { "type": "string", "format": "uuid", "title": "Mentee Id" },
+          "slot_id": {
+            "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }],
+            "title": "Slot Id"
+          },
+          "package_id": {
+            "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }],
+            "title": "Package Id"
+          },
+          "status": { "$ref": "#/components/schemas/BookingStatus" },
+          "topic": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Topic" },
+          "notes": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Notes" },
+          "goals": { "type": "string", "title": "Goals" },
+          "current_school": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Current School"
+          },
+          "preparation_notes": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Preparation Notes"
+          },
+          "mentee_timezone": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Mentee Timezone"
+          },
+          "agreed_price": { "type": "string", "title": "Agreed Price" },
+          "session_start": { "type": "string", "format": "date-time", "title": "Session Start" },
+          "session_end": { "type": "string", "format": "date-time", "title": "Session End" },
+          "cancellation_reason": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Cancellation Reason"
+          },
+          "stripe_payment_intent_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Stripe Payment Intent Id"
+          },
+          "payment_status": { "type": "string", "title": "Payment Status" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
+          "updated_at": { "type": "string", "format": "date-time", "title": "Updated At" },
+          "confirmed_at": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Confirmed At"
+          },
+          "completed_at": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Completed At"
+          },
+          "cancelled_at": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Cancelled At"
+          },
+          "mentee": { "$ref": "#/components/schemas/UserPublic" },
+          "has_review": { "type": "boolean", "title": "Has Review", "default": false }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mentor_id",
+          "mentee_id",
+          "slot_id",
+          "package_id",
+          "status",
+          "topic",
+          "notes",
+          "goals",
+          "current_school",
+          "preparation_notes",
+          "mentee_timezone",
+          "agreed_price",
+          "session_start",
+          "session_end",
+          "cancellation_reason",
+          "stripe_payment_intent_id",
+          "payment_status",
+          "created_at",
+          "updated_at",
+          "confirmed_at",
+          "completed_at",
+          "cancelled_at",
+          "mentee"
+        ],
+        "title": "BookingResponse"
+      },
+      "BookingStatus": {
+        "type": "string",
+        "enum": ["pending", "confirmed", "completed", "cancelled"],
+        "title": "BookingStatus"
+      },
+      "BookingStatusUpdate": {
+        "properties": {
+          "status": { "$ref": "#/components/schemas/BookingStatus" },
+          "cancellation_reason": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Cancellation Reason"
+          }
+        },
+        "type": "object",
+        "required": ["status"],
+        "title": "BookingStatusUpdate"
+      },
+      "CalendarConnectRequest": {
+        "properties": {
+          "provider": { "type": "string", "title": "Provider" },
+          "code": { "type": "string", "title": "Code" },
+          "redirect_uri": { "type": "string", "title": "Redirect Uri" }
+        },
+        "type": "object",
+        "required": ["provider", "code", "redirect_uri"],
+        "title": "CalendarConnectRequest",
+        "description": "Payload sent after OAuth callback — frontend exchanges code for tokens."
+      },
+      "CalendarIntegrationResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "provider": { "type": "string", "title": "Provider" },
+          "calendar_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Calendar Id"
+          },
+          "token_expiry": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Token Expiry"
+          },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
+          "updated_at": { "type": "string", "format": "date-time", "title": "Updated At" }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mentor_id",
+          "provider",
+          "calendar_id",
+          "token_expiry",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CalendarIntegrationResponse"
+      },
+      "CalendarSyncResponse": {
+        "properties": {
+          "slots_created": { "type": "integer", "title": "Slots Created" },
+          "slots_blocked": { "type": "integer", "title": "Slots Blocked" },
+          "message": { "type": "string", "title": "Message" }
+        },
+        "type": "object",
+        "required": ["slots_created", "slots_blocked", "message"],
+        "title": "CalendarSyncResponse"
+      },
+      "CalendlyLinkResponse": {
+        "properties": {
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "calendly_link": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Calendly Link"
+          }
+        },
+        "type": "object",
+        "required": ["mentor_id", "calendly_link"],
+        "title": "CalendlyLinkResponse",
+        "description": "Mentor's Calendly link as returned by the API."
+      },
+      "CalendlyLinkUpdate": {
+        "properties": {
+          "calendly_link": {
+            "anyOf": [{ "type": "string", "maxLength": 500 }, { "type": "null" }],
+            "title": "Calendly Link",
+            "description": "Mentor's Calendly scheduling URL, e.g. https://calendly.com/mentor-name/30min"
+          }
+        },
+        "type": "object",
+        "title": "CalendlyLinkUpdate",
+        "description": "Payload for a mentor to save their Calendly scheduling URL."
+      },
+      "CalendlyPrefillResponse": {
+        "properties": {
+          "calendly_url": { "type": "string", "title": "Calendly Url" },
+          "prefill": { "type": "object", "title": "Prefill" },
+          "utm": { "type": "object", "title": "Utm" }
+        },
+        "type": "object",
+        "required": ["calendly_url", "prefill", "utm"],
+        "title": "CalendlyPrefillResponse",
+        "description": "Data the frontend needs to embed the Calendly widget and prefill user info.\n\nThe frontend passes `name`, `email`, and `custom_answers` to the Calendly\nembed so the user doesn't have to re-enter details they already provided."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IndustryCreate": {
+        "properties": {
+          "name": { "type": "string", "maxLength": 100, "minLength": 2, "title": "Name" },
+          "description": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": ["name"],
+        "title": "IndustryCreate",
+        "description": "Admin creates a new industry category."
+      },
+      "IndustryResponse": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "description": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Description"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "slug": { "type": "string", "title": "Slug" }
+        },
+        "type": "object",
+        "required": ["name", "id", "slug"],
+        "title": "IndustryResponse"
+      },
+      "LoginResponse": {
+        "properties": {
+          "access_token": { "type": "string", "title": "Access Token" },
+          "refresh_token": { "type": "string", "title": "Refresh Token" },
+          "token_type": { "type": "string", "title": "Token Type", "default": "bearer" },
+          "user": { "$ref": "#/components/schemas/UserResponse" }
+        },
+        "type": "object",
+        "required": ["access_token", "refresh_token", "user"],
+        "title": "LoginResponse"
+      },
+      "MentorListResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "user": { "$ref": "#/components/schemas/UserPublic" },
+          "title": { "type": "string", "title": "Title" },
+          "company": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Company" },
+          "industries": { "items": { "type": "string" }, "type": "array", "title": "Industries" },
+          "hourly_rate": { "type": "string", "title": "Hourly Rate" },
+          "average_rating": { "type": "number", "title": "Average Rating" },
+          "total_reviews": { "type": "integer", "title": "Total Reviews" },
+          "total_sessions": { "type": "integer", "title": "Total Sessions" },
+          "is_accepting_bookings": { "type": "boolean", "title": "Is Accepting Bookings" },
+          "is_verified": { "type": "boolean", "title": "Is Verified" },
+          "booking_mode": { "type": "string", "title": "Booking Mode" },
+          "tags": {
+            "items": { "$ref": "#/components/schemas/TagResponse" },
+            "type": "array",
+            "title": "Tags"
+          },
+          "is_professional_counselor": { "type": "boolean", "title": "Is Professional Counselor" },
+          "is_academic_counselor": { "type": "boolean", "title": "Is Academic Counselor" }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user",
+          "title",
+          "company",
+          "hourly_rate",
+          "average_rating",
+          "total_reviews",
+          "total_sessions",
+          "is_accepting_bookings",
+          "is_verified",
+          "booking_mode",
+          "tags",
+          "is_professional_counselor",
+          "is_academic_counselor"
+        ],
+        "title": "MentorListResponse",
+        "description": "Lighter response for list views"
+      },
+      "MentorProfileCreate": {
+        "properties": {
+          "title": { "type": "string", "maxLength": 255, "minLength": 2, "title": "Title" },
+          "company": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Company"
+          },
+          "bio": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Bio" },
+          "industry_ids": {
+            "items": { "type": "string", "format": "uuid" },
+            "type": "array",
+            "title": "Industry Ids",
+            "description": "List of industry IDs (multiple allowed)"
+          },
+          "years_of_experience": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 0.0,
+            "title": "Years Of Experience",
+            "default": 0
+          },
+          "hourly_rate": {
+            "anyOf": [
+              { "type": "number", "maximum": 10000.0, "minimum": 0.0 },
+              { "type": "string" }
+            ],
+            "title": "Hourly Rate"
+          },
+          "linkedin_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Linkedin Url"
+          },
+          "website_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Website Url"
+          },
+          "calendly_link": {
+            "anyOf": [{ "type": "string", "maxLength": 500 }, { "type": "null" }],
+            "title": "Calendly Link"
+          },
+          "tag_ids": {
+            "items": { "type": "string", "format": "uuid" },
+            "type": "array",
+            "title": "Tag Ids"
+          },
+          "booking_mode": {
+            "type": "string",
+            "pattern": "^(instant|approval_required)$",
+            "title": "Booking Mode",
+            "default": "instant"
+          },
+          "is_professional_counselor": {
+            "type": "boolean",
+            "title": "Is Professional Counselor",
+            "default": true
+          },
+          "is_academic_counselor": {
+            "type": "boolean",
+            "title": "Is Academic Counselor",
+            "default": false
+          },
+          "requires_24h_approval": {
+            "type": "boolean",
+            "title": "Requires 24H Approval",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": ["title", "hourly_rate"],
+        "title": "MentorProfileCreate"
+      },
+      "MentorProfileUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [{ "type": "string", "maxLength": 255, "minLength": 2 }, { "type": "null" }],
+            "title": "Title"
+          },
+          "company": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Company" },
+          "bio": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Bio" },
+          "industry_ids": {
+            "anyOf": [
+              { "items": { "type": "string", "format": "uuid" }, "type": "array" },
+              { "type": "null" }
+            ],
+            "title": "Industry Ids"
+          },
+          "years_of_experience": {
+            "anyOf": [{ "type": "integer", "maximum": 60.0, "minimum": 0.0 }, { "type": "null" }],
+            "title": "Years Of Experience"
+          },
+          "hourly_rate": {
+            "anyOf": [{ "type": "number" }, { "type": "string" }, { "type": "null" }],
+            "title": "Hourly Rate"
+          },
+          "linkedin_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Linkedin Url"
+          },
+          "website_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Website Url"
+          },
+          "calendly_link": {
+            "anyOf": [{ "type": "string", "maxLength": 500 }, { "type": "null" }],
+            "title": "Calendly Link"
+          },
+          "tag_ids": {
+            "anyOf": [
+              { "items": { "type": "string", "format": "uuid" }, "type": "array" },
+              { "type": "null" }
+            ],
+            "title": "Tag Ids"
+          },
+          "is_accepting_bookings": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Is Accepting Bookings"
+          },
+          "booking_mode": {
+            "anyOf": [
+              { "type": "string", "pattern": "^(instant|approval_required)$" },
+              { "type": "null" }
+            ],
+            "title": "Booking Mode"
+          },
+          "requires_24h_approval": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Requires 24H Approval"
+          },
+          "is_professional_counselor": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Is Professional Counselor"
+          },
+          "is_academic_counselor": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Is Academic Counselor"
+          }
+        },
+        "type": "object",
+        "title": "MentorProfileUpdate"
+      },
+      "MentorRequestCreate": {
+        "properties": {
+          "keyword": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Keyword",
+            "description": "What they want to mentor in (e.g. 'System Design')"
+          },
+          "industry": {
+            "anyOf": [{ "type": "string", "maxLength": 100 }, { "type": "null" }],
+            "title": "Industry"
+          },
+          "note": {
+            "anyOf": [{ "type": "string", "maxLength": 1000 }, { "type": "null" }],
+            "title": "Note",
+            "description": "Optional message to admins"
+          }
+        },
+        "type": "object",
+        "title": "MentorRequestCreate",
+        "description": "Simple request from authenticated user wanting to become a mentor.\nAdmin will review and then update their role to 'mentor'."
+      },
+      "MentorRequestResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "user_id": { "type": "string", "format": "uuid", "title": "User Id" },
+          "keyword": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Keyword" },
+          "industry": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Industry" },
+          "note": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Note" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "type": "object",
+        "required": ["id", "user_id", "keyword", "industry", "note", "created_at"],
+        "title": "MentorRequestResponse"
+      },
+      "MentorResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "user_id": { "type": "string", "format": "uuid", "title": "User Id" },
+          "user": { "$ref": "#/components/schemas/UserPublic" },
+          "title": { "type": "string", "title": "Title" },
+          "company": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Company" },
+          "bio": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Bio" },
+          "industries": {
+            "items": { "$ref": "#/components/schemas/IndustryResponse" },
+            "type": "array",
+            "title": "Industries"
+          },
+          "years_of_experience": { "type": "integer", "title": "Years Of Experience" },
+          "hourly_rate": { "type": "string", "title": "Hourly Rate" },
+          "average_rating": { "type": "number", "title": "Average Rating" },
+          "total_reviews": { "type": "integer", "title": "Total Reviews" },
+          "total_sessions": { "type": "integer", "title": "Total Sessions" },
+          "is_accepting_bookings": { "type": "boolean", "title": "Is Accepting Bookings" },
+          "is_featured": { "type": "boolean", "title": "Is Featured" },
+          "is_verified": { "type": "boolean", "title": "Is Verified" },
+          "booking_mode": { "type": "string", "title": "Booking Mode" },
+          "requires_24h_approval": { "type": "boolean", "title": "Requires 24H Approval" },
+          "linkedin_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Linkedin Url"
+          },
+          "website_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Website Url"
+          },
+          "calendly_link": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Calendly Link"
+          },
+          "tags": {
+            "items": { "$ref": "#/components/schemas/TagResponse" },
+            "type": "array",
+            "title": "Tags"
+          },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
+          "is_professional_counselor": { "type": "boolean", "title": "Is Professional Counselor" },
+          "is_academic_counselor": { "type": "boolean", "title": "Is Academic Counselor" }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "user",
+          "title",
+          "company",
+          "bio",
+          "years_of_experience",
+          "hourly_rate",
+          "average_rating",
+          "total_reviews",
+          "total_sessions",
+          "is_accepting_bookings",
+          "is_featured",
+          "is_verified",
+          "booking_mode",
+          "requires_24h_approval",
+          "linkedin_url",
+          "website_url",
+          "tags",
+          "created_at",
+          "is_professional_counselor",
+          "is_academic_counselor"
+        ],
+        "title": "MentorResponse"
+      },
+      "MentorSearchHit": {
+        "properties": {
+          "id": { "type": "string", "title": "Id" },
+          "user_id": { "type": "string", "title": "User Id" },
+          "full_name": { "type": "string", "title": "Full Name" },
+          "title": { "type": "string", "title": "Title" },
+          "company": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Company" },
+          "industries": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Industries",
+            "default": []
+          },
+          "hourly_rate": { "type": "number", "title": "Hourly Rate" },
+          "average_rating": { "type": "number", "title": "Average Rating" },
+          "total_reviews": { "type": "integer", "title": "Total Reviews" },
+          "total_sessions": { "type": "integer", "title": "Total Sessions" },
+          "is_accepting_bookings": { "type": "boolean", "title": "Is Accepting Bookings" },
+          "is_verified": { "type": "boolean", "title": "Is Verified" },
+          "is_featured": { "type": "boolean", "title": "Is Featured" },
+          "booking_mode": { "type": "string", "title": "Booking Mode" },
+          "requires_24h_approval": {
+            "type": "boolean",
+            "title": "Requires 24H Approval",
+            "default": false
+          },
+          "availability_slots": {
+            "items": { "$ref": "#/components/schemas/AvailabilitySlotHit" },
+            "type": "array",
+            "title": "Availability Slots",
+            "default": []
+          },
+          "tags": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Tags",
+            "default": []
+          },
+          "tag_ids": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Tag Ids",
+            "default": []
+          },
+          "avatar_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Avatar Url"
+          },
+          "created_at": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Created At"
+          },
+          "is_professional_counselor": {
+            "type": "boolean",
+            "title": "Is Professional Counselor",
+            "default": true
+          },
+          "is_academic_counselor": {
+            "type": "boolean",
+            "title": "Is Academic Counselor",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "full_name",
+          "title",
+          "hourly_rate",
+          "average_rating",
+          "total_reviews",
+          "total_sessions",
+          "is_accepting_bookings",
+          "is_verified",
+          "is_featured",
+          "booking_mode"
+        ],
+        "title": "MentorSearchHit",
+        "description": "Lightweight response built from ES _source directly.\nUsed when ES search is the primary path (avoids DB round-trip for listings)."
+      },
+      "MessageResponse": {
+        "properties": { "message": { "type": "string", "title": "Message" } },
+        "type": "object",
+        "required": ["message"],
+        "title": "MessageResponse"
+      },
+      "PaginatedResponse_AvailabilitySlotResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/AvailabilitySlotResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[AvailabilitySlotResponse]"
+      },
+      "PaginatedResponse_BookingResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/BookingResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[BookingResponse]"
+      },
+      "PaginatedResponse_MentorListResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/MentorListResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[MentorListResponse]"
+      },
+      "PaginatedResponse_MentorRequestResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/MentorRequestResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[MentorRequestResponse]"
+      },
+      "PaginatedResponse_MentorSearchHit_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/MentorSearchHit" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[MentorSearchHit]"
+      },
+      "PaginatedResponse_ReviewResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/ReviewResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[ReviewResponse]"
+      },
+      "PaginatedResponse_UserResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/UserResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[UserResponse]"
+      },
+      "PaymentInitiateRequest": {
+        "properties": {
+          "booking_id": { "type": "string", "format": "uuid", "title": "Booking Id" },
+          "bank_code": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Bank Code" }
+        },
+        "type": "object",
+        "required": ["booking_id"],
+        "title": "PaymentInitiateRequest",
+        "description": "Request to initiate a Fonepay Dynamic QR payment"
+      },
+      "PaymentInitiateResponse": {
+        "properties": {
+          "transaction_id": { "type": "string", "format": "uuid", "title": "Transaction Id" },
+          "fonepay_transaction_id": { "type": "string", "title": "Fonepay Transaction Id" },
+          "qr_code_url": { "type": "string", "title": "Qr Code Url" },
+          "deep_link": { "type": "string", "title": "Deep Link" },
+          "qr_message": { "type": "string", "title": "Qr Message" },
+          "amount": { "type": "string", "title": "Amount" },
+          "expires_at": { "type": "string", "format": "date-time", "title": "Expires At" },
+          "websocket_id": { "type": "string", "title": "Websocket Id" }
+        },
+        "type": "object",
+        "required": [
+          "transaction_id",
+          "fonepay_transaction_id",
+          "qr_code_url",
+          "deep_link",
+          "qr_message",
+          "amount",
+          "expires_at",
+          "websocket_id"
+        ],
+        "title": "PaymentInitiateResponse",
+        "description": "Response after initiating a Fonepay payment"
+      },
+      "PaymentStatusResponse": {
+        "properties": {
+          "transaction_id": { "type": "string", "format": "uuid", "title": "Transaction Id" },
+          "status": { "type": "string", "title": "Status" },
+          "fonepay_transaction_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Fonepay Transaction Id"
+          },
+          "paid_at": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Paid At"
+          },
+          "amount": { "type": "string", "title": "Amount" },
+          "error_details": {
+            "anyOf": [{ "type": "object" }, { "type": "null" }],
+            "title": "Error Details"
+          }
+        },
+        "type": "object",
+        "required": ["transaction_id", "status", "amount"],
+        "title": "PaymentStatusResponse",
+        "description": "Payment status check response"
+      },
+      "RefreshRequest": {
+        "properties": { "refresh_token": { "type": "string", "title": "Refresh Token" } },
+        "type": "object",
+        "required": ["refresh_token"],
+        "title": "RefreshRequest"
+      },
+      "ReviewCreate": {
+        "properties": {
+          "booking_id": { "type": "string", "format": "uuid", "title": "Booking Id" },
+          "rating": { "type": "integer", "maximum": 5.0, "minimum": 1.0, "title": "Rating" },
+          "comment": {
+            "anyOf": [{ "type": "string", "maxLength": 2000 }, { "type": "null" }],
+            "title": "Comment"
+          }
+        },
+        "type": "object",
+        "required": ["booking_id", "rating"],
+        "title": "ReviewCreate"
+      },
+      "ReviewResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "reviewer_id": { "type": "string", "format": "uuid", "title": "Reviewer Id" },
+          "booking_id": { "type": "string", "format": "uuid", "title": "Booking Id" },
+          "rating": { "type": "integer", "title": "Rating" },
+          "comment": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Comment" },
+          "reviewer": { "$ref": "#/components/schemas/UserPublic" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
+          "updated_at": { "type": "string", "format": "date-time", "title": "Updated At" }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mentor_id",
+          "reviewer_id",
+          "booking_id",
+          "rating",
+          "comment",
+          "reviewer",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ReviewResponse"
+      },
+      "RoleUpdateRequest": {
+        "properties": { "role": { "$ref": "#/components/schemas/UserRole" } },
+        "type": "object",
+        "required": ["role"],
+        "title": "RoleUpdateRequest",
+        "description": "Admin request to update a user's role."
+      },
+      "ServicePackageCreate": {
+        "properties": {
+          "title": { "type": "string", "maxLength": 255, "minLength": 2, "title": "Title" },
+          "description": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Description"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "maximum": 480.0,
+            "minimum": 15.0,
+            "title": "Duration Minutes"
+          },
+          "price": {
+            "anyOf": [
+              { "type": "number", "maximum": 10000.0, "minimum": 0.0 },
+              { "type": "string" }
+            ],
+            "title": "Price"
+          }
+        },
+        "type": "object",
+        "required": ["title", "duration_minutes", "price"],
+        "title": "ServicePackageCreate"
+      },
+      "ServicePackageResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "title": { "type": "string", "title": "Title" },
+          "description": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Description"
+          },
+          "duration_minutes": { "type": "integer", "title": "Duration Minutes" },
+          "price": { "type": "string", "title": "Price" },
+          "is_active": { "type": "boolean", "title": "Is Active" },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
+          "updated_at": { "type": "string", "format": "date-time", "title": "Updated At" }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mentor_id",
+          "title",
+          "description",
+          "duration_minutes",
+          "price",
+          "is_active",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ServicePackageResponse"
+      },
+      "ServicePackageUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [{ "type": "string", "maxLength": 255, "minLength": 2 }, { "type": "null" }],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Description"
+          },
+          "duration_minutes": {
+            "anyOf": [{ "type": "integer", "maximum": 480.0, "minimum": 15.0 }, { "type": "null" }],
+            "title": "Duration Minutes"
+          },
+          "price": {
+            "anyOf": [{ "type": "number" }, { "type": "string" }, { "type": "null" }],
+            "title": "Price"
+          },
+          "is_active": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "title": "ServicePackageUpdate"
+      },
+      "SortBy": {
+        "type": "string",
+        "enum": ["rating", "price", "reviews", "created_at"],
+        "title": "SortBy"
+      },
+      "SortOrder": { "type": "string", "enum": ["asc", "desc"], "title": "SortOrder" },
+      "TagCreate": {
+        "properties": {
+          "name": { "type": "string", "maxLength": 100, "minLength": 1, "title": "Name" }
+        },
+        "type": "object",
+        "required": ["name"],
+        "title": "TagCreate"
+      },
+      "TagResponse": {
+        "properties": {
+          "name": { "type": "string", "maxLength": 100, "minLength": 1, "title": "Name" },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "slug": { "type": "string", "title": "Slug" }
+        },
+        "type": "object",
+        "required": ["name", "id", "slug"],
+        "title": "TagResponse"
+      },
+      "Token": {
+        "properties": {
+          "access_token": { "type": "string", "title": "Access Token" },
+          "refresh_token": { "type": "string", "title": "Refresh Token" },
+          "token_type": { "type": "string", "title": "Token Type", "default": "bearer" }
+        },
+        "type": "object",
+        "required": ["access_token", "refresh_token"],
+        "title": "Token"
+      },
+      "TransactionListResponse": {
+        "properties": {
+          "transactions": {
+            "items": { "$ref": "#/components/schemas/TransactionResponse" },
+            "type": "array",
+            "title": "Transactions"
+          },
+          "total": { "type": "integer", "title": "Total" }
+        },
+        "type": "object",
+        "required": ["transactions", "total"],
+        "title": "TransactionListResponse",
+        "description": "List of transactions with pagination"
+      },
+      "TransactionResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "booking_id": { "type": "string", "format": "uuid", "title": "Booking Id" },
+          "fonepay_transaction_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Fonepay Transaction Id"
+          },
+          "merchant_reference": { "type": "string", "title": "Merchant Reference" },
+          "amount": { "type": "string", "title": "Amount" },
+          "bank_code": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Bank Code"
+          },
+          "status": { "type": "string", "title": "Status" },
+          "qr_code_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Qr Code Url"
+          },
+          "deep_link": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Deep Link"
+          },
+          "expires_at": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Expires At"
+          },
+          "paid_at": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+            "title": "Paid At"
+          },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
+          "updated_at": { "type": "string", "format": "date-time", "title": "Updated At" },
+          "error_details": {
+            "anyOf": [{ "type": "object" }, { "type": "null" }],
+            "title": "Error Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "booking_id",
+          "fonepay_transaction_id",
+          "merchant_reference",
+          "amount",
+          "bank_code",
+          "status",
+          "qr_code_url",
+          "deep_link",
+          "expires_at",
+          "paid_at",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TransactionResponse",
+        "description": "Single transaction details"
+      },
+      "UserCreate": {
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "full_name": { "type": "string", "maxLength": 255, "minLength": 2, "title": "Full Name" },
+          "password": { "type": "string", "maxLength": 128, "minLength": 8, "title": "Password" },
+          "role": { "allOf": [{ "$ref": "#/components/schemas/UserRole" }], "default": "mentee" }
+        },
+        "type": "object",
+        "required": ["email", "full_name", "password"],
+        "title": "UserCreate"
+      },
+      "UserPublic": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "full_name": { "type": "string", "title": "Full Name" },
+          "avatar_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Avatar Url"
+          },
+          "role": { "$ref": "#/components/schemas/UserRole" }
+        },
+        "type": "object",
+        "required": ["id", "full_name", "avatar_url", "role"],
+        "title": "UserPublic"
+      },
+      "UserResponse": {
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "full_name": { "type": "string", "maxLength": 255, "minLength": 2, "title": "Full Name" },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "role": { "$ref": "#/components/schemas/UserRole" },
+          "is_active": { "type": "boolean", "title": "Is Active" },
+          "is_verified": { "type": "boolean", "title": "Is Verified" },
+          "avatar_url": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Avatar Url"
+          },
+          "created_at": { "type": "string", "format": "date-time", "title": "Created At" }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "full_name",
+          "id",
+          "role",
+          "is_active",
+          "is_verified",
+          "avatar_url",
+          "created_at"
+        ],
+        "title": "UserResponse"
+      },
+      "UserRole": { "type": "string", "enum": ["mentor", "mentee", "admin"], "title": "UserRole" },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    }
+  }
+}
