@@ -53,6 +53,7 @@ export function FeaturedMentorsGrid() {
                 price={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
                 verified={mentor.is_verified}
+                totalSessions={mentor.total_sessions}
                 onClick={() => setSelectedMentorId(mentor.id)}
               />
             ))}
@@ -61,7 +62,6 @@ export function FeaturedMentorsGrid() {
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
             <div className="text-center">
               <p className="mb-2 text-xl font-bold text-[#121c2a]">No mentors found</p>
-              <p className="text-[#434655]">Try adjusting your filters</p>
             </div>
           </div>
         )}

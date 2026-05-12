@@ -12,12 +12,15 @@ interface FilterContextType {
 }
 
 const defaultFilters: FilterState = {
-  industry: 'All Industries',
+  industries: [],
   jobTitle: '',
-  priceRange: 2050,
+  priceRange: 10000,
+  availableToday: false,
   availableThisWeek: false,
   instantBooking: false,
   eveningsWeekends: false,
+  experienceLevel: '3-5 Years',
+  counselingType: 'professional',
   sortBy: 'rating',
 }
 

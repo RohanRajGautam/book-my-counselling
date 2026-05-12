@@ -20,7 +20,7 @@ export function Navbar() {
   return (
     <>
       <nav className="fixed top-0 z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8">
+        <div className="max-w-8xl mx-auto flex items-center justify-between px-4 py-4 sm:px-8">
           <Link
             href="/"
             className="font-[family-name:var(--font-headline)] text-xl font-bold tracking-tight text-blue-700 sm:text-2xl dark:text-blue-300"

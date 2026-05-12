@@ -1,13 +1,13 @@
 'use client'
+
 import { useState } from 'react'
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+
 import { MentorCard } from '@/features/mentors/components/MentorCard'
-
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
-import { MentorProfileModal } from './MentorProfileModal'
+import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
+import { MentorProfileModal } from './MentorProfileModal'
 
 export function MentorGrid() {
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null)
@@ -19,72 +19,128 @@ export function MentorGrid() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    document
+      .getElementById('mentor-results')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = []
+
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i)
-    } else {
-      pages.push(1)
-      if (currentPage > 3) pages.push('...')
-      for (
-        let i = Math.max(2, currentPage - 1);
-        i <= Math.min(totalPages - 1, currentPage + 1);
-        i++
-      ) {
-        pages.push(i)
-      }
-      if (currentPage < totalPages - 2) pages.push('...')
-      pages.push(totalPages)
+      for (let page = 1; page <= totalPages; page += 1) pages.push(page)
+      return pages
     }
+
+    pages.push(1)
+    if (currentPage > 3) pages.push('...')
+
+    for (
+      let page = Math.max(2, currentPage - 1);
+      page <= Math.min(totalPages - 1, currentPage + 1);
+      page += 1
+    ) {
+      pages.push(page)
+    }
+
+    if (currentPage < totalPages - 2) pages.push('...')
+    pages.push(totalPages)
+
     return pages
   }
 
   return (
     <>
-      <section>
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
-            {isLoading
-              ? 'Loading mentors...'
-              : `${data?.total ?? 0} Mentor${data?.total === 1 ? '' : 's'} available`}
-          </h2>
-          <div className="flex items-center gap-2 text-[#434655]">
-            <span>Sort by:</span>
-            <select
-              value={filters.sortBy}
-              onChange={(e) => updateFilter('sortBy', e.target.value as typeof filters.sortBy)}
-              className="cursor-pointer border-none bg-transparent py-0 font-bold text-[#121c2a] focus:ring-0"
+      <section id="mentor-results" className="px-6 py-9 lg:px-8 xl:px-9">
+        <div className="mb-10 flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+          <div>
+            <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold tracking-tight text-[#121c2a] md:text-[42px]">
+              Explore Expert Mentors
+            </h1>
+            <p className="mt-3 max-w-[590px] text-lg leading-8 font-medium text-[#5f6472]">
+              Connect with world-class guides to navigate your academic journey or professional
+              career path.
+            </p>
+          </div>
+
+          <div className="grid h-[60px] w-full max-w-[334px] grid-cols-2 rounded-full bg-[#e6eeff] p-1.5 shadow-[inset_0_0_0_1px_rgba(195,198,215,0.18)]">
+            <button
+              type="button"
+              onClick={() => updateFilter('counselingType', 'academic')}
+              className={`rounded-xl text-sm leading-tight font-extrabold transition ${
+                filters.counselingType === 'academic'
+                  ? 'bg-white text-[#0053db] shadow-[0_8px_20px_rgba(18,28,42,0.08)]'
+                  : 'text-[#263247]'
+              }`}
             >
-              <option value="rating">Highest Rated</option>
-              <option value="reviews">Most Reviews</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
+              Academic
+              <br />
+              Counselling
+            </button>
+            <button
+              type="button"
+              onClick={() => updateFilter('counselingType', 'professional')}
+              className={`rounded-xl text-sm leading-tight font-extrabold transition ${
+                filters.counselingType === 'professional'
+                  ? 'bg-white text-[#0053db] shadow-[0_8px_20px_rgba(18,28,42,0.08)]'
+                  : 'text-[#263247]'
+              }`}
+            >
+              Professional
+              <br />
+              Mentorship
+            </button>
           </div>
         </div>
 
+        <div className="mb-3 mb-8 flex h-18 items-center rounded-full bg-white px-4 shadow-[0_10px_30px_rgba(18,28,42,0.035)]">
+          <Search className="mr-3 size-6 text-[#0053db]" />
+          <input
+            type="search"
+            value={filters.jobTitle ?? ''}
+            onChange={(event) => updateFilter('jobTitle', event.target.value)}
+            placeholder="Search by name, role, or company..."
+            className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[#121c2a] outline-none placeholder:text-[#b5bbc8]"
+          />
+          <button
+            type="button"
+            onClick={() => updateFilter('jobTitle', filters.jobTitle ?? '')}
+            className="h-10 rounded-lg bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+          >
+            Search
+          </button>
+        </div>
+
+        {/* <div className="mb-10 flex flex-wrap items-center gap-2 text-xs font-extrabold">
+          <span className="mr-1 text-[#434655]">POPULAR:</span>
+          {popularSearches.map((term) => (
+            <button
+              key={term}
+              type="button"
+              onClick={() => updateFilter('jobTitle', term)}
+              className="text-[#1f5ca8] transition hover:text-[#004ac6]"
+            >
+              {term}
+            </button>
+          ))}
+        </div> */}
+
         {isError ? (
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
-            <div className="text-center">
-              <p className="mb-2 text-xl font-bold text-[#121c2a]">Unable to load mentors</p>
-              <p className="text-[#434655]">Please try again in a moment</p>
+          <div className="flex min-h-[360px] items-center justify-center rounded-lg bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)]">
+            <div>
+              <p className="mb-2 text-xl font-extrabold text-[#121c2a]">Unable to load mentors</p>
+              <p className="font-medium text-[#5f6472]">Please try again in a moment.</p>
             </div>
           </div>
         ) : isLoading ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: MENTORS_PER_PAGE }).map((_, index) => (
-              <div
-                key={index}
-                className="h-[420px] animate-pulse rounded-[2rem] bg-white shadow-[0_8px_24px_rgba(18,28,42,0.04)]"
-              />
+              <div key={index} className="h-[390px] animate-pulse rounded-[18px] bg-white" />
             ))}
           </div>
         ) : currentMentors.length > 0 ? (
           <div
-            className={`grid grid-cols-1 gap-8 transition-opacity md:grid-cols-2 ${
+            className={`grid grid-cols-1 gap-6 transition-opacity md:grid-cols-2 xl:grid-cols-3 ${
               isFetching ? 'opacity-60' : 'opacity-100'
             }`}
           >
@@ -94,57 +150,66 @@ export function MentorGrid() {
                 name={mentor.full_name}
                 role={mentor.title}
                 company={mentor.company ?? ''}
-                tags={mentor.tags?.slice(0, 4).map((t) => (t.startsWith('#') ? t : `#${t}`)) || []}
+                tags={mentor.tags?.length ? mentor.tags : (mentor.industries ?? [])}
                 rating={mentor.average_rating}
                 reviews={mentor.total_reviews}
-                description={`Mentor in ${mentor.industries?.join(', ') || 'various fields'} with ${mentor.total_sessions} sessions`}
+                description={
+                  mentor.industries?.length
+                    ? `Mentor in ${mentor.industries.slice(0, 2).join(' and ')} with ${mentor.total_sessions} sessions`
+                    : `${mentor.title} with ${mentor.total_sessions} sessions`
+                }
                 price={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
+                totalSessions={mentor.total_sessions}
                 verified={mentor.is_verified}
                 onClick={() => setSelectedMentorId(mentor.id)}
               />
             ))}
           </div>
         ) : (
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
-            <div className="text-center">
-              <p className="mb-2 text-xl font-bold text-[#121c2a]">No mentors found</p>
-              <p className="text-[#434655]">Try adjusting your filters</p>
+          <div className="flex min-h-[360px] items-center justify-center rounded-lg bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)]">
+            <div>
+              <p className="mb-2 text-xl font-extrabold text-[#121c2a]">No mentors found</p>
             </div>
           </div>
         )}
 
         {!isLoading && !isError && totalPages > 1 && (
-          <div className="mt-16 flex items-center justify-center gap-4">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
             <button
+              type="button"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || isFetching}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] hover:bg-[#e6eeff] disabled:opacity-50"
+              className="flex size-11 items-center justify-center rounded-full bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[#f7faff] disabled:cursor-not-allowed disabled:opacity-45"
+              aria-label="Previous page"
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronLeft className="size-5" />
             </button>
 
             {getPageNumbers().map((page, index) => (
               <button
-                key={index}
+                key={`${page}-${index}`}
+                type="button"
                 onClick={() => typeof page === 'number' && handlePageChange(page)}
                 disabled={page === '...' || isFetching}
-                className={`flex h-12 w-12 items-center justify-center rounded-full font-bold transition-colors ${
+                className={`flex size-11 items-center justify-center rounded-full text-sm font-extrabold transition ${
                   page === currentPage
-                    ? 'bg-[#004ac6] text-white'
-                    : 'text-[#434655] hover:bg-[#e6eeff]'
-                }`}
+                    ? 'bg-[#0053db] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
+                    : 'bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[#f7faff]'
+                } disabled:cursor-default disabled:opacity-60`}
               >
                 {page}
               </button>
             ))}
 
             <button
+              type="button"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages || isFetching}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#c3c6d7] text-[#434655] hover:bg-[#e6eeff] disabled:opacity-50"
+              className="flex size-11 items-center justify-center rounded-full bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[#f7faff] disabled:cursor-not-allowed disabled:opacity-45"
+              aria-label="Next page"
             >
-              <ChevronRight className="h-6 w-6" />
+              <ChevronRight className="size-5" />
             </button>
           </div>
         )}
