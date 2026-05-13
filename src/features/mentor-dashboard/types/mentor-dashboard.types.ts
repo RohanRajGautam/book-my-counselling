@@ -34,6 +34,23 @@ export interface MentorBooking {
   has_review: boolean
 }
 
+export interface MentorProfileCreate {
+  title: string
+  company?: string | null
+  bio?: string | null
+  industry_ids?: string[]
+  years_of_experience?: number
+  hourly_rate: number
+  linkedin_url?: string | null
+  website_url?: string | null
+  calendly_link?: string | null
+  tag_ids?: string[]
+  booking_mode?: 'instant' | 'approval_required'
+  is_professional_counselor?: boolean
+  is_academic_counselor?: boolean
+  requires_24h_approval?: boolean
+}
+
 export interface MentorProfileUpdate {
   title?: string
   company?: string | null

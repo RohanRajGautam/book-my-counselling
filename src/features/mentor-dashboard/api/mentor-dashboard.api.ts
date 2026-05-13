@@ -3,6 +3,7 @@ import { PaginatedResponse } from '@/lib/api/api.types'
 import { MentorResponse } from '@/features/mentors/types/mentors.types'
 import {
   MentorBooking,
+  MentorProfileCreate,
   MentorProfileUpdate,
   ServicePackage,
   ServicePackageCreate,
@@ -20,6 +21,11 @@ import { BookingStatus } from '../types/booking-status'
 
 export async function getMyMentorProfile(): Promise<MentorResponse> {
   const response = await apiClient.get<MentorResponse>('/mentors/profile/me')
+  return response.data
+}
+
+export async function createMentorProfile(data: MentorProfileCreate): Promise<MentorResponse> {
+  const response = await apiClient.post<MentorResponse>('/mentors/profile', data)
   return response.data
 }
 
