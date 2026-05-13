@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 
+import { ExploreMentorsHeader } from '@/features/explore-mentors/components/ExploreMentorsHeader'
 import { FiltersSidebar } from '@/features/filters/components/FiltersSidebar'
 import { MentorGrid } from '@/features/mentors/components/MentorGrid'
 
@@ -19,6 +20,8 @@ export function MentorDiscovery() {
       </div>
 
       <div>
+        <ExploreMentorsHeader />
+
         <div className="px-6 pt-5 lg:hidden">
           <button
             type="button"

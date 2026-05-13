@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
+import { Toaster } from 'sonner'
 
 import './globals.css'
 import { Providers } from './providers'
@@ -80,10 +81,9 @@ export default function RootLayout({
       className={`${headline.variable} ${body.variable} scroll-smooth`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased">
-        <Providers>
-          {children}
-        </Providers>
+      <body className="min-h-screen bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased" suppressHydrationWarning>
+        <Providers>{children}</Providers>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   )

@@ -13,6 +13,12 @@ interface FilterContextType {
 
 const defaultFilters: FilterState = {
   industries: [],
+  academicCategory: [],
+  academicSubcategory: [],
+  academicSubcategoryParents: {},
+  professionalCategory: [],
+  professionalSubcategory: [],
+  professionalSubcategoryParents: {},
   jobTitle: '',
   priceRange: 10000,
   availableToday: false,
@@ -20,7 +26,7 @@ const defaultFilters: FilterState = {
   instantBooking: false,
   eveningsWeekends: false,
   experienceLevel: '3-5 Years',
-  counselingType: ['professional'],
+  counselingType: 'professional',
   sortBy: 'rating',
 }
 

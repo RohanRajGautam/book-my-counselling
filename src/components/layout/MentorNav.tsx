@@ -1,17 +1,15 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   CalendarDays,
   UserRound,
   WalletCards,
-  Plus,
-  HelpCircle,
   LogOut,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 import {
   Sidebar,
@@ -21,129 +19,145 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+  SidebarSeparator,
+  SidebarTrigger,
+} from '@/components/ui/sidebar'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const mentorNavItems = [
-  {
-    icon: LayoutDashboard,
-    href: "/mentor",
-    label: "Dashboard",
-  },
-  {
-    icon: CalendarDays,
-    href: "/mentor/my-sessions",
-    label: "My Sessions",
-  },
-  {
-    icon: UserRound,
-    href: "/mentor/profile-setting",
-    label: "Profile Settings",
-  },
-  {
-    icon: WalletCards,
-    href: "/mentor/my-earnings",
-    label: "Earnings",
-  },
-];
+  { icon: LayoutDashboard, href: '/mentor/dashboard', label: 'Dashboard' },
+  { icon: CalendarDays, href: '/mentor/my-sessions', label: 'My Sessions' },
+  { icon: WalletCards, href: '/mentor/earnings', label: 'Earnings' },
+  { icon: UserRound, href: '/mentor/profile-settings', label: 'Profile Settings' },
+]
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
 
 export function MentorSidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname()
+  const { user, logout } = useAuth()
+
+  const displayName = user?.full_name ?? '—'
+  const initials = getInitials(displayName)
+  const roleLabel = user?.role === 'mentor' ? 'Mentor' : user?.role ?? ''
 
   return (
-    <Sidebar
-      className="border-r border-gray-100 bg-white"
-      style={{ "--sidebar-width": "180px" } as React.CSSProperties}
-    >
-      {/* Header */}
-      <SidebarHeader className="px-5 pt-6 pb-4 border-none">
-        <div>
-          <p className="text-[13.5px] font-bold text-gray-900 leading-tight">
-            Book My Counselling
-          </p>
-          <p className="text-[11px] text-gray-400 mt-0.5">
-            Expert Mentor Panel
-          </p>
+    <Sidebar className="border-none" style={{ '--sidebar-width': '260px' } as React.CSSProperties}>
+      <SidebarHeader className="px-5 pt-7 pb-5">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <LayoutDashboard size={18} strokeWidth={2.3} />
+          </div>
+          <div>
+            <h2 className="font-headline text-sm font-extrabold tracking-normal text-slate-950">
+              Book Your Counselling
+            </h2>
+            <p className="text-[10px] font-medium tracking-wider text-gray-400 uppercase">
+              Expert Mentor Panel
+            </p>
+          </div>
         </div>
       </SidebarHeader>
 
-      {/* Main Navigation */}
-      <SidebarContent className="px-3 py-1">
-        <SidebarMenu className="space-y-0.5">
-          {mentorNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              item.href === "/mentor"
-                ? pathname === "/mentor"
-                : pathname.startsWith(item.href);
+      <SidebarContent className="px-4">
+        <div>
+          <SidebarMenu className="gap-1">
+            {mentorNavItems.map((item) => {
+              const Icon = item.icon
+              const isActive =
+                item.href === '/mentor/dashboard'
+                  ? pathname === '/mentor' || pathname.startsWith('/mentor/dashboard')
+                  : pathname.startsWith(item.href)
 
-            return (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  isActive={isActive}
-                  className={cn(
-                    "h-9 rounded-lg px-3 text-[13px] font-medium transition-colors",
-                    isActive
-                      ? "bg-[#EEF0FD] text-[#3B4DD4] hover:bg-[#EEF0FD] hover:text-[#3B4DD4]"
-                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                  )}
-                >
-                  <Link href={item.href} className="flex items-center gap-2.5">
-                    <Icon
-                      size={16}
-                      strokeWidth={isActive ? 2.2 : 1.8}
-                      className={cn(
-                        isActive ? "text-[#3B4DD4]" : "text-gray-400"
-                      )}
-                    />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
+              return (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    isActive={isActive}
+                    className={cn(
+                      'group h-11 rounded-xl px-3 font-bold transition-all duration-200',
+                      isActive
+                        ? 'bg-white text-blue-700 shadow-sm ring-1 ring-blue-50'
+                        : 'text-slate-500 hover:bg-white hover:text-slate-950'
+                    )}
+                  >
+                    <Link href={item.href} className="flex w-full items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Icon
+                          size={18}
+                          strokeWidth={isActive ? 2.2 : 1.8}
+                          className={cn(
+                            isActive ? 'text-blue-700' : 'text-slate-400 group-hover:text-slate-600'
+                          )}
+                        />
+                        <span className="text-sm font-bold">{item.label}</span>
+                      </div>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </div>
       </SidebarContent>
 
-      {/* Footer */}
-      <SidebarFooter className="px-3 pb-6 space-y-1 border-none">
-        {/* New Session Button */}
-        <Link
-          href="/mentor/new-session"
-          className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#3B4DD4] hover:bg-[#3342C0] active:scale-[0.98] text-white text-[13px] font-semibold py-[10px] transition-colors mb-2"
-        >
-          <Plus size={15} strokeWidth={2.5} />
-          New Session
-        </Link>
+      <SidebarFooter className="border-t border-slate-100 p-4">
+        <SidebarSeparator className="mb-4 bg-slate-100" />
 
-        <SidebarMenu className="space-y-0.5">
-          {/* Help Center */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="h-9 rounded-lg px-3 text-[13px] font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-            >
-              <Link href="/mentor/help" className="flex items-center gap-2.5">
-                <HelpCircle size={16} strokeWidth={1.8} className="text-gray-400" />
-                <span>Help Center</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          {/* Logout */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="h-9 rounded-lg px-3 text-[13px] font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors cursor-pointer"
-              onClick={() => {
-                // handle logout here
-              }}
-            >
-              <div className="flex items-center gap-2.5">
-                <LogOut size={16} strokeWidth={1.8} className="text-gray-400" />
-                <span>Logout</span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        {/* User info */}
+        <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+          <Avatar className="size-9 shrink-0 border-2 border-white shadow-sm">
+            <AvatarImage src={user?.avatar_url ?? undefined} alt={displayName} />
+            <AvatarFallback className="bg-gradient-to-tr from-blue-600 to-emerald-300 text-xs font-extrabold text-white">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-bold text-slate-950">{displayName}</p>
+            <p className="truncate text-[11px] capitalize text-gray-500">{roleLabel}</p>
+          </div>
+          <button
+            type="button"
+            onClick={logout}
+            aria-label="Sign out"
+            title="Sign out"
+            className="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
       </SidebarFooter>
     </Sidebar>
-  );
+  )
+}
+
+export function MentorMobileHeader() {
+  const pathname = usePathname()
+  const currentItem = mentorNavItems.find((item) =>
+    item.href === '/mentor/dashboard'
+      ? pathname === '/mentor' || pathname.startsWith('/mentor/dashboard')
+      : pathname.startsWith(item.href)
+  )
+
+  return (
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-100 bg-[#f8f9ff]/95 px-4 backdrop-blur md:hidden">
+      <div>
+        <p className="font-headline text-sm font-extrabold text-slate-950">Book My Counselling</p>
+        <p className="text-xs font-semibold text-slate-500">
+          {currentItem?.label ?? 'Mentor Panel'}
+        </p>
+      </div>
+      <SidebarTrigger
+        aria-label="Open mentor navigation"
+        className="size-10 rounded-xl bg-white text-slate-700 shadow-sm"
+      />
+    </header>
+  )
 }
