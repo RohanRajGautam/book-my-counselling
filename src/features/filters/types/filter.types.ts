@@ -1,3 +1,5 @@
+export type CounselingType = 'academic' | 'professional'
+
 export interface FilterState {
   jobTitle?: string
   industries: string[]
@@ -7,6 +9,6 @@ export interface FilterState {
   instantBooking?: boolean
   eveningsWeekends?: boolean
   experienceLevel?: string
-  counselingType: ('academic' | 'professional')[]
+  counselingType: CounselingType
   sortBy: 'rating' | 'reviews' | 'price-low' | 'price-high' | 'newest'
 }

@@ -19,10 +19,8 @@ export async function getMentors(
       available_this_week: filters.availableThisWeek || undefined,
       instant_booking: filters.instantBooking || undefined,
       evenings_weekends: filters.eveningsWeekends || undefined,
-      is_academic_counselor: filters.counselingType.includes('academic') ? true : undefined,
-      is_professional_counselor: filters.counselingType.includes('professional')
-        ? true
-        : undefined,
+      is_academic_counselor: filters.counselingType === 'academic' ? true : undefined,
+      is_professional_counselor: filters.counselingType === 'professional' ? true : undefined,
       sort_by,
       sort_order,
       page,

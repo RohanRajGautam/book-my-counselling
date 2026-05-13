@@ -1,11 +1,15 @@
 'use client'
-import { useState } from 'react'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 
 import { useRouter } from 'next/navigation'
-import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import {
+  ArrowUpDown,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from 'lucide-react'
 
-import { MentorCard } from '@/features/mentors/components/MentorCard'
 import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
@@ -31,14 +35,6 @@ export function MentorGrid() {
     document
       .getElementById('mentor-results')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
-  const toggleCounselingType = (type: 'academic' | 'professional') => {
-    const nextTypes = filters.counselingType.includes(type)
-      ? filters.counselingType.filter((selectedType) => selectedType !== type)
-      : [...filters.counselingType, type]
-
-    updateFilter('counselingType', nextTypes)
   }
 
   const getPageNumbers = () => {
@@ -69,49 +65,6 @@ export function MentorGrid() {
   return (
     <>
       <section id="mentor-results" className="px-5 py-8 sm:px-6 lg:px-8 xl:px-10">
-        <div className="mb-4 flex flex-col gap-6 rounded-[24px] p-6 xl:flex-row xl:items-start xl:justify-between">
-          <div>
-            <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold text-[#121c2a] md:text-[48px]">
-              Explore <span className="text-[#0053db]"> Expert Mentors</span>
-            </h1>
-            <p className="mt-4 max-w-[590px] text-base leading-8 font-medium text-[#5f6472]">
-              Connect with world-class guides to navigate your academic journey or professional
-              career path.
-            </p>
-          </div>
-
-          <div className="grid min-h-[60px] w-full max-w-[350px] grid-cols-2 gap-1.5 rounded-2xl bg-[#e6eeff] p-1.5 shadow-[inset_0_0_0_1px_rgba(195,198,215,0.18)]">
-            <button
-              type="button"
-              onClick={() => toggleCounselingType('academic')}
-              aria-pressed={filters.counselingType.includes('academic')}
-              className={`rounded-xl text-sm leading-tight font-extrabold transition ${
-                filters.counselingType.includes('academic')
-                  ? 'bg-white text-[#0053db] shadow-[0_8px_20px_rgba(18,28,42,0.08)]'
-                  : 'text-[#263247]'
-              }`}
-            >
-              Academic
-              <br />
-              Counselling
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleCounselingType('professional')}
-              aria-pressed={filters.counselingType.includes('professional')}
-              className={`rounded-xl text-sm leading-tight font-extrabold transition ${
-                filters.counselingType.includes('professional')
-                  ? 'bg-white text-[#0053db] shadow-[0_8px_20px_rgba(18,28,42,0.08)]'
-                  : 'text-[#263247]'
-              }`}
-            >
-              Professional
-              <br />
-              Coaching
-            </button>
-          </div>
-        </div>
-
         <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
           <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
             <Search className="mr-3 size-6 text-[#0053db]" />

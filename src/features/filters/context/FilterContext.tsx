@@ -20,7 +20,7 @@ const defaultFilters: FilterState = {
   instantBooking: false,
   eveningsWeekends: false,
   experienceLevel: '3-5 Years',
-  counselingType: ['professional'],
+  counselingType: 'professional',
   sortBy: 'rating',
 }
 

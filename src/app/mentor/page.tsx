@@ -1,12 +1,5 @@
-import React from 'react'
-import Dashboard from './dashboard/page'
+import DashboardPage from "./dashboard/page";
 
-const page = () => {
-  return (
-    <>
-    <Dashboard/>
-    </>
-  )
+export default function MentorPage() {
+  return <DashboardPage />;
 }
-
-export default page
