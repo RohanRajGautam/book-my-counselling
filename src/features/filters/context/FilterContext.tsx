@@ -13,6 +13,12 @@ interface FilterContextType {
 
 const defaultFilters: FilterState = {
   industries: [],
+  academicCategory: [],
+  academicSubcategory: [],
+  academicSubcategoryParents: {},
+  professionalCategory: [],
+  professionalSubcategory: [],
+  professionalSubcategoryParents: {},
   jobTitle: '',
   priceRange: 10000,
   availableToday: false,

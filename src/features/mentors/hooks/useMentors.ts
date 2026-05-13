@@ -8,6 +8,12 @@ export function useMentors(filters: FilterState, page: number) {
   const normalizedFilters = {
     jobTitle: filters.jobTitle?.trim() ?? '',
     industries: filters.industries,
+    academicCategory: filters.academicCategory,
+    academicSubcategory: filters.academicSubcategory,
+    academicSubcategoryParents: filters.academicSubcategoryParents,
+    professionalCategory: filters.professionalCategory,
+    professionalSubcategory: filters.professionalSubcategory,
+    professionalSubcategoryParents: filters.professionalSubcategoryParents,
     priceRange: filters.priceRange ?? null,
     availableToday: Boolean(filters.availableToday),
     availableThisWeek: Boolean(filters.availableThisWeek),

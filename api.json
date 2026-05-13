@@ -196,7 +196,7 @@
       "get": {
         "tags": ["Mentors"],
         "summary": "List Mentors",
-        "description": "List and search mentors with filtering and sorting.\n\n**Sort options:** `rating`, `price`, `reviews`, `created_at`\n\n**Example response:**\n```json\n{\n    \"items\": [\n        {\n            \"id\": \"...\",\n            \"user\": {\"id\": \"...\", \"full_name\": \"Alice Smith\"},\n            \"title\": \"Principal Engineer\",\n            \"company\": \"Meta\",\n            \"hourly_rate\": \"200.00\",\n            \"average_rating\": 4.8,\n            \"total_reviews\": 23,\n            \"tags\": [{\"name\": \"React\"}, {\"name\": \"System Design\"}]\n        }\n    ],\n    \"total\": 142,\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total_pages\": 8,\n    \"has_next\": true,\n    \"has_prev\": false\n}\n```",
+        "description": "List and search mentors with filtering and sorting.\n\n**Sort options:** `rating`, `price`, `reviews`, `created_at`, `years_of_experience` (add to sort_by)\n\n**Example response:**\n```json\n{\n    \"items\": [\n        {\n            \"id\": \"...\",\n            \"user\": {\"id\": \"...\", \"full_name\": \"Alice Smith\"},\n            \"title\": \"Principal Engineer\",\n            \"company\": \"Meta\",\n            \"hourly_rate\": \"200.00\",\n            \"average_rating\": 4.8,\n            \"total_reviews\": 23,\n            \"tags\": [{\"name\": \"React\"}, {\"name\": \"System Design\"}]\n        }\n    ],\n    \"total\": 142,\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total_pages\": 8,\n    \"has_next\": true,\n    \"has_prev\": false\n}\n```",
         "operationId": "list_mentors_api_v1_mentors_get",
         "parameters": [
           {
@@ -281,7 +281,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "pattern": "^(rating|price|reviews|created_at)$",
+              "pattern": "^(rating|price|reviews|created_at|years_of_experience)$",
               "default": "created_at",
               "title": "Sort By"
             }
@@ -318,6 +318,50 @@
               "title": "Is Academic Counselor"
             },
             "description": "Filter to academic counselors only"
+          },
+          {
+            "name": "academic_category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by academic category name",
+              "title": "Academic Category"
+            },
+            "description": "Filter by academic category name"
+          },
+          {
+            "name": "academic_subcategory",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by academic subcategory name",
+              "title": "Academic Subcategory"
+            },
+            "description": "Filter by academic subcategory name"
+          },
+          {
+            "name": "professional_category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by professional category name",
+              "title": "Professional Category"
+            },
+            "description": "Filter by professional category name"
+          },
+          {
+            "name": "professional_subcategory",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by professional subcategory name",
+              "title": "Professional Subcategory"
+            },
+            "description": "Filter by professional subcategory name"
           },
           {
             "name": "page",
@@ -527,7 +571,7 @@
       "post": {
         "tags": ["Bookings"],
         "summary": "Create Booking",
-        "description": "Book a mentor session. Mentee role required.\n\n**Example request:**\n```json\n{\n    \"mentor_id\": \"mentor-uuid\",\n    \"slot_id\": \"slot-uuid\",\n    \"topic\": \"Career transition to ML\",\n    \"notes\": \"I have 3 years of backend experience...\"\n}\n```\n\n**Example response:**\n```json\n{\n    \"id\": \"booking-uuid\",\n    \"status\": \"pending\",\n    \"agreed_price\": \"150.00\",\n    \"session_start\": \"2024-02-01T10:00:00Z\",\n    \"session_end\": \"2024-02-01T11:00:00Z\",\n    \"mentee\": {\"id\": \"...\", \"full_name\": \"John Doe\"}\n}\n```",
+        "description": "Book a mentor session. Mentee role required.",
         "operationId": "create_booking_api_v1_bookings_post",
         "requestBody": {
           "content": {
@@ -554,11 +598,43 @@
         "security": [{ "HTTPBearer": [] }]
       }
     },
+    "/api/v1/bookings/guest": {
+      "post": {
+        "tags": ["Bookings"],
+        "summary": "Create Guest Booking",
+        "description": "Create a booking without authentication.\n\nFinds or creates a mentee account from the provided email.\nReturns booking_id and agreed_price for the Fonepay payment step.",
+        "operationId": "create_guest_booking_api_v1_bookings_guest_post",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/GuestBookingCreate" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GuestBookingResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/bookings/me": {
       "get": {
         "tags": ["Bookings"],
         "summary": "List My Bookings",
-        "description": "List bookings for the current user (mentee sees their bookings, mentor sees received bookings).\n\n**Filter by status:** `pending`, `confirmed`, `completed`, `cancelled`",
+        "description": "List bookings for the current user.",
         "operationId": "list_my_bookings_api_v1_bookings_me_get",
         "security": [{ "HTTPBearer": [] }],
         "parameters": [
@@ -641,7 +717,7 @@
       "patch": {
         "tags": ["Bookings"],
         "summary": "Update Booking Status",
-        "description": "Update booking status.\n\n- **Mentor**: can confirm or complete\n- **Mentee**: can only cancel\n- **Admin**: can do any transition\n\n**Valid transitions:**\n- `pending → confirmed | cancelled`\n- `confirmed → completed | cancelled`",
+        "description": "Update booking status.\n- Mentor: confirm or complete\n- Mentee: cancel only\n- Admin: any transition",
         "operationId": "update_booking_status_api_v1_bookings__booking_id__status_patch",
         "security": [{ "HTTPBearer": [] }],
         "parameters": [
@@ -1388,7 +1464,7 @@
       "get": {
         "tags": ["Search"],
         "summary": "Search",
-        "description": "Search and filter mentors.\n\n**Keyword search** (`keyword`) matches across:\n- `full_name` (boosted 3×)\n- `industries` (boosted 2×)\n- `tags` (boosted 1.5×)\n- `title`\n\n**Filters** (all optional, combinable):\n- `title` — fuzzy match on the mentor's job title\n- `industry` — one or more industry names; repeatable: `?industry=Fintech&industry=SaaS`\n- `tags` — one or more tag slugs/names (with or without `#`); repeatable: `?tags=ProductManagement&tags=UX`\n- `min_price` / `max_price` — hourly rate range\n- `available_this_week` — mentors with free slots in the next 7 days\n- `instant_booking` — instant booking, no 24 h approval required\n- `evenings_weekends` — slots after 17:00 or on Saturday / Sunday\n- `is_professional_counselor` — professional counselors only\n- `is_academic_counselor` — academic counselors only (combine both flags to find mentors who are both)\n\n**Sorting** (optional):\n- `sort_by` — `rating` | `price` | `reviews` | `created_at`\n- `sort_order` — `asc` | `desc` (default: `desc`)\n- When `keyword` is set and `sort_by` is omitted, results rank by relevance score.\n\nUse `GET /catalog/tags` and `GET /catalog/industries` for the full public lists.",
+        "description": "Search and filter mentors.\n\n**Keyword search** (`keyword`) matches across:\n- `full_name` (boosted 3×)\n- `industries` (boosted 2×)\n- `tags` (boosted 1.5×)\n- `title`\n\n**Filters** (all optional, combinable):\n- `title` — fuzzy match on the mentor's job title\n- `industry` — one or more industry names; repeatable: `?industry=Fintech&industry=SaaS`\n- `tags` — one or more tag slugs/names (with or without `#`); repeatable: `?tags=ProductManagement&tags=UX`\n- `min_price` / `max_price` — hourly rate range\n- `available_this_week` — mentors with free slots in the next 7 days\n- `instant_booking` — instant booking, no 24 h approval required\n- `evenings_weekends` — slots after 17:00 or on Saturday / Sunday\n- `is_professional_counselor` — professional counselors only\n- `is_academic_counselor` — academic counselors only (combine both flags to find mentors who are both)\n\n**Sorting** (optional):\n- `sort_by` — `rating` | `price` | `reviews` | `created_at` | `years_of_experience`\n- `sort_order` — `asc` | `desc` (default: `desc`)\n- When `keyword` is set and `sort_by` is omitted, results rank by relevance score.\n\n**Category / Subcategory filters** (from catalog):\n- `academic_category`, `academic_subcategory`\n- `professional_category`, `professional_subcategory`\nUse exact names from `GET /catalog/categories`.\n\nUse `GET /catalog/tags` and `GET /catalog/industries` for the full public lists.",
         "operationId": "search_api_v1_search_get",
         "parameters": [
           {
@@ -1514,6 +1590,50 @@
               "title": "Is Academic Counselor"
             },
             "description": "Filter to academic counselors only (`true`) or exclude them (`false`). Pass both `is_professional_counselor=true&is_academic_counselor=true` to find mentors who are both."
+          },
+          {
+            "name": "academic_category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by academic category name (e.g. 'Business & Management').",
+              "title": "Academic Category"
+            },
+            "description": "Filter by academic category name (e.g. 'Business & Management')."
+          },
+          {
+            "name": "academic_subcategory",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by academic subcategory name (e.g. 'Finance').",
+              "title": "Academic Subcategory"
+            },
+            "description": "Filter by academic subcategory name (e.g. 'Finance')."
+          },
+          {
+            "name": "professional_category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by professional category name.",
+              "title": "Professional Category"
+            },
+            "description": "Filter by professional category name."
+          },
+          {
+            "name": "professional_subcategory",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Filter by professional subcategory name.",
+              "title": "Professional Subcategory"
+            },
+            "description": "Filter by professional subcategory name."
           },
           {
             "name": "sort_by",
@@ -2147,6 +2267,241 @@
         }
       }
     },
+    "/api/v1/catalog/categories": {
+      "get": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "List all industry categories",
+        "description": "Returns all industry categories. Pass `?counselor_type=academic` or `?counselor_type=professional` to filter by type. Subcategories are NOT included — use `GET /catalog/categories/{id}` for those.",
+        "operationId": "list_categories_api_v1_catalog_categories_get",
+        "parameters": [
+          {
+            "name": "counselor_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/CounselorType" }, { "type": "null" }],
+              "description": "Filter by `academic` or `professional`. Omit to return both.",
+              "title": "Counselor Type"
+            },
+            "description": "Filter by `academic` or `professional`. Omit to return both."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CategoryListResponse" },
+                  "title": "Response List Categories Api V1 Catalog Categories Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "[Admin] Create an industry category",
+        "operationId": "create_category_api_v1_catalog_categories_post",
+        "security": [{ "HTTPBearer": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CategoryCreate" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CategoryResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/categories/{category_id}": {
+      "get": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "Get a single category with its subcategories",
+        "operationId": "get_category_api_v1_catalog_categories__category_id__get",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Category Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CategoryResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "[Admin] Delete a category and all its subcategories",
+        "operationId": "delete_category_api_v1_catalog_categories__category_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Category Id" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Successful Response" },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/categories/{category_id}/subcategories": {
+      "get": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "List subcategories for a category",
+        "operationId": "list_subcategories_api_v1_catalog_categories__category_id__subcategories_get",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Category Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/SubcategoryResponse" },
+                  "title": "Response List Subcategories Api V1 Catalog Categories  Category Id  Subcategories Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "[Admin] Add a subcategory to a category",
+        "operationId": "create_subcategory_api_v1_catalog_categories__category_id__subcategories_post",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Category Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/SubcategoryCreate" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SubcategoryResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/categories/{category_id}/subcategories/{sub_id}": {
+      "delete": {
+        "tags": ["Catalog — Industry Categories"],
+        "summary": "[Admin] Remove a subcategory",
+        "operationId": "delete_subcategory_api_v1_catalog_categories__category_id__subcategories__sub_id__delete",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Category Id" }
+          },
+          {
+            "name": "sub_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Sub Id" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Successful Response" },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": ["Health"],
@@ -2498,6 +2853,119 @@
         "title": "CalendlyPrefillResponse",
         "description": "Data the frontend needs to embed the Calendly widget and prefill user info.\n\nThe frontend passes `name`, `email`, and `custom_answers` to the Calendly\nembed so the user doesn't have to re-enter details they already provided."
       },
+      "CategoryCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "examples": ["Bachelors (Undergraduate)"]
+          },
+          "counselor_type": {
+            "allOf": [{ "$ref": "#/components/schemas/CounselorType" }],
+            "examples": ["academic"]
+          }
+        },
+        "type": "object",
+        "required": ["name", "counselor_type"],
+        "title": "CategoryCreate"
+      },
+      "CategoryListResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "slug": { "type": "string", "title": "Slug" },
+          "counselor_type": { "$ref": "#/components/schemas/CounselorType" }
+        },
+        "type": "object",
+        "required": ["id", "name", "slug", "counselor_type"],
+        "title": "CategoryListResponse"
+      },
+      "CategoryResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "slug": { "type": "string", "title": "Slug" },
+          "counselor_type": { "$ref": "#/components/schemas/CounselorType" },
+          "subcategories": {
+            "items": { "$ref": "#/components/schemas/SubcategoryResponse" },
+            "type": "array",
+            "title": "Subcategories",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": ["id", "name", "slug", "counselor_type"],
+        "title": "CategoryResponse"
+      },
+      "CounselorType": {
+        "type": "string",
+        "enum": ["academic", "professional"],
+        "title": "CounselorType"
+      },
+      "GuestBookingCreate": {
+        "properties": {
+          "full_name": { "type": "string", "maxLength": 255, "minLength": 2, "title": "Full Name" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "phone": { "type": "string", "maxLength": 50, "minLength": 7, "title": "Phone" },
+          "mentor_id": { "type": "string", "format": "uuid", "title": "Mentor Id" },
+          "slot_id": { "type": "string", "format": "uuid", "title": "Slot Id" },
+          "package_id": {
+            "anyOf": [{ "type": "string", "format": "uuid" }, { "type": "null" }],
+            "title": "Package Id"
+          },
+          "goals": { "type": "string", "maxLength": 2000, "minLength": 10, "title": "Goals" },
+          "current_school": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Current School"
+          },
+          "guardian_phone": {
+            "anyOf": [{ "type": "string", "maxLength": 50 }, { "type": "null" }],
+            "title": "Guardian Phone"
+          },
+          "preparation_notes": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Preparation Notes"
+          },
+          "mentee_timezone": {
+            "anyOf": [{ "type": "string", "maxLength": 100 }, { "type": "null" }],
+            "title": "Mentee Timezone"
+          },
+          "topic": {
+            "anyOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }],
+            "title": "Topic"
+          }
+        },
+        "type": "object",
+        "required": ["full_name", "email", "phone", "mentor_id", "slot_id", "goals"],
+        "title": "GuestBookingCreate"
+      },
+      "GuestBookingResponse": {
+        "properties": {
+          "booking_id": { "type": "string", "format": "uuid", "title": "Booking Id" },
+          "agreed_price": { "type": "string", "title": "Agreed Price" },
+          "session_start": { "type": "string", "title": "Session Start" },
+          "session_end": { "type": "string", "title": "Session End" },
+          "mentor_name": { "type": "string", "title": "Mentor Name" },
+          "package_title": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Package Title"
+          },
+          "payment_status": { "type": "string", "title": "Payment Status" }
+        },
+        "type": "object",
+        "required": [
+          "booking_id",
+          "agreed_price",
+          "session_start",
+          "session_end",
+          "mentor_name",
+          "package_title",
+          "payment_status"
+        ],
+        "title": "GuestBookingResponse"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -2565,6 +3033,11 @@
             "items": { "$ref": "#/components/schemas/TagResponse" },
             "type": "array",
             "title": "Tags"
+          },
+          "subcategories": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Subcategories"
           },
           "is_professional_counselor": { "type": "boolean", "title": "Is Professional Counselor" },
           "is_academic_counselor": { "type": "boolean", "title": "Is Academic Counselor" }
@@ -2895,6 +3368,35 @@
             "type": "boolean",
             "title": "Is Academic Counselor",
             "default": false
+          },
+          "years_of_experience": {
+            "type": "integer",
+            "title": "Years Of Experience",
+            "default": 0
+          },
+          "academic_categories": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Academic Categories",
+            "default": []
+          },
+          "academic_subcategories": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Academic Subcategories",
+            "default": []
+          },
+          "professional_categories": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Professional Categories",
+            "default": []
+          },
+          "professional_subcategories": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Professional Subcategories",
+            "default": []
           }
         },
         "type": "object",
@@ -3239,10 +3741,34 @@
       },
       "SortBy": {
         "type": "string",
-        "enum": ["rating", "price", "reviews", "created_at"],
+        "enum": ["rating", "price", "reviews", "created_at", "years_of_experience"],
         "title": "SortBy"
       },
       "SortOrder": { "type": "string", "enum": ["asc", "desc"], "title": "SortOrder" },
+      "SubcategoryCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "examples": ["Software Development"]
+          }
+        },
+        "type": "object",
+        "required": ["name"],
+        "title": "SubcategoryCreate"
+      },
+      "SubcategoryResponse": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "slug": { "type": "string", "title": "Slug" }
+        },
+        "type": "object",
+        "required": ["id", "name", "slug"],
+        "title": "SubcategoryResponse"
+      },
       "TagCreate": {
         "properties": {
           "name": { "type": "string", "maxLength": 100, "minLength": 1, "title": "Name" }
