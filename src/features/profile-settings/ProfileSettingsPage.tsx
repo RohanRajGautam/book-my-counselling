@@ -19,16 +19,13 @@ import {
   useMentorProfile,
   useUpdateMentorProfile,
 } from '@/features/mentor-dashboard/hooks/useMentorProfile'
+import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser'
 
 const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
-  fullName: '',
   professionalTitle: '',
-  emailAddress: '',
-  phoneNumber: '',
-  education: '',
   currentCompany: '',
   experience: '',
-  timezone: '',
+  hourlyRate: '',
 }
 
 const DEFAULT_BIO: ProfessionalBioForm = {
@@ -50,22 +47,19 @@ export function ProfileSettingsPage() {
   const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>(DEFAULT_BIO)
   const [counselling, setCounselling] = useState<CounsellingType>(DEFAULT_COUNSELLING)
 
-  const { data: profile, isLoading } = useMentorProfile()
+  const { data: profile, isLoading: profileLoading } = useMentorProfile()
+  const { data: currentUser } = useCurrentUser()
   const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
 
-  // Populate all form state from API data once loaded
+  // Populate form state from API data once loaded
   useEffect(() => {
     if (!profile) return
 
     setGeneralInfo({
-      fullName: profile.user?.full_name ?? '',
       professionalTitle: profile.title ?? '',
-      emailAddress: '',
-      phoneNumber: '',
-      education: '',
       currentCompany: profile.company ?? '',
-      experience: String(profile.years_of_experience ?? ''),
-      timezone: '',
+      experience: profile.years_of_experience ? String(profile.years_of_experience) : '',
+      hourlyRate: profile.hourly_rate ? String(profile.hourly_rate) : '',
     })
 
     setProfessionalBio({
@@ -86,23 +80,30 @@ export function ProfileSettingsPage() {
   }, [profile])
 
   const handleSave = () => {
-    // Build the payload from whichever tab is active, but always include
-    // the core fields that the backend accepts on PUT /mentors/profile/me
-    const yearsRaw = generalInfo.experience.trim()
-    const yearsNum = yearsRaw ? parseInt(yearsRaw, 10) : undefined
+    const yearsNum = generalInfo.experience.trim()
+      ? parseInt(generalInfo.experience.trim(), 10)
+      : undefined
+    const rateNum = generalInfo.hourlyRate.trim()
+      ? parseFloat(generalInfo.hourlyRate.trim())
+      : undefined
+
+    if (yearsNum !== undefined && isNaN(yearsNum)) {
+      toast.error('Years of experience must be a number.')
+      return
+    }
+    if (rateNum !== undefined && isNaN(rateNum)) {
+      toast.error('Hourly rate must be a number.')
+      return
+    }
 
     const payload = {
-      // General info tab fields
       title: generalInfo.professionalTitle.trim() || undefined,
       company: generalInfo.currentCompany.trim() || null,
-      years_of_experience: yearsNum !== undefined && !isNaN(yearsNum) ? yearsNum : undefined,
-
-      // Professional bio tab fields
+      years_of_experience: yearsNum,
+      hourly_rate: rateNum,
       bio: professionalBio.fullBiography.trim() || null,
       linkedin_url: professionalBio.linkedinUrl.trim() || null,
       website_url: professionalBio.portfolioUrl.trim() || null,
-
-      // Counselling type — from the dedicated counselling card
       is_academic_counselor: counselling.is_academic_counselor,
       is_professional_counselor: counselling.is_professional_counselor,
     }
@@ -116,7 +117,7 @@ export function ProfileSettingsPage() {
     })
   }
 
-  if (isLoading) {
+  if (profileLoading) {
     return (
       <div className="min-h-svh bg-[#f8f9ff]">
         <div className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -145,7 +146,12 @@ export function ProfileSettingsPage() {
         {activeTab === 'general-info' && (
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0 space-y-7">
-              <ProfileGeneralInfoCard value={generalInfo} onChange={setGeneralInfo} />
+              <ProfileGeneralInfoCard
+                value={generalInfo}
+                onChange={setGeneralInfo}
+                readOnlyName={currentUser?.full_name}
+                readOnlyEmail={currentUser?.email}
+              />
               <ProfileCounsellingCard value={counselling} onChange={setCounselling} />
             </div>
 

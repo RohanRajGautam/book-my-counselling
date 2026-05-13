@@ -20,12 +20,6 @@ export function ProfileSettingsHeader({ onSave, isSaving = false }: ProfileSetti
 
       <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-4">
         <Button
-          variant="ghost"
-          className="h-11 rounded-xl px-4 text-sm font-bold text-slate-700 hover:bg-blue-50 sm:h-12"
-        >
-          Cancel Changes
-        </Button>
-        <Button
           type="button"
           onClick={onSave}
           disabled={isSaving}
