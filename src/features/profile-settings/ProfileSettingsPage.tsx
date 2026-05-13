@@ -15,7 +15,10 @@ import { ProfileSettingsTabs, type ProfileSettingsTab } from './components/Profi
 import { ProfileStatusCard } from './components/ProfileStatusCard'
 import { ProfileCounsellingCard } from './components/ProfileCounsellingCard'
 
-import { useMentorProfile, useUpdateMentorProfile } from '@/features/mentor-dashboard/hooks/useMentorProfile'
+import {
+  useMentorProfile,
+  useUpdateMentorProfile,
+} from '@/features/mentor-dashboard/hooks/useMentorProfile'
 
 const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
   fullName: '',
@@ -40,11 +43,13 @@ export function ProfileSettingsPage() {
   const [activeTab, setActiveTab] = useState<ProfileSettingsTab>('general-info')
   const [generalInfo, setGeneralInfo] = useState<GeneralInfoForm>(DEFAULT_GENERAL_INFO)
   const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>(DEFAULT_BIO)
+  // Counselling tags — separate state so ProfileCounsellingCard can manage them
+  const [counsellingTags, setCounsellingTags] = useState<string[]>([])
 
   const { data: profile, isLoading } = useMentorProfile()
   const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
 
-  // Populate form from API data once loaded
+  // Populate all form state from API data once loaded
   useEffect(() => {
     if (!profile) return
 
@@ -69,23 +74,39 @@ export function ProfileSettingsPage() {
       linkedinUrl: profile.linkedin_url ?? '',
       portfolioUrl: profile.website_url ?? '',
     })
+
+    // Tags come from the profile's tags array
+    setCounsellingTags(profile.tags?.map((t) => t.name) ?? [])
   }, [profile])
 
   const handleSave = () => {
+    // Build the payload from whichever tab is active, but always include
+    // the core fields that the backend accepts on PUT /mentors/profile/me
+    const yearsRaw = generalInfo.experience.trim()
+    const yearsNum = yearsRaw ? parseInt(yearsRaw, 10) : undefined
+
     const payload = {
-      title: professionalBio.headline.trim() || generalInfo.professionalTitle.trim() || undefined,
-      company: generalInfo.currentCompany.trim() || undefined,
-      bio: professionalBio.fullBiography.trim() || undefined,
-      years_of_experience: generalInfo.experience ? parseInt(generalInfo.experience, 10) : undefined,
+      // General info tab fields
+      title: generalInfo.professionalTitle.trim() || undefined,
+      company: generalInfo.currentCompany.trim() || null,
+      years_of_experience: yearsNum !== undefined && !isNaN(yearsNum) ? yearsNum : undefined,
+
+      // Professional bio tab fields
+      bio: professionalBio.fullBiography.trim() || null,
       linkedin_url: professionalBio.linkedinUrl.trim() || null,
       website_url: professionalBio.portfolioUrl.trim() || null,
+
+      // Counselling type (from professional bio specializedFields)
       is_academic_counselor: professionalBio.specializedFields.includes('Academic Counselling'),
       is_professional_counselor: professionalBio.specializedFields.includes('Professional Coaching'),
     }
 
     updateProfile(payload, {
-      onSuccess: () => toast.success('Profile updated successfully'),
-      onError: () => toast.error('Failed to save profile. Please try again.'),
+      onSuccess: () => toast.success('Profile updated successfully.'),
+      onError: (err: unknown) => {
+        const msg = extractApiError(err) ?? 'Failed to save profile. Please try again.'
+        toast.error(msg)
+      },
     })
   }
 
@@ -97,8 +118,12 @@ export function ProfileSettingsPage() {
           <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="space-y-7">
               <div className="h-80 animate-pulse rounded-[28px] bg-slate-200" />
+              <div className="h-40 animate-pulse rounded-[28px] bg-slate-200" />
             </div>
-            <div className="h-48 animate-pulse rounded-[28px] bg-slate-200" />
+            <div className="space-y-6">
+              <div className="h-64 animate-pulse rounded-[28px] bg-slate-200" />
+              <div className="h-48 animate-pulse rounded-[28px] bg-slate-200" />
+            </div>
           </div>
         </div>
       </div>
@@ -111,11 +136,11 @@ export function ProfileSettingsPage() {
         <ProfileSettingsHeader onSave={handleSave} isSaving={isSaving} />
         <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {activeTab === 'general-info' ? (
+        {activeTab === 'general-info' && (
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0 space-y-7">
               <ProfileGeneralInfoCard value={generalInfo} onChange={setGeneralInfo} />
-              <ProfileCounsellingCard />
+              <ProfileCounsellingCard tags={counsellingTags} onChange={setCounsellingTags} />
             </div>
 
             <aside className="space-y-6 lg:space-y-7">
@@ -123,14 +148,23 @@ export function ProfileSettingsPage() {
               <ProfileStatusCard />
             </aside>
           </div>
-        ) : null}
+        )}
 
-        {activeTab === 'professional-bio' ? (
+        {activeTab === 'professional-bio' && (
           <ProfileProfessionalBioCard value={professionalBio} onChange={setProfessionalBio} />
-        ) : null}
+        )}
 
-        {activeTab === 'session-availability' ? <ProfileSessionAvailabilityCard /> : null}
+        {activeTab === 'session-availability' && <ProfileSessionAvailabilityCard />}
       </div>
     </div>
   )
+}
+
+function extractApiError(err: unknown): string | null {
+  if (!err || typeof err !== 'object') return null
+  const e = err as Record<string, unknown>
+  const response = e['response'] as Record<string, unknown> | undefined
+  const data = response?.['data'] as Record<string, unknown> | undefined
+  if (typeof data?.['detail'] === 'string') return data['detail']
+  return null
 }

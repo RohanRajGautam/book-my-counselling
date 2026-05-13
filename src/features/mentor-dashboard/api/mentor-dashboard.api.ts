@@ -35,6 +35,22 @@ export async function updateMyMentorProfile(data: MentorProfileUpdate): Promise<
 }
 
 // ---------------------------------------------------------------------------
+// Avatar upload
+// ---------------------------------------------------------------------------
+
+export async function uploadAvatar(file: File): Promise<{ avatar_url: string }> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await apiClient.post<{ avatar_url: string; id: string }>(
+    '/upload/avatar',
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  )
+  // Backend returns a full UserResponse; we only need avatar_url
+  return { avatar_url: (response.data as Record<string, string>)['avatar_url'] ?? '' }
+}
+
+// ---------------------------------------------------------------------------
 // Bookings
 // ---------------------------------------------------------------------------
 
