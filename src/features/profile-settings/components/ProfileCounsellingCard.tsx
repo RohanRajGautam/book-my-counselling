@@ -1,34 +1,18 @@
 'use client'
 
-import { BadgePlus, BriefcaseBusiness, X } from 'lucide-react'
-import { useState } from 'react'
+import { BriefcaseBusiness, GraduationCap, Briefcase } from 'lucide-react'
 
-type ProfileCounsellingCardProps = {
-  tags: string[]
-  onChange: (tags: string[]) => void
+export type CounsellingType = {
+  is_professional_counselor: boolean
+  is_academic_counselor: boolean
 }
 
-export function ProfileCounsellingCard({ tags, onChange }: ProfileCounsellingCardProps) {
-  const [inputValue, setInputValue] = useState('')
+type ProfileCounsellingCardProps = {
+  value: CounsellingType
+  onChange: (value: CounsellingType) => void
+}
 
-  const addTag = () => {
-    const trimmed = inputValue.trim()
-    if (!trimmed || tags.includes(trimmed)) return
-    onChange([...tags, trimmed])
-    setInputValue('')
-  }
-
-  const removeTag = (tag: string) => {
-    onChange(tags.filter((t) => t !== tag))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addTag()
-    }
-  }
-
+export function ProfileCounsellingCard({ value, onChange }: ProfileCounsellingCardProps) {
   return (
     <section
       id="counselling-provided"
@@ -43,55 +27,87 @@ export function ProfileCounsellingCard({ tags, onChange }: ProfileCounsellingCar
         </h2>
       </div>
 
-      <div className="mt-7">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-600">
-          Specialized Fields
-        </p>
-        <div className="mt-2 min-h-14 rounded-2xl bg-[#eef4ff] p-3">
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1.5 rounded-full bg-emerald-300 px-3 py-1.5 text-sm font-bold text-emerald-900"
-              >
-                {tag}
-                <button
-                  type="button"
-                  aria-label={`Remove ${tag}`}
-                  onClick={() => removeTag(tag)}
-                  className="rounded-full p-0.5 transition hover:bg-emerald-400"
-                >
-                  <X className="size-3" />
-                </button>
-              </span>
-            ))}
+      <p className="mt-2 text-sm font-medium text-slate-500">
+        Select the types of counselling you offer. This appears on your public profile.
+      </p>
 
-            {/* Inline add input */}
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Add field…"
-                className="h-9 w-32 rounded-full border border-dashed border-slate-400 bg-white px-3 text-sm font-bold text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                disabled={!inputValue.trim()}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-dashed border-slate-400 bg-white px-3 text-sm font-bold text-slate-700 transition hover:border-blue-400 hover:text-blue-700 disabled:opacity-40"
-              >
-                <BadgePlus className="size-4" />
-                Add
-              </button>
-            </div>
-          </div>
-        </div>
-        <p className="mt-2 text-xs font-medium text-slate-400">
-          Press Enter or click Add. These appear on your public profile.
-        </p>
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <CounsellingToggle
+          active={value.is_professional_counselor}
+          icon={<Briefcase className="size-5" />}
+          title="Professional Coaching"
+          description="Career guidance, industry transitions, interview prep"
+          onClick={() =>
+            onChange({ ...value, is_professional_counselor: !value.is_professional_counselor })
+          }
+        />
+        <CounsellingToggle
+          active={value.is_academic_counselor}
+          icon={<GraduationCap className="size-5" />}
+          title="Academic Counselling"
+          description="University applications, thesis support, research strategy"
+          onClick={() =>
+            onChange({ ...value, is_academic_counselor: !value.is_academic_counselor })
+          }
+        />
       </div>
     </section>
+  )
+}
+
+function CounsellingToggle({
+  active,
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  active: boolean
+  icon: React.ReactNode
+  title: string
+  description: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex items-start gap-4 rounded-2xl border-2 p-4 text-left transition ${
+        active
+          ? 'border-blue-600 bg-blue-50'
+          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+      }`}
+    >
+      <div
+        className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl transition ${
+          active ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
+        }`}
+      >
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p
+          className={`text-sm font-extrabold transition ${
+            active ? 'text-blue-700' : 'text-slate-800'
+          }`}
+        >
+          {title}
+        </p>
+        <p className="mt-0.5 text-xs font-medium leading-4 text-slate-500">{description}</p>
+      </div>
+      {/* Checkmark indicator */}
+      <div
+        className={`ml-auto mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+          active ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'
+        }`}
+      >
+        {active && (
+          <svg viewBox="0 0 10 8" className="size-3 fill-none stroke-white stroke-2">
+            <polyline points="1,4 4,7 9,1" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </div>
+    </button>
   )
 }

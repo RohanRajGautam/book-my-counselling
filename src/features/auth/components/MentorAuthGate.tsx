@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { AuthModal } from './AuthModal'
@@ -7,10 +8,24 @@ import { MentorProfileSetup } from './MentorProfileSetup'
 import { useMentorProfile } from '@/features/mentor-dashboard/hooks/useMentorProfile'
 
 export function MentorAuthGate({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <FullScreenSpinner />
+  }
+
+  return <AuthenticatedGate>{children}</AuthenticatedGate>
+}
+
+function AuthenticatedGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth()
 
   if (authLoading && !user) {
-    return <FullScreenSpinner label="Loading your dashboard…" />
+    return <FullScreenSpinner />
   }
 
   if (!isAuthenticated) {
@@ -24,7 +39,7 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   const { data: profile, isLoading: profileLoading, isProfileMissing } = useMentorProfile()
 
   if (profileLoading && !profile && !isProfileMissing) {
-    return <FullScreenSpinner label="Loading your profile…" />
+    return <FullScreenSpinner />
   }
 
   if (isProfileMissing) {
@@ -34,13 +49,10 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-function FullScreenSpinner({ label }: { label: string }) {
+function FullScreenSpinner() {
   return (
     <div className="flex min-h-svh items-center justify-center bg-[#f0f4ff]">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="size-8 animate-spin text-blue-600" />
-        <p className="text-sm font-semibold text-slate-500">{label}</p>
-      </div>
+      <Loader2 className="size-8 animate-spin text-blue-600" />
     </div>
   )
 }

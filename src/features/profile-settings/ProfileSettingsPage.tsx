@@ -13,7 +13,7 @@ import { ProfileSettingsHeader } from './components/ProfileSettingsHeader'
 import { ProfileSessionAvailabilityCard } from './components/ProfileSessionAvailabilityCard'
 import { ProfileSettingsTabs, type ProfileSettingsTab } from './components/ProfileSettingsTabs'
 import { ProfileStatusCard } from './components/ProfileStatusCard'
-import { ProfileCounsellingCard } from './components/ProfileCounsellingCard'
+import { ProfileCounsellingCard, type CounsellingType } from './components/ProfileCounsellingCard'
 
 import {
   useMentorProfile,
@@ -39,12 +39,16 @@ const DEFAULT_BIO: ProfessionalBioForm = {
   portfolioUrl: '',
 }
 
+const DEFAULT_COUNSELLING: CounsellingType = {
+  is_professional_counselor: false,
+  is_academic_counselor: false,
+}
+
 export function ProfileSettingsPage() {
   const [activeTab, setActiveTab] = useState<ProfileSettingsTab>('general-info')
   const [generalInfo, setGeneralInfo] = useState<GeneralInfoForm>(DEFAULT_GENERAL_INFO)
   const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>(DEFAULT_BIO)
-  // Counselling tags — separate state so ProfileCounsellingCard can manage them
-  const [counsellingTags, setCounsellingTags] = useState<string[]>([])
+  const [counselling, setCounselling] = useState<CounsellingType>(DEFAULT_COUNSELLING)
 
   const { data: profile, isLoading } = useMentorProfile()
   const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
@@ -75,8 +79,10 @@ export function ProfileSettingsPage() {
       portfolioUrl: profile.website_url ?? '',
     })
 
-    // Tags come from the profile's tags array
-    setCounsellingTags(profile.tags?.map((t) => t.name) ?? [])
+    setCounselling({
+      is_professional_counselor: profile.is_professional_counselor ?? false,
+      is_academic_counselor: profile.is_academic_counselor ?? false,
+    })
   }, [profile])
 
   const handleSave = () => {
@@ -96,9 +102,9 @@ export function ProfileSettingsPage() {
       linkedin_url: professionalBio.linkedinUrl.trim() || null,
       website_url: professionalBio.portfolioUrl.trim() || null,
 
-      // Counselling type (from professional bio specializedFields)
-      is_academic_counselor: professionalBio.specializedFields.includes('Academic Counselling'),
-      is_professional_counselor: professionalBio.specializedFields.includes('Professional Coaching'),
+      // Counselling type — from the dedicated counselling card
+      is_academic_counselor: counselling.is_academic_counselor,
+      is_professional_counselor: counselling.is_professional_counselor,
     }
 
     updateProfile(payload, {
@@ -140,7 +146,7 @@ export function ProfileSettingsPage() {
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0 space-y-7">
               <ProfileGeneralInfoCard value={generalInfo} onChange={setGeneralInfo} />
-              <ProfileCounsellingCard tags={counsellingTags} onChange={setCounsellingTags} />
+              <ProfileCounsellingCard value={counselling} onChange={setCounselling} />
             </div>
 
             <aside className="space-y-6 lg:space-y-7">
