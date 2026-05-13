@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { ProfileGeneralInfoCard, type GeneralInfoForm } from './components/ProfileGeneralInfoCard'
 import { ProfilePhotoCard } from './components/ProfilePhotoCard'
@@ -12,55 +13,102 @@ import { ProfileSettingsHeader } from './components/ProfileSettingsHeader'
 import { ProfileSessionAvailabilityCard } from './components/ProfileSessionAvailabilityCard'
 import { ProfileSettingsTabs, type ProfileSettingsTab } from './components/ProfileSettingsTabs'
 import { ProfileStatusCard } from './components/ProfileStatusCard'
-
 import { ProfileCounsellingCard } from './components/ProfileCounsellingCard'
+
+import { useMentorProfile, useUpdateMentorProfile } from '@/features/mentor-dashboard/hooks/useMentorProfile'
+
+const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
+  fullName: '',
+  professionalTitle: '',
+  emailAddress: '',
+  phoneNumber: '',
+  education: '',
+  currentCompany: '',
+  experience: '',
+  timezone: '',
+}
+
+const DEFAULT_BIO: ProfessionalBioForm = {
+  headline: '',
+  specializedFields: [],
+  fullBiography: '',
+  linkedinUrl: '',
+  portfolioUrl: '',
+}
 
 export function ProfileSettingsPage() {
   const [activeTab, setActiveTab] = useState<ProfileSettingsTab>('general-info')
-  const [generalInfo, setGeneralInfo] = useState<GeneralInfoForm>({
-    fullName: 'Dr. Alexander Wright',
-    professionalTitle: 'Senior Academic Advisor',
-    emailAddress: 'alexander.wright@university.edu',
-    phoneNumber: '+1 (555) 012-3456',
-    education: 'Oxford University',
-    currentCompany: 'Oxford University',
-    experience: '12',
-    timezone: '(GMT-05:00) Eastern Time - New York',
-  })
-  const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>({
-    headline: 'Empowering students through tailored academic strategies and career coaching.',
-    specializedFields: [],
-    fullBiography:
-      'With over a decade of experience in academic advising at top-tier institutions, I specialize in helping students navigate complex degree requirements and transition smoothly into high-growth industries. My approach combines data-driven planning with empathetic mentorship to ensure every student reaches their full potential.',
-    linkedinUrl: '',
-    portfolioUrl: '',
-  })
+  const [generalInfo, setGeneralInfo] = useState<GeneralInfoForm>(DEFAULT_GENERAL_INFO)
+  const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>(DEFAULT_BIO)
+
+  const { data: profile, isLoading } = useMentorProfile()
+  const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
+
+  // Populate form from API data once loaded
+  useEffect(() => {
+    if (!profile) return
+
+    setGeneralInfo({
+      fullName: profile.user?.full_name ?? '',
+      professionalTitle: profile.title ?? '',
+      emailAddress: '',
+      phoneNumber: '',
+      education: '',
+      currentCompany: profile.company ?? '',
+      experience: String(profile.years_of_experience ?? ''),
+      timezone: '',
+    })
+
+    setProfessionalBio({
+      headline: profile.title ?? '',
+      specializedFields: [
+        ...(profile.is_academic_counselor ? ['Academic Counselling'] : []),
+        ...(profile.is_professional_counselor ? ['Professional Coaching'] : []),
+      ],
+      fullBiography: profile.bio ?? '',
+      linkedinUrl: profile.linkedin_url ?? '',
+      portfolioUrl: profile.website_url ?? '',
+    })
+  }, [profile])
 
   const handleSave = () => {
-    const inputValues = {
-      ...generalInfo,
-      headline: professionalBio.headline,
-      fullBiography: professionalBio.fullBiography,
-      linkedinUrl: professionalBio.linkedinUrl,
-      portfolioUrl: professionalBio.portfolioUrl,
-    }
-    const payload = Object.fromEntries(
-      Object.entries(inputValues)
-        .map(([key, value]) => [key, value.trim()])
-        .filter(([, value]) => Boolean(value))
-    ) as Partial<GeneralInfoForm & ProfessionalBioForm>
-
-    if (professionalBio.specializedFields.length > 0) {
-      payload.specializedFields = professionalBio.specializedFields
+    const payload = {
+      title: professionalBio.headline.trim() || generalInfo.professionalTitle.trim() || undefined,
+      company: generalInfo.currentCompany.trim() || undefined,
+      bio: professionalBio.fullBiography.trim() || undefined,
+      years_of_experience: generalInfo.experience ? parseInt(generalInfo.experience, 10) : undefined,
+      linkedin_url: professionalBio.linkedinUrl.trim() || null,
+      website_url: professionalBio.portfolioUrl.trim() || null,
+      is_academic_counselor: professionalBio.specializedFields.includes('Academic Counselling'),
+      is_professional_counselor: professionalBio.specializedFields.includes('Professional Coaching'),
     }
 
-    console.log('Profile settings save payload:', payload)
+    updateProfile(payload, {
+      onSuccess: () => toast.success('Profile updated successfully'),
+      onError: () => toast.error('Failed to save profile. Please try again.'),
+    })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-svh bg-[#f8f9ff]">
+        <div className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="h-12 w-64 animate-pulse rounded-2xl bg-slate-200" />
+          <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="space-y-7">
+              <div className="h-80 animate-pulse rounded-[28px] bg-slate-200" />
+            </div>
+            <div className="h-48 animate-pulse rounded-[28px] bg-slate-200" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-svh bg-[#f8f9ff] text-slate-950">
       <div className="mx-auto w-full max-w-[1180px] space-y-8 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <ProfileSettingsHeader onSave={handleSave} />
+        <ProfileSettingsHeader onSave={handleSave} isSaving={isSaving} />
         <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 'general-info' ? (
