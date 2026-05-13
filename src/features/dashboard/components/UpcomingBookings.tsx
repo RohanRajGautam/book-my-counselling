@@ -10,7 +10,7 @@ export function UpcomingBookings() {
         <h2 className="font-headline text-xl font-extrabold text-slate-950 sm:text-2xl">
           Upcoming Bookings
         </h2>
-        <Link href="#" className="text-sm font-bold text-blue-700 hover:text-blue-900">
+        <Link href="/mentor/my-sessions" className="text-sm font-bold text-blue-700 hover:text-blue-900">
           View All
         </Link>
       </div>

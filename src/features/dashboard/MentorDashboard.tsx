@@ -20,7 +20,6 @@ export function MentorDashboard() {
 
           <aside className="space-y-6 lg:space-y-7">
             <ProfilePresence />
-            <SupportCard />
           </aside>
         </div>
       </div>

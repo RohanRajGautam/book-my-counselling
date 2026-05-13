@@ -95,36 +95,7 @@ export function MentorSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-slate-100 p-4">
-        <Link
-          href="/mentor/new-session"
-          className="mb-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0755d8] text-sm font-extrabold text-white shadow-lg shadow-blue-100 transition hover:bg-blue-700 active:scale-[0.98]"
-        >
-          <Plus size={16} strokeWidth={2.5} />
-          Book Session
-        </Link>
-
-        <SidebarMenu className="gap-1">
-          <SidebarMenuItem>
-            <SidebarMenuButton className="h-10 rounded-xl text-slate-500 hover:bg-white hover:text-slate-950">
-              <Link href="/mentor/help" className="flex items-center gap-3">
-                <HelpCircle size={18} strokeWidth={1.8} className="text-slate-400" />
-                <span className="text-sm font-bold">Help Center</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <button
-              onClick={() => {
-                /* logout */
-              }}
-              className="flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-bold text-red-500 transition-colors hover:bg-red-50"
-            >
-              <LogOut size={18} strokeWidth={1.8} />
-              <span>Logout</span>
-            </button>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarMenu className="gap-1"></SidebarMenu>
 
         <SidebarSeparator className="my-4 bg-slate-100" />
 

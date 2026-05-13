@@ -53,12 +53,9 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const selectedPackageId = selection.mentorId === mentorId ? selection.packageId : null
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
-  const ctaLabel = !selectedPackageId
-    ? 'Choose a Package'
-    : !selectedSlotId
-      ? 'Choose a Date'
-      : 'Book a Session'
-  const canBook = Boolean(selectedSlotId && selectedPackageId)
+  const ctaLabel = !selectedPackageId ? 'Choose a Package' : 'Book a Session'
+  // const canBook = Boolean(selectedSlotId && selectedPackageId)
+  const canBook = Boolean(selectedPackageId)
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
     .replace('.0', '')
@@ -260,7 +257,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               <button
                 disabled={!canBook}
                 onClick={() => {
-                  if (selectedSlotId && selectedPackageId) {
+                  if (selectedPackageId) {
                     router.push(
                       `/booking?mentorId=${mentorId}&packageId=${selectedPackageId}&slotId=${selectedSlotId}`
                     )
