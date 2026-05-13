@@ -7,8 +7,6 @@ import {
   CalendarDays,
   UserRound,
   WalletCards,
-  Plus,
-  HelpCircle,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -24,6 +22,8 @@ import {
   SidebarSeparator,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const mentorNavItems = [
   { icon: LayoutDashboard, href: '/mentor/dashboard', label: 'Dashboard' },
@@ -32,8 +32,22 @@ const mentorNavItems = [
   { icon: UserRound, href: '/mentor/profile-settings', label: 'Profile Settings' },
 ]
 
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
 export function MentorSidebar() {
   const pathname = usePathname()
+  const { user, logout } = useAuth()
+
+  const displayName = user?.full_name ?? '—'
+  const initials = getInitials(displayName)
+  const roleLabel = user?.role === 'mentor' ? 'Mentor' : user?.role ?? ''
 
   return (
     <Sidebar className="border-none" style={{ '--sidebar-width': '260px' } as React.CSSProperties}>
@@ -95,18 +109,29 @@ export function MentorSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-slate-100 p-4">
-        <SidebarMenu className="gap-1"></SidebarMenu>
+        <SidebarSeparator className="mb-4 bg-slate-100" />
 
-        <SidebarSeparator className="my-4 bg-slate-100" />
-
-        <div className="flex items-center gap-3 px-2 py-1">
-          <div className="h-9 w-9 rounded-full border-2 border-white bg-gradient-to-tr from-blue-600 to-emerald-300 shadow-sm" />
-          <div className="flex flex-col">
-            <span className="text-[13px] font-bold text-slate-950">Dr. Emily Chen</span>
-            <span className="w-24 overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-gray-500">
-              Senior Mentor
-            </span>
+        {/* User info */}
+        <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+          <Avatar className="size-9 shrink-0 border-2 border-white shadow-sm">
+            <AvatarImage src={user?.avatar_url ?? undefined} alt={displayName} />
+            <AvatarFallback className="bg-gradient-to-tr from-blue-600 to-emerald-300 text-xs font-extrabold text-white">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-bold text-slate-950">{displayName}</p>
+            <p className="truncate text-[11px] capitalize text-gray-500">{roleLabel}</p>
           </div>
+          <button
+            type="button"
+            onClick={logout}
+            aria-label="Sign out"
+            title="Sign out"
+            className="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+          >
+            <LogOut size={15} />
+          </button>
         </div>
       </SidebarFooter>
     </Sidebar>

@@ -1,22 +1,25 @@
-import { ChevronDown, UserRound } from 'lucide-react'
+import { UserRound } from 'lucide-react'
 
 export type GeneralInfoForm = {
-  fullName: string
   professionalTitle: string
-  education: string
   currentCompany: string
   experience: string
-  emailAddress: string
-  phoneNumber: string
-  timezone: string
+  hourlyRate: string
 }
 
 type ProfileGeneralInfoCardProps = {
   value: GeneralInfoForm
   onChange: (value: GeneralInfoForm) => void
+  readOnlyName?: string
+  readOnlyEmail?: string
 }
 
-export function ProfileGeneralInfoCard({ value, onChange }: ProfileGeneralInfoCardProps) {
+export function ProfileGeneralInfoCard({
+  value,
+  onChange,
+  readOnlyName,
+  readOnlyEmail,
+}: ProfileGeneralInfoCardProps) {
   const updateField = (field: keyof GeneralInfoForm, nextValue: string) => {
     onChange({ ...value, [field]: nextValue })
   }
@@ -35,79 +38,51 @@ export function ProfileGeneralInfoCard({ value, onChange }: ProfileGeneralInfoCa
         </h2>
       </div>
 
-      <div className="mt-7 grid gap-x-6 gap-y-7 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+      {/* Read-only account fields */}
+      {(readOnlyName || readOnlyEmail) && (
+        <div className="mt-7 grid gap-x-6 gap-y-5 md:grid-cols-2">
+          {readOnlyName && (
+            <ReadOnlyField label="Full Name" value={readOnlyName} />
+          )}
+          {readOnlyEmail && (
+            <ReadOnlyField label="Email Address" value={readOnlyEmail} />
+          )}
+        </div>
+      )}
+
+      {/* Editable mentor profile fields */}
+      <div className={`grid gap-x-6 gap-y-7 md:grid-cols-2 ${readOnlyName || readOnlyEmail ? 'mt-7' : 'mt-7'}`}>
         <Field
-          label="Full Name"
-          value={value.fullName}
-          placeholder="Enter your full name"
-          onChange={(nextValue) => updateField('fullName', nextValue)}
-        />
-        <Field
-          label="Professional Title"
+          label="Professional Title *"
           value={value.professionalTitle}
-          placeholder="Enter your professional title"
-          onChange={(nextValue) => updateField('professionalTitle', nextValue)}
+          placeholder="e.g. Senior Academic Advisor"
+          onChange={(v) => updateField('professionalTitle', v)}
         />
         <Field
-          label="Email Address"
-          type="email"
-          value={value.emailAddress}
-          placeholder="Enter your email address"
-          onChange={(nextValue) => updateField('emailAddress', nextValue)}
-        />
-        <Field
-          label="Phone Number"
-          type="tel"
-          value={value.phoneNumber}
-          placeholder="Enter your phone number"
-          onChange={(nextValue) => updateField('phoneNumber', nextValue)}
-        />
-      </div>
-
-      <div className="mt-7">
-        <p className="text-xs font-bold tracking-[0.16em] text-slate-600 uppercase">
-          Location / Timezone
-        </p>
-        <div className="mt-2 flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-[#eef4ff] px-4 text-sm font-medium text-slate-800 sm:px-5">
-          <input
-            type="text"
-            value={value.timezone}
-            placeholder="Select or enter your timezone"
-            onChange={(event) => updateField('timezone', event.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400"
-          />
-          <ChevronDown className="size-4 text-slate-500" />
-        </div>
-      </div>
-
-      <div className="mt-7 space-y-7">
-        <Field
-          label="Education"
-          value={value.education}
-          placeholder="Education"
-          onChange={(nextValue) => updateField('education', nextValue)}
-        />
-        <Field
-          label="Current Company"
+          label="Company / Institution"
           value={value.currentCompany}
-          placeholder="Current company"
-          onChange={(nextValue) => updateField('currentCompany', nextValue)}
+          placeholder="e.g. Oxford University"
+          onChange={(v) => updateField('currentCompany', v)}
         />
-        <div className="max-w-[132px]">
-          <Label>Experience</Label>
-          <div className="mt-2 grid min-h-14 grid-cols-[1fr_auto] items-center gap-3 rounded-2xl bg-[#eef4ff] px-5 text-sm font-medium text-slate-800">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={value.experience}
-              placeholder="0"
-              onChange={(event) => updateField('experience', event.target.value)}
-              className="min-w-0 bg-transparent outline-none placeholder:text-slate-400"
-            />
-            <span className="text-xs font-extrabold text-slate-700 uppercase">Yrs</span>
-          </div>
-        </div>
+        <Field
+          label="Years of Experience"
+          value={value.experience}
+          placeholder="e.g. 8"
+          type="number"
+          onChange={(v) => updateField('experience', v)}
+        />
+        <Field
+          label="Hourly Rate (NPR)"
+          value={value.hourlyRate}
+          placeholder="e.g. 2000"
+          type="number"
+          onChange={(v) => updateField('hourlyRate', v)}
+        />
       </div>
+
+      <p className="mt-5 text-xs font-medium text-slate-400">
+        * Required. Changes are saved when you click &quot;Save Changes&quot; above.
+      </p>
     </section>
   )
 }
@@ -132,13 +107,28 @@ function Field({
         type={type}
         value={value}
         placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         className="mt-2 flex min-h-14 w-full items-center rounded-2xl bg-[#eef4ff] px-4 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200 sm:px-5"
       />
     </label>
   )
 }
 
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <div className="mt-2 flex min-h-14 items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 sm:px-5">
+        <span className="text-sm font-medium text-slate-500">{value}</span>
+      </div>
+    </div>
+  )
+}
+
 function Label({ children }: { children: React.ReactNode }) {
-  return <span className="text-xs font-bold tracking-[0.16em] text-slate-600 uppercase">{children}</span>
+  return (
+    <span className="text-xs font-bold tracking-[0.16em] text-slate-600 uppercase">
+      {children}
+    </span>
+  )
 }

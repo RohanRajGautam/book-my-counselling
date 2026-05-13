@@ -1,9 +1,21 @@
-import { BadgePlus, BriefcaseBusiness } from 'lucide-react'
+'use client'
 
-export function ProfileCounsellingCard() {
+import { BriefcaseBusiness, GraduationCap, Briefcase } from 'lucide-react'
+
+export type CounsellingType = {
+  is_professional_counselor: boolean
+  is_academic_counselor: boolean
+}
+
+type ProfileCounsellingCardProps = {
+  value: CounsellingType
+  onChange: (value: CounsellingType) => void
+}
+
+export function ProfileCounsellingCard({ value, onChange }: ProfileCounsellingCardProps) {
   return (
     <section
-      id="professional-bio"
+      id="counselling-provided"
       className="rounded-2xl bg-white p-5 shadow-sm sm:rounded-3xl sm:p-8"
     >
       <div className="flex items-center gap-4">
@@ -15,39 +27,87 @@ export function ProfileCounsellingCard() {
         </h2>
       </div>
 
-      <div className="mt-7 space-y-6">
-        <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_120px]">
-          <div>
-            <Label>Specialized Fields</Label>
-            <div className="mt-2 rounded-2xl bg-[#eef4ff] p-3">
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-bold text-emerald-900">
-                  Computer Science ×
-                </span>
-                <span className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-bold text-emerald-900">
-                  Career Growth ×
-                </span>
-                <button className="inline-flex items-center gap-2 rounded-full border border-dashed border-slate-400 px-4 py-2 text-sm font-bold text-slate-700">
-                  <BadgePlus className="size-4" />
-                  Add Field
-                </button>
-              </div>
-            </div>
-          </div>
+      <p className="mt-2 text-sm font-medium text-slate-500">
+        Select the types of counselling you offer. This appears on your public profile.
+      </p>
 
-          {/* <div>
-            <Label>Experience</Label>
-            <div className="mt-2 flex min-h-14 items-center justify-between rounded-2xl bg-[#eef4ff] px-5 text-sm font-bold text-slate-800">
-              12
-              <span className="text-xs text-slate-500 uppercase">Yrs</span>
-            </div>
-          </div> */}
-        </div>
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <CounsellingToggle
+          active={value.is_professional_counselor}
+          icon={<Briefcase className="size-5" />}
+          title="Professional Coaching"
+          description="Career guidance, industry transitions, interview prep"
+          onClick={() =>
+            onChange({ ...value, is_professional_counselor: !value.is_professional_counselor })
+          }
+        />
+        <CounsellingToggle
+          active={value.is_academic_counselor}
+          icon={<GraduationCap className="size-5" />}
+          title="Academic Counselling"
+          description="University applications, thesis support, research strategy"
+          onClick={() =>
+            onChange({ ...value, is_academic_counselor: !value.is_academic_counselor })
+          }
+        />
       </div>
     </section>
   )
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-bold tracking-[0.16em] text-slate-600 uppercase">{children}</p>
+function CounsellingToggle({
+  active,
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  active: boolean
+  icon: React.ReactNode
+  title: string
+  description: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex items-start gap-4 rounded-2xl border-2 p-4 text-left transition ${
+        active
+          ? 'border-blue-600 bg-blue-50'
+          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+      }`}
+    >
+      <div
+        className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl transition ${
+          active ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
+        }`}
+      >
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p
+          className={`text-sm font-extrabold transition ${
+            active ? 'text-blue-700' : 'text-slate-800'
+          }`}
+        >
+          {title}
+        </p>
+        <p className="mt-0.5 text-xs font-medium leading-4 text-slate-500">{description}</p>
+      </div>
+      {/* Checkmark indicator */}
+      <div
+        className={`ml-auto mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+          active ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'
+        }`}
+      >
+        {active && (
+          <svg viewBox="0 0 10 8" className="size-3 fill-none stroke-white stroke-2">
+            <polyline points="1,4 4,7 9,1" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </div>
+    </button>
+  )
 }

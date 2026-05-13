@@ -65,4 +65,6 @@ export interface MentorResponse {
   calendly_link: string | null
   tags: TagResponse[]
   created_at: string
+  is_professional_counselor: boolean
+  is_academic_counselor: boolean
 }

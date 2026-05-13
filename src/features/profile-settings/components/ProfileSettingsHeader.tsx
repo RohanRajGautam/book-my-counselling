@@ -2,9 +2,10 @@ import { Button } from '@/components/ui/button'
 
 type ProfileSettingsHeaderProps = {
   onSave: () => void
+  isSaving?: boolean
 }
 
-export function ProfileSettingsHeader({ onSave }: ProfileSettingsHeaderProps) {
+export function ProfileSettingsHeader({ onSave, isSaving = false }: ProfileSettingsHeaderProps) {
   return (
     <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
       <div>
@@ -19,17 +20,12 @@ export function ProfileSettingsHeader({ onSave }: ProfileSettingsHeaderProps) {
 
       <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-4">
         <Button
-          variant="ghost"
-          className="h-11 rounded-xl px-4 text-sm font-bold text-slate-700 hover:bg-blue-50 sm:h-12"
-        >
-          Cancel Changes
-        </Button>
-        <Button
           type="button"
           onClick={onSave}
-          className="h-11 rounded-xl bg-[#0755d8] px-5 font-bold text-white shadow-sm hover:bg-blue-700 sm:h-14 sm:px-8"
+          disabled={isSaving}
+          className="h-11 rounded-xl bg-[#0755d8] px-5 font-bold text-white shadow-sm hover:bg-blue-700 sm:h-14 sm:px-8 disabled:opacity-60"
         >
-          Save Changes
+          {isSaving ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>
     </header>
