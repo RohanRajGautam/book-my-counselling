@@ -15,3 +15,10 @@ export interface LoginResponse {
   token_type: string
   user: UserResponse
 }
+
+export interface RegisterPayload {
+  email: string
+  password: string
+  full_name: string
+  role?: 'mentor' | 'mentee'
+}
