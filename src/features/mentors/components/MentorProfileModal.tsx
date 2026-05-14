@@ -85,7 +85,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-4 backdrop-blur-[12px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-4 pb-26 backdrop-blur-[12px] lg:pb-4"
       onClick={onClose}
     >
       <div
@@ -255,8 +255,8 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             </a>
           </div> */}
 
-          <div className="sticky bottom-0 mt-auto rounded-[24px] bg-[#f8f9ff]/90 p-3 backdrop-blur">
-            <div className="mt-auto rounded-[24px] bg-white p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+          <div className="fixed right-4 bottom-0 left-4 z-20 mx-auto mt-auto max-w-7xl border-t border-none bg-[#f8f9ff]/95 p-3 shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur lg:sticky lg:right-auto lg:bottom-0 lg:left-auto lg:z-auto lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:border-t-0 lg:bg-[#f8f9ff]/90 lg:shadow-none">
+            <div className="mt-auto rounded-[24px] p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
               <button
                 disabled={!canBook}
                 onClick={() => {
