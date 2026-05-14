@@ -14,12 +14,21 @@ import { ProfileSessionAvailabilityCard } from './components/ProfileSessionAvail
 import { ProfileSettingsTabs, type ProfileSettingsTab } from './components/ProfileSettingsTabs'
 import { ProfileStatusCard } from './components/ProfileStatusCard'
 import { ProfileCounsellingCard, type CounsellingType } from './components/ProfileCounsellingCard'
+import {
+  ProfilePackagesCard,
+  type PackagesForm,
+  buildPackagePayloads,
+} from './components/ProfilePackagesCard'
 
 import {
   useMentorProfile,
   useUpdateMentorProfile,
 } from '@/features/mentor-dashboard/hooks/useMentorProfile'
 import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser'
+import {
+  useMyPackages,
+  useUpsertMentorPackages,
+} from '@/features/service-packages/hooks/useMentorPackages'
 
 const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
   professionalTitle: '',
@@ -41,15 +50,22 @@ const DEFAULT_COUNSELLING: CounsellingType = {
   is_academic_counselor: false,
 }
 
+const DEFAULT_PACKAGES: PackagesForm = {
+  hourlyRate: '',
+}
+
 export function ProfileSettingsPage() {
   const [activeTab, setActiveTab] = useState<ProfileSettingsTab>('general-info')
   const [generalInfo, setGeneralInfo] = useState<GeneralInfoForm>(DEFAULT_GENERAL_INFO)
   const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>(DEFAULT_BIO)
   const [counselling, setCounselling] = useState<CounsellingType>(DEFAULT_COUNSELLING)
+  const [packages, setPackages] = useState<PackagesForm>(DEFAULT_PACKAGES)
 
   const { data: profile, isLoading: profileLoading } = useMentorProfile()
   const { data: currentUser } = useCurrentUser()
   const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
+  const { data: myPackages = [] } = useMyPackages()
+  const { mutate: upsertPackages, isPending: isSavingPackages } = useUpsertMentorPackages()
 
   // Populate form state from API data once loaded
   useEffect(() => {
@@ -77,9 +93,18 @@ export function ProfileSettingsPage() {
       is_professional_counselor: profile.is_professional_counselor ?? false,
       is_academic_counselor: profile.is_academic_counselor ?? false,
     })
+
+    setPackages({
+      hourlyRate: profile.hourly_rate ? String(profile.hourly_rate) : '',
+    })
   }, [profile])
 
   const handleSave = () => {
+    if (activeTab === 'packages') {
+      handleSavePackages()
+      return
+    }
+
     const yearsNum = generalInfo.experience.trim()
       ? parseInt(generalInfo.experience.trim(), 10)
       : undefined
@@ -117,6 +142,26 @@ export function ProfileSettingsPage() {
     })
   }
 
+  const handleSavePackages = () => {
+    const hourly = parseFloat(packages.hourlyRate.trim())
+    if (!packages.hourlyRate.trim() || isNaN(hourly) || hourly <= 0) {
+      toast.error('Please enter a valid hourly rate to generate packages.')
+      return
+    }
+
+    const nextPackages = buildPackagePayloads(hourly)
+
+    upsertPackages(
+      { existing: myPackages, next: nextPackages },
+      {
+        onSuccess: () => toast.success('Packages saved successfully.'),
+        onError: () => toast.error('Failed to save packages. Please try again.'),
+      },
+    )
+  }
+
+  const isSavingAny = isSaving || isSavingPackages
+
   if (profileLoading) {
     return (
       <div className="min-h-svh bg-[#f8f9ff]">
@@ -140,7 +185,7 @@ export function ProfileSettingsPage() {
   return (
     <div className="min-h-svh bg-[#f8f9ff] text-slate-950">
       <div className="mx-auto w-full max-w-[1180px] space-y-8 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <ProfileSettingsHeader onSave={handleSave} isSaving={isSaving} />
+        <ProfileSettingsHeader onSave={handleSave} isSaving={isSavingAny} />
         <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 'general-info' && (
@@ -167,6 +212,10 @@ export function ProfileSettingsPage() {
         )}
 
         {activeTab === 'session-availability' && <ProfileSessionAvailabilityCard />}
+
+        {activeTab === 'packages' && (
+          <ProfilePackagesCard value={packages} onChange={setPackages} />
+        )}
       </div>
     </div>
   )

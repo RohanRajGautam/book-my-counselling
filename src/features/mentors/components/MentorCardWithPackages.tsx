@@ -30,5 +30,13 @@ export function MentorCardWithPackages({
       ? Math.min(...packages.map((p) => Number(p.price)))
       : fallbackPrice
 
-  return <MentorCard {...cardProps} price={minPrice} />
+  const packageTiers =
+    packages.length > 0
+      ? packages.map((p) => ({
+          duration_minutes: p.duration_minutes,
+          price: Number(p.price),
+        }))
+      : undefined
+
+  return <MentorCard {...cardProps} price={minPrice} packageTiers={packageTiers} />
 }
