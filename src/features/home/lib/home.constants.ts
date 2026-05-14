@@ -23,27 +23,27 @@ export const HOME_STATS = [
 
 export const HOME_TESTIMONIALS = [
   {
-    name: 'Hannah Schmitt',
-    role: 'Lead designer',
+    name: 'Jonathan Wu',
+    role: 'Real Founder, Series A Tech Startup',
     image:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80',
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80',
     quote:
-      'The mentoring sessions helped me turn a scattered career plan into a clear path. My counsellor understood what I needed, challenged my assumptions, and helped me take the next step with confidence.',
-  },
-  {
-    name: 'Marcus Lee',
-    role: 'Product manager',
-    image:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
-    quote:
-      'I came in looking for practical advice and left with a stronger portfolio, better interview answers, and a mentor who made the whole process feel manageable.',
+      'I spent 6 months trying to figure out our go-to-market strategy. After a 60-minute session with a mentor here, I had a roadmap that actually worked. The ROI is literally measured in months of saved time.',
   },
   {
     name: 'Priya Adhikari',
-    role: 'Graduate applicant',
+    role: 'Graduate Applicant',
     image:
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80',
     quote:
-      'Book My Counselling matched me with someone who knew my target schools and my field. The guidance was specific, warm, and exactly what I needed before applying.',
+      'I was overwhelmed by choices and advice from everywhere. My mentor helped me narrow the path, fix my application story, and make decisions with a lot more confidence.',
+  },
+  {
+    name: 'Marcus Lee',
+    role: 'Product Manager',
+    image:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
+    quote:
+      'I came in with scattered questions and left with a practical plan. The session made my next steps obvious, from portfolio changes to how I should talk about my experience.',
   },
 ]

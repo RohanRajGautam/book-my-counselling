@@ -2,13 +2,7 @@
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 
 import { useRouter } from 'next/navigation'
-import {
-  ArrowUpDown,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-} from 'lucide-react'
+import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
@@ -64,7 +58,7 @@ export function MentorGrid() {
 
   return (
     <>
-      <section id="mentor-results" className="px-5 py-8 sm:px-6 lg:px-8 xl:px-10">
+      <section id="mentor-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
         <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
           <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
             <Search className="mr-3 size-6 text-[#0053db]" />

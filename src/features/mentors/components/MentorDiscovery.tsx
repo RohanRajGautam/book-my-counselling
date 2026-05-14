@@ -13,7 +13,7 @@ export function MentorDiscovery() {
   return (
     <div
       id="mentor-discovery"
-      className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[260px_minmax(0,1fr)]"
+      className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[280px_minmax(0,1fr)]"
     >
       <div className="hidden lg:block">
         <FiltersSidebar />

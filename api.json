@@ -196,7 +196,7 @@
       "get": {
         "tags": ["Mentors"],
         "summary": "List Mentors",
-        "description": "List and search mentors with filtering and sorting.\n\n**Sort options:** `rating`, `price`, `reviews`, `created_at`, `years_of_experience` (add to sort_by)\n\n**Example response:**\n```json\n{\n    \"items\": [\n        {\n            \"id\": \"...\",\n            \"user\": {\"id\": \"...\", \"full_name\": \"Alice Smith\"},\n            \"title\": \"Principal Engineer\",\n            \"company\": \"Meta\",\n            \"hourly_rate\": \"200.00\",\n            \"average_rating\": 4.8,\n            \"total_reviews\": 23,\n            \"tags\": [{\"name\": \"React\"}, {\"name\": \"System Design\"}]\n        }\n    ],\n    \"total\": 142,\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total_pages\": 8,\n    \"has_next\": true,\n    \"has_prev\": false\n}\n```",
+        "description": "List and search mentors with filtering and sorting.\n\n**Sort options:** `rating`, `price`, `reviews`, `created_at`, `years_of_experience`\n\n**Category filters** are AND (mentor must have every selected value).\nPass repeated params: `academic_categories=...&academic_categories=...` etc.\n\n**Example response:**\n```json\n{\n    \"items\": [\n        {\n            \"id\": \"...\",\n            \"user\": {\"id\": \"...\", \"full_name\": \"Alice Smith\"},\n            \"title\": \"Principal Engineer\",\n            \"company\": \"Meta\",\n            \"hourly_rate\": \"200.00\",\n            \"average_rating\": 4.8,\n            \"total_reviews\": 23,\n            \"tags\": [{\"name\": \"React\"}, {\"name\": \"System Design\"}]\n        }\n    ],\n    \"total\": 142,\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total_pages\": 8,\n    \"has_next\": true,\n    \"has_prev\": false\n}\n```",
         "operationId": "list_mentors_api_v1_mentors_get",
         "parameters": [
           {
@@ -320,48 +320,52 @@
             "description": "Filter to academic counselors only"
           },
           {
-            "name": "academic_category",
+            "name": "academic_categories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by academic category name",
-              "title": "Academic Category"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "AND filter: mentor must have ALL listed academic categories.",
+              "title": "Academic Categories"
             },
-            "description": "Filter by academic category name"
+            "description": "AND filter: mentor must have ALL listed academic categories."
           },
           {
-            "name": "academic_subcategory",
+            "name": "academic_subcategories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by academic subcategory name",
-              "title": "Academic Subcategory"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "AND filter: mentor must have ALL listed academic subcategories.",
+              "title": "Academic Subcategories"
             },
-            "description": "Filter by academic subcategory name"
+            "description": "AND filter: mentor must have ALL listed academic subcategories."
           },
           {
-            "name": "professional_category",
+            "name": "professional_categories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by professional category name",
-              "title": "Professional Category"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "AND filter: mentor must have ALL listed professional categories.",
+              "title": "Professional Categories"
             },
-            "description": "Filter by professional category name"
+            "description": "AND filter: mentor must have ALL listed professional categories."
           },
           {
-            "name": "professional_subcategory",
+            "name": "professional_subcategories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by professional subcategory name",
-              "title": "Professional Subcategory"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "AND filter: mentor must have ALL listed professional subcategories.",
+              "title": "Professional Subcategories"
             },
-            "description": "Filter by professional subcategory name"
+            "description": "AND filter: mentor must have ALL listed professional subcategories."
           },
           {
             "name": "page",
@@ -990,6 +994,131 @@
         }
       }
     },
+    "/api/v1/admin/mentors": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List Mentors Admin",
+        "description": "List all mentor profiles.\n- Pending:  is_verified=false, is_rejected=false\n- Rejected: is_rejected=true\n- Approved: is_verified=true\n- All:      no filter",
+        "operationId": "list_mentors_admin_api_v1_admin_mentors_get",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "is_verified",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "title": "Is Verified"
+            }
+          },
+          {
+            "name": "is_rejected",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "title": "Is Rejected"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1, "title": "Page" }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 20, "title": "Page Size" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedResponse_MentorResponse_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/mentors/{mentor_id}/verify": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Verify Mentor",
+        "description": "Approve a mentor profile — sets is_verified=True and indexes into ES.",
+        "operationId": "verify_mentor_api_v1_admin_mentors__mentor_id__verify_patch",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/mentors/{mentor_id}/reject": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Reject Mentor",
+        "description": "Reject a mentor — sets is_verified=False, is_rejected=True, removes from ES.",
+        "operationId": "reject_mentor_api_v1_admin_mentors__mentor_id__reject_patch",
+        "security": [{ "HTTPBearer": [] }],
+        "parameters": [
+          {
+            "name": "mentor_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Mentor Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/tags": {
       "post": {
         "tags": ["Admin"],
@@ -1464,7 +1593,7 @@
       "get": {
         "tags": ["Search"],
         "summary": "Search",
-        "description": "Search and filter mentors.\n\n**Keyword search** (`keyword`) matches across:\n- `full_name` (boosted 3×)\n- `industries` (boosted 2×)\n- `tags` (boosted 1.5×)\n- `title`\n\n**Filters** (all optional, combinable):\n- `title` — fuzzy match on the mentor's job title\n- `industry` — one or more industry names; repeatable: `?industry=Fintech&industry=SaaS`\n- `tags` — one or more tag slugs/names (with or without `#`); repeatable: `?tags=ProductManagement&tags=UX`\n- `min_price` / `max_price` — hourly rate range\n- `available_this_week` — mentors with free slots in the next 7 days\n- `instant_booking` — instant booking, no 24 h approval required\n- `evenings_weekends` — slots after 17:00 or on Saturday / Sunday\n- `is_professional_counselor` — professional counselors only\n- `is_academic_counselor` — academic counselors only (combine both flags to find mentors who are both)\n\n**Sorting** (optional):\n- `sort_by` — `rating` | `price` | `reviews` | `created_at` | `years_of_experience`\n- `sort_order` — `asc` | `desc` (default: `desc`)\n- When `keyword` is set and `sort_by` is omitted, results rank by relevance score.\n\n**Category / Subcategory filters** (from catalog):\n- `academic_category`, `academic_subcategory`\n- `professional_category`, `professional_subcategory`\nUse exact names from `GET /catalog/categories`.\n\nUse `GET /catalog/tags` and `GET /catalog/industries` for the full public lists.",
+        "description": "Search and filter mentors.\n\n**Keyword search** (`keyword`) matches across:\n- `full_name` (boosted 3×)\n- `industries` (boosted 2×)\n- `tags` (boosted 1.5×)\n- `title`\n\n**Filters** (all optional, combinable):\n- `title` — fuzzy match on the mentor's job title\n- `industry` — one or more industry names; repeatable: `?industry=Fintech&industry=SaaS`\n- `tags` — one or more tag slugs/names (with or without `#`); repeatable: `?tags=ProductManagement&tags=UX`\n- `min_price` / `max_price` — hourly rate range\n- `available_this_week` — mentors with free slots in the next 7 days\n- `instant_booking` — instant booking, no 24 h approval required\n- `evenings_weekends` — slots after 17:00 or on Saturday / Sunday\n- `is_professional_counselor` — professional counselors only\n- `is_academic_counselor` — academic counselors only (combine both flags to find mentors who are both)\n- `academic_categories` / `academic_subcategories` — AND filter (mentor must match every selected value)\n- `professional_categories` / `professional_subcategories` — AND filter (mentor must match every selected value)\n\n**Sorting** (optional):\n- `sort_by` — `rating` | `price` | `reviews` | `created_at` | `years_of_experience`\n- `sort_order` — `asc` | `desc` (default: `desc`)\n- When `keyword` is set and `sort_by` is omitted, results rank by relevance score.\n\n**Category / Subcategory filters** (checkbox multi-select → OR):\n- `academic_categories`, `academic_subcategories`\n- `professional_categories`, `professional_subcategories`\nRepeat the param for multiple values (e.g. `?academic_categories=Business&academic_categories=Technology`).\nUse exact names returned by `GET /catalog/categories`.\n\nUse `GET /catalog/tags` and `GET /catalog/industries` for the full public lists.",
         "operationId": "search_api_v1_search_get",
         "parameters": [
           {
@@ -1592,48 +1721,52 @@
             "description": "Filter to academic counselors only (`true`) or exclude them (`false`). Pass both `is_professional_counselor=true&is_academic_counselor=true` to find mentors who are both."
           },
           {
-            "name": "academic_category",
+            "name": "academic_categories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by academic category name (e.g. 'Business & Management').",
-              "title": "Academic Category"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Filter by academic categories (AND). Mentor must have ALL selected.",
+              "title": "Academic Categories"
             },
-            "description": "Filter by academic category name (e.g. 'Business & Management')."
+            "description": "Filter by academic categories (AND). Mentor must have ALL selected."
           },
           {
-            "name": "academic_subcategory",
+            "name": "academic_subcategories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by academic subcategory name (e.g. 'Finance').",
-              "title": "Academic Subcategory"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Filter by academic subcategories (AND). Mentor must have ALL selected.",
+              "title": "Academic Subcategories"
             },
-            "description": "Filter by academic subcategory name (e.g. 'Finance')."
+            "description": "Filter by academic subcategories (AND). Mentor must have ALL selected."
           },
           {
-            "name": "professional_category",
+            "name": "professional_categories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by professional category name.",
-              "title": "Professional Category"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Filter by professional categories (AND). Mentor must have ALL selected.",
+              "title": "Professional Categories"
             },
-            "description": "Filter by professional category name."
+            "description": "Filter by professional categories (AND). Mentor must have ALL selected."
           },
           {
-            "name": "professional_subcategory",
+            "name": "professional_subcategories",
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Filter by professional subcategory name.",
-              "title": "Professional Subcategory"
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Filter by professional subcategories (AND). Mentor must have ALL selected.",
+              "title": "Professional Subcategories"
             },
-            "description": "Filter by professional subcategory name."
+            "description": "Filter by professional subcategories (AND). Mentor must have ALL selected."
           },
           {
             "name": "sort_by",
@@ -3278,7 +3411,8 @@
           },
           "created_at": { "type": "string", "format": "date-time", "title": "Created At" },
           "is_professional_counselor": { "type": "boolean", "title": "Is Professional Counselor" },
-          "is_academic_counselor": { "type": "boolean", "title": "Is Academic Counselor" }
+          "is_academic_counselor": { "type": "boolean", "title": "Is Academic Counselor" },
+          "is_rejected": { "type": "boolean", "title": "Is Rejected", "default": false }
         },
         "type": "object",
         "required": [
@@ -3494,6 +3628,24 @@
         "type": "object",
         "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
         "title": "PaginatedResponse[MentorRequestResponse]"
+      },
+      "PaginatedResponse_MentorResponse_": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/MentorResponse" },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": { "type": "integer", "title": "Total" },
+          "page": { "type": "integer", "title": "Page" },
+          "page_size": { "type": "integer", "title": "Page Size" },
+          "total_pages": { "type": "integer", "title": "Total Pages" },
+          "has_next": { "type": "boolean", "title": "Has Next" },
+          "has_prev": { "type": "boolean", "title": "Has Prev" }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "page_size", "total_pages", "has_next", "has_prev"],
+        "title": "PaginatedResponse[MentorResponse]"
       },
       "PaginatedResponse_MentorSearchHit_": {
         "properties": {

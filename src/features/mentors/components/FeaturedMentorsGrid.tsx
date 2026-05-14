@@ -18,7 +18,7 @@ export function FeaturedMentorsGrid() {
     <>
       <section>
         {isError ? (
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
+          <div className="flex min-h-[400px] items-center justify-center rounded-2xl p-12">
             <div className="text-center">
               <p className="mb-2 text-xl font-bold text-[#121c2a]">Unable to load mentors</p>
               <p className="text-[#434655]">Please try again in a moment</p>
@@ -35,7 +35,7 @@ export function FeaturedMentorsGrid() {
           </div>
         ) : featuredMentors.length > 0 ? (
           <div
-            className={`grid grid-cols-1 gap-8 transition-opacity md:grid-cols-3 ${
+            className={`mt-12 grid grid-cols-1 gap-8 transition-opacity md:grid-cols-3 ${
               isFetching ? 'opacity-60' : 'opacity-100'
             }`}
           >
@@ -58,7 +58,7 @@ export function FeaturedMentorsGrid() {
             ))}
           </div>
         ) : (
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-[#eff4ff] p-12">
+          <div className="flex min-h-[400px] items-center justify-center rounded-2xl p-12">
             <div className="text-center">
               <p className="mb-2 text-xl font-bold text-[#121c2a]">No mentors found</p>
             </div>
