@@ -6,6 +6,7 @@ import { FilterState } from '../types/filter.types'
 interface FilterContextType {
   filters: FilterState
   updateFilter: <K extends keyof FilterState>(key: K, value: FilterState[K]) => void
+  updateFilters: (nextFilters: Partial<FilterState>) => void
   clearFilters: () => void
   currentPage: number
   setCurrentPage: (page: number) => void
@@ -41,6 +42,11 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     setCurrentPage(1)
   }
 
+  const updateFilters = (nextFilters: Partial<FilterState>) => {
+    setFilters((prev) => ({ ...prev, ...nextFilters }))
+    setCurrentPage(1)
+  }
+
   const clearFilters = () => {
     setFilters(defaultFilters)
     setCurrentPage(1)
@@ -51,6 +57,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       value={{
         filters,
         updateFilter,
+        updateFilters,
         clearFilters,
         currentPage,
         setCurrentPage,
