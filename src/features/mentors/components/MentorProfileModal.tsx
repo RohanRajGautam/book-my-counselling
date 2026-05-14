@@ -29,9 +29,54 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   })
 
   const { data: mentor, isPending: isMentorLoading } = useMentor(isOpen ? mentorId : null)
-  const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(
+  const { data: fetchedPackages = [], isPending: isPackagesLoading } = useMentorPackages(
     isOpen ? mentorId : null
   )
+
+  // If the mentor has no saved packages, derive the 3 standard tiers from their hourly rate
+  const hourlyRate = Number(mentor?.hourly_rate ?? 0)
+  const packages =
+    fetchedPackages.length > 0
+      ? fetchedPackages
+      : hourlyRate > 0
+        ? [
+            {
+              id: 'fallback-30',
+              mentor_id: mentorId,
+              title: 'Basic Counselling Package',
+              description: 'A focused 30-minute session — ideal for quick guidance or follow-ups.',
+              duration_minutes: 30,
+              price: String(Math.round(hourlyRate * 0.5)),
+              is_active: true,
+              created_at: '',
+              updated_at: '',
+            },
+            {
+              id: 'fallback-60',
+              mentor_id: mentorId,
+              title: 'Standard Counselling Package',
+              description:
+                'A full 60-minute session — the most popular choice for in-depth counselling.',
+              duration_minutes: 60,
+              price: String(Math.round(hourlyRate)),
+              is_active: true,
+              created_at: '',
+              updated_at: '',
+            },
+            {
+              id: 'fallback-90',
+              mentor_id: mentorId,
+              title: 'Premium Counselling Package',
+              description:
+                'An extended 90-minute session — best for comprehensive planning and deep dives.',
+              duration_minutes: 90,
+              price: String(Math.round(hourlyRate * 1.5)),
+              is_active: true,
+              created_at: '',
+              updated_at: '',
+            },
+          ]
+        : []
 
   const { data: availability = [], isPending: isAvailabilityLoading } = useMentorAvailability(
     isOpen ? mentorId : null

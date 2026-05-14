@@ -1,7 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import { Check, Star } from 'lucide-react'
+import { Check, Clock, Star } from 'lucide-react'
+
+interface PackageTier {
+  duration_minutes: number
+  price: number
+}
 
 interface MentorCardProps {
   name: string
@@ -13,6 +18,7 @@ interface MentorCardProps {
   description?: string
   totalSessions?: number
   price: number
+  packageTiers?: PackageTier[]
   imageUrl?: string | null
   verified?: boolean
   onClick?: () => void
@@ -46,6 +52,7 @@ export function MentorCard({
   reviews,
   totalSessions,
   price,
+  packageTiers,
   imageUrl,
   verified = true,
   onClick,
@@ -54,6 +61,12 @@ export function MentorCard({
   const displayName = formatDisplayName(name)
   const initials = getInitials(name)
   const services = tags.slice(0, 4).map((tag) => tag.replace(/^#/, ''))
+
+  // Show the 3 standard tiers if available, otherwise fall back to "Starting at"
+  const hasTiers = packageTiers && packageTiers.length > 0
+  const sortedTiers = hasTiers
+    ? [...packageTiers].sort((a, b) => a.duration_minutes - b.duration_minutes).slice(0, 3)
+    : null
 
   return (
     <article
@@ -147,26 +160,46 @@ export function MentorCard({
         </span>
       </div>
 
-      {/* <p className="mb-5 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
-        {description}
-      </p> */}
-
-      <div className="flex items-center justify-between gap-4 border-t border-[#dfe7f5] pt-5">
-        <div>
-          <p className="text-xs font-extrabold tracking-widest text-[#737686] uppercase">
-            Starting at
-          </p>
-          <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[#121c2a]">
-            NPR {Math.round(price).toLocaleString()}
-          </p>
-        </div>
+      <div className="border-t border-[#dfe7f5] pt-5">
+        {sortedTiers ? (
+          <>
+            <p className="mb-2.5 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
+              Session packages
+            </p>
+            <div className="mb-4 flex gap-2">
+              {sortedTiers.map((tier) => (
+                <div
+                  key={tier.duration_minutes}
+                  className="flex flex-1 flex-col items-center rounded-xl bg-[#f3f7ff] px-2 py-2.5"
+                >
+                  <span className="flex items-center gap-1 text-[10px] font-extrabold text-[#737686]">
+                    <Clock className="size-3" />
+                    {tier.duration_minutes}m
+                  </span>
+                  <span className="mt-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                    NPR {Math.round(tier.price).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="mb-4">
+            <p className="text-xs font-extrabold tracking-widest text-[#737686] uppercase">
+              Starting at
+            </p>
+            <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[#121c2a]">
+              NPR {Math.round(price).toLocaleString()}
+            </p>
+          </div>
+        )}
         <button
           type="button"
           onClick={(event) => {
             event.stopPropagation()
             onClick?.()
           }}
-          className="h-11 shrink-0 rounded-xl bg-[#1f5bdc] px-5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+          className="h-11 w-full shrink-0 rounded-xl bg-[#1f5bdc] px-5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
         >
           Book Session
         </button>

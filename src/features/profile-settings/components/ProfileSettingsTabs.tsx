@@ -1,4 +1,4 @@
-export type ProfileSettingsTab = 'general-info' | 'professional-bio' | 'session-availability'
+export type ProfileSettingsTab = 'general-info' | 'professional-bio' | 'session-availability' | 'packages'
 
 type ProfileSettingsTabsProps = {
   activeTab: ProfileSettingsTab
@@ -8,13 +8,14 @@ type ProfileSettingsTabsProps = {
 const tabs: Array<{ id: ProfileSettingsTab; label: string }> = [
   { id: 'general-info', label: 'General Info' },
   { id: 'professional-bio', label: 'Professional Bio' },
-  { id: 'session-availability', label: 'Session Availability' },
+  { id: 'session-availability', label: 'Availability' },
+  { id: 'packages', label: 'Packages' },
 ]
 
 export function ProfileSettingsTabs({ activeTab, onTabChange }: ProfileSettingsTabsProps) {
   return (
     <nav aria-label="Profile settings sections" className="max-w-full overflow-x-auto">
-      <div className="grid max-w-[560px] min-w-[520px] grid-cols-3 rounded-full bg-[#eef4ff] p-1">
+      <div className="grid max-w-[740px] min-w-[560px] grid-cols-4 rounded-full bg-[#eef4ff] p-1">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id
 
