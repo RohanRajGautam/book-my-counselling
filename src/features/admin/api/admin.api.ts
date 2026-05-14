@@ -9,12 +9,14 @@ export async function getAdminStats(): Promise<AdminStats> {
 
 export async function getAdminMentors(
   isVerified?: boolean,
+  isRejected?: boolean,
   page = 1,
   pageSize = 20
 ): Promise<PaginatedResponse<AdminMentorProfile>> {
   const res = await apiClient.get<PaginatedResponse<AdminMentorProfile>>('/admin/mentors', {
     params: {
       is_verified: isVerified,
+      is_rejected: isRejected,
       page,
       page_size: pageSize,
     },

@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import {
-  Check, ChevronLeft, ChevronRight, Database,
-  Loader2, RefreshCw, ShieldCheck, Star, Users, X,
+  Check, ChevronLeft, ChevronRight, Clock, Database,
+  Loader2, RotateCcw, ShieldCheck, Star, Users, X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -16,15 +16,46 @@ import {
   useRejectMentor,
   useFeatureMentor,
   useReindexES,
+  type AdminMentorFilter,
 } from '../hooks/useAdminMentors'
 import { AdminMentorProfile } from '../types/admin.types'
 
-type Tab = 'pending' | 'approved' | 'all'
+// ---------------------------------------------------------------------------
+// Tab definitions
+// Each tab maps to a specific backend filter combination:
+//   pending  → is_verified=false, is_rejected=false  (never reviewed)
+//   approved → is_verified=true                       (approved)
+//   rejected → is_rejected=true                       (explicitly rejected)
+//   all      → no filter
+// ---------------------------------------------------------------------------
 
-const TABS: { label: string; value: Tab; isVerified?: boolean }[] = [
-  { label: 'Pending Approval', value: 'pending', isVerified: false },
-  { label: 'Approved', value: 'approved', isVerified: true },
-  { label: 'All Mentors', value: 'all', isVerified: undefined },
+type TabId = 'pending' | 'approved' | 'rejected' | 'all'
+
+const TABS: { id: TabId; label: string; filter: AdminMentorFilter; emptyMsg: string }[] = [
+  {
+    id: 'pending',
+    label: 'Pending',
+    filter: { isVerified: false, isRejected: false },
+    emptyMsg: 'No pending applications.',
+  },
+  {
+    id: 'approved',
+    label: 'Approved',
+    filter: { isVerified: true },
+    emptyMsg: 'No approved mentors yet.',
+  },
+  {
+    id: 'rejected',
+    label: 'Rejected',
+    filter: { isRejected: true },
+    emptyMsg: 'No rejected applications.',
+  },
+  {
+    id: 'all',
+    label: 'All',
+    filter: {},
+    emptyMsg: 'No mentors found.',
+  },
 ]
 
 function getInitials(name: string) {
@@ -33,50 +64,47 @@ function getInitials(name: string) {
 
 export function AdminDashboard() {
   const { user, logout } = useAuth()
-  const [tab, setTab] = useState<Tab>('pending')
+  const [tabId, setTabId] = useState<TabId>('pending')
   const [page, setPage] = useState(1)
 
-  const activeTab = TABS.find((t) => t.value === tab)!
+  const activeTab = TABS.find((t) => t.id === tabId)!
+
   const { data: stats } = useAdminStats()
-  const { data: mentorsData, isLoading } = useAdminMentors(activeTab.isVerified, page)
+  const { data: mentorsData, isLoading } = useAdminMentors(activeTab.filter, page)
   const { mutate: verify, isPending: verifying } = useVerifyMentor()
   const { mutate: reject, isPending: rejecting } = useRejectMentor()
   const { mutate: feature } = useFeatureMentor()
   const { mutate: reindex, isPending: reindexing } = useReindexES()
 
-  const handleTabChange = (t: Tab) => { setTab(t); setPage(1) }
+  const handleTabChange = (id: TabId) => { setTabId(id); setPage(1) }
 
-  const handleVerify = (id: string, name: string) => {
+  const handleVerify = (id: string, name: string) =>
     verify(id, {
       onSuccess: () => toast.success(`${name} approved.`),
       onError: () => toast.error('Failed to approve mentor.'),
     })
-  }
 
-  const handleReject = (id: string, name: string) => {
+  const handleReject = (id: string, name: string) =>
     reject(id, {
       onSuccess: () => toast.success(`${name} rejected.`),
       onError: () => toast.error('Failed to reject mentor.'),
     })
-  }
 
-  const handleFeature = (id: string, featured: boolean, name: string) => {
+  const handleFeature = (id: string, featured: boolean, name: string) =>
     feature({ id, featured }, {
       onSuccess: () => toast.success(`${name} ${featured ? 'featured' : 'unfeatured'}.`),
       onError: () => toast.error('Failed to update featured status.'),
     })
-  }
 
-  const handleReindex = () => {
+  const handleReindex = () =>
     reindex(undefined, {
       onSuccess: (data) => toast.success(data.message),
       onError: () => toast.error('Reindex failed.'),
     })
-  }
 
   return (
     <div className="min-h-svh bg-[#f0f4ff]">
-      {/* Top bar */}
+      {/* Header */}
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
@@ -84,9 +112,7 @@ export function AdminDashboard() {
               <ShieldCheck className="size-4 text-white" />
             </div>
             <div>
-              <h1 className="font-headline text-base font-extrabold text-slate-950">
-                Admin Panel
-              </h1>
+              <h1 className="font-headline text-base font-extrabold text-slate-950">Admin Panel</h1>
               <p className="text-xs text-slate-400">{user?.email}</p>
             </div>
           </div>
@@ -97,8 +123,11 @@ export function AdminDashboard() {
               className="gap-2 rounded-xl text-xs"
               disabled={reindexing}
               onClick={handleReindex}
+              title="Sync all approved mentor profiles to Elasticsearch search index"
             >
-              {reindexing ? <Loader2 className="size-3 animate-spin" /> : <Database className="size-3" />}
+              {reindexing
+                ? <Loader2 className="size-3 animate-spin" />
+                : <Database className="size-3" />}
               Reindex ES
             </Button>
             <Button
@@ -116,20 +145,35 @@ export function AdminDashboard() {
       <div className="mx-auto max-w-6xl px-6 py-8">
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard icon={<Users className="size-5 text-blue-600" />} label="Total Users" value={stats?.total_users ?? '—'} bg="bg-blue-50" />
-          <StatCard icon={<ShieldCheck className="size-5 text-emerald-600" />} label="Total Mentors" value={stats?.total_mentors ?? '—'} bg="bg-emerald-50" />
-          <StatCard icon={<Star className="size-5 text-amber-600" />} label="Total Bookings" value={stats?.total_bookings ?? '—'} bg="bg-amber-50" />
+          <StatCard
+            icon={<Users className="size-5 text-blue-600" />}
+            label="Total Users"
+            value={stats?.total_users ?? '—'}
+            bg="bg-blue-50"
+          />
+          <StatCard
+            icon={<ShieldCheck className="size-5 text-emerald-600" />}
+            label="Total Mentors"
+            value={stats?.total_mentors ?? '—'}
+            bg="bg-emerald-50"
+          />
+          <StatCard
+            icon={<Star className="size-5 text-amber-600" />}
+            label="Total Bookings"
+            value={stats?.total_bookings ?? '—'}
+            bg="bg-amber-50"
+          />
         </div>
 
         {/* Tabs */}
-        <div className="mt-8 flex gap-1 rounded-2xl bg-white p-1 shadow-sm">
+        <div className="mt-8 flex gap-1 overflow-x-auto rounded-2xl bg-white p-1 shadow-sm">
           {TABS.map((t) => (
             <button
-              key={t.value}
+              key={t.id}
               type="button"
-              onClick={() => handleTabChange(t.value)}
-              className={`flex-1 rounded-xl py-2.5 text-sm font-extrabold transition ${
-                tab === t.value
+              onClick={() => handleTabChange(t.id)}
+              className={`flex-1 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-extrabold transition ${
+                tabId === t.id
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
@@ -139,7 +183,7 @@ export function AdminDashboard() {
           ))}
         </div>
 
-        {/* Mentor list */}
+        {/* List */}
         <div className="mt-4">
           {isLoading ? (
             <div className="space-y-3">
@@ -149,9 +193,7 @@ export function AdminDashboard() {
             </div>
           ) : !mentorsData?.items.length ? (
             <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
-              <p className="text-sm font-semibold text-slate-400">
-                {tab === 'pending' ? 'No pending mentor applications.' : 'No mentors found.'}
-              </p>
+              <p className="text-sm font-semibold text-slate-400">{activeTab.emptyMsg}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -159,10 +201,12 @@ export function AdminDashboard() {
                 <MentorRow
                   key={mentor.id}
                   mentor={mentor}
-                  tab={tab}
+                  tabId={tabId}
                   onVerify={() => handleVerify(mentor.id, mentor.user.full_name)}
                   onReject={() => handleReject(mentor.id, mentor.user.full_name)}
-                  onFeature={(featured) => handleFeature(mentor.id, featured, mentor.user.full_name)}
+                  onFeature={(featured) =>
+                    handleFeature(mentor.id, featured, mentor.user.full_name)
+                  }
                   isActing={verifying || rejecting}
                 />
               ))}
@@ -207,14 +251,14 @@ export function AdminDashboard() {
 
 function MentorRow({
   mentor,
-  tab,
+  tabId,
   onVerify,
   onReject,
   onFeature,
   isActing,
 }: {
   mentor: AdminMentorProfile
-  tab: Tab
+  tabId: TabId
   onVerify: () => void
   onReject: () => void
   onFeature: (featured: boolean) => void
@@ -222,39 +266,48 @@ function MentorRow({
 }) {
   const initials = getInitials(mentor.user.full_name)
 
+  const statusBadge = mentor.is_verified ? (
+    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700">
+      APPROVED
+    </span>
+  ) : mentor.is_rejected ? (
+    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-extrabold text-red-600">
+      REJECTED
+    </span>
+  ) : (
+    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-700">
+      PENDING
+    </span>
+  )
+
   return (
     <article className="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
-      {/* Avatar + info */}
+      {/* Info */}
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <Avatar className="size-12 shrink-0">
           <AvatarImage src={mentor.user.avatar_url ?? undefined} />
-          <AvatarFallback className="bg-blue-100 font-bold text-blue-700">{initials}</AvatarFallback>
+          <AvatarFallback className="bg-blue-100 font-bold text-blue-700">
+            {initials}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-headline text-base font-extrabold text-slate-950">
               {mentor.user.full_name}
             </p>
+            {statusBadge}
             {mentor.is_featured && (
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-700">
                 FEATURED
               </span>
             )}
-            {mentor.is_verified ? (
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700">
-                APPROVED
-              </span>
-            ) : (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-700">
-                PENDING
-              </span>
-            )}
           </div>
           <p className="mt-0.5 truncate text-sm text-slate-500">
-            {mentor.title}{mentor.company ? ` · ${mentor.company}` : ''}
+            {mentor.title}
+            {mentor.company ? ` · ${mentor.company}` : ''}
           </p>
           <p className="mt-0.5 text-xs text-slate-400">
-            NPR {mentor.hourly_rate}/hr · {mentor.years_of_experience} yrs exp ·{' '}
+            NPR {mentor.hourly_rate}/hr · {mentor.years_of_experience} yrs ·{' '}
             {mentor.is_professional_counselor && 'Professional'}
             {mentor.is_professional_counselor && mentor.is_academic_counselor && ' & '}
             {mentor.is_academic_counselor && 'Academic'}
@@ -267,7 +320,7 @@ function MentorRow({
 
       {/* Actions */}
       <div className="flex shrink-0 flex-wrap gap-2">
-        {/* Approve — show for pending or all */}
+        {/* Approve — show when not yet approved (pending or rejected) */}
         {!mentor.is_verified && (
           <Button
             size="sm"
@@ -280,8 +333,8 @@ function MentorRow({
           </Button>
         )}
 
-        {/* Reject — show for pending or approved */}
-        {(tab === 'pending' || tab === 'approved' || tab === 'all') && (
+        {/* Reject — show for pending and approved (not already rejected) */}
+        {!mentor.is_rejected && (
           <Button
             size="sm"
             variant="outline"
@@ -291,6 +344,20 @@ function MentorRow({
           >
             <X className="size-3.5" />
             {mentor.is_verified ? 'Revoke' : 'Reject'}
+          </Button>
+        )}
+
+        {/* Re-review — show only in rejected tab */}
+        {tabId === 'rejected' && mentor.is_rejected && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50"
+            disabled={isActing}
+            onClick={onVerify}
+          >
+            <RotateCcw className="size-3.5" />
+            Re-approve
           </Button>
         )}
 
@@ -322,7 +389,10 @@ function MentorRow({
 function StatCard({
   icon, label, value, bg,
 }: {
-  icon: React.ReactNode; label: string; value: number | string; bg: string
+  icon: React.ReactNode
+  label: string
+  value: number | string
+  bg: string
 }) {
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">

@@ -18,10 +18,16 @@ export function useAdminStats() {
   })
 }
 
-export function useAdminMentors(isVerified?: boolean, page = 1) {
+// Tab filter params — each tab maps to specific query params
+export type AdminMentorFilter = {
+  isVerified?: boolean
+  isRejected?: boolean
+}
+
+export function useAdminMentors(filter: AdminMentorFilter, page = 1) {
   return useQuery({
-    queryKey: ['admin', 'mentors', isVerified, page],
-    queryFn: () => getAdminMentors(isVerified, page),
+    queryKey: ['admin', 'mentors', filter, page],
+    queryFn: () => getAdminMentors(filter.isVerified, filter.isRejected, page),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })
@@ -32,9 +38,9 @@ export function useVerifyMentor() {
   return useMutation({
     mutationFn: (id: string) => verifyMentor(id),
     onSuccess: (_data, id) => {
-      _removeMentorFromCache(qc, id, false)
-      qc.invalidateQueries({ queryKey: ['admin', 'mentors', true] })
-      qc.invalidateQueries({ queryKey: ['admin', 'mentors', undefined] })
+      // Remove from pending + rejected lists immediately
+      _removeMentorFromAllCaches(qc, id)
+      qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
       qc.invalidateQueries({ queryKey: ['admin', 'stats'] })
     },
   })
@@ -45,9 +51,7 @@ export function useRejectMentor() {
   return useMutation({
     mutationFn: (id: string) => rejectMentor(id),
     onSuccess: (_data, id) => {
-      _removeMentorFromCache(qc, id, false)
-      _removeMentorFromCache(qc, id, true)
-      _removeMentorFromCache(qc, id, undefined)
+      _removeMentorFromAllCaches(qc, id)
       qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
       qc.invalidateQueries({ queryKey: ['admin', 'stats'] })
     },
@@ -67,15 +71,17 @@ export function useReindexES() {
   return useMutation({ mutationFn: reindexElasticsearch })
 }
 
-function _removeMentorFromCache(
+// ---------------------------------------------------------------------------
+// Cache helper — removes a mentor row from every cached admin list
+// ---------------------------------------------------------------------------
+
+function _removeMentorFromAllCaches(
   qc: ReturnType<typeof useQueryClient>,
   mentorId: string,
-  isVerified: boolean | undefined
 ) {
   const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
-    queryKey: ['admin', 'mentors', isVerified],
+    queryKey: ['admin', 'mentors'],
   })
-
   for (const [key, data] of queries) {
     if (!data) continue
     const filtered = data.items.filter((m) => m.id !== mentorId)

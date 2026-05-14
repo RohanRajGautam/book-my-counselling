@@ -23,6 +23,7 @@ export interface AdminMentorProfile {
   website_url: string | null
   is_professional_counselor: boolean
   is_academic_counselor: boolean
+  is_rejected: boolean
   tags: { id: string; name: string; slug: string }[]
   created_at: string
 }
