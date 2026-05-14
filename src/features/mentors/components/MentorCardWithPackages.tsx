@@ -25,18 +25,20 @@ export function MentorCardWithPackages({
 }: MentorCardWithPackagesProps) {
   const { data: packages = [] } = useMentorPackages(mentorId)
 
-  const minPrice =
-    packages.length > 0
-      ? Math.min(...packages.map((p) => Number(p.price)))
-      : fallbackPrice
-
+  // Always show 3 tiers — use real packages if they exist, otherwise derive from hourly rate
   const packageTiers =
     packages.length > 0
       ? packages.map((p) => ({
           duration_minutes: p.duration_minutes,
           price: Number(p.price),
         }))
-      : undefined
+      : [
+          { duration_minutes: 30, price: Math.round(fallbackPrice * 0.5) },
+          { duration_minutes: 60, price: Math.round(fallbackPrice) },
+          { duration_minutes: 90, price: Math.round(fallbackPrice * 1.5) },
+        ]
+
+  const minPrice = Math.min(...packageTiers.map((t) => t.price))
 
   return <MentorCard {...cardProps} price={minPrice} packageTiers={packageTiers} />
 }
