@@ -106,8 +106,15 @@ export function HeroSection() {
                   height={1125}
                   priority
                   sizes="(min-width: 1024px) 420px, 90vw"
-                  className="absolute right-0 bottom-0 h-[94%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
+                  className="absolute right-0 bottom-0 h-[120%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
                 />
+
+                <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-600 font-bold text-white">
+                  <div className="flex flex-col text-center">
+                    <span> AI skills for SEE and +2</span>
+                    <span> Appeared Students</span>
+                  </div>
+                </div>
               </div>
 
               <div className="px-4 pt-4 pb-4 sm:px-5">
@@ -128,7 +135,7 @@ export function HeroSection() {
 
                   <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
                     <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
-                      Starts at
+                      Register at just
                     </p>
 
                     <p className="mt-1 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
