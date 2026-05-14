@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export function GetStartedSection() {
   return (
     <div className="flex min-h-[224px] items-center justify-between px-6 py-22">
@@ -11,7 +13,7 @@ export function GetStartedSection() {
         </p>
 
         <button className="mt-3 rounded-md bg-white px-8 py-3 font-bold text-[#004ac6] shadow-md transition-all hover:shadow-lg active:scale-95">
-          Book Session
+          <Link href={'/explore-mentors'}>Book a session</Link>
         </button>
       </div>
     </div>
