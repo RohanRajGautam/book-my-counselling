@@ -22,3 +22,22 @@ export interface RegisterPayload {
   full_name: string
   role?: 'mentor' | 'mentee'
 }
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface VerifyResetCodePayload {
+  email: string
+  code: string
+}
+
+export interface ResetPasswordPayload {
+  email: string
+  code: string
+  new_password: string
+}
+
+export interface MessageResponse {
+  message: string
+}

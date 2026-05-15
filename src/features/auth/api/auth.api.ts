@@ -1,5 +1,13 @@
 import apiClient from '@/lib/api/api-client'
-import { LoginResponse, UserResponse, RegisterPayload } from '../types/auth.types'
+import {
+  LoginResponse,
+  UserResponse,
+  RegisterPayload,
+  ForgotPasswordPayload,
+  VerifyResetCodePayload,
+  ResetPasswordPayload,
+  MessageResponse,
+} from '../types/auth.types'
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
   // Backend uses OAuth2PasswordRequestForm — must be sent as form-encoded
@@ -20,5 +28,35 @@ export async function register(payload: RegisterPayload): Promise<UserResponse> 
 
 export async function getMe(): Promise<UserResponse> {
   const response = await apiClient.get<UserResponse>('/auth/me')
+  return response.data
+}
+
+export async function forgotPassword(
+  payload: ForgotPasswordPayload,
+): Promise<MessageResponse> {
+  const response = await apiClient.post<MessageResponse>(
+    '/auth/forgot-password',
+    payload,
+  )
+  return response.data
+}
+
+export async function verifyResetCode(
+  payload: VerifyResetCodePayload,
+): Promise<MessageResponse> {
+  const response = await apiClient.post<MessageResponse>(
+    '/auth/verify-reset-code',
+    payload,
+  )
+  return response.data
+}
+
+export async function resetPassword(
+  payload: ResetPasswordPayload,
+): Promise<MessageResponse> {
+  const response = await apiClient.post<MessageResponse>(
+    '/auth/reset-password',
+    payload,
+  )
   return response.data
 }
