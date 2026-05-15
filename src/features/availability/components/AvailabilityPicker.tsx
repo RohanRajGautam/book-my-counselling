@@ -11,7 +11,15 @@ interface DayOption {
   label: string     // "Mon\n19"
   dayName: string   // "Mon"
   dayNum: string    // "19"
-  slots: AvailabilitySlotResponse[]
+  slots: SlicedSlot[]
+}
+
+interface SlicedSlot {
+  id: string
+  parentSlotId: string
+  start_time: string
+  end_time: string
+  is_booked: boolean
 }
 
 interface Props {
@@ -20,7 +28,8 @@ interface Props {
   hourlyRate: number
   disabled: boolean
   selectedSlotId: string | null
-  onSelect: (slotId: string) => void
+  packageDurationMinutes?: number
+  onSelect: (slicedSlotId: string, parentSlotId: string, startTime: string, endTime: string) => void
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -54,25 +63,80 @@ function generateFallbackSlots(mentorId: string): AvailabilitySlotResponse[] {
     day.setDate(day.getDate() + dayOffset)
     day.setSeconds(0, 0)
 
-    for (let hour = 9; hour < 17; hour++) {
-      const start = new Date(day)
-      start.setHours(hour, 0, 0, 0)
-      const end = new Date(day)
-      end.setHours(hour + 1, 0, 0, 0)
+    const start = new Date(day)
+    start.setHours(9, 0, 0, 0)
+    const end = new Date(day)
+    end.setHours(17, 0, 0, 0)
 
-      slots.push({
-        id: `fallback-${dayOffset}-${hour}`,
-        mentor_id: mentorId,
-        start_time: start.toISOString(),
-        end_time: end.toISOString(),
-        is_booked: false,
-        is_recurring: false,
-        recurrence_rule: null,
-        created_at: '',
-      })
-    }
+    slots.push({
+      id: `fallback-${dayOffset}`,
+      mentor_id: mentorId,
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
+      is_booked: false,
+      is_recurring: false,
+      recurrence_rule: null,
+      created_at: '',
+    })
   }
   return slots
+}
+
+function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number): SlicedSlot[] {
+  if (!durationMinutes) {
+    return slots.map(s => ({
+      id: s.id,
+      parentSlotId: s.id,
+      start_time: s.start_time,
+      end_time: s.end_time,
+      is_booked: s.is_booked || (s.booked_intervals && s.booked_intervals.length > 0)
+    }))
+  }
+
+  const sliced: SlicedSlot[] = []
+  for (const slot of slots) {
+    const start = new Date(slot.start_time)
+    const end = new Date(slot.end_time)
+    
+    // If the slot is exactly the same or smaller than duration, keep it
+    if (end.getTime() - start.getTime() <= durationMinutes * 60000) {
+       const isBooked = slot.is_booked || (slot.booked_intervals?.some(b => {
+         const bStart = new Date(b.start).getTime()
+         const bEnd = new Date(b.end).getTime()
+         return bStart < end.getTime() && bEnd > start.getTime()
+       }) ?? false)
+
+       sliced.push({
+         id: slot.id,
+         parentSlotId: slot.id,
+         start_time: slot.start_time,
+         end_time: slot.end_time,
+         is_booked: isBooked
+       })
+       continue
+    }
+
+    let currentStart = start
+    while (currentStart.getTime() + durationMinutes * 60000 <= end.getTime()) {
+      const currentEnd = new Date(currentStart.getTime() + durationMinutes * 60000)
+      
+      const isBooked = slot.is_booked || (slot.booked_intervals?.some(b => {
+         const bStart = new Date(b.start).getTime()
+         const bEnd = new Date(b.end).getTime()
+         return bStart < currentEnd.getTime() && bEnd > currentStart.getTime()
+       }) ?? false)
+
+      sliced.push({
+        id: `${slot.id}_${currentStart.toISOString()}`,
+        parentSlotId: slot.id,
+        start_time: currentStart.toISOString(),
+        end_time: currentEnd.toISOString(),
+        is_booked: isBooked,
+      })
+      currentStart = currentEnd
+    }
+  }
+  return sliced
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -84,6 +148,7 @@ export function AvailabilityPicker({
   hourlyRate,
   disabled,
   selectedSlotId,
+  packageDurationMinutes,
   onSelect,
 }: Props) {
   const [dayOffset, setDayOffset] = useState(0)
@@ -91,17 +156,22 @@ export function AvailabilityPicker({
 
   // Use real slots if available, otherwise generate fallback
   const isFallback = slots.length === 0
-  const effectiveSlots = useMemo(
+  const rawSlots = useMemo(
     () =>
       isFallback && hourlyRate > 0
         ? generateFallbackSlots(slots[0]?.mentor_id ?? 'unknown')
         : slots,
     [isFallback, hourlyRate, slots],
   )
+  
+  const effectiveSlots = useMemo(
+    () => sliceSlots(rawSlots, packageDurationMinutes),
+    [rawSlots, packageDurationMinutes]
+  )
 
   // Group by local date key, sorted ascending
   const days: DayOption[] = useMemo(() => {
-    const map = new Map<string, AvailabilitySlotResponse[]>()
+    const map = new Map<string, SlicedSlot[]>()
     for (const slot of effectiveSlots) {
       const key = toLocalDateKey(slot.start_time)
       if (!map.has(key)) map.set(key, [])
@@ -174,7 +244,10 @@ export function AvailabilityPicker({
                     const slotDay = toLocalDateKey(
                       effectiveSlots.find((s) => s.id === selectedSlotId)?.start_time ?? '',
                     )
-                    if (slotDay !== day.dateKey) onSelect(selectedSlotId) // toggle off
+                    if (slotDay !== day.dateKey) {
+                       const found = effectiveSlots.find((s) => s.id === selectedSlotId)
+                       if (found) onSelect(selectedSlotId, found.parentSlotId, found.start_time, found.end_time) // toggle off
+                    }
                   }
                 }}
                 className={`flex flex-1 flex-col items-center rounded-2xl py-3 transition ${
@@ -218,9 +291,12 @@ export function AvailabilityPicker({
               <button
                 key={slot.id}
                 type="button"
-                onClick={() => onSelect(slot.id)}
+                disabled={slot.is_booked}
+                onClick={() => onSelect(slot.id, slot.parentSlotId, slot.start_time, slot.end_time)}
                 className={`flex items-center justify-between rounded-[14px] px-3 py-3 text-left ring-1 transition ring-inset ${
-                  isSelected
+                  slot.is_booked
+                    ? 'bg-slate-100 ring-slate-200 opacity-60 cursor-not-allowed'
+                    : isSelected
                     ? 'bg-[#004ac6] ring-[#004ac6]'
                     : 'bg-[#f8f9ff] ring-[#eff4ff] hover:bg-[#eff4ff]'
                 }`}
@@ -234,6 +310,7 @@ export function AvailabilityPicker({
                   </p>
                 </div>
                 {isSelected && <Check className="size-4 shrink-0 text-white" />}
+                {slot.is_booked && <span className="text-[10px] font-extrabold text-slate-500 uppercase">Booked</span>}
               </button>
             )
           })}

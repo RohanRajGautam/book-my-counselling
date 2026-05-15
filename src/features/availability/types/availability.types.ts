@@ -14,6 +14,7 @@ export interface AvailabilitySlotResponse {
   is_recurring: boolean
   recurrence_rule: string | null
   created_at: string
+  booked_intervals?: Array<{ start: string; end: string }>
 }
 
 // A day-grouped view used by the booking UI.

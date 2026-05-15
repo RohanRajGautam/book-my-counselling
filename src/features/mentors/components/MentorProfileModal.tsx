@@ -21,11 +21,17 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const [reviewPage, setReviewPage] = useState(1)
   const [selection, setSelection] = useState<{
     mentorId: string | null
-    slotId: string | null
+    slicedSlotId: string | null
+    parentSlotId: string | null
+    sessionStart: string | null
+    sessionEnd: string | null
     packageId: string | null
   }>({
     mentorId: null,
-    slotId: null,
+    slicedSlotId: null,
+    parentSlotId: null,
+    sessionStart: null,
+    sessionEnd: null,
     packageId: null,
   })
 
@@ -95,7 +101,10 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const totalPages = reviewsData?.total_pages ?? 1
   const hasNextPage = reviewsData?.has_next ?? false
   const services = mentor?.tags ?? []
-  const selectedSlotId = selection.mentorId === mentorId ? selection.slotId : null
+  const selectedSlotId = selection.mentorId === mentorId ? selection.slicedSlotId : null
+  const selectedParentSlotId = selection.mentorId === mentorId ? selection.parentSlotId : null
+  const selectedSessionStart = selection.mentorId === mentorId ? selection.sessionStart : null
+  const selectedSessionEnd = selection.mentorId === mentorId ? selection.sessionEnd : null
   const selectedPackageId = selection.mentorId === mentorId ? selection.packageId : null
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
@@ -306,9 +315,9 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               <button
                 disabled={!canBook}
                 onClick={() => {
-                  if (selectedPackageId && selectedSlotId) {
+                  if (selectedPackageId && selectedParentSlotId && selectedSessionStart && selectedSessionEnd) {
                     router.push(
-                      `/booking?mentorId=${mentorId}&packageId=${selectedPackageId}&slotId=${selectedSlotId}`
+                      `/booking?mentorId=${mentorId}&packageId=${selectedPackageId}&slotId=${selectedParentSlotId}&sessionStart=${selectedSessionStart}&sessionEnd=${selectedSessionEnd}`
                     )
                   }
                 }}
@@ -355,7 +364,10 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                     onClick={() =>
                       setSelection({
                         mentorId,
-                        slotId: null,
+                        slicedSlotId: null,
+                        parentSlotId: null,
+                        sessionStart: null,
+                        sessionEnd: null,
                         packageId: selectedPackageId === service.id ? null : service.id,
                       })
                     }
@@ -427,10 +439,14 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               hourlyRate={hourlyRate}
               disabled={!selectedPackageId}
               selectedSlotId={selectedSlotId}
-              onSelect={(slotId) =>
+              packageDurationMinutes={packages.find((p) => p.id === selectedPackageId)?.duration_minutes}
+              onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>
                 setSelection({
                   mentorId,
-                  slotId: selectedSlotId === slotId ? null : slotId,
+                  slicedSlotId: selectedSlotId === slicedSlotId ? null : slicedSlotId,
+                  parentSlotId: selectedSlotId === slicedSlotId ? null : parentSlotId,
+                  sessionStart: selectedSlotId === slicedSlotId ? null : startTime,
+                  sessionEnd: selectedSlotId === slicedSlotId ? null : endTime,
                   packageId: selectedPackageId,
                 })
               }

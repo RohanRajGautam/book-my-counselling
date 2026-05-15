@@ -24,6 +24,8 @@ export function BookingPageContent() {
   const packageId = searchParams.get('packageId')
   // slotId is selected in the mentor profile modal and passed via URL
   const slotId = searchParams.get('slotId')
+  const sessionStart = searchParams.get('sessionStart')
+  const sessionEnd = searchParams.get('sessionEnd')
 
   const { data: mentor, isPending: isMentorLoading } = useMentor(mentorId)
   const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(mentorId)
@@ -104,6 +106,8 @@ export function BookingPageContent() {
         mentor_id: mentorId,
         slot_id: slotId,
         package_id: packageId ?? undefined,
+        session_start: sessionStart ?? undefined,
+        session_end: sessionEnd ?? undefined,
         goals: formData.message,
         current_school: formData.school || undefined,
         guardian_phone: formData.guardianPhone || undefined,
@@ -144,7 +148,7 @@ export function BookingPageContent() {
   const orderSummaryPrice = selectedPackage ? Number(selectedPackage.price) : 0
 
   // Guard: if required URL params are missing, show a helpful message
-  if (!mentorId || !packageId || !slotId) {
+  if (!mentorId || !packageId || !slotId || !sessionStart || !sessionEnd) {
     return (
       <main className="mx-auto min-h-dvh max-w-7xl flex flex-col justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
         <p className="text-lg font-semibold text-[#121c2a]">Missing booking details</p>
@@ -291,7 +295,7 @@ export function BookingPageContent() {
                     console.log('Payment successful for booking:', bookingId)
                   }}
                 />
-                {mentorId && (
+                {/* {mentorId && (
                   <CalendlySection
                     mentorId={mentorId}
                     bookingId={bookingId}
@@ -299,7 +303,7 @@ export function BookingPageContent() {
                       console.log('Session scheduled for booking:', bookingId)
                     }}
                   />
-                )}
+                )} */}
               </>
             ) : (
               <div className="space-y-3">

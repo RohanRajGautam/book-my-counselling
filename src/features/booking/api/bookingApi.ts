@@ -9,6 +9,8 @@ export interface GuestBookingPayload {
   mentor_id: string
   slot_id: string
   package_id?: string
+  session_start?: string
+  session_end?: string
   // Intake
   goals: string
   current_school?: string
