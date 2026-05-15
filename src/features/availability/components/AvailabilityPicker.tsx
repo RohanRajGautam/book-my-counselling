@@ -89,7 +89,7 @@ function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number)
       parentSlotId: s.id,
       start_time: s.start_time,
       end_time: s.end_time,
-      is_booked: s.is_booked || (s.booked_intervals && s.booked_intervals.length > 0)
+      is_booked: s.is_booked || (s.booked_intervals?.length ?? 0) > 0
     }))
   }
 
