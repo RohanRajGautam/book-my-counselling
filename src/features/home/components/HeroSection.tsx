@@ -2,6 +2,7 @@
 
 import { useFilters } from '@/features/filters/context/FilterContext'
 import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { type PointerEvent, useState } from 'react'
 import {
@@ -21,6 +22,7 @@ export function HeroSection() {
     { Icon: Clock3, title: '90 minutes', label: 'Compact workshop' },
     { Icon: Users, title: '100 seats', label: 'Small cohort' },
   ]
+  const router = useRouter()
 
   const handleSearchSubmit = () => {
     const resultsSection = document.getElementById('mentor-discovery')
@@ -40,6 +42,8 @@ export function HeroSection() {
     if (target.closest('button, a, input, select, textarea')) return
 
     setIsCardFlipped((current) => !current)
+  const handleSecureSpot = () => {
+    router.push('/booking?isEvent=true')
   }
 
   return (
@@ -288,6 +292,15 @@ export function HeroSection() {
                     </div>
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleSecureSpot}
+                  className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
+                >
+                  Secure Spot
+                  <ArrowUpRight className="size-4" aria-hidden="true" />
+                </button>
               </div>
             </div>
           </div>
