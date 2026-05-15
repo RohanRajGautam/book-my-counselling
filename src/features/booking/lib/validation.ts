@@ -128,8 +128,6 @@ export const validateBookingForm = (data: BookingFormData): ValidationError[] =>
   // Preparation
   if (!data.message.trim()) {
     errors.push({ field: 'message', message: 'Please describe how the mentor can help you' })
-  } else if (data.message.trim().length < 20) {
-    errors.push({ field: 'message', message: 'Please provide at least 20 characters' })
   }
 
   // Note: card fields (cardNumber, expiry, cvc) are no longer validated here
