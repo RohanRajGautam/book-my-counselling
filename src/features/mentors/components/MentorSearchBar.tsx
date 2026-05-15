@@ -27,7 +27,7 @@ export function MentorSearchBar({
 
   return (
     <form onSubmit={handleSubmit} className={`relative mx-auto max-w-6xl ${className}`}>
-      <div className="group flex h-16 items-center rounded-full bg-white p-2 shadow-[0_8px_24px_rgba(18,28,42,0.06)] transition-all focus-within:ring-2 focus-within:ring-[#004ac6]/20">
+      <div className="group flex h-16 items-center rounded-full bg-white shadow-[0_8px_24px_rgba(18,28,42,0.06)] transition-all focus-within:ring-2 focus-within:ring-[#004ac6]/20">
         <Search className="ml-6 h-6 w-6 text-[#737686]" />
         <input
           type="text"
