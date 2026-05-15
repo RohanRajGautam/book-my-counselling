@@ -16,13 +16,16 @@ const SORT_OPTIONS = [
   { value: 'price-high', label: 'Price: high to low' },
 ] as const
 
+// Temporary explore-grid exclusion. Remove this constant/filter when this mentor can be shown again.
+const HIDDEN_EXPLORE_MENTOR_ID = '00c76b18-9a60-455e-9c8e-4afce0e984e0'
+
 export function MentorGrid() {
   const router = useRouter()
   const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, currentPage)
 
   const totalPages = data?.total_pages ?? 1
-  const currentMentors = data?.items ?? []
+  const currentMentors = data?.items.filter((mentor) => mentor.id !== HIDDEN_EXPLORE_MENTOR_ID) ?? []
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)

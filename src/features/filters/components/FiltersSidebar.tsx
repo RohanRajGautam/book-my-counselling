@@ -63,6 +63,7 @@ function CategoryFilterRow({
     (parentCategory) => parentCategory === category.name
   ).length
   const hasSelectedSubcategories = selectedSubcategoryCount > 0
+  const isActive = isExpanded || isSelected || hasSelectedSubcategories
   const Icon = isExpanded ? ChevronUp : ChevronDown
   const { data: subcategories = [], isFetching: isFetchingSubcategories } =
     useCategorySubcategories(isExpanded ? category.id : undefined)
@@ -109,10 +110,10 @@ function CategoryFilterRow({
   return (
     <div className="px-2 py-1.5">
       <div
-        className={`flex min-h-[52px] w-full items-center justify-between gap-2 rounded-md px-3 py-2.5 text-left text-sm font-extrabold transition ${
-          isSelected || hasSelectedSubcategories
-            ? 'bg-[#eef5ff] text-[#111827] ring-1 ring-[#cfe0ff] ring-inset'
-            : 'text-[#4b5563] hover:bg-[#f8fbff] hover:text-[#111827]'
+        className={`flex min-h-[52px] w-full items-center justify-between gap-2 rounded-md px-3 py-2.5 text-left text-sm font-extrabold ${
+          isActive
+            ? 'bg-[#4b63e9] text-white ring-1 ring-[#cfe0ff] ring-inset'
+            : 'text-[#4b5563] transition-colors hover:bg-[#f8fbff] hover:text-[#111827]'
         }`}
       >
         <button
@@ -149,7 +150,7 @@ function CategoryFilterRow({
       </div>
 
       {isExpanded && (
-        <div className="mt-1.5 rounded bg-[#f8fbff] py-2 ring-1 ring-[#edf2fb] ring-inset">
+        <div className="rounded bg-[#4b63e9] py-2 ring-1 ring-[#edf2fb] ring-inset">
           {isFetchingSubcategories && (
             <div className="space-y-2 px-5 py-2">
               <div className="h-4 w-9/12 animate-pulse rounded-full bg-[#edf2f8]" />
@@ -168,14 +169,12 @@ function CategoryFilterRow({
                   type="button"
                   onClick={() => handleSubcategoryClick(subcategory.name)}
                   aria-pressed={isSubcategorySelected}
-                  className={`mx-2 flex min-h-10 w-[calc(100%-1rem)] items-center gap-3 px-3 py-2 text-left text-sm font-semibold transition ${
-                    isSubcategorySelected
-                      ? 'text-[#0053db]'
-                      : 'text-[#4b5563] hover:bg-white hover:text-[#111827]'
+                  className={`mx-2 flex min-h-10 w-[calc(100%-1rem)] items-center gap-3 px-3 py-2 text-left text-sm font-semibold transition hover:bg-[#3c56e8] ${
+                    isSubcategorySelected ? 'text-[#0053db]' : 'text-[#4b5563] hover:text-[#111827]'
                   }`}
                 >
                   <span
-                    className={`flex size-4 shrink-0 items-center justify-center rounded ring-1 transition ring-inset ${
+                    className={`flex size-3 shrink-0 items-center justify-center rounded ring-1 transition ring-inset ${
                       isSubcategorySelected
                         ? 'bg-[#2563eb] text-white ring-[#2563eb]'
                         : 'bg-white ring-[#cfd9ea]'
@@ -183,7 +182,7 @@ function CategoryFilterRow({
                   >
                     {isSubcategorySelected && <Check className="size-3" strokeWidth={3.5} />}
                   </span>
-                  <span className="min-w-0 flex-1">{subcategory.name}</span>
+                  <span className="min-w-0 flex-1 text-white">{subcategory.name}</span>
                 </button>
               )
             })}

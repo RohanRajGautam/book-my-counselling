@@ -170,13 +170,13 @@ export function MentorCard({
               {sortedTiers.map((tier) => (
                 <div
                   key={tier.duration_minutes}
-                  className="flex flex-1 flex-col items-center rounded-xl bg-[#f3f7ff] px-2 py-2.5"
+                  className="flex flex-1 flex-col rounded-xl bg-[#f3f7ff] px-2 py-2.5"
                 >
                   <span className="flex items-center gap-1 text-[10px] font-extrabold text-[#737686]">
                     <Clock className="size-3" />
                     {tier.duration_minutes}m
                   </span>
-                  <span className="mt-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                  <span className="mt-1 font-[family-name:var(--font-headline)] text-xs font-extrabold text-[#121c2a]">
                     NPR {Math.round(tier.price).toLocaleString()}
                   </span>
                 </div>

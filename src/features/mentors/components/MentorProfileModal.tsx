@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Check, Link, Globe, Star, ChevronRight, ChevronLeft } from 'lucide-react'
+import { toast } from 'sonner'
 import { useMentor } from '../hooks/useMentor'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
@@ -108,12 +109,15 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const selectedPackageId = selection.mentorId === mentorId ? selection.packageId : null
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
-  const ctaLabel = !selectedPackageId
-    ? 'Choose a Package'
-    : !selectedSlotId
-      ? 'Choose a Time Slot'
-      : 'Book a Session'
-  const canBook = Boolean(selectedSlotId && selectedPackageId)
+  const hasAvailability = availability.length > 0
+  const ctaLabel = !hasAvailability
+    ? 'Not Accepting Bookings'
+    : !selectedPackageId
+      ? 'Choose a Package'
+      : !selectedSlotId
+        ? 'Choose a Time Slot'
+        : 'Book a Session'
+  const canBook = Boolean(selectedSlotId && selectedPackageId && hasAvailability)
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
     .replace('.0', '')
@@ -149,7 +153,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
       >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 z-10 flex size-11 items-center justify-center rounded-full bg-white/90 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.08)] transition-colors hover:bg-[#dee9fc]"
+          className="fixed top-5 right-5 z-[60] flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc]"
           aria-label="Close modal"
         >
           <X className="h-6 w-6" />
@@ -254,7 +258,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             </div>
           </div>
 
-          <div className="flex h-[190px] flex-col rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+          <div className="flex h-[250px] flex-col rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
                 Services offered
@@ -315,13 +319,18 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               <button
                 disabled={!canBook}
                 onClick={() => {
-                  if (selectedPackageId && selectedParentSlotId && selectedSessionStart && selectedSessionEnd) {
+                  if (
+                    selectedPackageId &&
+                    selectedParentSlotId &&
+                    selectedSessionStart &&
+                    selectedSessionEnd
+                  ) {
                     router.push(
                       `/booking?mentorId=${mentorId}&packageId=${selectedPackageId}&slotId=${selectedParentSlotId}&sessionStart=${selectedSessionStart}&sessionEnd=${selectedSessionEnd}`
                     )
                   }
                 }}
-                className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-4 text-center font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+                className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-4 text-center font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {ctaLabel}
               </button>
@@ -430,27 +439,42 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                 </p>
               </div>
               <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
-                {selectedPackageId ? 'Choose a time' : 'Choose a package first'}
+                {!hasAvailability
+                  ? 'Unavailable'
+                  : selectedPackageId
+                    ? 'Choose a time'
+                    : 'Choose a package first'}
               </span>
             </div>
 
-            <AvailabilityPicker
-              slots={availability}
-              hourlyRate={hourlyRate}
-              disabled={!selectedPackageId}
-              selectedSlotId={selectedSlotId}
-              packageDurationMinutes={packages.find((p) => p.id === selectedPackageId)?.duration_minutes}
-              onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>
-                setSelection({
-                  mentorId,
-                  slicedSlotId: selectedSlotId === slicedSlotId ? null : slicedSlotId,
-                  parentSlotId: selectedSlotId === slicedSlotId ? null : parentSlotId,
-                  sessionStart: selectedSlotId === slicedSlotId ? null : startTime,
-                  sessionEnd: selectedSlotId === slicedSlotId ? null : endTime,
-                  packageId: selectedPackageId,
-                })
-              }
-            />
+            <div className="relative">
+              <AvailabilityPicker
+                slots={availability}
+                disabled={!selectedPackageId}
+                selectedSlotId={selectedSlotId}
+                packageDurationMinutes={
+                  packages.find((p) => p.id === selectedPackageId)?.duration_minutes
+                }
+                onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>
+                  setSelection({
+                    mentorId,
+                    slicedSlotId: selectedSlotId === slicedSlotId ? null : slicedSlotId,
+                    parentSlotId: selectedSlotId === slicedSlotId ? null : parentSlotId,
+                    sessionStart: selectedSlotId === slicedSlotId ? null : startTime,
+                    sessionEnd: selectedSlotId === slicedSlotId ? null : endTime,
+                    packageId: selectedPackageId,
+                  })
+                }
+              />
+              {!selectedPackageId && (
+                <button
+                  type="button"
+                  aria-label="Choose a package before selecting availability"
+                  onClick={() => toast.info('Please choose a package first.')}
+                  className="absolute inset-0 z-10 cursor-not-allowed rounded-[16px] bg-transparent"
+                />
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6">
