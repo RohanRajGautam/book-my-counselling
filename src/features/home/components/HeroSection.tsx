@@ -42,6 +42,8 @@ export function HeroSection() {
     if (target.closest('button, a, input, select, textarea')) return
 
     setIsCardFlipped((current) => !current)
+  }
+
   const handleSecureSpot = () => {
     router.push('/booking?isEvent=true')
   }

@@ -450,7 +450,6 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             <div className="relative">
               <AvailabilityPicker
                 slots={availability}
-                hourlyRate={hourlyRate}
                 disabled={!selectedPackageId}
                 selectedSlotId={selectedSlotId}
                 packageDurationMinutes={
