@@ -15,7 +15,7 @@ export function EarningsPage() {
           <TransactionHistory />
 
           <aside className="space-y-6 lg:space-y-7">
-            <PayoutSettingsCard />
+            {/* <PayoutSettingsCard /> */}
             <QuickTipCard />
           </aside>
         </div>
