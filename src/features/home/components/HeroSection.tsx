@@ -117,10 +117,6 @@ export function HeroSection() {
 
         {/* RIGHT CARD */}
         <div className="relative mx-auto w-full max-w-[630px] lg:mx-0 lg:justify-self-end">
-          <div className="absolute top-4 right-4 z-20 hidden rounded-full bg-[#004ac6] px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase shadow-[0_18px_36px_rgba(0,74,198,0.22)] sm:block">
-            Only {FEATURED_EVENT.seats} seats
-          </div>
-
           <div
             className="group/card cursor-pointer touch-manipulation [perspective:1400px]"
             onMouseEnter={() => setIsCardFlipped(true)}
@@ -147,6 +143,10 @@ export function HeroSection() {
                   >
                     <Info className="size-4" aria-hidden="true" />
                   </button>
+
+                  <div className="absolute top-4 right-4 z-20 hidden rounded-full bg-[#004ac6] px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase shadow-[0_18px_36px_rgba(0,74,198,0.22)] sm:block">
+                    Only {FEATURED_EVENT.seats} seats
+                  </div>
 
                   <div className="overflow-hidden rounded-[1.2rem] bg-white">
                     <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
@@ -207,6 +207,7 @@ export function HeroSection() {
 
                       <button
                         type="button"
+                        onClick={handleSecureSpot}
                         className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
                       >
                         Secure Spot
@@ -225,7 +226,7 @@ export function HeroSection() {
                 <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
                   <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
 
-                  <div className="relative flex h-full flex-col overflow-hidden rounded-[1.2rem] bg-white p-5 sm:p-6">
+                  <div className="relative flex h-full flex-col overflow-y-auto overscroll-contain rounded-[1.2rem] bg-white p-5 sm:p-6">
                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,#eef4ff_0%,#ffffff_42%,#f8f9ff_100%)]" />
                     <div className="pointer-events-none absolute -top-24 right-10 size-56 rounded-full bg-[#dbe6ff]/70 blur-3xl" />
 
