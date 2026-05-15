@@ -26,6 +26,7 @@ export function BookingPageContent() {
   const slotId = searchParams.get('slotId')
   const sessionStart = searchParams.get('sessionStart')
   const sessionEnd = searchParams.get('sessionEnd')
+  const isEvent = searchParams.get('isEvent') === 'true'
 
   const { data: mentor, isPending: isMentorLoading } = useMentor(mentorId)
   const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(mentorId)
@@ -95,7 +96,7 @@ export function BookingPageContent() {
       return
     }
 
-    if (!mentorId || !slotId) return
+    if (!isEvent && (!mentorId || !slotId)) return
 
     setIsSubmitting(true)
     try {
@@ -103,15 +104,18 @@ export function BookingPageContent() {
         full_name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        mentor_id: mentorId,
-        slot_id: slotId,
+        mentor_id: isEvent ? '00000000-0000-0000-0000-000000000000' : mentorId!,
+        slot_id: isEvent ? '00000000-0000-0000-0000-000000000000' : slotId!,
         package_id: packageId ?? undefined,
-        session_start: sessionStart ?? undefined,
-        session_end: sessionEnd ?? undefined,
+        session_start: isEvent ? new Date().toISOString() : (sessionStart ?? undefined),
+        session_end: isEvent
+          ? new Date(Date.now() + 3600000).toISOString()
+          : (sessionEnd ?? undefined),
         goals: formData.message,
         current_school: formData.school || undefined,
         guardian_phone: formData.guardianPhone || undefined,
         mentee_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        topic: isEvent ? 'AI skills for SEE and +2 Appeared Students' : undefined,
       })
 
       setBookingId(result.booking_id)
@@ -131,29 +135,42 @@ export function BookingPageContent() {
     }
   }
 
-  const isLoading = isMentorLoading || isPackagesLoading
+  const isLoading = !isEvent && (isMentorLoading || isPackagesLoading)
 
-  const orderSummaryMentor = mentor
+  const orderSummaryMentor = isEvent
     ? {
-        name: mentor.user?.full_name ?? '',
-        title: mentor.title,
-        imageUrl: mentor.user?.avatar_url ?? null,
+        name: 'Swikar Sharma',
+        title: 'Founder, Swikar Codes',
+        imageUrl: '/home/swikar.png',
       }
-    : null
+    : mentor
+      ? {
+          name: mentor.user?.full_name ?? '',
+          title: mentor.title,
+          imageUrl: mentor.user?.avatar_url ?? null,
+        }
+      : null
 
-  const orderSummarySession = selectedPackage
+  const orderSummarySession = isEvent
     ? {
-        type: selectedPackage.title,
-        duration: `${selectedPackage.duration_minutes} mins`,
-        startTime: sessionStart,
-        endTime: sessionEnd,
+        type: 'AI skills for SEE and +2 Appeared Students',
+        duration: '60 mins',
+        startTime: null,
+        endTime: null,
       }
-    : null
+    : selectedPackage
+      ? {
+          type: selectedPackage.title,
+          duration: `${selectedPackage.duration_minutes} mins`,
+          startTime: sessionStart,
+          endTime: sessionEnd,
+        }
+      : null
 
-  const orderSummaryPrice = selectedPackage ? Number(selectedPackage.price) : 0
+  const orderSummaryPrice = isEvent ? 100 : selectedPackage ? Number(selectedPackage.price) : 0
 
   // Guard: if required URL params are missing, show a helpful message
-  if (!mentorId || !packageId || !slotId || !sessionStart || !sessionEnd) {
+  if (!isEvent && (!mentorId || !packageId || !slotId || !sessionStart || !sessionEnd)) {
     return (
       <main className="mx-auto min-h-dvh max-w-7xl flex flex-col justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
         <p className="text-lg font-semibold text-[#121c2a]">Missing booking details</p>
