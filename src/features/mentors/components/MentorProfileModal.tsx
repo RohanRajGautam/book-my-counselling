@@ -2,12 +2,13 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { X, Check, Link, Globe, Calendar, Star, ChevronRight, ChevronLeft } from 'lucide-react'
+import { X, Check, Link, Globe, Star, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useMentor } from '../hooks/useMentor'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
 import { getInitials } from './MentorCard'
+import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
 
 interface Props {
   isOpen: boolean
@@ -413,65 +414,27 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   Upcoming Availability
                 </h3>
                 <p className="mt-1 text-sm font-medium text-[#737686]">
-                  Times are shown in your local browser timezone.
+                  Times are shown in your local timezone.
                 </p>
               </div>
               <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
-                {selectedPackageId ? 'Choose one date' : 'Choose a package first'}
+                {selectedPackageId ? 'Choose a time' : 'Choose a package first'}
               </span>
             </div>
-            {availability.length > 0 ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {availability.map((slot) => {
-                  const isSelected = selectedSlotId === slot.id
 
-                  return (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      disabled={!selectedPackageId}
-                      onClick={() => {
-                        setSelection({
-                          mentorId,
-                          slotId: isSelected ? null : slot.id,
-                          packageId: selectedPackageId,
-                        })
-                      }}
-                      className={`flex items-center justify-between rounded-[16px] p-4 text-left ring-1 transition ring-inset disabled:cursor-not-allowed disabled:opacity-45 ${
-                        isSelected
-                          ? 'bg-[#004ac6] text-white ring-[#004ac6]'
-                          : 'bg-[#f8f9ff] text-[#434655] ring-[#eff4ff] hover:bg-[#eff4ff]'
-                      }`}
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <Calendar
-                          className={`h-5 w-5 shrink-0 ${isSelected ? 'text-white' : 'text-[#737686]'}`}
-                        />
-                        <span
-                          className={`font-bold ${isSelected ? 'text-white' : 'text-[#121c2a]'}`}
-                        >
-                          {new Date(slot.start_time).toLocaleDateString('en-US', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                          })}{' '}
-                          •{' '}
-                          {new Date(slot.start_time).toLocaleTimeString([], {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                      {isSelected && <Check className="h-5 w-5 shrink-0 text-white" />}
-                    </button>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="rounded-[16px] bg-[#f8f9ff] p-6 text-center font-medium text-[#737686]">
-                No availability slots found.
-              </div>
-            )}
+            <AvailabilityPicker
+              slots={availability}
+              hourlyRate={hourlyRate}
+              disabled={!selectedPackageId}
+              selectedSlotId={selectedSlotId}
+              onSelect={(slotId) =>
+                setSelection({
+                  mentorId,
+                  slotId: selectedSlotId === slotId ? null : slotId,
+                  packageId: selectedPackageId,
+                })
+              }
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-6">
