@@ -60,7 +60,7 @@ export function HeroSection() {
         <div className="mx-auto w-full max-w-3xl text-center lg:mx-0 lg:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white/74 px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)] backdrop-blur">
             <Sparkles className="size-4" aria-hidden="true" />
-            Live mentorship cohort
+            1:1 Mentorship
           </div>
 
           <h1 className="mt-7 max-w-4xl font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,4.5rem)] leading-[0.96] font-extrabold tracking-tight text-[#121c2a]">

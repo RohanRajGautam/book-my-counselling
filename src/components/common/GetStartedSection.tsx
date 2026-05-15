@@ -9,7 +9,8 @@ export function GetStartedSection() {
         </h1>
 
         <p className="my-2 text-slate-300 dark:text-slate-100">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto, aspernatur?
+          Book a session with one of our mentors and get personalized guidance to
+          navigate your career path with confidence.
         </p>
 
         <button className="mt-3 rounded-md bg-white px-8 py-3 font-bold text-[#004ac6] shadow-md transition-all hover:shadow-lg active:scale-95">

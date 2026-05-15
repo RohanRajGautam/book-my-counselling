@@ -38,13 +38,13 @@ export function Footer() {
         <div className="flex flex-col space-y-4">
           <h4 className="font-bold text-slate-900 dark:text-slate-100">Support</h4>
           <Link
-            href="/about"
+            href="/#"
             className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
           >
             About us
           </Link>
           <Link
-            href="/faq"
+            href="/#"
             className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
           >
             Mentorship FAQ
