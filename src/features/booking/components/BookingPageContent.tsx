@@ -17,6 +17,7 @@ import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constant
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { createGuestBooking } from '@/features/booking/api/bookingApi'
+import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
 
 export function BookingPageContent() {
   const searchParams = useSearchParams()
@@ -115,7 +116,7 @@ export function BookingPageContent() {
         current_school: formData.school || undefined,
         guardian_phone: formData.guardianPhone || undefined,
         mentee_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        topic: isEvent ? 'AI skills for SEE and +2 Appeared Students' : undefined,
+        topic: isEvent ? FEATURED_EVENT.topic : undefined,
       })
 
       setBookingId(result.booking_id)
@@ -139,9 +140,9 @@ export function BookingPageContent() {
 
   const orderSummaryMentor = isEvent
     ? {
-        name: 'Swikar Sharma',
-        title: 'Founder, Swikar Codes',
-        imageUrl: '/home/swikar.png',
+        name: FEATURED_EVENT.guest.name,
+        title: FEATURED_EVENT.guest.title,
+        imageUrl: FEATURED_EVENT.guest.imageUrl,
       }
     : mentor
       ? {
@@ -153,8 +154,8 @@ export function BookingPageContent() {
 
   const orderSummarySession = isEvent
     ? {
-        type: 'AI skills for SEE and +2 Appeared Students',
-        duration: '',
+        type: FEATURED_EVENT.topic,
+        duration: `${FEATURED_EVENT.durationMinutes} mins`,
         startTime: null,
         endTime: null,
       }
@@ -167,7 +168,11 @@ export function BookingPageContent() {
         }
       : null
 
-  const orderSummaryPrice = isEvent ? 100 : selectedPackage ? Number(selectedPackage.price) : 0
+  const orderSummaryPrice = isEvent
+    ? FEATURED_EVENT.pricePerSeat
+    : selectedPackage
+      ? Number(selectedPackage.price)
+      : 0
 
   // Guard: if required URL params are missing, show a helpful message
   if (!isEvent && (!mentorId || !packageId || !slotId || !sessionStart || !sessionEnd)) {

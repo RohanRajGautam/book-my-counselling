@@ -1,0 +1,18 @@
+export const FEATURED_EVENT = {
+  guest: {
+    name: 'Ashwin Neupane',
+    title: 'Senior Software Engineer',
+    imageUrl: '/home/ashwin.png',
+  },
+  topic: 'AI skills for SEE and +2 Appeared Students',
+  audience: 'Appeared Students',
+  highlights: [
+    '8 Years of Industry Experience',
+    'Senior Software Engineer',
+    'AI and Tech Content Creator',
+  ],
+  bio: 'Ashwin is a computer engineer, tech content creator, and AI educator with 5+ years in digital marketing and professional training. As the founder of Unlocked AI, he has built a community of 100,000+ across Instagram, TikTok, and Facebook, simplifying complex AI topics into practical systems for productivity, content creation, and income generation.',
+  durationMinutes: 90,
+  seats: 100,
+  pricePerSeat: 100,
+} as const
