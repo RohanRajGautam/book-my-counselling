@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarOff, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { AvailabilitySlotResponse } from '../types/availability.types'
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -24,8 +24,6 @@ interface SlicedSlot {
 
 interface Props {
   slots: AvailabilitySlotResponse[]
-  /** Mentor's hourly rate — used to generate fallback slots when none exist */
-  hourlyRate: number
   disabled: boolean
   selectedSlotId: string | null
   packageDurationMinutes?: number
@@ -48,38 +46,6 @@ function formatTime(iso: string): string {
     hour: 'numeric',
     minute: '2-digit',
   })
-}
-
-/**
- * Generate synthetic fallback slots for the next 7 days (9 AM – 5 PM, hourly)
- * when the mentor has no published availability.
- */
-function generateFallbackSlots(mentorId: string): AvailabilitySlotResponse[] {
-  const slots: AvailabilitySlotResponse[] = []
-  const now = new Date()
-
-  for (let dayOffset = 1; dayOffset <= 7; dayOffset++) {
-    const day = new Date(now)
-    day.setDate(day.getDate() + dayOffset)
-    day.setSeconds(0, 0)
-
-    const start = new Date(day)
-    start.setHours(9, 0, 0, 0)
-    const end = new Date(day)
-    end.setHours(17, 0, 0, 0)
-
-    slots.push({
-      id: `fallback-${dayOffset}`,
-      mentor_id: mentorId,
-      start_time: start.toISOString(),
-      end_time: end.toISOString(),
-      is_booked: false,
-      is_recurring: false,
-      recurrence_rule: null,
-      created_at: '',
-    })
-  }
-  return slots
 }
 
 function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number): SlicedSlot[] {
@@ -145,7 +111,6 @@ const DAYS_VISIBLE = 5   // how many day pills to show at once
 
 export function AvailabilityPicker({
   slots,
-  hourlyRate,
   disabled,
   selectedSlotId,
   packageDurationMinutes,
@@ -154,19 +119,9 @@ export function AvailabilityPicker({
   const [dayOffset, setDayOffset] = useState(0)
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null)
 
-  // Use real slots if available, otherwise generate fallback
-  const isFallback = slots.length === 0
-  const rawSlots = useMemo(
-    () =>
-      isFallback && hourlyRate > 0
-        ? generateFallbackSlots(slots[0]?.mentor_id ?? 'unknown')
-        : slots,
-    [isFallback, hourlyRate, slots],
-  )
-  
   const effectiveSlots = useMemo(
-    () => sliceSlots(rawSlots, packageDurationMinutes),
-    [rawSlots, packageDurationMinutes]
+    () => sliceSlots(slots, packageDurationMinutes),
+    [slots, packageDurationMinutes]
   )
 
   // Group by local date key, sorted ascending
@@ -203,21 +158,20 @@ export function AvailabilityPicker({
 
   if (days.length === 0) {
     return (
-      <div className="rounded-[16px] bg-[#f8f9ff] p-6 text-center text-sm font-medium text-[#737686]">
-        No availability found.
+      <div className="flex flex-col items-center gap-2 rounded-[16px] bg-[#f8f9ff] p-8 text-center">
+        <CalendarOff className="size-7 text-[#737686]" />
+        <p className="text-sm font-extrabold text-[#121c2a]">
+          No availability published yet
+        </p>
+        <p className="max-w-xs text-xs font-medium text-[#737686]">
+          This mentor hasn&apos;t set their available times. Please check back soon.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className={disabled ? 'select-none' : ''} aria-disabled={disabled}>
-      {isFallback && (
-        <p className="mb-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
-          This mentor hasn&apos;t published specific slots yet — showing default availability.
-          Confirm your preferred time and the mentor will follow up.
-        </p>
-      )}
-
+    <div className={disabled ? 'pointer-events-none opacity-45 select-none' : ''}>
       {/* ── Day strip ─────────────────────────────────────────────────────── */}
       <div className="mb-4 flex items-center gap-2">
         <button
