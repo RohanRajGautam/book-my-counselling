@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Video } from 'lucide-react'
+import { Video, Calendar, Clock } from 'lucide-react'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 
 interface OrderSummaryProps {
@@ -13,6 +13,8 @@ interface OrderSummaryProps {
   session: {
     type: string
     duration: string
+    startTime?: string | null
+    endTime?: string | null
   }
   price: number
 }
@@ -20,6 +22,25 @@ interface OrderSummaryProps {
 export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
   const initials = getInitials(mentor.name)
   const imageSrc = mentor.imageUrl?.trim() || null
+
+  let sessionDate = ''
+  let sessionTime = ''
+  
+  if (session.startTime && session.endTime) {
+    const start = new Date(session.startTime)
+    const end = new Date(session.endTime)
+    
+    sessionDate = start.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+    
+    const startTimeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    const endTimeStr = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    sessionTime = `${startTimeStr} - ${endTimeStr}`
+  }
 
   return (
     <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
@@ -64,6 +85,19 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
           </span>
           <span className="font-semibold text-[#121c2a]">{session.duration}</span>
         </div>
+
+        {sessionDate && sessionTime && (
+          <div className="space-y-3 rounded-2xl bg-[#f8f9ff] p-4 text-sm">
+            <div className="flex items-center gap-3 text-[#434655]">
+              <Calendar className="h-4 w-4 text-[#004ac6]" />
+              <span className="font-medium text-[#121c2a]">{sessionDate}</span>
+            </div>
+            <div className="flex items-center gap-3 text-[#434655]">
+              <Clock className="h-4 w-4 text-[#004ac6]" />
+              <span className="font-medium text-[#121c2a]">{sessionTime}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Total */}

@@ -142,7 +142,12 @@ export function BookingPageContent() {
     : null
 
   const orderSummarySession = selectedPackage
-    ? { type: selectedPackage.title, duration: `${selectedPackage.duration_minutes} mins` }
+    ? {
+        type: selectedPackage.title,
+        duration: `${selectedPackage.duration_minutes} mins`,
+        startTime: sessionStart,
+        endTime: sessionEnd,
+      }
     : null
 
   const orderSummaryPrice = selectedPackage ? Number(selectedPackage.price) : 0
