@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Video, Calendar, Clock } from 'lucide-react'
+import { Video, Calendar, Clock, TimerIcon } from 'lucide-react'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 
 interface OrderSummaryProps {
@@ -78,12 +78,15 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
 
       {/* Session Details */}
       <div className="mb-8 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 items-start justify-between">
           <span className="flex items-center gap-2 text-[#434655]">
-            <Video className="h-4 w-4" />
+            <Video className="h-5 w-5" />
             {session.type}
           </span>
+          <span className="flex items-center justify-start gap-2 text-[#434655]">
+            <TimerIcon className="h-5 w-5" />
           <span className="font-semibold text-[#121c2a]">{session.duration}</span>
+          </span>
         </div>
 
         {sessionDate && sessionTime && (

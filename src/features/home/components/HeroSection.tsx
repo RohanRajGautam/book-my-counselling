@@ -13,14 +13,15 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react'
+import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
 
 export function HeroSection() {
   const { filters, updateFilter } = useFilters()
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const eventDetails = [
     { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
-    { Icon: Clock3, title: '90 minutes', label: 'Compact workshop' },
-    { Icon: Users, title: '100 seats', label: 'Small cohort' },
+    { Icon: Clock3, title: `${FEATURED_EVENT.durationMinutes} minutes`, label: 'Compact workshop' },
+    { Icon: Users, title: `${FEATURED_EVENT.seats} seats`, label: 'Small cohort' },
   ]
   const router = useRouter()
 
@@ -117,7 +118,7 @@ export function HeroSection() {
         {/* RIGHT CARD */}
         <div className="relative mx-auto w-full max-w-[630px] lg:mx-0 lg:justify-self-end">
           <div className="absolute top-4 right-4 z-20 hidden rounded-full bg-[#004ac6] px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase shadow-[0_18px_36px_rgba(0,74,198,0.22)] sm:block">
-            Only 100 seats
+            Only {FEATURED_EVENT.seats} seats
           </div>
 
           <div
@@ -127,14 +128,12 @@ export function HeroSection() {
             onPointerUp={handleCardTouchPress}
           >
             <div
-              className={`relative grid transition-transform duration-700 [transform-style:preserve-3d] group-hover/card:[transform:rotateY(180deg)] ${
-                isCardFlipped ? '[transform:rotateY(180deg)]' : ''
-              }`}
+              className={`relative grid transition-transform duration-700 [transform-style:preserve-3d] group-hover/card:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''
+                }`}
             >
               <div
-                className={`col-start-1 row-start-1 h-full [backface-visibility:hidden] ${
-                  isCardFlipped ? 'pointer-events-none' : ''
-                } group-hover/card:pointer-events-none`}
+                className={`col-start-1 row-start-1 h-full [backface-visibility:hidden] ${isCardFlipped ? 'pointer-events-none' : ''
+                  } group-hover/card:pointer-events-none`}
                 aria-hidden={isCardFlipped}
               >
                 <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
@@ -155,8 +154,8 @@ export function HeroSection() {
                       <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
 
                       <Image
-                        src="/home/ashwin.png"
-                        alt="Professional mentor portrait"
+                        src={FEATURED_EVENT.guest.imageUrl}
+                        alt={`${FEATURED_EVENT.guest.name} portrait`}
                         width={900}
                         height={1125}
                         priority
@@ -164,11 +163,8 @@ export function HeroSection() {
                         className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
                       />
 
-                      <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-700 font-bold text-white">
-                        <div className="flex flex-col text-center">
-                          <span> AI skills for SEE and +2</span>
-                          <span> Appeared Students</span>
-                        </div>
+                      <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
+                        <span className="text-balance">{FEATURED_EVENT.topic}</span>
                       </div>
                     </div>
 
@@ -180,7 +176,7 @@ export function HeroSection() {
                           </p>
 
                           <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                            Ashwin Neupane
+                            {FEATURED_EVENT.guest.name}
                           </h2>
                         </div>
 
@@ -190,17 +186,13 @@ export function HeroSection() {
                           </p>
 
                           <p className="mt-1 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
-                            NPR 100/seat
+                            NPR {FEATURED_EVENT.pricePerSeat}/seat
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-4 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
-                        {[
-                          '8 Years of Industry Experience',
-                          'Senior Software Engineer',
-                          'AI and Tech Content Creator',
-                        ].map((item) => (
+                        {FEATURED_EVENT.highlights.map((item) => (
                           <div
                             key={item}
                             className="flex items-center gap-3 rounded-lg bg-[#f8f9ff] px-3 py-1.5"
@@ -226,9 +218,8 @@ export function HeroSection() {
               </div>
 
               <div
-                className={`absolute inset-0 h-full [transform:rotateY(180deg)] [backface-visibility:hidden] ${
-                  isCardFlipped ? '' : 'pointer-events-none'
-                } group-hover/card:pointer-events-auto`}
+                className={`absolute inset-0 h-full [transform:rotateY(180deg)] [backface-visibility:hidden] ${isCardFlipped ? '' : 'pointer-events-none'
+                  } group-hover/card:pointer-events-auto`}
                 aria-hidden={!isCardFlipped}
               >
                 <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
@@ -243,14 +234,10 @@ export function HeroSection() {
                         Exclusive Guest
                       </p>
                       <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl leading-tight font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                        Ashwin Neupane
+                        {FEATURED_EVENT.guest.name}
                       </h3>
                       <p className="mt-3 max-w-md text-sm leading-7 text-[#434655]">
-                        Ashwin is a computer engineer, tech content creator, and AI educator with 5+
-                        years in digital marketing and professional training. <br /> As the founder
-                        of Unlocked AI, he has built a community of 100,000+ across Instagram,
-                        TikTok, and Facebook, simplifying complex AI topics into practical systems
-                        for productivity, content creation, and income generation.
+                        {FEATURED_EVENT.bio}
                       </p>
                     </div>
 
@@ -270,22 +257,9 @@ export function HeroSection() {
                     </div>
 
                     <div className="relative mt-auto pt-4">
-                      {/* <div className="flex items-center gap-3 rounded-xl border border-[#d9e3f6] bg-[#eff4ff] p-3">
-                        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-[#004ac6] text-white">
-                          <Brain className="size-5" aria-hidden="true" />
-                        </div>
-                        <div>
-                          <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
-                            Built for absolute beginners
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-[#434655]">
-                            No coding background required. Bring curiosity and a notebook.
-                          </p>
-                        </div>
-                      </div> */}
-
                       <button
                         type="button"
+                        onClick={handleSecureSpot}
                         className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
                       >
                         Secure Spot
@@ -295,14 +269,7 @@ export function HeroSection() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleSecureSpot}
-                  className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
-                >
-                  Secure Spot
-                  <ArrowUpRight className="size-4" aria-hidden="true" />
-                </button>
+
               </div>
             </div>
           </div>
