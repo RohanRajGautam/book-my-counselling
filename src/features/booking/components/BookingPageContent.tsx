@@ -154,7 +154,7 @@ export function BookingPageContent() {
   const orderSummarySession = isEvent
     ? {
         type: 'AI skills for SEE and +2 Appeared Students',
-        duration: '60 mins',
+        duration: '',
         startTime: null,
         endTime: null,
       }
