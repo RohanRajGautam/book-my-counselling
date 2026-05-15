@@ -159,7 +159,7 @@ export function SchoolToStartupForm() {
               name="phone"
               value={form.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              placeholder="+1 (555) 000-0000"
+              placeholder="+977 (988) 000-0000"
               className="mt-3 h-14 w-full rounded-lg border-0 bg-[#eaf1ff] px-5 text-sm text-[#121c2a] outline-none placeholder:text-[#aab6cf] focus:ring-3 focus:ring-[#0053db]/25"
             />
 
@@ -176,7 +176,7 @@ export function SchoolToStartupForm() {
               name="organization"
               value={form.organization}
               onChange={(e) => handleChange('organization', e.target.value)}
-              placeholder="e.g. Stanford University"
+              placeholder="e.g. Tribhuwan University"
               className="mt-3 h-14 w-full rounded-lg border-0 bg-[#eaf1ff] px-5 text-sm text-[#121c2a] outline-none placeholder:text-[#aab6cf] focus:ring-3 focus:ring-[#0053db]/25"
             />
 

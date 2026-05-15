@@ -6,7 +6,7 @@ const MENTOR_COMPANIES = [
   'Airbnb',
   'Tesla',
   'Netflix',
-  'Microsoft',
+  'Leapfrog',
 ]
 
 export function MentorCompaniesMarquee() {

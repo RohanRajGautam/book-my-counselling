@@ -1,23 +1,23 @@
 export const HOME_STATS = [
   {
-    label: 'Career progress reported by',
-    value: '89%',
-    detail: 'Happy members',
+    label: 'Majors changed by',
+    value: '80%',
+    detail: 'Of students',
   },
   {
-    label: 'Guidance from',
-    value: '200k',
-    detail: 'Expert mentors',
+    label: 'Unused degrees for',
+    value: '70%',
+    detail: 'Of graduates',
   },
   {
-    label: 'Learners across',
-    value: '150',
-    detail: 'Countries',
+    label: 'Studies abandoned by',
+    value: '33%',
+    detail: 'Of undergrads',
   },
   {
-    label: 'Trusted mentor',
-    value: '200M+',
-    detail: 'Connections',
+    label: 'Career burnout hits',
+    value: '80%',
+    detail: 'Of workers',
   },
 ]
 
