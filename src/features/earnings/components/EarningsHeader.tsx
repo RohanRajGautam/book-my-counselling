@@ -1,9 +1,18 @@
+'use client'
+
 import { Bell } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser'
+import { getInitials } from '@/features/mentors/components/MentorCard'
 
 export function EarningsHeader() {
+  const { data: user } = useCurrentUser()
+
+  const displayName = user?.full_name ?? 'Mentor'
+  const initials = getInitials(displayName)
+
   return (
     <header className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
       <div>
@@ -20,13 +29,13 @@ export function EarningsHeader() {
           aria-label="View notifications"
           variant="ghost"
           size="icon-lg"
-          className="size-11 rounded-full bg-[#eef4ff] text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+          className="size-11 rounded-full bg-white text-slate-700 shadow-sm hover:bg-blue-50 hover:text-blue-700"
         >
           <Bell className="size-5" />
         </Button>
         <Avatar className="size-12 border-2 border-blue-600 shadow-sm">
-          <AvatarImage alt="Mentor profile" />
-          <AvatarFallback className="bg-white font-bold text-blue-700">EC</AvatarFallback>
+          <AvatarImage src={user?.avatar_url ?? undefined} alt={displayName} />
+          <AvatarFallback className="bg-blue-100 font-bold text-blue-700">{initials}</AvatarFallback>
         </Avatar>
       </div>
     </header>

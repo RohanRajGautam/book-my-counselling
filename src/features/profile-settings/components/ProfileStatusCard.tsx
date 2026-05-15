@@ -25,7 +25,7 @@ export function ProfileStatusCard() {
             {isVerified ? 'Active' : 'Pending'}
           </span>
         </StatusRow>
-        <StatusRow icon={<Eye className="size-5 text-blue-700" />} label="Accepting Bookings">
+        {/* <StatusRow icon={<Eye className="size-5 text-blue-700" />} label="Accepting Bookings">
           <span
             className={`relative h-6 w-11 rounded-full transition-colors ${
               isAccepting ? 'bg-blue-700' : 'bg-slate-300'
@@ -37,7 +37,7 @@ export function ProfileStatusCard() {
               }`}
             />
           </span>
-        </StatusRow>
+        </StatusRow> */}
         <StatusRow icon={<Star className="size-5 text-amber-700" />} label="Review Average">
           <span className="text-sm font-extrabold text-slate-950">
             {rating > 0 ? `${rating.toFixed(1)} / 5.0` : '—'}
