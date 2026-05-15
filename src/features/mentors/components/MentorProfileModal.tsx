@@ -108,12 +108,15 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const selectedPackageId = selection.mentorId === mentorId ? selection.packageId : null
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
-  const ctaLabel = !selectedPackageId
-    ? 'Choose a Package'
-    : !selectedSlotId
-      ? 'Choose a Time Slot'
-      : 'Book a Session'
-  const canBook = Boolean(selectedSlotId && selectedPackageId)
+  const hasAvailability = availability.length > 0
+  const ctaLabel = !hasAvailability
+    ? 'Not Accepting Bookings'
+    : !selectedPackageId
+      ? 'Choose a Package'
+      : !selectedSlotId
+        ? 'Choose a Time Slot'
+        : 'Book a Session'
+  const canBook = Boolean(selectedSlotId && selectedPackageId && hasAvailability)
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
     .replace('.0', '')
@@ -430,14 +433,17 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                 </p>
               </div>
               <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
-                {selectedPackageId ? 'Choose a time' : 'Choose a package first'}
+                {!hasAvailability
+                  ? 'Unavailable'
+                  : selectedPackageId
+                    ? 'Choose a time'
+                    : 'Choose a package first'}
               </span>
             </div>
 
             <AvailabilityPicker
               slots={availability}
-              hourlyRate={hourlyRate}
-              disabled={!selectedPackageId}
+              disabled={!selectedPackageId || !hasAvailability}
               selectedSlotId={selectedSlotId}
               packageDurationMinutes={packages.find((p) => p.id === selectedPackageId)?.duration_minutes}
               onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>

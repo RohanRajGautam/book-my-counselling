@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { CalendarDays, Check, Loader2, Plus, Trash2, X } from 'lucide-react'
+import { CalendarDays, Check, Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   useMyAvailabilitySlots,
@@ -13,13 +13,13 @@ import type { AvailabilitySlotResponse } from '@/features/availability/types/ava
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sun' },
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
+  { value: 0, short: 'S', label: 'Sunday' },
+  { value: 1, short: 'M', label: 'Monday' },
+  { value: 2, short: 'T', label: 'Tuesday' },
+  { value: 3, short: 'W', label: 'Wednesday' },
+  { value: 4, short: 'T', label: 'Thursday' },
+  { value: 5, short: 'F', label: 'Friday' },
+  { value: 6, short: 'S', label: 'Saturday' },
 ]
 
 // Half-hour increments from 06:00 to 22:00
@@ -34,42 +34,51 @@ for (let h = 6; h <= 22; h++) {
   }
 }
 
-// How many weeks ahead to generate slots for
-const WEEKS_AHEAD = 4
+type RecurrenceMode = 'none' | 'weekly' | 'custom'
 
-interface ScheduleRow {
-  id: string
-  dayOfWeek: number
+interface FormState {
+  date: string // YYYY-MM-DD (local)
   startHour: number
   startMinute: number
   endHour: number
   endMinute: number
-}
-
-function makeId() {
-  return Math.random().toString(36).slice(2)
-}
-
-function timeIndex(hour: number, minute: number) {
-  return hour * 60 + minute
+  mode: RecurrenceMode
+  endDate: string // YYYY-MM-DD (local)
+  customDays: number[] // 0..6
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Group slots by local date key "YYYY-MM-DD" */
-function groupByDate(slots: AvailabilitySlotResponse[]) {
-  const map = new Map<string, AvailabilitySlotResponse[]>()
-  for (const slot of slots) {
-    const d = new Date(slot.start_time)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-    if (!map.has(key)) map.set(key, [])
-    map.get(key)!.push(slot)
-  }
-  return map
+function toDateKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function formatDate(dateKey: string) {
-  const d = new Date(`${dateKey}T12:00:00`)
+function parseDateKey(key: string): Date | null {
+  const [y, m, d] = key.split('-').map(Number)
+  if (!y || !m || !d) return null
+  return new Date(y, m - 1, d)
+}
+
+function todayKey() {
+  return toDateKey(new Date())
+}
+
+function addDaysKey(key: string, days: number) {
+  const d = parseDateKey(key)
+  if (!d) return key
+  d.setDate(d.getDate() + days)
+  return toDateKey(d)
+}
+
+function formatDateLabel(key: string) {
+  const d = parseDateKey(key)
+  if (!d) return key
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+}
+
+function formatShortDate(key: string) {
+  const d = parseDateKey(key)
+  if (!d) return key
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
@@ -77,49 +86,88 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-/** Generate concrete UTC ISO strings for the next WEEKS_AHEAD weeks from a schedule row */
-function generateSlots(rows: ScheduleRow[]): Array<{ start_time: string; end_time: string }> {
-  const slots: Array<{ start_time: string; end_time: string }> = []
-  const now = new Date()
-  const cutoff = new Date(now.getTime() + WEEKS_AHEAD * 7 * 24 * 60 * 60 * 1000)
+function timeIndex(hour: number, minute: number) {
+  return hour * 60 + minute
+}
 
-  for (const row of rows) {
-    // Find the next occurrence of this day of week
-    const cursor = new Date(now)
-    cursor.setHours(0, 0, 0, 0)
-    // Advance to the correct day of week
-    const diff = (row.dayOfWeek - cursor.getDay() + 7) % 7
-    cursor.setDate(cursor.getDate() + diff)
+/** Group slots by local date key "YYYY-MM-DD". */
+function groupByDate(slots: AvailabilitySlotResponse[]) {
+  const map = new Map<string, AvailabilitySlotResponse[]>()
+  for (const slot of slots) {
+    const key = toDateKey(new Date(slot.start_time))
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(slot)
+  }
+  return map
+}
 
-    while (cursor <= cutoff) {
-      const start = new Date(cursor)
-      start.setHours(row.startHour, row.startMinute, 0, 0)
-      const end = new Date(cursor)
-      end.setHours(row.endHour, row.endMinute, 0, 0)
+/** Build concrete (start, end) ISO ranges from the form state. */
+function expandForm(form: FormState): Array<{ start: Date; end: Date }> {
+  const startDate = parseDateKey(form.date)
+  if (!startDate) return []
 
-      if (start > now && end > start) {
-        slots.push({
-          start_time: start.toISOString(),
-          end_time: end.toISOString(),
-        })
-      }
-      cursor.setDate(cursor.getDate() + 7)
-    }
+  const buildAt = (day: Date): { start: Date; end: Date } => {
+    const start = new Date(day)
+    start.setHours(form.startHour, form.startMinute, 0, 0)
+    const end = new Date(day)
+    end.setHours(form.endHour, form.endMinute, 0, 0)
+    return { start, end }
   }
 
-  return slots
+  if (form.mode === 'none') {
+    return [buildAt(startDate)]
+  }
+
+  const endDate = parseDateKey(form.endDate)
+  if (!endDate) return []
+
+  const targetDays =
+    form.mode === 'weekly' ? [startDate.getDay()] : [...new Set(form.customDays)]
+  if (targetDays.length === 0) return []
+
+  const out: Array<{ start: Date; end: Date }> = []
+  const cursor = new Date(startDate)
+  while (cursor <= endDate) {
+    if (targetDays.includes(cursor.getDay())) {
+      out.push(buildAt(cursor))
+    }
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  return out
+}
+
+/** True if a candidate range overlaps any existing slot. */
+function overlapsExisting(
+  range: { start: Date; end: Date },
+  existing: AvailabilitySlotResponse[],
+) {
+  return existing.some((s) => {
+    const sStart = new Date(s.start_time).getTime()
+    const sEnd = new Date(s.end_time).getTime()
+    return range.start.getTime() < sEnd && range.end.getTime() > sStart
+  })
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
+
+const TODAY = todayKey()
+const DEFAULT_FORM: FormState = {
+  date: TODAY,
+  startHour: 9,
+  startMinute: 0,
+  endHour: 10,
+  endMinute: 0,
+  mode: 'none',
+  endDate: addDaysKey(TODAY, 28),
+  customDays: [],
+}
 
 export function ProfileSessionAvailabilityCard() {
   const { data: existingSlots = [], isLoading } = useMyAvailabilitySlots()
   const { mutate: createBulk, isPending: isCreating } = useCreateSlotsBulk()
   const { mutate: deleteOne, isPending: isDeleting } = useDeleteSlot()
 
-  const [scheduleRows, setScheduleRows] = useState<ScheduleRow[]>([
-    { id: makeId(), dayOfWeek: 1, startHour: 9, startMinute: 0, endHour: 17, endMinute: 0 },
-  ])
+  const [form, setForm] = useState<FormState>(DEFAULT_FORM)
 
   const groupedExisting = useMemo(() => groupByDate(existingSlots), [existingSlots])
   const sortedDateKeys = useMemo(
@@ -127,33 +175,101 @@ export function ProfileSessionAvailabilityCard() {
     [groupedExisting],
   )
 
-  const addRow = () => {
-    setScheduleRows((prev) => [
-      ...prev,
-      { id: makeId(), dayOfWeek: 1, startHour: 9, startMinute: 0, endHour: 17, endMinute: 0 },
-    ])
+  const startIdx = timeIndex(form.startHour, form.startMinute)
+  const endTimeOptions = TIME_OPTIONS.filter((t) => timeIndex(t.hour, t.minute) > startIdx)
+
+  const selectedDate = parseDateKey(form.date)
+  const weeklyDayName = selectedDate
+    ? DAYS_OF_WEEK[selectedDate.getDay()]?.label ?? ''
+    : ''
+
+  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  const removeRow = (id: string) => {
-    setScheduleRows((prev) => prev.filter((r) => r.id !== id))
+  const updateStart = (hour: number, minute: number) => {
+    setForm((prev) => {
+      const newStart = timeIndex(hour, minute)
+      const currentEnd = timeIndex(prev.endHour, prev.endMinute)
+      if (newStart >= currentEnd) {
+        // Push end forward by 1 hour, capped at 10:00 PM.
+        const pushedH = Math.min(22, hour + 1)
+        return { ...prev, startHour: hour, startMinute: minute, endHour: pushedH, endMinute: minute }
+      }
+      return { ...prev, startHour: hour, startMinute: minute }
+    })
   }
 
-  const updateRow = (id: string, patch: Partial<Omit<ScheduleRow, 'id'>>) => {
-    setScheduleRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)))
+  const toggleCustomDay = (day: number) => {
+    setForm((prev) => {
+      const has = prev.customDays.includes(day)
+      return {
+        ...prev,
+        customDays: has ? prev.customDays.filter((d) => d !== day) : [...prev.customDays, day],
+      }
+    })
+  }
+
+  const handleDateChange = (newDate: string) => {
+    setForm((prev) => {
+      // Keep endDate >= date.
+      const endDate =
+        parseDateKey(prev.endDate) && parseDateKey(prev.endDate)! >= parseDateKey(newDate)!
+          ? prev.endDate
+          : addDaysKey(newDate, 28)
+      return { ...prev, date: newDate, endDate }
+    })
   }
 
   const handlePublish = () => {
-    const slots = generateSlots(scheduleRows)
-    if (slots.length === 0) {
-      toast.error('No future slots to publish. Check your schedule.')
+    const ranges = expandForm(form)
+
+    if (ranges.length === 0) {
+      if (form.mode === 'custom' && form.customDays.length === 0) {
+        toast.error('Pick at least one day of the week.')
+      } else {
+        toast.error('Could not build any slots from that input. Check your dates.')
+      }
       return
     }
+
+    // Filter out past times and self-overlap with existing slots.
+    const now = Date.now()
+    const future = ranges.filter((r) => r.start.getTime() > now)
+    const nonConflicting = future.filter((r) => !overlapsExisting(r, existingSlots))
+    const overlapCount = future.length - nonConflicting.length
+    const pastCount = ranges.length - future.length
+
+    if (nonConflicting.length === 0) {
+      if (overlapCount > 0) {
+        toast.error('All of those times overlap with availability you already have.')
+      } else {
+        toast.error('Those times are in the past.')
+      }
+      return
+    }
+
+    const payload = nonConflicting.map((r) => ({
+      start_time: r.start.toISOString(),
+      end_time: r.end.toISOString(),
+    }))
+
     createBulk(
-      { slots },
+      { slots: payload },
       {
-        onSuccess: (created) =>
-          toast.success(`Published ${created.length} availability slot${created.length !== 1 ? 's' : ''}.`),
-        onError: () => toast.error('Failed to publish slots. Please try again.'),
+        onSuccess: (created) => {
+          const messages: string[] = []
+          messages.push(`Added ${created.length} slot${created.length !== 1 ? 's' : ''}.`)
+          if (overlapCount > 0) {
+            messages.push(`${overlapCount} overlapped existing availability.`)
+          }
+          if (pastCount > 0) {
+            messages.push(`${pastCount} were in the past.`)
+          }
+          toast.success(messages.join(' '))
+          setForm((prev) => ({ ...DEFAULT_FORM, date: prev.date }))
+        },
+        onError: () => toast.error('Failed to publish availability. Please try again.'),
       },
     )
   }
@@ -166,43 +282,104 @@ export function ProfileSessionAvailabilityCard() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-8">
-      {/* LEFT: Schedule builder */}
-      <div className="space-y-6">
-        <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="font-headline text-xl font-extrabold text-slate-950">
-                Weekly Schedule
-              </h2>
-              <p className="mt-1 text-sm font-medium text-slate-500">
-                Set recurring time windows. We&apos;ll generate slots for the next {WEEKS_AHEAD} weeks.
-              </p>
-            </div>
-          </div>
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-8">
+      {/* LEFT: Add availability form */}
+      <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
+        <div className="mb-6">
+          <h2 className="font-headline text-xl font-extrabold text-slate-950">
+            Add Availability
+          </h2>
+          <p className="mt-1 text-sm font-medium text-slate-500">
+            Pick a date and time, then choose how often it repeats.
+          </p>
+        </div>
 
-          <div className="space-y-3">
-            {scheduleRows.map((row) => (
-              <ScheduleRowEditor
-                key={row.id}
-                row={row}
-                onChange={(patch) => updateRow(row.id, patch)}
-                onRemove={() => removeRow(row.id)}
-                canRemove={scheduleRows.length > 1}
+        <div className="space-y-5">
+          {/* Date */}
+          <Field label="Date">
+            <input
+              type="date"
+              value={form.date}
+              min={TODAY}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className="h-11 w-full rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+            />
+          </Field>
+
+          {/* Time */}
+          <Field label="Time">
+            <div className="flex items-center gap-2">
+              <TimeSelect
+                value={`${form.startHour}:${form.startMinute}`}
+                options={TIME_OPTIONS}
+                onChange={updateStart}
               />
-            ))}
-          </div>
+              <span className="text-sm font-medium text-slate-400">to</span>
+              <TimeSelect
+                value={`${form.endHour}:${form.endMinute}`}
+                options={endTimeOptions}
+                onChange={(h, m) => setForm((p) => ({ ...p, endHour: h, endMinute: m }))}
+              />
+            </div>
+          </Field>
 
-          <button
-            type="button"
-            onClick={addRow}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#eef4ff] px-4 py-2.5 text-sm font-extrabold text-blue-700 transition hover:bg-[#dfe9ff]"
-          >
-            <Plus className="size-4" />
-            Add time window
-          </button>
+          {/* Recurrence */}
+          <Field label="Repeat">
+            <select
+              value={form.mode}
+              onChange={(e) => update('mode', e.target.value as RecurrenceMode)}
+              className="h-11 w-full rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              <option value="none">Does not repeat</option>
+              <option value="weekly">
+                Weekly{weeklyDayName ? ` on ${weeklyDayName}` : ''}
+              </option>
+              <option value="custom">Custom</option>
+            </select>
+          </Field>
 
-          <div className="mt-6 border-t border-slate-100 pt-6">
+          {/* Custom day picker */}
+          {form.mode === 'custom' && (
+            <Field label="Repeat on">
+              <div className="flex flex-wrap gap-1.5">
+                {DAYS_OF_WEEK.map((d) => {
+                  const active = form.customDays.includes(d.value)
+                  return (
+                    <button
+                      key={d.value}
+                      type="button"
+                      aria-pressed={active}
+                      aria-label={d.label}
+                      onClick={() => toggleCustomDay(d.value)}
+                      className={`flex size-10 items-center justify-center rounded-full text-sm font-extrabold transition ${
+                        active
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-[#f8f9ff] text-slate-600 ring-1 ring-slate-200 hover:bg-[#eef4ff]'
+                      }`}
+                    >
+                      {d.short}
+                    </button>
+                  )
+                })}
+              </div>
+            </Field>
+          )}
+
+          {/* End date */}
+          {form.mode !== 'none' && (
+            <Field label="Ends on">
+              <input
+                type="date"
+                value={form.endDate}
+                min={form.date}
+                onChange={(e) => update('endDate', e.target.value)}
+                className="h-11 w-full rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+              />
+            </Field>
+          )}
+
+          {/* Submit */}
+          <div className="border-t border-slate-100 pt-5">
             <button
               type="button"
               onClick={handlePublish}
@@ -212,28 +389,33 @@ export function ProfileSessionAvailabilityCard() {
               {isCreating ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Publishing…
+                  Adding…
                 </>
               ) : (
                 <>
-                  <CalendarDays className="size-4" />
-                  Publish Availability
+                  <Plus className="size-4" />
+                  Add Availability
                 </>
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-400">
-              Existing slots are kept. Overlapping times are skipped automatically.
+              Times that overlap existing availability are skipped automatically.
             </p>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
-      {/* RIGHT: Existing slots */}
+      {/* RIGHT: Published slots */}
       <aside>
         <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-6">
-          <h2 className="mb-4 font-headline text-lg font-extrabold text-slate-950">
-            Published Slots
-          </h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-headline text-lg font-extrabold text-slate-950">
+              Published Slots
+            </h2>
+            <span className="rounded-full bg-[#eef4ff] px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-blue-700 uppercase">
+              {existingSlots.length}
+            </span>
+          </div>
 
           {isLoading ? (
             <div className="flex items-center gap-2 py-6 text-sm text-slate-400">
@@ -241,17 +423,23 @@ export function ProfileSessionAvailabilityCard() {
               Loading…
             </div>
           ) : sortedDateKeys.length === 0 ? (
-            <div className="rounded-2xl bg-[#f8f9ff] p-6 text-center text-sm font-medium text-slate-400">
-              No slots published yet. Use the schedule builder to add availability.
+            <div className="rounded-2xl bg-[#f8f9ff] p-6 text-center">
+              <CalendarDays className="mx-auto mb-2 size-6 text-slate-400" />
+              <p className="text-sm font-medium text-slate-500">
+                No availability yet.
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Use the form to add your first time window.
+              </p>
             </div>
           ) : (
-            <div className="max-h-[520px] space-y-4 overflow-y-auto pr-1">
+            <div className="max-h-[560px] space-y-4 overflow-y-auto pr-1">
               {sortedDateKeys.map((dateKey) => {
                 const daySlots = groupedExisting.get(dateKey)!
                 return (
                   <div key={dateKey}>
                     <p className="mb-2 text-xs font-extrabold tracking-[0.12em] text-slate-500 uppercase">
-                      {formatDate(dateKey)}
+                      {formatShortDate(dateKey)}
                     </p>
                     <div className="space-y-1.5">
                       {daySlots
@@ -281,74 +469,14 @@ export function ProfileSessionAvailabilityCard() {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function ScheduleRowEditor({
-  row,
-  onChange,
-  onRemove,
-  canRemove,
-}: {
-  row: ScheduleRow
-  onChange: (patch: Partial<Omit<ScheduleRow, 'id'>>) => void
-  onRemove: () => void
-  canRemove: boolean
-}) {
-  const startIdx = timeIndex(row.startHour, row.startMinute)
-  const endOptions = TIME_OPTIONS.filter((t) => timeIndex(t.hour, t.minute) > startIdx)
-
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-[#f8f9ff] p-3">
-      {/* Day selector */}
-      <div className="flex flex-wrap gap-1.5">
-        {DAYS_OF_WEEK.map((d) => (
-          <button
-            key={d.value}
-            type="button"
-            aria-pressed={row.dayOfWeek === d.value}
-            onClick={() => onChange({ dayOfWeek: d.value })}
-            className={`flex size-9 items-center justify-center rounded-xl text-xs font-extrabold transition ${
-              row.dayOfWeek === d.value
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:bg-[#eef4ff]'
-            }`}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Time range */}
-      <div className="flex items-center gap-2">
-        <TimeSelect
-          value={`${row.startHour}:${row.startMinute}`}
-          options={TIME_OPTIONS}
-          onChange={(h, m) => {
-            // If new start >= end, push end forward by 1 hour
-            const newEnd =
-              timeIndex(h, m) >= timeIndex(row.endHour, row.endMinute)
-                ? { endHour: h + 1 <= 22 ? h + 1 : 22, endMinute: m }
-                : {}
-            onChange({ startHour: h, startMinute: m, ...newEnd })
-          }}
-        />
-        <span className="text-sm font-medium text-slate-400">–</span>
-        <TimeSelect
-          value={`${row.endHour}:${row.endMinute}`}
-          options={endOptions}
-          onChange={(h, m) => onChange({ endHour: h, endMinute: m })}
-        />
-      </div>
-
-      {canRemove && (
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label="Remove time window"
-          className="ml-auto flex size-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-red-50 hover:text-red-500"
-        >
-          <X className="size-4" />
-        </button>
-      )}
-    </div>
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-extrabold tracking-[0.08em] text-slate-500 uppercase">
+        {label}
+      </span>
+      {children}
+    </label>
   )
 }
 
@@ -368,7 +496,7 @@ function TimeSelect({
         const [h, m] = e.target.value.split(':').map(Number)
         onChange(h!, m!)
       }}
-      className="h-9 rounded-xl bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+      className="h-11 flex-1 rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
     >
       {options.map((t) => (
         <option key={`${t.hour}:${t.minute}`} value={`${t.hour}:${t.minute}`}>
@@ -390,15 +518,16 @@ function SlotRow({
 }) {
   const start = formatTime(slot.start_time)
   const end = formatTime(slot.end_time)
+  const isBooked = slot.is_booked || (slot.booked_intervals?.length ?? 0) > 0
 
   return (
     <div
       className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-        slot.is_booked ? 'bg-amber-50' : 'bg-[#eef4ff]'
+        isBooked ? 'bg-amber-50' : 'bg-[#eef4ff]'
       }`}
     >
       <div className="flex items-center gap-2">
-        {slot.is_booked ? (
+        {isBooked ? (
           <Check className="size-3.5 text-amber-600" />
         ) : (
           <div className="size-2 rounded-full bg-emerald-500" />
@@ -406,18 +535,19 @@ function SlotRow({
         <span className="text-xs font-semibold text-slate-700">
           {start} – {end}
         </span>
-        {slot.is_booked && (
+        {isBooked && (
           <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-700">
             BOOKED
           </span>
         )}
       </div>
-      {!slot.is_booked && (
+      {!isBooked && (
         <button
           type="button"
           onClick={onDelete}
           disabled={isDeleting}
           aria-label="Delete slot"
+          title={formatDateLabel(toDateKey(new Date(slot.start_time)))}
           className="flex size-6 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-40"
         >
           <Trash2 className="size-3.5" />
