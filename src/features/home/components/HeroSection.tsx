@@ -3,10 +3,24 @@
 import { useFilters } from '@/features/filters/context/FilterContext'
 import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
 import Image from 'next/image'
-import { ArrowUpRight, CheckCircle2, Sparkles } from 'lucide-react'
+import { type PointerEvent, useState } from 'react'
+import {
+  ArrowUpRight,
+  CalendarDays,
+  Clock3,
+  Info,
+  Sparkles,
+  Users,
+} from 'lucide-react'
 
 export function HeroSection() {
   const { filters, updateFilter } = useFilters()
+  const [isCardFlipped, setIsCardFlipped] = useState(false)
+  const eventDetails = [
+    { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
+    { Icon: Clock3, title: '90 minutes', label: 'Compact workshop' },
+    { Icon: Users, title: '100 seats', label: 'Small cohort' },
+  ]
 
   const handleSearchSubmit = () => {
     const resultsSection = document.getElementById('mentor-discovery')
@@ -17,6 +31,15 @@ export function HeroSection() {
         block: 'start',
       })
     }
+  }
+
+  const handleCardTouchPress = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'touch') return
+
+    const target = event.target as HTMLElement
+    if (target.closest('button, a, input, select, textarea')) return
+
+    setIsCardFlipped((current) => !current)
   }
 
   return (
@@ -91,84 +114,180 @@ export function HeroSection() {
             Only 100 seats
           </div>
 
-          <div className="relative rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
-            <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
+          <div
+            className="group/card cursor-pointer touch-manipulation [perspective:1400px]"
+            onMouseEnter={() => setIsCardFlipped(true)}
+            onMouseLeave={() => setIsCardFlipped(false)}
+            onPointerUp={handleCardTouchPress}
+          >
+            <div
+              className={`relative grid transition-transform duration-700 [transform-style:preserve-3d] group-hover/card:[transform:rotateY(180deg)] ${
+                isCardFlipped ? '[transform:rotateY(180deg)]' : ''
+              }`}
+            >
+              <div
+                className={`col-start-1 row-start-1 h-full [backface-visibility:hidden] ${
+                  isCardFlipped ? 'pointer-events-none' : ''
+                } group-hover/card:pointer-events-none`}
+                aria-hidden={isCardFlipped}
+              >
+                <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
+                  <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
 
-            <div className="overflow-hidden rounded-[1.2rem] bg-white">
-              <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.62)_100%)]" />
-                <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
+                  <button
+                    type="button"
+                    onClick={() => setIsCardFlipped(true)}
+                    className="absolute top-4 left-4 z-20 grid size-10 place-items-center rounded-full border border-white/80 bg-white/90 text-[#004ac6] shadow-[0_14px_32px_rgba(18,28,42,0.12)] transition hover:-translate-y-0.5 hover:bg-white focus:ring-3 focus:ring-[#004ac6]/20 focus:outline-none"
+                    aria-label="View more event information"
+                  >
+                    <Info className="size-4" aria-hidden="true" />
+                  </button>
 
-                <Image
-                  src="/home/swikar.png"
-                  alt="Professional mentor portrait"
-                  width={900}
-                  height={1125}
-                  priority
-                  sizes="(min-width: 1024px) 420px, 90vw"
-                  className="absolute right-0 bottom-0 h-[120%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
-                />
+                  <div className="overflow-hidden rounded-[1.2rem] bg-white">
+                    <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.62)_100%)]" />
+                      <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
 
-                <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-600 font-bold text-white">
-                  <div className="flex flex-col text-center">
-                    <span> AI skills for SEE and +2</span>
-                    <span> Appeared Students</span>
+                      <Image
+                        src="/home/ashwin.png"
+                        alt="Professional mentor portrait"
+                        width={900}
+                        height={1125}
+                        priority
+                        sizes="(min-width: 1024px) 420px, 90vw"
+                        className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
+                      />
+
+                      <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-700 font-bold text-white">
+                        <div className="flex flex-col text-center">
+                          <span> AI skills for SEE and +2</span>
+                          <span> Appeared Students</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-4 pt-4 pb-4 sm:px-5">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="mb-2 text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
+                            Exclusive Event
+                          </p>
+
+                          <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
+                            Ashwin Neupane
+                          </h2>
+                        </div>
+
+                        <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
+                          <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
+                            Register at just
+                          </p>
+
+                          <p className="mt-1 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
+                            NPR 100/seat
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
+                        {[
+                          '8 Years of Industry Experience',
+                          'Senior Software Engineer',
+                          'AI and Tech Content Creator',
+                        ].map((item) => (
+                          <div
+                            key={item}
+                            className="flex items-center gap-3 rounded-lg bg-[#f8f9ff] px-3 py-1.5"
+                          >
+                            <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#e6eeff]">
+                              <span className="size-2 rounded-full bg-[#004ac6]" />
+                            </span>
+                            <span className="font-medium">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
+                      >
+                        Secure Spot
+                        <ArrowUpRight className="size-4" aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="px-4 pt-4 pb-4 sm:px-5">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="mb-2 text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
-                      Exclusive Event
-                    </p>
+              <div
+                className={`absolute inset-0 h-full [transform:rotateY(180deg)] [backface-visibility:hidden] ${
+                  isCardFlipped ? '' : 'pointer-events-none'
+                } group-hover/card:pointer-events-auto`}
+                aria-hidden={!isCardFlipped}
+              >
+                <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
+                  <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
 
-                    <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                      Swikar Sharma
-                    </h2>
+                  <div className="relative flex h-full flex-col overflow-hidden rounded-[1.2rem] bg-white p-5 sm:p-6">
+                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,#eef4ff_0%,#ffffff_42%,#f8f9ff_100%)]" />
+                    <div className="pointer-events-none absolute -top-24 right-10 size-56 rounded-full bg-[#dbe6ff]/70 blur-3xl" />
 
-                    <p className="mt-2 text-sm font-extrabold text-[#004ac6]">
-                      Founder, Swikar Codes
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
-                    <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
-                      Register at just
-                    </p>
-
-                    <p className="mt-1 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
-                      NPR 100/seat
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
-                  {[
-                    '8 Years of Industry Experience',
-                    'Senior Software Engineer',
-                    'AI and Tech Content Creator',
-                  ].map((item) => (
-                    <div
-                      key={item}
-                      className="flex items-center gap-3 rounded-lg bg-[#f8f9ff] px-3 py-1.5"
-                    >
-                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#e6eeff]">
-                        <span className="size-2 rounded-full bg-[#004ac6]" />
-                      </span>
-                      <span className="font-medium">{item}</span>
+                    <div className="relative pr-12">
+                      <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
+                        Exclusive Guest
+                      </p>
+                      <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl leading-tight font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
+                        Ashwin Neupane
+                      </h3>
+                      <p className="mt-3 max-w-md text-sm leading-7 text-[#434655]">
+                        Ashwin is a computer engineer, tech content creator, and AI educator with 5+
+                        years in digital marketing and professional training. <br /> As the founder
+                        of Unlocked AI, he has built a community of 100,000+ across Instagram,
+                        TikTok, and Facebook, simplifying complex AI topics into practical systems
+                        for productivity, content creation, and income generation.
+                      </p>
                     </div>
-                  ))}
-                </div>
 
-                <button
-                  type="button"
-                  className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
-                >
-                  Secure Spot
-                  <ArrowUpRight className="size-4" aria-hidden="true" />
-                </button>
+                    <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
+                      {eventDetails.map(({ Icon, title, label }) => (
+                        <div
+                          key={title}
+                          className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] p-3"
+                        >
+                          <Icon className="size-5 text-[#004ac6]" aria-hidden="true" />
+                          <p className="mt-3 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                            {title}
+                          </p>
+                          <p className="mt-1 text-xs font-medium text-[#737686]">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="relative mt-auto pt-4">
+                      {/* <div className="flex items-center gap-3 rounded-xl border border-[#d9e3f6] bg-[#eff4ff] p-3">
+                        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-[#004ac6] text-white">
+                          <Brain className="size-5" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                            Built for absolute beginners
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-[#434655]">
+                            No coding background required. Bring curiosity and a notebook.
+                          </p>
+                        </div>
+                      </div> */}
+
+                      <button
+                        type="button"
+                        className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
+                      >
+                        Secure Spot
+                        <ArrowUpRight className="size-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

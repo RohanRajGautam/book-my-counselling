@@ -5,6 +5,7 @@ import { Statistics } from '@/features/home/components/Statistics'
 import { FeaturedMentors } from '@/features/home/components/FeaturedMentors'
 import { TestimonialsSection } from '@/features/home/components/TestimonialsSection'
 import { MentorCompaniesMarquee } from '@/features/home/components/MentorCompaniesMarquee'
+import { QuotesMarquee } from '@/features/home/components/QuotesMarquee'
 import { HowItWorksFaq } from '@/features/how-it-works/components/HowItWorksFaq'
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
           <FeaturedMentors />
           <MentorCompaniesMarquee />
           <Statistics />
+          <QuotesMarquee />
           <TestimonialsSection />
           <BecomeCounsellorSection />
           <HowItWorksFaq />

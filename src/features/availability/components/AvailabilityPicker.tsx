@@ -210,7 +210,7 @@ export function AvailabilityPicker({
   }
 
   return (
-    <div className={disabled ? 'pointer-events-none opacity-45 select-none' : ''}>
+    <div className={disabled ? 'select-none' : ''} aria-disabled={disabled}>
       {isFallback && (
         <p className="mb-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
           This mentor hasn&apos;t published specific slots yet — showing default availability.
@@ -223,9 +223,11 @@ export function AvailabilityPicker({
         <button
           type="button"
           onClick={() => setDayOffset((o) => Math.max(0, o - DAYS_VISIBLE))}
-          disabled={!canPrev}
+          disabled={disabled || !canPrev}
           aria-label="Previous days"
-          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:opacity-30"
+          className={`flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:cursor-not-allowed ${
+            !canPrev && !disabled ? 'disabled:opacity-30' : ''
+          }`}
         >
           <ChevronLeft className="size-4" />
         </button>
@@ -237,6 +239,7 @@ export function AvailabilityPicker({
               <button
                 key={day.dateKey}
                 type="button"
+                disabled={disabled}
                 onClick={() => {
                   setSelectedDateKey(day.dateKey)
                   // Deselect time if switching day
@@ -250,7 +253,7 @@ export function AvailabilityPicker({
                     }
                   }
                 }}
-                className={`flex flex-1 flex-col items-center rounded-2xl py-3 transition ${
+                className={`flex flex-1 flex-col items-center rounded-2xl py-3 transition disabled:cursor-not-allowed ${
                   isActive
                     ? 'bg-[#004ac6] text-white'
                     : 'bg-[#f8f9ff] text-[#434655] hover:bg-[#eff4ff]'
@@ -271,9 +274,11 @@ export function AvailabilityPicker({
         <button
           type="button"
           onClick={() => setDayOffset((o) => o + DAYS_VISIBLE)}
-          disabled={!canNext}
+          disabled={disabled || !canNext}
           aria-label="Next days"
-          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:opacity-30"
+          className={`flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:cursor-not-allowed ${
+            !canNext && !disabled ? 'disabled:opacity-30' : ''
+          }`}
         >
           <ChevronRight className="size-4" />
         </button>
@@ -291,9 +296,9 @@ export function AvailabilityPicker({
               <button
                 key={slot.id}
                 type="button"
-                disabled={slot.is_booked}
+                disabled={disabled || slot.is_booked}
                 onClick={() => onSelect(slot.id, slot.parentSlotId, slot.start_time, slot.end_time)}
-                className={`flex items-center justify-between rounded-[14px] px-3 py-3 text-left ring-1 transition ring-inset ${
+                className={`flex items-center justify-between rounded-[14px] px-3 py-3 text-left ring-1 transition ring-inset disabled:cursor-not-allowed ${
                   slot.is_booked
                     ? 'bg-slate-100 ring-slate-200 opacity-60 cursor-not-allowed'
                     : isSelected

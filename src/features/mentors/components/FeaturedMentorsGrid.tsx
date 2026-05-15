@@ -6,13 +6,18 @@ import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
 
 const FEATURED_MENTOR_LIMIT = 6
+// Temporary featured-grid exclusion. Remove this constant/filter when this mentor can be shown again.
+const HIDDEN_FEATURED_MENTOR_ID = '00c76b18-9a60-455e-9c8e-4afce0e984e0'
 
 export function FeaturedMentorsGrid() {
   const router = useRouter()
   const { filters } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, 1)
 
-  const featuredMentors = data?.items.slice(0, FEATURED_MENTOR_LIMIT) ?? []
+  const featuredMentors =
+    data?.items
+      .filter((mentor) => mentor.id !== HIDDEN_FEATURED_MENTOR_ID)
+      .slice(0, FEATURED_MENTOR_LIMIT) ?? []
 
   return (
     <>
