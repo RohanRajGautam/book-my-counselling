@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '../hooks/useAuth'
+import { ResetPasswordFlow } from './ResetPasswordFlow'
 
-type Tab = 'login' | 'register'
+type Tab = 'login' | 'register' | 'reset'
 
 export function AuthModal() {
   const [tab, setTab] = useState<Tab>('login')
@@ -28,21 +29,30 @@ export function AuthModal() {
 
         {/* Card */}
         <div className="overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-          {/* Tabs */}
-          <div className="grid grid-cols-2 border-b border-slate-100">
-            <TabButton active={tab === 'login'} onClick={() => setTab('login')}>
-              Sign In
-            </TabButton>
-            <TabButton active={tab === 'register'} onClick={() => setTab('register')}>
-              Create Account
-            </TabButton>
-          </div>
+          {/* Tabs (hidden while resetting password) */}
+          {tab !== 'reset' && (
+            <div className="grid grid-cols-2 border-b border-slate-100">
+              <TabButton active={tab === 'login'} onClick={() => setTab('login')}>
+                Sign In
+              </TabButton>
+              <TabButton active={tab === 'register'} onClick={() => setTab('register')}>
+                Create Account
+              </TabButton>
+            </div>
+          )}
 
           <div className="p-8">
-            {tab === 'login' ? (
-              <LoginForm onSuccess={() => {}} />
-            ) : (
+            {tab === 'login' && (
+              <LoginForm
+                onSuccess={() => {}}
+                onForgotPassword={() => setTab('reset')}
+              />
+            )}
+            {tab === 'register' && (
               <RegisterForm onSwitchToLogin={() => setTab('login')} />
+            )}
+            {tab === 'reset' && (
+              <ResetPasswordFlow onBackToLogin={() => setTab('login')} />
             )}
           </div>
         </div>
@@ -83,7 +93,13 @@ function TabButton({
 // Login form
 // ---------------------------------------------------------------------------
 
-function LoginForm({ onSuccess }: { onSuccess: () => void }) {
+function LoginForm({
+  onSuccess,
+  onForgotPassword,
+}: {
+  onSuccess: () => void
+  onForgotPassword: () => void
+}) {
   const { loginMutation } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -162,6 +178,16 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
           'Sign In'
         )}
       </button>
+
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="text-xs font-extrabold text-blue-600 hover:underline"
+        >
+          Forgot password?
+        </button>
+      </div>
     </form>
   )
 }
