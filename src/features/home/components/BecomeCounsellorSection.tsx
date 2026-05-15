@@ -15,7 +15,7 @@ export function BecomeCounsellorSection() {
             Join our community of mentors, share your knowledge, and help shape careers. Inspire the
             next generation of leaders while earning and growing your professional network.
           </p>
-          <Link href="/apply-counsellor">
+          <Link href="/mentor">
             <Button
               size="lg"
               className="rounded-lg bg-white px-8 py-6 text-base font-semibold text-black shadow-lg transition-all duration-150 hover:shadow-[#004ac6]/20 active:scale-95 md:text-lg"

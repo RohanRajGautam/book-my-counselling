@@ -38,7 +38,7 @@ export function MentorSearchBar({
         />
         <button
           type="submit"
-          className="h-16 rounded-full bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-3 text-sm font-bold text-white transition-all active:scale-95"
+          className="h-16 whitespace-nowrap rounded-full bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3 text-sm font-bold text-white transition-all active:scale-95"
         >
           {buttonLabel}
         </button>
