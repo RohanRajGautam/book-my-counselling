@@ -125,9 +125,13 @@ export const validateBookingForm = (data: BookingFormData): ValidationError[] =>
     errors.push({ field: 'guardianPhone', message: 'Please enter a valid phone number' })
   }
 
-  // Preparation
-  if (!data.message.trim()) {
+  const trimmedMessage = data.message.trim()
+  if (!trimmedMessage) {
     errors.push({ field: 'message', message: 'Please describe how the mentor can help you' })
+  } else if (trimmedMessage.length < 10) {
+    errors.push({ field: 'message', message: 'Please add a bit more detail (at least 10 characters)' })
+  } else if (trimmedMessage.length > 2000) {
+    errors.push({ field: 'message', message: 'Please keep this under 2000 characters' })
   }
 
   // Note: card fields (cardNumber, expiry, cvc) are no longer validated here
