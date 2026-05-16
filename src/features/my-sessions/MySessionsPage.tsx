@@ -71,18 +71,18 @@ function SessionCard({
     updateStatus({ bookingId: booking.id, status: 'cancelled', cancellationReason: 'Cancelled by mentor' })
 
   return (
-    <article className="grid min-h-[132px] gap-5 rounded-[24px] bg-white px-7 py-6 shadow-[0_18px_45px_rgba(15,23,42,0.04)] md:grid-cols-[minmax(0,1fr)_175px_auto] md:items-center">
-      <div className="flex min-w-0 items-center gap-5">
-        <Avatar className="size-[54px] shrink-0">
+    <article className="grid min-h-[132px] gap-5 rounded-[24px] bg-white px-4 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:px-7 sm:py-6 md:grid-cols-[minmax(0,1fr)_175px_auto] md:items-center">
+      <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+        <Avatar className="size-12 shrink-0 sm:size-[54px]">
           <AvatarFallback className="bg-blue-100 text-base font-extrabold text-blue-700">
             {initials}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h2 className="font-headline text-xl font-extrabold leading-tight text-slate-950">
+          <h2 className="font-headline text-lg font-extrabold leading-tight text-slate-950 sm:text-xl">
             {booking.mentee.full_name}
           </h2>
-          <p className="mt-2 max-w-[250px] text-base leading-6 text-slate-500">
+          <p className="mt-2 max-w-[250px] text-sm leading-5 text-slate-500 sm:text-base sm:leading-6">
             {subject || 'Session'}
           </p>
         </div>
@@ -100,7 +100,7 @@ function SessionCard({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 max-sm:[&>button]:flex-1">
         {activeStatus === 'pending' && (
           <Button
             size="sm"
@@ -171,21 +171,21 @@ export function MySessionsPage() {
   }
 
   return (
-    <div className="min-h-svh bg-[#f8f9ff] text-slate-950">
-      <div className="mx-auto grid w-full max-w-[1180px] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8 lg:py-11">
+    <div className="min-h-svh overflow-x-hidden bg-[#f8f9ff] text-slate-950">
+      <div className="mx-auto grid w-full max-w-[1180px] gap-6 px-3 py-5 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8 lg:px-8 lg:py-11">
         <section className="min-w-0">
-          <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="mb-4 flex items-center justify-between gap-4">
             <h1 className="font-headline text-2xl font-extrabold text-slate-950">My Sessions</h1>
           </div>
 
           {/* Status tabs */}
-          <div className="mb-7 flex flex-wrap gap-2">
+          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
             {STATUS_TABS.map((tab) => (
               <button
                 key={tab.label}
                 type="button"
                 onClick={() => handleTabChange(tab.value)}
-                className={`rounded-full px-4 py-2 text-sm font-extrabold transition ${
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-extrabold transition ${
                   activeTab === tab.value
                     ? 'bg-blue-600 text-white'
                     : 'bg-white text-slate-600 shadow-sm hover:bg-blue-50 hover:text-blue-700'
@@ -262,13 +262,13 @@ function ShareProfileCard({ mentorId }: { mentorId?: string }) {
   }
 
   return (
-    <section className="rounded-[28px] bg-[#243247] p-9 text-white shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+    <section className="rounded-[28px] bg-[#243247] p-6 text-white shadow-[0_18px_45px_rgba(15,23,42,0.06)] sm:p-9">
       <h2 className="font-headline text-xl font-extrabold">Share your profile</h2>
       <p className="mt-4 max-w-[220px] text-base leading-6 text-slate-200">
         For maximum visibility, share your profile on your social medias.
       </p>
       <Button
-        className="mt-8 h-11 w-[172px] rounded-2xl bg-white font-extrabold text-slate-950 hover:bg-blue-50"
+        className="mt-8 h-11 w-full rounded-2xl bg-white font-extrabold text-slate-950 hover:bg-blue-50 sm:w-[172px]"
         onClick={handleShare}
       >
         Share Now

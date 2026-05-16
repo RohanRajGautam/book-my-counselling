@@ -308,13 +308,13 @@ export function ProfileSessionAvailabilityCard() {
 
           {/* Time */}
           <Field label="Time">
-            <div className="flex items-center gap-2">
+            <div className="grid gap-2 min-[420px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[420px]:items-center">
               <TimeSelect
                 value={`${form.startHour}:${form.startMinute}`}
                 options={TIME_OPTIONS}
                 onChange={updateStart}
               />
-              <span className="text-sm font-medium text-slate-400">to</span>
+              <span className="text-center text-sm font-medium text-slate-400">to</span>
               <TimeSelect
                 value={`${form.endHour}:${form.endMinute}`}
                 options={endTimeOptions}
@@ -522,17 +522,17 @@ function SlotRow({
 
   return (
     <div
-      className={`flex items-center justify-between rounded-xl px-3 py-2 ${
+      className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2 ${
         isBooked ? 'bg-amber-50' : 'bg-[#eef4ff]'
       }`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         {isBooked ? (
           <Check className="size-3.5 text-amber-600" />
         ) : (
           <div className="size-2 rounded-full bg-emerald-500" />
         )}
-        <span className="text-xs font-semibold text-slate-700">
+        <span className="truncate text-xs font-semibold text-slate-700">
           {start} – {end}
         </span>
         {isBooked && (
