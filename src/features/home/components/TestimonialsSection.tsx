@@ -36,14 +36,17 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-[#eef4ff] px-5 py-16 sm:px-8 sm:py-20 lg:py-24">
-      <div className="mx-auto max-w-5xl">
-        <div className="relative">
-          <div className="pointer-events-none mx-auto flex size-10 items-center justify-center text-[#b4c5ff]">
-            <Quote className="size-10 fill-current stroke-0" aria-hidden="true" />
+    <section className="relative isolate overflow-hidden px-5 py-14 sm:px-8 sm:py-20 lg:py-24">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.92),transparent_34%),linear-gradient(180deg,#eef4ff_0%,#f8f9ff_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]" />
+
+      <div className="mx-auto max-w-6xl">
+        <div className="relative rounded-3xl px-5 py-8 sm:px-8 sm:py-10 lg:px-16 lg:py-14">
+          <div className="pointer-events-none absolute top-6 right-6 hidden size-16 items-center justify-center text-[#d9e3f6] sm:flex">
+            <Quote className="size-16 fill-current stroke-0" aria-hidden="true" />
           </div>
 
-          <div className="mt-7 overflow-hidden">
+          <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
               style={{ transform: `translateX(-${activeIndex * 100}%)` }}
@@ -54,25 +57,26 @@ export function TestimonialsSection() {
                   className="w-full shrink-0 px-1 text-center"
                   aria-hidden={testimonial.name !== activeTestimonial.name}
                 >
-                  <blockquote className="mx-auto max-w-3xl font-[family-name:var(--font-headline)] text-2xl leading-[1.12] font-semibold text-[#0f0e0ef6] sm:text-4xl">
-                    &quot;{testimonial.quote}&quot;
-                  </blockquote>
-
-                  <div className="mt-8 flex flex-col items-center">
+                  <div className="mx-auto flex max-w-3xl flex-col items-center">
                     <Image
                       src={testimonial.image}
                       alt={testimonial.name}
-                      width={72}
-                      height={72}
-                      className="size-14 rounded-full border-4 border-white object-cover shadow-[0_10px_26px_rgba(18,28,42,0.16)]"
+                      width={160}
+                      height={160}
+                      sizes="(min-width: 640px) 128px, 104px"
+                      className="size-26 rounded-full border-4 border-white object-cover shadow-[0_18px_38px_rgba(18,28,42,0.18)] ring-1 ring-[#d9e3f6] sm:size-32"
                     />
-                    <p className="mt-4 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                    <p className="mt-5 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a] sm:text-3xl">
                       {testimonial.name}
                     </p>
-                    <p className="mt-1 max-w-xs text-xs leading-5 text-[#737686]">
+                    <p className="mt-2 max-w-sm text-sm leading-6 font-semibold text-[#434655] sm:text-base">
                       {testimonial.role}
                     </p>
                   </div>
+
+                  <blockquote className="mx-auto mt-8 max-w-4xl font-[family-name:var(--font-headline)] text-[1.65rem] leading-[1.18] font-semibold text-[#19222e] sm:mt-10 sm:text-4xl">
+                    &quot;{testimonial.quote}&quot;
+                  </blockquote>
                 </article>
               ))}
             </div>
@@ -93,13 +97,32 @@ export function TestimonialsSection() {
               />
             ))}
           </div>
+
+          <div className="mt-8 flex justify-center gap-3 lg:hidden">
+            <button
+              type="button"
+              aria-label="Show previous testimonial"
+              onClick={showPrevious}
+              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Show next testimonial"
+              onClick={showNext}
+              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+          </div>
         </div>
 
         <button
           type="button"
           aria-label="Show previous testimonial"
           onClick={showPrevious}
-          className="absolute top-1/2 left-4 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/86 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none lg:flex"
+          className="absolute top-1/2 left-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:-translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none lg:flex"
         >
           <ChevronLeft className="size-6" />
         </button>
@@ -108,28 +131,9 @@ export function TestimonialsSection() {
           type="button"
           aria-label="Show next testimonial"
           onClick={showNext}
-          className="absolute top-1/2 right-4 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/86 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none lg:flex"
+          className="absolute top-1/2 right-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none lg:flex"
         >
           <ChevronRight className="size-6" />
-        </button>
-      </div>
-
-      <div className="mt-8 flex justify-center gap-3 lg:hidden">
-        <button
-          type="button"
-          aria-label="Show previous testimonial"
-          onClick={showPrevious}
-          className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none"
-        >
-          <ChevronLeft className="size-5" />
-        </button>
-        <button
-          type="button"
-          aria-label="Show next testimonial"
-          onClick={showNext}
-          className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none"
-        >
-          <ChevronRight className="size-5" />
         </button>
       </div>
     </section>
