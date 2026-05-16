@@ -73,14 +73,14 @@ function EarningsStatCard({
   iconClassName: string
 }) {
   return (
-    <article className="min-h-[176px] rounded-2xl bg-white p-5 shadow-sm sm:rounded-3xl sm:p-6 lg:min-h-[200px] lg:p-8">
+    <article className="min-h-[152px] rounded-2xl bg-white p-5 shadow-sm sm:min-h-[176px] sm:rounded-3xl sm:p-6 lg:min-h-[200px] lg:p-8">
       <div className={`flex size-11 items-center justify-center rounded-xl ${iconClassName}`}>
         {icon}
       </div>
-      <h2 className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+      <h2 className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:mt-6 sm:tracking-[0.18em]">
         {label}
       </h2>
-      <p className="mt-2 text-3xl font-extrabold leading-tight tracking-normal text-slate-950 lg:text-4xl">
+      <p className="mt-2 break-words text-2xl font-extrabold leading-tight tracking-normal text-slate-950 sm:text-3xl lg:text-4xl">
         {value}
       </p>
       <p className={`mt-5 text-sm font-extrabold ${helperClassName}`}>{helper}</p>

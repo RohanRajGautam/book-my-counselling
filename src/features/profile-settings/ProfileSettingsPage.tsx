@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 
 import { ProfileGeneralInfoCard, type GeneralInfoForm } from './components/ProfileGeneralInfoCard'
 import { ProfilePhotoCard } from './components/ProfilePhotoCard'
@@ -183,14 +184,16 @@ export function ProfileSettingsPage() {
   }
 
   return (
-    <div className="min-h-svh bg-[#f8f9ff] text-slate-950">
-      <div className="mx-auto w-full max-w-[1180px] space-y-8 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <div className="min-h-svh bg-[#f8f9ff] pb-28 text-slate-950 md:pb-0">
+      <div className="mx-auto w-full max-w-[1180px] space-y-3 px-3 py-5 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <ProfileSettingsHeader onSave={handleSave} isSaving={isSavingAny} />
-        <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="sticky top-16 z-10 -mx-3 bg-[#f8f9ff]/95 px-3 py-2 backdrop-blur md:static md:mx-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
+          <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
 
         {activeTab === 'general-info' && (
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <div className="min-w-0 space-y-7">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-8">
+            <div className="min-w-0 space-y-6 sm:space-y-7">
               <ProfileGeneralInfoCard
                 value={generalInfo}
                 onChange={setGeneralInfo}
@@ -216,6 +219,16 @@ export function ProfileSettingsPage() {
         {activeTab === 'packages' && (
           <ProfilePackagesCard value={packages} onChange={setPackages} />
         )}
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/80 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-16px_40px_rgba(15,23,42,0.12)] backdrop-blur md:hidden">
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={isSavingAny}
+          className="h-12 w-full rounded-2xl bg-[#0755d8] font-bold text-white shadow-[0_12px_24px_rgba(7,85,216,0.22)] hover:bg-blue-700 disabled:opacity-60"
+        >
+          {isSavingAny ? 'Saving…' : 'Save Changes'}
+        </Button>
       </div>
     </div>
   )

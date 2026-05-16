@@ -99,10 +99,10 @@ function BookingCard({ booking }: { booking: MentorBooking }) {
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h3 className="font-headline text-base font-bold text-slate-950">
+          <h3 className="truncate font-headline text-base font-bold text-slate-950">
             {booking.mentee.full_name}
           </h3>
-          <p className="mt-1 text-sm leading-5 text-slate-500">
+          <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-500">
             {subject || 'Session'}
           </p>
         </div>
@@ -119,8 +119,8 @@ function BookingCard({ booking }: { booking: MentorBooking }) {
           variant={joinable ? 'default' : 'outline'}
           className={
             joinable
-              ? 'h-9 min-w-20 rounded-full bg-blue-100 px-5 font-bold text-blue-700 hover:bg-blue-200'
-              : 'h-9 min-w-20 rounded-full border-slate-100 bg-slate-50 px-5 font-bold text-blue-700 hover:bg-blue-50'
+              ? 'h-9 w-full min-w-20 rounded-full bg-blue-100 px-5 font-bold text-blue-700 hover:bg-blue-200 min-[420px]:w-auto'
+              : 'h-9 w-full min-w-20 rounded-full border-slate-100 bg-slate-50 px-5 font-bold text-blue-700 hover:bg-blue-50 min-[420px]:w-auto'
           }
         >
           {joinable ? 'Join' : 'Details'}

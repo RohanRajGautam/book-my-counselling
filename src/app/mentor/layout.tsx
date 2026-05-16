@@ -11,7 +11,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
         <SidebarInset className="bg-[#f8f9ff]">
           <MentorMobileHeader />
 
-          <main>{children}</main>
+          <main className='p-1 sm:p-4'>{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </MentorAuthGate>

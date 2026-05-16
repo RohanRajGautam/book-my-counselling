@@ -50,8 +50,11 @@ export function MentorSidebar() {
   const roleLabel = user?.role === 'mentor' ? 'Mentor' : user?.role ?? ''
 
   return (
-    <Sidebar className="border-none" style={{ '--sidebar-width': '260px' } as React.CSSProperties}>
-      <SidebarHeader className="px-5 pt-7 pb-5">
+    <Sidebar
+      className="border-none  text-slate-950 shadow-sm"
+      style={{ '--sidebar-width': '260px' } as React.CSSProperties}
+    >
+      <SidebarHeader className="border-b border-slate-100 bg-white px-3 sm:px-6 pt-7 pb-5">
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
             <LayoutDashboard size={18} strokeWidth={2.3} />
@@ -67,7 +70,7 @@ export function MentorSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-4">
+      <SidebarContent className="px-3 sm:px-6 bg-white sm:bg-transparent py-3">
         <div>
           <SidebarMenu className="gap-1">
             {mentorNavItems.map((item) => {
@@ -82,9 +85,9 @@ export function MentorSidebar() {
                   <SidebarMenuButton
                     isActive={isActive}
                     className={cn(
-                      'group h-11 rounded-xl px-3 font-bold transition-all duration-200',
+                      'group h-11 rounded-md px-3 font-bold transition-all duration-200',
                       isActive
-                        ? 'bg-white text-blue-700 shadow-sm ring-1 ring-blue-50'
+                        ? ' text-blue-700 shadow-sm ring-1 ring-blue-50'
                         : 'text-slate-500 hover:bg-white hover:text-slate-950'
                     )}
                   >
@@ -97,7 +100,7 @@ export function MentorSidebar() {
                             isActive ? 'text-blue-700' : 'text-slate-400 group-hover:text-slate-600'
                           )}
                         />
-                        <span className="text-sm font-bold">{item.label}</span>
+                        <span className="text-sm font-bold whitespace-nowrap">{item.label}</span>
                       </div>
                     </Link>
                   </SidebarMenuButton>
@@ -108,7 +111,7 @@ export function MentorSidebar() {
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-slate-100 p-4">
+      <SidebarFooter className="border-t border-slate-100 bg-white px-3 sm:px-6">
         <SidebarSeparator className="mb-4 bg-slate-100" />
 
         {/* User info */}
