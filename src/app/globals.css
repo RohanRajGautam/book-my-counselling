@@ -179,6 +179,37 @@
 }
 
 @layer components {
+  .hero-flip-scene {
+    perspective: 1400px;
+    -webkit-perspective: 1400px;
+  }
+
+  .hero-flip-card {
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transition: transform 700ms;
+    will-change: transform;
+  }
+
+  .hero-flip-card.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  .hero-flip-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(0deg) translateZ(0);
+    -webkit-transform: rotateY(0deg) translateZ(0);
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    isolation: isolate;
+  }
+
+  .hero-flip-face-back {
+    transform: rotateY(180deg) translateZ(1px);
+    -webkit-transform: rotateY(180deg) translateZ(1px);
+  }
+
   .page-container {
     width: min(calc(100% - (var(--app-gutter) * 2)), var(--app-max-width));
     margin-inline: auto;
