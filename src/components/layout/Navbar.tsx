@@ -7,6 +7,7 @@ import { ArrowRight, Menu, X } from 'lucide-react'
 
 const navItems = [
   { href: '/explore-mentors', label: 'Explore Mentors' },
+  { href: '/events', label: 'Events' },
   { href: '/how-it-works', label: 'How it Works' },
   // { href: '/about', label: 'About Us' },
 ]
