@@ -118,18 +118,18 @@ export function HeroSection() {
         {/* RIGHT CARD */}
         <div className="relative mx-auto w-full max-w-[630px] lg:mx-0 lg:justify-self-end">
           <div
-            className="group/card cursor-pointer touch-manipulation [perspective:1400px]"
+            className="hero-flip-scene cursor-pointer touch-manipulation"
             onMouseEnter={() => setIsCardFlipped(true)}
             onMouseLeave={() => setIsCardFlipped(false)}
             onPointerUp={handleCardTouchPress}
           >
             <div
-              className={`relative grid transition-transform duration-700 [transform-style:preserve-3d] group-hover/card:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''
-                }`}
+              className={`hero-flip-card relative grid ${isCardFlipped ? 'is-flipped' : ''}`}
             >
               <div
-                className={`col-start-1 row-start-1 h-full [backface-visibility:hidden] ${isCardFlipped ? 'pointer-events-none' : ''
-                  } group-hover/card:pointer-events-none`}
+                className={`hero-flip-face col-start-1 row-start-1 h-full ${
+                  isCardFlipped ? 'pointer-events-none' : ''
+                }`}
                 aria-hidden={isCardFlipped}
               >
                 <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
@@ -219,8 +219,9 @@ export function HeroSection() {
               </div>
 
               <div
-                className={`absolute inset-0 h-full [transform:rotateY(180deg)] [backface-visibility:hidden] ${isCardFlipped ? '' : 'pointer-events-none'
-                  } group-hover/card:pointer-events-auto`}
+                className={`hero-flip-face hero-flip-face-back absolute inset-0 h-full ${
+                  isCardFlipped ? '' : 'pointer-events-none'
+                }`}
                 aria-hidden={!isCardFlipped}
               >
                 <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
