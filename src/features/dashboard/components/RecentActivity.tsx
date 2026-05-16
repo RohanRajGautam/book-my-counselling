@@ -45,7 +45,7 @@ function ActivityItem({ booking }: { booking: MentorBooking }) {
         )}
       </div>
       <div className="min-w-0">
-        <h3 className="font-headline text-base font-semibold text-slate-950">
+        <h3 className="font-headline text-sm font-semibold text-slate-950 sm:text-base">
           {isCompleted
             ? `Completed session with ${booking.mentee.full_name}`
             : isCancelled
@@ -53,7 +53,7 @@ function ActivityItem({ booking }: { booking: MentorBooking }) {
               : `Session with ${booking.mentee.full_name}`}
         </h3>
         {booking.topic && (
-          <p className="mt-1 text-sm leading-5 text-slate-600">{booking.topic}</p>
+          <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600">{booking.topic}</p>
         )}
         <p className="mt-2 text-xs font-medium text-slate-400">{timeAgo(timestamp)}</p>
       </div>

@@ -38,7 +38,7 @@ function TransactionRow({ booking, index }: { booking: MentorBooking; index: num
   const amount = `NPR ${parseFloat(booking.agreed_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
 
   return (
-    <article className="grid gap-4 border-b border-slate-100 px-5 py-5 last:border-b-0 md:min-h-20 md:grid-cols-[92px_minmax(0,1fr)_126px_120px] md:items-center md:px-7">
+    <article className="grid gap-3 border-b border-slate-100 px-4 py-5 last:border-b-0 sm:px-5 md:min-h-20 md:grid-cols-[92px_minmax(0,1fr)_126px_120px] md:items-center md:gap-4 md:px-7">
       <p className="text-sm font-semibold leading-5 text-slate-800 md:max-w-20">{date}</p>
       <div className="flex min-w-0 items-center gap-4">
         <span
@@ -46,7 +46,7 @@ function TransactionRow({ booking, index }: { booking: MentorBooking; index: num
         >
           {initials}
         </span>
-        <p className="font-headline text-base font-extrabold leading-5 text-slate-950">
+        <p className="truncate font-headline text-base font-extrabold leading-5 text-slate-950">
           {booking.mentee.full_name}
         </p>
       </div>
@@ -65,7 +65,7 @@ export function TransactionHistory() {
 
   return (
     <section className="overflow-hidden rounded-2xl bg-white shadow-sm sm:rounded-3xl">
-      <div className="flex items-center justify-between bg-[#f4f7ff] px-5 py-5 sm:px-7 sm:py-7">
+      <div className="flex items-center justify-between gap-3 bg-[#f4f7ff] px-4 py-5 sm:px-7 sm:py-7">
         <h2 className="font-headline text-lg font-extrabold text-slate-950 sm:text-xl">
           Transaction History
         </h2>

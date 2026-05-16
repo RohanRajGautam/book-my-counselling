@@ -7,13 +7,13 @@ import { UpcomingBookings } from './components/UpcomingBookings'
 
 export function MentorDashboard() {
   return (
-    <div className="min-h-svh bg-[#f8f9ff] text-slate-950">
-      <div className="mx-auto w-full max-w-[1180px] space-y-8 px-4 py-6 sm:px-6 lg:space-y-10 lg:px-8 lg:py-8">
+    <div className="min-h-svh overflow-x-hidden bg-[#f8f9ff] text-slate-950">
+      <div className="mx-auto w-full max-w-[1180px] space-y-3 px-3 py-5 sm:px-6 sm:py-6 lg:space-y-5 lg:px-8 lg:py-8">
         <DashboardHeader />
         <DashboardStats />
 
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="min-w-0 space-y-8 lg:space-y-10">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-8">
+          <div className="min-w-0 space-y-6 sm:space-y-8 lg:space-y-10">
             <UpcomingBookings />
             <RecentActivity />
           </div>
