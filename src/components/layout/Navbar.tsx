@@ -7,7 +7,8 @@ import { ArrowRight, BookOpen, Compass, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
   { href: '/explore-mentors', label: 'Explore Mentors', icon: Compass },
-  { href: '/how-it-works', label: 'How it Works', icon: BookOpen },
+  { href: '/events', label: 'Events', icon: BookOpen },
+  { href: '/how-it-works', label: 'How it Works', icon: Compass },
   // { href: '/about', label: 'About Us' },
 ]
 
@@ -115,13 +116,13 @@ export function Navbar() {
           >
             <Menu
               className={`absolute size-5 transition-all duration-200 ${
-                mobileMenuOpen ? 'rotate-90 scale-75 opacity-0' : 'rotate-0 scale-100 opacity-100'
+                mobileMenuOpen ? 'scale-75 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
               }`}
               aria-hidden="true"
             />
             <X
               className={`absolute size-5 transition-all duration-200 ${
-                mobileMenuOpen ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-75 opacity-0'
+                mobileMenuOpen ? 'scale-100 rotate-0 opacity-100' : 'scale-75 -rotate-90 opacity-0'
               }`}
               aria-hidden="true"
             />
@@ -177,7 +178,9 @@ export function Navbar() {
                 <span className="flex-1">{item.label}</span>
                 <ArrowRight
                   className={`size-4 transition ${
-                    active ? 'text-[#004ac6]' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
+                    active
+                      ? 'text-[#004ac6]'
+                      : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
                   }`}
                   aria-hidden="true"
                 />
@@ -193,7 +196,9 @@ export function Navbar() {
             href="/school-to-startup"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
-              isActive('/school-to-startup') ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''
+              isActive('/school-to-startup')
+                ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
+                : ''
             }`}
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
