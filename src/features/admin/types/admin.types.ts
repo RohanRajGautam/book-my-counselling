@@ -34,6 +34,47 @@ export interface AdminStats {
   total_bookings: number
 }
 
+// ── Admin bookings ─────────────────────────────────────────────────────────
+
+export type AdminBookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
+export type AdminPaymentStatus = 'unpaid' | 'paid' | 'refunded' | 'failed'
+
+export interface AdminBookingMentee {
+  id: string
+  full_name: string
+  email: string
+}
+
+export interface AdminBookingMentor {
+  id: string
+  title: string | null
+  full_name: string
+  email: string | null
+}
+
+export interface AdminBookingRefundSummary {
+  id: string
+  status: 'requested' | 'approved' | 'rejected' | 'processed'
+  amount: string
+  requested_at: string
+}
+
+export interface AdminBookingRow {
+  id: string
+  status: AdminBookingStatus
+  payment_status: AdminPaymentStatus
+  topic: string | null
+  agreed_price: string
+  session_start: string
+  session_end: string
+  created_at: string
+  cancelled_at: string | null
+  cancellation_reason: string | null
+  mentee: AdminBookingMentee
+  mentor: AdminBookingMentor
+  refund: AdminBookingRefundSummary | null
+}
+
 export type RefundStatus = 'requested' | 'approved' | 'rejected' | 'processed'
 
 export type RefundReason =
