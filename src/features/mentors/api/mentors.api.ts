@@ -4,7 +4,7 @@ import { FilterState } from '@/features/filters/types/filter.types'
 import apiClient from '@/lib/api/api-client'
 import { normalizeSearchMentor, mapSort } from '../utils/mentors.utils'
 
-export const MENTORS_PER_PAGE = 9
+export const MENTORS_PER_PAGE = 12
 
 type SearchParams = {
   keyword?: string
