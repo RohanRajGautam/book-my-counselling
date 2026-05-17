@@ -202,14 +202,13 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [role, setRole] = useState<'mentor' | 'mentee'>('mentor')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!fullName.trim() || !email.trim() || !password) return
 
     registerMutation.mutate(
-      { full_name: fullName.trim(), email: email.trim(), password, role },
+      { full_name: fullName.trim(), email: email.trim(), password, role: 'mentor' },
       {
         onSuccess: () => {
           toast.success('Account created! Please sign in.')
@@ -272,27 +271,6 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
             </button>
           </div>
         </label>
-      </div>
-
-      {/* Role selector */}
-      <div>
-        <FieldLabel>I am a</FieldLabel>
-        <div className="mt-2 grid h-12 grid-cols-2 rounded-2xl bg-[#f0f4ff] p-1">
-          {(['mentor', 'mentee'] as const).map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setRole(r)}
-              className={`rounded-xl text-sm font-extrabold capitalize transition ${
-                role === r
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
       </div>
 
       <button
