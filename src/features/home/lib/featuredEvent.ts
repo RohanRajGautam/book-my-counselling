@@ -1,6 +1,6 @@
 export const FEATURED_EVENT = {
   guest: {
-    name: 'Ashwin Neupane',
+    name: 'Ashwin Neupanes',
     title: 'Digital Marketing and AI Content Creator',
     imageUrl: '/home/ashwin.png',
   },
