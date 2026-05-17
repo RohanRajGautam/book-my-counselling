@@ -18,15 +18,15 @@ export function MentorAuthGate({ children }: { children: React.ReactNode }) {
 function AuthenticatedGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth()
   const router = useRouter()
+  const isAdmin = user?.role === 'admin'
+
+  useEffect(() => {
+    if (isAdmin) router.replace('/admin')
+  }, [isAdmin, router])
 
   if (authLoading && !user) return <FullScreenSpinner />
   if (!isAuthenticated) return <AuthModal />
-
-  // Admins don't have mentor profiles — send them to the admin panel
-  if (user?.role === 'admin') {
-    router.replace('/admin')
-    return <FullScreenSpinner />
-  }
+  if (isAdmin) return <FullScreenSpinner />
 
   return <ProfileGate>{children}</ProfileGate>
 }
