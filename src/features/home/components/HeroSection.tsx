@@ -219,7 +219,7 @@ export function HeroSection() {
               </div>
 
               <div
-                className={`hero-flip-face hero-flip-face-back col-start-1 row-start-1 h-full ${
+                className={`hero-flip-face hero-flip-face-back absolute inset-0 ${
                   isCardFlipped ? '' : 'pointer-events-none'
                 }`}
                 aria-hidden={!isCardFlipped}
