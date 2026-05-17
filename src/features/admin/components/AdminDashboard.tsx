@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import {
+  Banknote,
   Check, ChevronLeft, ChevronRight, Clock, Database,
-  Loader2, RotateCcw, ShieldCheck, Star, Users, X,
+  Loader2, RotateCcw, ShieldCheck, Star, Users, UserCheck, X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -19,6 +20,7 @@ import {
   type AdminMentorFilter,
 } from '../hooks/useAdminMentors'
 import { AdminMentorProfile } from '../types/admin.types'
+import { RefundsPanel } from './RefundsPanel'
 
 // ---------------------------------------------------------------------------
 // Tab definitions
@@ -62,8 +64,11 @@ function getInitials(name: string) {
   return name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
 }
 
+type Section = 'mentors' | 'refunds'
+
 export function AdminDashboard() {
   const { user, logout } = useAuth()
+  const [section, setSection] = useState<Section>('mentors')
   const [tabId, setTabId] = useState<TabId>('pending')
   const [page, setPage] = useState(1)
 
@@ -165,81 +170,115 @@ export function AdminDashboard() {
           />
         </div>
 
-        {/* Tabs */}
-        <div className="mt-8 flex gap-1 overflow-x-auto rounded-2xl bg-white p-1 shadow-sm">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => handleTabChange(t.id)}
-              className={`flex-1 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-extrabold transition ${
-                tabId === t.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+        {/* Section switcher */}
+        <div className="mt-8 inline-flex rounded-2xl bg-white p-1 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setSection('mentors')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-extrabold transition ${
+              section === 'mentors'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <UserCheck className="size-4" />
+            Mentors
+          </button>
+          <button
+            type="button"
+            onClick={() => setSection('refunds')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-extrabold transition ${
+              section === 'refunds'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Banknote className="size-4" />
+            Refunds
+          </button>
         </div>
 
-        {/* List */}
-        <div className="mt-4">
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 animate-pulse rounded-2xl bg-white" />
+        {section === 'mentors' ? (
+          <>
+            {/* Mentor sub-tabs */}
+            <div className="mt-4 flex gap-1 overflow-x-auto rounded-2xl bg-white p-1 shadow-sm">
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => handleTabChange(t.id)}
+                  className={`flex-1 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-extrabold transition ${
+                    tabId === t.id
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
-          ) : !mentorsData?.items.length ? (
-            <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
-              <p className="text-sm font-semibold text-slate-400">{activeTab.emptyMsg}</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {mentorsData.items.map((mentor) => (
-                <MentorRow
-                  key={mentor.id}
-                  mentor={mentor}
-                  tabId={tabId}
-                  onVerify={() => handleVerify(mentor.id, mentor.user.full_name)}
-                  onReject={() => handleReject(mentor.id, mentor.user.full_name)}
-                  onFeature={(featured) =>
-                    handleFeature(mentor.id, featured, mentor.user.full_name)
-                  }
-                  isActing={verifying || rejecting}
-                />
-              ))}
-            </div>
-          )}
 
-          {/* Pagination */}
-          {mentorsData && mentorsData.total_pages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl"
-                disabled={!mentorsData.has_prev}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              <span className="text-sm font-semibold text-slate-600">
-                {mentorsData.page} / {mentorsData.total_pages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl"
-                disabled={!mentorsData.has_next}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                <ChevronRight className="size-4" />
-              </Button>
+            {/* Mentor list */}
+            <div className="mt-4">
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-24 animate-pulse rounded-2xl bg-white" />
+                  ))}
+                </div>
+              ) : !mentorsData?.items.length ? (
+                <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
+                  <p className="text-sm font-semibold text-slate-400">{activeTab.emptyMsg}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {mentorsData.items.map((mentor) => (
+                    <MentorRow
+                      key={mentor.id}
+                      mentor={mentor}
+                      tabId={tabId}
+                      onVerify={() => handleVerify(mentor.id, mentor.user.full_name)}
+                      onReject={() => handleReject(mentor.id, mentor.user.full_name)}
+                      onFeature={(featured) =>
+                        handleFeature(mentor.id, featured, mentor.user.full_name)
+                      }
+                      isActing={verifying || rejecting}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {mentorsData && mentorsData.total_pages > 1 && (
+                <div className="mt-6 flex items-center justify-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl"
+                    disabled={!mentorsData.has_prev}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    <ChevronLeft className="size-4" />
+                  </Button>
+                  <span className="text-sm font-semibold text-slate-600">
+                    {mentorsData.page} / {mentorsData.total_pages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl"
+                    disabled={!mentorsData.has_next}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <RefundsPanel />
+        )}
       </div>
     </div>
   )

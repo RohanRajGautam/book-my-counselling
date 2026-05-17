@@ -33,3 +33,46 @@ export interface AdminStats {
   total_mentors: number
   total_bookings: number
 }
+
+export type RefundStatus = 'requested' | 'approved' | 'rejected' | 'processed'
+
+export type RefundReason =
+  | 'mentee_cancellation'
+  | 'mentor_cancellation'
+  | 'admin_cancellation'
+  | 'slot_conflict'
+  | 'other'
+
+export interface RefundUserSummary {
+  id: string
+  full_name: string
+  email: string
+}
+
+export interface RefundBookingSummary {
+  id: string
+  topic: string | null
+  session_start: string
+  session_end: string
+  agreed_price: string
+}
+
+export interface RefundRequest {
+  id: string
+  booking_id: string
+  payment_transaction_id: string | null
+  amount: string
+  status: RefundStatus
+  reason: RefundReason
+  reason_notes: string | null
+  requested_by: RefundUserSummary | null
+  requested_at: string
+  decided_by: RefundUserSummary | null
+  decided_at: string | null
+  decision_notes: string | null
+  processed_at: string | null
+  fonepay_refund_reference: string | null
+  booking: RefundBookingSummary | null
+  created_at: string
+  updated_at: string
+}
