@@ -1,13 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, Menu, X } from 'lucide-react'
+import { ArrowRight, BookOpen, Compass, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
-  { href: '/explore-mentors', label: 'Explore Mentors' },
-  { href: '/how-it-works', label: 'How it Works' },
+  { href: '/explore-mentors', label: 'Explore Mentors', icon: Compass },
+  { href: '/how-it-works', label: 'How it Works', icon: BookOpen },
   // { href: '/about', label: 'About Us' },
 ]
 
@@ -17,6 +17,31 @@ export function Navbar() {
 
   const isActive = (path: string) => pathname === path
   const showAnnouncement = pathname === '/' || pathname === '/school-to-startup'
+
+  // Auto-close mobile menu when the route changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
+  // Lock body scroll while the mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [mobileMenuOpen])
+
+  // Close on Escape
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [mobileMenuOpen])
 
   return (
     <>
@@ -82,52 +107,103 @@ export function Navbar() {
 
           <button
             type="button"
-            className="flex size-11 items-center justify-center rounded-lg border border-[#c3c6d7]/40 bg-white text-[#121c2a] shadow-[0_8px_20px_rgba(18,28,42,0.08)] transition hover:bg-[#eff4ff] md:hidden"
+            className="relative grid size-11 place-items-center rounded-xl text-[#121c2a] transition-colors hover:bg-[#eff4ff] active:bg-[#dbe6ff] md:hidden dark:text-slate-100 dark:hover:bg-slate-800"
             onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
-            {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            <Menu
+              className={`absolute size-5 transition-all duration-200 ${
+                mobileMenuOpen ? 'rotate-90 scale-75 opacity-0' : 'rotate-0 scale-100 opacity-100'
+              }`}
+              aria-hidden="true"
+            />
+            <X
+              className={`absolute size-5 transition-all duration-200 ${
+                mobileMenuOpen ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-75 opacity-0'
+              }`}
+              aria-hidden="true"
+            />
           </button>
         </div>
       </nav>
 
-      {mobileMenuOpen && (
-        <div
-          className={`fixed inset-x-0 z-40 border-b border-[#c3c6d7]/20 bg-white/96 px-4 pb-5 shadow-[0_18px_42px_rgba(18,28,42,0.14)] backdrop-blur-md md:hidden dark:bg-slate-900/96 ${
-            showAnnouncement ? 'top-[117px]' : 'top-[77px]'
-          }`}
-        >
-          <div className="mx-auto flex max-w-7xl flex-col gap-2 pt-3">
-            {navItems.map((item) => (
+      {/* Backdrop — click to close */}
+      <div
+        className={`fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-200 md:hidden ${
+          mobileMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Mobile menu panel */}
+      <div
+        id="mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Main menu"
+        className={`fixed inset-x-3 z-40 origin-top overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] transition-all duration-200 ease-out md:hidden dark:border-slate-800 dark:bg-slate-900 ${
+          mobileMenuOpen
+            ? 'translate-y-0 scale-100 opacity-100'
+            : 'pointer-events-none -translate-y-2 scale-[0.98] opacity-0'
+        } ${showAnnouncement ? 'top-[128px]' : 'top-[68px]'}`}
+      >
+        <div className="flex flex-col gap-1 p-2">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            const active = isActive(item.href)
+            return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between rounded-lg px-4 py-4 font-[family-name:var(--font-headline)] text-base font-bold transition ${
-                  isActive(item.href)
-                    ? 'bg-[#eff4ff] text-[#004ac6]'
-                    : 'text-[#121c2a] hover:bg-[#f8f9ff]'
-                } `}
+                className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
+                  active
+                    ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
+                    : 'text-[#27313f] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+                }`}
               >
-                {item.label}
-                <ArrowRight className="size-4" />
+                <span
+                  className={`grid size-9 shrink-0 place-items-center rounded-lg transition ${
+                    active
+                      ? 'bg-[#004ac6] text-white shadow-[0_6px_14px_rgba(0,74,198,0.25)]'
+                      : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:text-[#004ac6] dark:bg-slate-800 dark:text-slate-300'
+                  }`}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                </span>
+                <span className="flex-1">{item.label}</span>
+                <ArrowRight
+                  className={`size-4 transition ${
+                    active ? 'text-[#004ac6]' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
+                  }`}
+                  aria-hidden="true"
+                />
               </Link>
-            ))}
+            )
+          })}
 
-            <Link
-              href="/school-to-startup"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`mt-2 flex items-center justify-between rounded-lg bg-[#004ac6] px-4 py-4 font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] ${
-                isActive('/school-to-startup') ? 'ring-3 ring-[#6cf8bb]/60' : ''
-              } `}
-            >
-              School to Startup
-              <ArrowRight className="size-4" />
-            </Link>
-          </div>
+          {/* Divider */}
+          <div className="my-1 h-px bg-slate-100 dark:bg-slate-800" aria-hidden="true" />
+
+          {/* Primary CTA */}
+          <Link
+            href="/school-to-startup"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
+              isActive('/school-to-startup') ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''
+            }`}
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
+              <Rocket className="size-4" aria-hidden="true" />
+            </span>
+            <span className="flex-1">School to Startup</span>
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
         </div>
-      )}
+      </div>
     </>
   )
 }
