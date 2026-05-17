@@ -167,9 +167,9 @@ export function MentorCard({
               Session packages
             </p>
             <div className="mb-4 flex gap-2">
-              {sortedTiers.map((tier) => (
+              {sortedTiers.map((tier, index) => (
                 <div
-                  key={tier.duration_minutes}
+                  key={`${tier.duration_minutes}-${tier.price}-${index}`}
                   className="flex flex-1 flex-col rounded-xl bg-[#f3f7ff] px-2 py-2.5"
                 >
                   <span className="flex items-center gap-1 text-[10px] font-extrabold text-[#737686]">

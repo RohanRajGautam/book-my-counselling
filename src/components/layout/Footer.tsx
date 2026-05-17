@@ -32,6 +32,12 @@ export function Footer() {
           >
             How It Works
           </Link>
+          <Link
+            href="/mentor"
+            className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
+          >
+            Mentor Sign In
+          </Link>
         </div>
 
         {/* Support */}

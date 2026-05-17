@@ -170,7 +170,7 @@ export function MentorGrid() {
         )}
 
         {!isLoading && !isError && totalPages > 1 && (
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+          <div className="my-12 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => handlePageChange(currentPage - 1)}
