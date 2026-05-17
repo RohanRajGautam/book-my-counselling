@@ -14,6 +14,8 @@ export function FeaturedMentorsGrid() {
 
   const featuredMentors = data?.items.slice(0, FEATURED_MENTOR_LIMIT) ?? []
 
+  console.log(featuredMentors)
+
   return (
     <>
       <section>

@@ -4,6 +4,7 @@ import { FilterProvider } from '@/features/filters/context/FilterContext'
 import { Statistics } from '@/features/home/components/Statistics'
 import { FeaturedMentors } from '@/features/home/components/FeaturedMentors'
 import { TestimonialsSection } from '@/features/home/components/TestimonialsSection'
+import { ExclusiveEventsSection } from '@/features/home/components/ExclusiveEventsSection'
 // import { MentorCompaniesMarquee } from '@/features/home/components/MentorCompaniesMarquee'
 // import { QuotesMarquee } from '@/features/home/components/QuotesMarquee'
 import { HowItWorksFaq } from '@/features/how-it-works/components/HowItWorksFaq'
@@ -15,6 +16,7 @@ export default function Home() {
         <FilterProvider>
           <HeroSection />
           <FeaturedMentors />
+          <ExclusiveEventsSection />
           {/* <MentorCompaniesMarquee /> */}
           <Statistics />
           {/* <QuotesMarquee /> */}

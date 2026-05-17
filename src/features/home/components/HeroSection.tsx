@@ -5,14 +5,7 @@ import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { type PointerEvent, useState } from 'react'
-import {
-  ArrowUpRight,
-  CalendarDays,
-  Clock3,
-  Info,
-  Sparkles,
-  Users,
-} from 'lucide-react'
+import { ArrowUpRight, CalendarDays, Clock3, Info, Sparkles, Users } from 'lucide-react'
 import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
 
 export function HeroSection() {
@@ -123,9 +116,7 @@ export function HeroSection() {
             onMouseLeave={() => setIsCardFlipped(false)}
             onPointerUp={handleCardTouchPress}
           >
-            <div
-              className={`hero-flip-card relative grid ${isCardFlipped ? 'is-flipped' : ''}`}
-            >
+            <div className={`hero-flip-card relative grid ${isCardFlipped ? 'is-flipped' : ''}`}>
               <div
                 className={`hero-flip-face col-start-1 row-start-1 h-full ${
                   isCardFlipped ? 'pointer-events-none' : ''
@@ -163,7 +154,7 @@ export function HeroSection() {
                         className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
                       />
 
-                      <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
+                      <div className="absolute bottom-0 flex h-14 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
                         <span className="text-balance">{FEATURED_EVENT.topic}</span>
                       </div>
                     </div>
@@ -231,7 +222,7 @@ export function HeroSection() {
                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,#eef4ff_0%,#ffffff_42%,#f8f9ff_100%)]" />
                     <div className="pointer-events-none absolute -top-24 right-10 size-56 rounded-full bg-[#dbe6ff]/70 blur-3xl" />
 
-                    <div className="relative pr-12">
+                    <div className="relative">
                       <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
                         Exclusive Guest
                       </p>
@@ -243,7 +234,7 @@ export function HeroSection() {
                       </p>
                     </div>
 
-                    <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
+                    <div className="relative mt-8 grid grid-cols-3 gap-2 sm:mt-5">
                       {eventDetails.map(({ Icon, title, label }) => (
                         <div
                           key={title}
@@ -270,8 +261,6 @@ export function HeroSection() {
                     </div>
                   </div>
                 </div>
-
-
               </div>
             </div>
           </div>
