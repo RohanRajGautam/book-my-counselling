@@ -200,7 +200,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                 {mentor.title} {mentor.company && `at ${mentor.company}`}
               </p>
 
-              <div className="mb-5 grid grid-cols-3 overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]">
+              <div className="mb-5 grid grid-cols-2 overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]">
                 <div className="px-3 py-3">
                   <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                     {ratingLabel}
@@ -213,12 +213,12 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                   </p>
                   <p className="text-[11px] font-bold text-[#737686]">Reviews</p>
                 </div>
-                <div className="px-3 py-3">
+                {/* <div className="px-3 py-3">
                   <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                     {mentor.total_sessions}
                   </p>
                   <p className="text-[11px] font-bold text-[#737686]">Sessions</p>
-                </div>
+                </div> */}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
