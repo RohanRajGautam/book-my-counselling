@@ -1,19 +1,19 @@
 const MENTOR_COMPANIES = [
-  'Google',
-  'Meta',
-  'Stripe',
-  'Goldman Sachs',
-  'Airbnb',
-  'Tesla',
-  'Netflix',
   'Leapfrog',
+  'Fuse Machine',
+  'Snappet',
+  'Webpoint',
+  'Legal Access Nepal',
+  'Manab Dental Home',
+  'Madhyapur Hospital',
+  'Aspire Academy',
 ]
 
 export function MentorCompaniesMarquee() {
   return (
     <section
       id="mentor-companies"
-      className="scroll-mt-32 overflow-hidden bg-[#f8f9ff] px-4 py-12 sm:px-8"
+      className="scroll-mt-32 overflow-hidden bg-white px-4 py-12 sm:px-8"
       aria-label="Mentor companies"
     >
       <div className="mx-auto max-w-[1380px]">

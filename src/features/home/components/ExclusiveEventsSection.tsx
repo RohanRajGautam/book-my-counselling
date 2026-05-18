@@ -41,7 +41,7 @@ const exclusiveEvents = [
     name: 'Biplab Subedi',
     role: 'Managing Director',
     company: 'OpenAI',
-    logoLabel: '/home/exclusive-events/gold.png',
+    logoLabel: '/home/exclusive-events/snappet.png',
     image: '/home/exclusive-events/biplab_subedi.png',
     description:
       'Expert in venture capital cycles and strategic mergers within the burgeoning global technology sector.',
@@ -69,13 +69,13 @@ export function ExclusiveEventsSection() {
   return (
     <section className="px-4 pb-20 sm:px-8 lg:pb-28">
       <div className="mx-auto max-w-[1280px]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-extrabold tracking-[0.18em] text-[#004ac6] uppercase">
+            {/* <p className="text-sm font-extrabold tracking-[0.18em] text-[#004ac6] uppercase">
               Mentorship redefined
-            </p>
-            <h2 className="mt-4 font-[family-name:var(--font-headline)] text-4xl leading-[1.05] font-extrabold text-[#121c2a] sm:text-5xl lg:text-6xl">
-              Exclusive Events
+            </p> */}
+            <h2 className="mt-4 font-[family-name:var(--font-headline)] text-4xl leading-[1.05] font-extrabold text-[#121c2a] sm:text-5xl">
+              Exclusive <span className="text-blue-600">Events</span>
             </h2>
           </div>
 
@@ -106,15 +106,15 @@ export function ExclusiveEventsSection() {
           {exclusiveEvents.map((event) => (
             <article
               key={event.name}
-              className="flex min-h-[560px] w-[82vw] max-w-[360px] shrink-0 snap-start flex-col rounded-xl bg-white p-3 shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 ring-[#d9e3f6]/55 sm:w-[44vw] lg:w-auto lg:max-w-none"
+              className="flex min-h-[560px] w-[82vw] max-w-[360px] shrink-0 snap-start flex-col rounded-xl bg-white px-2 pt-2 pb-4 shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 ring-[#d9e3f6]/55 sm:w-[44vw] lg:w-auto lg:max-w-none"
             >
-              <div className="relative aspect-[3/5] overflow-hidden rounded-xl bg-[#eff4ff]">
+              <div className="relative aspect-[5/5] overflow-hidden rounded-xl bg-[#eff4ff]">
                 <Image
                   src={event.image}
                   alt={event.name}
                   fill
                   sizes="(min-width: 1024px) 280px, (min-width: 640px) 44vw, 82vw"
-                  className="object-cover"
+                  className="object-cover object-top"
                   priority
                 />
                 <div className="absolute bottom-4 left-4 flex max-w-[calc(100%-2rem)] items-center gap-2 rounded-md bg-white/92 px-3 py-2 text-xs font-extrabold text-[#121c2a] shadow-[0_10px_24px_rgba(18,28,42,0.16)] backdrop-blur">
