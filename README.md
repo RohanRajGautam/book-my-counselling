@@ -1,158 +1,69 @@
-# Book Your Counselling
+# Book Your Counselling — Frontend
 
-A modern, production-ready Next.js application for booking professional counselling services. Built with Next.js 15, React 19, TypeScript, Tailwind CSS v4, and shadcn/ui.
+Next.js frontend for the BYC mentor-booking platform. Consumes the FastAPI backend at `NEXT_PUBLIC_API_URL`.
 
-## Features
+**Stack:** Next.js 16.2.4 (App Router) · React 19.2.4 · TypeScript 5 (strict + `noUncheckedIndexedAccess`) · Tailwind CSS v4 · TanStack Query v5 · axios · shadcn/ui (`base-nova` style) · framer-motion · sonner · next-themes.
 
-- 🎨 Modern, responsive design with Tailwind CSS v4
-- 🌗 Dark mode support with next-themes
-- ♿ Accessibility-first approach
-- 🎭 Smooth animations with Framer Motion
-- 📱 Mobile-first responsive design
-- 🔒 Type-safe with TypeScript
-- 🎯 SEO optimized with Next.js metadata API
-- 🚀 Optimized performance with Next.js 15
+For the mental model of how the code is organized, see [`ARCHITECTURE.md`](./ARCHITECTURE.md). For Next.js 16 / React 19 rules and project-specific conventions, see [`AGENTS.md`](./AGENTS.md) (also loaded by Claude via `CLAUDE.md`).
 
-## Tech Stack
+## Quick start
 
-- **Framework:** Next.js 15 (App Router)
-- **Language:** TypeScript 5
-- **Styling:** Tailwind CSS v4
-- **UI Components:** shadcn/ui (new-york style)
-- **Icons:** Lucide React
-- **Animations:** Framer Motion
-- **Theme:** next-themes
-- **Image Optimization:** Sharp
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm, yarn, pnpm, or bun
-
-### Installation
-
-1. Clone the repository:
-
-\`\`\`bash
-git clone <repository-url>
-cd book-my-counselling
-\`\`\`
-
-2. Install dependencies:
-
-\`\`\`bash
+```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
-\`\`\`
+cp .env.example .env        # then point NEXT_PUBLIC_API_URL at a running backend
+npm run dev                 # http://localhost:3000
+```
 
-3. Run the development server:
+Without a reachable backend at `NEXT_PUBLIC_API_URL`, every authenticated request will fail — bring the FastAPI service up first (default `http://localhost:8000/api/v1`).
 
-\`\`\`bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-\`\`\`
+## Scripts
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+| Command         | What it does                                          |
+| --------------- | ----------------------------------------------------- |
+| `npm run dev`   | Dev server on `:3000` (Turbopack is default in Next 16) |
+| `npm run build` | Production build                                      |
+| `npm run start` | Serve the production build                            |
+| `npm run lint`  | ESLint via `eslint-config-next` (core-web-vitals + ts) |
 
-## Project Structure
+No test runner is configured.
 
-\`\`\`
+## Environment
+
+| Variable              | Required | Default (dev)                       | Notes                                  |
+| --------------------- | -------- | ----------------------------------- | -------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | yes      | `http://localhost:8000/api/v1`      | Base URL for the FastAPI backend       |
+
+Preview and production values are set in the Vercel dashboard per environment (see comments in `.env.example`).
+
+## Project layout
+
+```
 src/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout with metadata
-│   ├── page.tsx           # Home page
-│   ├── not-found.tsx      # 404 page
-│   └── globals.css        # Global styles & Tailwind config
-├── components/
-│   ├── ui/                # shadcn/ui components
-│   ├── layout/            # Layout components (Navbar, Footer)
-│   ├── sections/          # Page sections (Hero, Services, etc.)
-│   └── common/            # Reusable components
-├── lib/
-│   ├── utils.ts           # Utility functions
-│   └── constants.ts       # Site configuration
-├── hooks/                 # Custom React hooks
-├── types/                 # TypeScript type definitions
-└── public/                # Static assets
-\`\`\`
+├── app/              # App Router. Three route surfaces:
+│   ├── (public)/         # marketing + booking funnel (Navbar + Footer)
+│   ├── mentor/           # mentor dashboard (MentorAuthGate + sidebar)
+│   └── admin/            # admin panel (AdminAuthGate)
+├── features/         # All product code, one folder per domain.
+│   └── <name>/{api,components,hooks,types,lib}
+├── components/       # Cross-feature primitives:
+│   ├── ui/               # shadcn/ui (base-nova)
+│   ├── layout/           # Navbar, Footer, MentorNav
+│   └── common/           # SectionContainer, AnimatedSection, etc.
+├── lib/              # Shared infra
+│   ├── api/              # apiClient (axios instance + auth interceptor)
+│   ├── auth/             # localStorage token helpers
+│   └── utils.ts
+├── hooks/            # App-wide hooks (use-mobile)
+└── types/            # Ambient/global TypeScript types
+```
 
-## Available Scripts
+Route files under `src/app/**/page.tsx` are intentionally thin — they import a feature component (e.g. `BookingPageContent`) and render it. New product code goes under `src/features/<name>/`.
 
-- \`npm run dev\` - Start development server
-- \`npm run build\` - Build for production
-- \`npm run start\` - Start production server
-- \`npm run lint\` - Run ESLint
+## Deployment
 
-## Customization
+Deployed via Vercel. The `develop` branch builds to a preview env pointing at the dev API; `main` builds to production pointing at the prod API. Both URLs are configured as environment variables in the Vercel dashboard — keep `.env.example` in sync when the contract changes.
 
-### Design Tokens
+## Conventions
 
-All design tokens (colors, fonts, spacing) are defined in \`src/app/globals.css\` using Tailwind v4's \`@theme\` directive.
-
-### Site Configuration
-
-Update site metadata and navigation in \`src/lib/constants.ts\`.
-
-### Adding Components
-
-Add new shadcn/ui components:
-
-\`\`\`bash
-npx shadcn@latest add [component-name]
-\`\`\`
-
-## Performance
-
-This project is optimized for performance:
-
-- Server Components by default
-- Optimized fonts with next/font
-- Image optimization with next/image
-- Code splitting and lazy loading
-- Minimal client-side JavaScript
-
-## Accessibility
-
-- Semantic HTML
-- ARIA labels where needed
-- Keyboard navigation support
-- Focus visible states
-- Screen reader friendly
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## License
-
-MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-
-## Screenshots
-
-<img width="3024" height="5257" alt="image" src="https://github.com/user-attachments/assets/f80e092f-fa3c-4782-88d2-f92ffc704bd2" />
-
-
-<img width="3024" height="1952" alt="image" src="https://github.com/user-attachments/assets/f2646e26-86c2-4bfc-95af-a2a2764bfa8c" />
-
-<img width="3024" height="3314" alt="image" src="https://github.com/user-attachments/assets/246d1fc6-ddc8-448a-ac4a-edfa7ff405c7" />
-
+- Formatting: Prettier (no semicolons, single quotes, 2-space indent, 100-char width, `prettier-plugin-tailwindcss` sorts classes). Run your editor's Prettier integration; there is no commit hook.
+- See [`AGENTS.md`](./AGENTS.md) for Next.js 16 rules (async `cookies()/headers()/params/searchParams`, `proxy.ts` replaces `middleware.ts`, fetch is no-cache by default, etc.) and project-specific conventions.
