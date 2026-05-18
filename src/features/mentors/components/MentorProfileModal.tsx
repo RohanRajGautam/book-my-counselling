@@ -164,29 +164,32 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
           <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-7 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <div className="absolute top-0 left-0 -z-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]"></div>
             <div className="relative z-10">
-              <div className="mx-auto mb-5 h-28 w-28 overflow-hidden rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
-                {/* <Image
-                  src={mentor.user?.avatar_url || '/globe.svg'}
-                  alt={`${mentor.user?.full_name} profile`}
-                  width={128}
-                  height={128}
-                  className="h-full w-full object-cover"
-                /> */}
-
-                {mentor.user?.avatar_url ? (
-                  <Image
-                    src={mentor.user.avatar_url}
-                    alt={`${mentor.user.full_name} profile`}
-                    width={80}
-                    height={80}
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
+              <div className="relative mx-auto mb-5 h-28 w-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
+                <div className="h-full w-full overflow-hidden rounded-full">
+                  {mentor.user?.avatar_url ? (
+                    <Image
+                      src={mentor.user.avatar_url}
+                      alt={`${mentor.user.full_name} profile`}
+                      width={112}
+                      height={112}
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      aria-label={`${mentor.user?.full_name} profile initials`}
+                      className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]"
+                    >
+                      {initials}
+                    </div>
+                  )}
+                </div>
+                {mentor.is_verified && (
                   <div
-                    aria-label={`${mentor.user?.full_name} profile initials`}
-                    className="flex h-full w-full items-center justify-center rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]"
+                    className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border-[3px] border-white bg-green-700 shadow-[0_8px_18px_rgba(0,83,219,0.24)]"
+                    aria-label="Verified profile"
+                    title="Verified profile"
                   >
-                    {initials}
+                    <Check className="size-4 text-white" strokeWidth={4} aria-hidden="true" />
                   </div>
                 )}
               </div>
@@ -196,13 +199,6 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
               <p className="mx-auto mb-4 max-w-[320px] text-base leading-7 font-medium text-[#434655]">
                 {mentor.title} {mentor.company && `at ${mentor.company}`}
               </p>
-
-              {mentor.is_verified && (
-                <div className="mb-5 inline-flex items-center gap-1.5 rounded-full bg-[#6cf8bb]/30 px-3 py-1.5 text-sm font-bold text-[#00714d]">
-                  <Check className="h-[18px] w-[18px]" strokeWidth={3} />
-                  Verified Mentor
-                </div>
-              )}
 
               <div className="mb-5 grid grid-cols-3 overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]">
                 <div className="px-3 py-3">

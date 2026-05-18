@@ -19,14 +19,10 @@ export function HeroSection() {
   const router = useRouter()
 
   const handleSearchSubmit = () => {
-    const resultsSection = document.getElementById('mentor-discovery')
+    const search = filters.jobTitle?.trim()
+    const query = search ? `?q=${encodeURIComponent(search)}` : ''
 
-    if (resultsSection) {
-      resultsSection.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
-    }
+    router.push(`/explore-mentors${query}`)
   }
 
   const handleCardTouchPress = (event: PointerEvent<HTMLDivElement>) => {

@@ -104,7 +104,7 @@ export function MentorCard({
           <h3 className="line-clamp-2 font-[family-name:var(--font-headline)] text-lg font-extrabold tracking-tight text-[#121c2a] transition group-hover:text-[#004ac6]">
             {displayName}
           </h3>
-          {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>}
+          {/* {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>} */}
           <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
             {role}
             {company ? `, ${company}` : ''}

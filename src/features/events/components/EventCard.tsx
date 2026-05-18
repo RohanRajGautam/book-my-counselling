@@ -38,29 +38,29 @@ export function EventCard({ event }: EventCardProps) {
             className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
           />
 
-          <div className="absolute bottom-0 flex h-17 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
+          <div className="absolute bottom-0 flex h-14 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
             <span className="text-balance">{event.topic}</span>
           </div>
         </div>
 
         <div className="flex flex-1 flex-col px-4 pt-4 pb-4 sm:px-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="mb-2 text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
                 Exclusive Event
               </p>
 
-              <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
+              <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.4rem]">
                 {event.guestName}
               </h2>
             </div>
 
-            <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
+            <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-center">
               <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
                 Register at just
               </p>
 
-              <p className="mt-1 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
+              <p className="mt-1 font-[family-name:var(--font-headline)] text-lg font-extrabold tracking-tight text-[#121c2a]">
                 NPR {event.pricePerSeat}/seat
               </p>
             </div>

@@ -33,7 +33,7 @@ export function ExploreMentorsHeader() {
           <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold text-[#121c2a] md:text-[45px]">
             Explore <span className="text-[#0053db]">Expert Mentors</span>
           </h1>
-          <p className="mt-4 max-w-[590px] text-base leading-8 font-medium text-[#5f6472]">
+          <p className="mt-4 max-w-[600px] text-base leading-8 font-medium text-[#5f6472]">
             Connect with world-class guides to navigate your academic journey or professional career
             path.
           </p>
