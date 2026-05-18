@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { BriefcaseBusiness, Check, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react'
 
 import {
   useCategorySubcategories,
@@ -129,6 +129,7 @@ function CategoryFilterRow({
           >
             {isSelected && <Check className="size-3.5" strokeWidth={3.5} />}
           </span>
+
           <span className="min-w-0 flex-1">{category.name}</span>
         </button>
         <button
@@ -230,8 +231,13 @@ function CategoryFilterGroup({
     <section className="overflow-hidden rounded-lg bg-white shadow">
       <div className="border-b border-[#eef2f7] px-5 py-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="text-md leading-tight font-extrabold text-[#111827]">{title}</h3>
+          <div className="flex min-w-0 items-center justify-between gap-2">
+            {title === 'Professional Counseling' ? (
+              <BriefcaseBusiness className="text-blue-700" />
+            ) : (
+              <GraduationCap className="text-blue-700" />
+            )}
+            <h3 className="text-sm leading-tight font-extrabold text-[#111827]">{title}</h3>
           </div>
         </div>
       </div>

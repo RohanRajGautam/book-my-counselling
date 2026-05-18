@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { ArrowRight, BookOpen, Compass, Menu, Rocket, X } from 'lucide-react'
+import Image from 'next/image'
 
 const navItems = [
   { href: '/explore-mentors', label: 'Explore Mentors', icon: Compass },
-  { href: '/how-it-works', label: 'How it Works', icon: BookOpen },
+  { href: '/how-it-works', label: 'How it Works', icon: Compass },
+  // { href: '/events', label: '"३० मा ३०"', icon: BookOpen },
   // { href: '/about', label: 'About Us' },
 ]
 
@@ -63,14 +65,22 @@ export function Navbar() {
         }`}
       >
         <div className="mx-auto flex max-w-[1380px] items-center justify-between px-4 py-4 sm:px-8">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-headline)] text-xl font-bold tracking-tight text-blue-700 sm:text-2xl dark:text-blue-300"
-          >
-            Book Your Counselling
-          </Link>
+          <div>
+            <Link
+              href="/"
+              className="flex items-center font-[family-name:var(--font-headline)] text-xl font-bold tracking-tight text-blue-700 sm:text-2xl dark:text-blue-300"
+            >
+              {/* <Image
+              src={'/home/byc-logo.svg'}
+              alt="Book Your Counselling Logo"
+              width={32}
+              height={32}
+            /> */}
+              Book Your Counselling
+            </Link>
+          </div>
 
-          <div className="hidden items-center space-x-8 md:flex">
+          <div className="hidden gap-8 sm:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -84,15 +94,58 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+          </div>
+
+          <div className="hidden gap-4 sm:flex">
+            {/* <Link
+              href="/events"
+              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
+            >
+              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
+
+              <span
+                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-1 text-lg font-semibold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
+                  isActive('/events')
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
+                } `}
+              >
+                "३० मा ३०"
+              </span>
+            </Link> */}
 
             <Link
               href="/school-to-startup"
               className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
             >
-              {/* The Moving Stroke Layer */}
               <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
 
-              {/* The Content Layer */}
+              <span
+                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-1 py-2 text-lg text-sm font-semibold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
+                  isActive('/school-to-startup')
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
+                } `}
+              >
+                School to Startup
+              </span>
+            </Link>
+            {/* <Link
+              href={'/school-to-startup'}
+              className={`flex items-center rounded-full font-[family-name:var(--font-headline)] text-sm font-bold tracking-tight transition-colors ${
+                isActive('/school-to-startup') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
+              }`}
+            >
+              <div className="px-4"> School to Startup</div>
+            </Link> */}
+            {/* <Link
+              href="/school-to-startup"
+              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
+            >
+            
+              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
+
+            
               <span
                 className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
                   isActive('/school-to-startup')
@@ -102,7 +155,7 @@ export function Navbar() {
               >
                 School to Startup
               </span>
-            </Link>
+            </Link> */}
           </div>
 
           <button
@@ -115,13 +168,13 @@ export function Navbar() {
           >
             <Menu
               className={`absolute size-5 transition-all duration-200 ${
-                mobileMenuOpen ? 'rotate-90 scale-75 opacity-0' : 'rotate-0 scale-100 opacity-100'
+                mobileMenuOpen ? 'scale-75 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
               }`}
               aria-hidden="true"
             />
             <X
               className={`absolute size-5 transition-all duration-200 ${
-                mobileMenuOpen ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-75 opacity-0'
+                mobileMenuOpen ? 'scale-100 rotate-0 opacity-100' : 'scale-75 -rotate-90 opacity-0'
               }`}
               aria-hidden="true"
             />
@@ -177,7 +230,9 @@ export function Navbar() {
                 <span className="flex-1">{item.label}</span>
                 <ArrowRight
                   className={`size-4 transition ${
-                    active ? 'text-[#004ac6]' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
+                    active
+                      ? 'text-[#004ac6]'
+                      : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
                   }`}
                   aria-hidden="true"
                 />
@@ -187,13 +242,30 @@ export function Navbar() {
 
           {/* Divider */}
           <div className="my-1 h-px bg-slate-100 dark:bg-slate-800" aria-hidden="true" />
+          {/* <Link
+            href="/events"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
+              isActive('/events')
+                ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
+                : ''
+            }`}
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
+              <Rocket className="size-4" aria-hidden="true" />
+            </span>
+            <span className="flex-1"> "३० मा ३०"</span>
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link> */}
 
           {/* Primary CTA */}
           <Link
             href="/school-to-startup"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
-              isActive('/school-to-startup') ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''
+              isActive('/school-to-startup')
+                ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
+                : ''
             }`}
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">

@@ -1,7 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
-import { FilterState } from '../types/filter.types'
+import { createContext, useContext, useState, type ReactNode } from 'react'
+import { type FilterState } from '../types/filter.types'
 
 interface FilterContextType {
   filters: FilterState
@@ -33,8 +33,17 @@ const defaultFilters: FilterState = {
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined)
 
-export function FilterProvider({ children }: { children: ReactNode }) {
-  const [filters, setFilters] = useState<FilterState>(defaultFilters)
+export function FilterProvider({
+  children,
+  initialFilters,
+}: {
+  children: ReactNode
+  initialFilters?: Partial<FilterState>
+}) {
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    ...defaultFilters,
+    ...initialFilters,
+  }))
   const [currentPage, setCurrentPage] = useState(1)
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
