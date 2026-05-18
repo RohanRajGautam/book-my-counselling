@@ -169,11 +169,11 @@ export function HeroSection() {
 
                         <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
                           <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
-                            Register at just
+                            Registration
                           </p>
 
-                          <p className="mt-1 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
-                            NPR {FEATURED_EVENT.pricePerSeat}/seat
+                          <p className="mt-1 text-center font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
+                            FREE
                           </p>
                         </div>
                       </div>
