@@ -8,7 +8,7 @@ const exclusiveEvents = [
   {
     name: 'Dr. Kamala Shrestha',
     role: 'Women Entrepreneur Leader',
-    logoLabel: '/',
+    logoLabel: '/home/exclusive-events/fuse.png',
     image: '/home/exclusive-events/kamala.jpeg',
     description:
       'Dr. Kamala Shrestha is a pioneering Nepalese beautician, entrepreneur, educator, and social leader who founded Siam Beauty Salon and Siam Institute of Hair Design and Beauty Care, played a major role in professionalizing Nepal’s beauty industry, and held leadership positions in organizations like FNCCI and Beautician Professional Association Nepal. She has received numerous national and international recognitions, trained countless beauticians, represented Nepal globally through entrepreneurship and women empowerment initiatives, and was honored with awards including Nepal Government’s Prabal Jana Padh and the NEWBIZ Lifetime Achievement Award.',
@@ -115,6 +115,7 @@ export function ExclusiveEventsSection() {
                   fill
                   sizes="(min-width: 1024px) 280px, (min-width: 640px) 44vw, 82vw"
                   className="object-cover"
+                  priority
                 />
                 <div className="absolute bottom-4 left-4 flex max-w-[calc(100%-2rem)] items-center gap-2 rounded-md bg-white/92 px-3 py-2 text-xs font-extrabold text-[#121c2a] shadow-[0_10px_24px_rgba(18,28,42,0.16)] backdrop-blur">
                   <div className="relative h-6 w-28">
