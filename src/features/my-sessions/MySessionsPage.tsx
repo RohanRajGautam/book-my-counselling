@@ -141,20 +141,43 @@ function SessionCard({
             Cancel
           </Button>
         )}
-        {(activeStatus === 'completed' || activeStatus === 'cancelled') && (
-          <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold ${
-              activeStatus === 'completed'
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-red-100 text-red-600'
-            }`}
-          >
-            {activeStatus === 'completed' ? 'Completed' : 'Cancelled'}
+        {activeStatus === 'completed' && (
+          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-700">
+            Completed
           </span>
+        )}
+        {activeStatus === 'cancelled' && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-extrabold text-red-600">
+              Cancelled
+            </span>
+            <RefundBadge paymentStatus={booking.payment_status} />
+          </div>
         )}
       </div>
     </article>
   )
+}
+
+function RefundBadge({ paymentStatus }: { paymentStatus: string }) {
+  if (paymentStatus === 'refunded') {
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-700">
+        Refunded
+      </span>
+    )
+  }
+  if (paymentStatus === 'paid') {
+    return (
+      <span
+        className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700"
+        title="Refund is awaiting admin processing. The mentee will receive an email once it's completed."
+      >
+        Refund pending
+      </span>
+    )
+  }
+  return null
 }
 
 export function MySessionsPage() {
