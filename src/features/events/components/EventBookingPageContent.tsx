@@ -13,6 +13,7 @@ import {
   validateBookingForm,
   type BookingFormData,
 } from '@/features/booking/lib/validation'
+import { EventOrderSummary } from './EventOrderSummery'
 
 type EventBookingDetails = {
   guestName: string
@@ -269,7 +270,7 @@ export function EventBookingPageContent() {
 
         <div className="w-full lg:w-[400px]">
           <div className="sticky top-32 space-y-8">
-            <OrderSummary
+            <EventOrderSummary
               mentor={{
                 name: eventDetails.guestName,
                 title: eventDetails.guestDesc,
@@ -281,8 +282,6 @@ export function EventBookingPageContent() {
                 startTime: null,
                 endTime: null,
               }}
-              price={0}
-              priceLabel="FREE"
             />
 
             {isSubmitted ? (
