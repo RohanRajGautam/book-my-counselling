@@ -17,26 +17,27 @@ interface OrderSummaryProps {
     endTime?: string | null
   }
   price: number
+  priceLabel?: string
 }
 
-export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
+export function OrderSummary({ mentor, session, price, priceLabel }: OrderSummaryProps) {
   const initials = getInitials(mentor.name)
   const imageSrc = mentor.imageUrl?.trim() || null
 
   let sessionDate = ''
   let sessionTime = ''
-  
+
   if (session.startTime && session.endTime) {
     const start = new Date(session.startTime)
     const end = new Date(session.endTime)
-    
+
     sessionDate = start.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     })
-    
+
     const startTimeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     const endTimeStr = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     sessionTime = `${startTimeStr} - ${endTimeStr}`
@@ -78,14 +79,14 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
 
       {/* Session Details */}
       <div className="mb-8 space-y-4">
-        <div className="flex flex-col gap-2 items-start justify-between">
+        <div className="flex flex-col items-start justify-between gap-2">
           <span className="flex items-center gap-2 text-[#434655]">
             <Video className="h-5 w-5" />
             {session.type}
           </span>
           <span className="flex items-center justify-start gap-2 text-[#434655]">
             <TimerIcon className="h-5 w-5" />
-          <span className="font-semibold text-[#121c2a]">{session.duration}</span>
+            <span className="font-semibold text-[#121c2a]">{session.duration}</span>
           </span>
         </div>
 
@@ -109,7 +110,7 @@ export function OrderSummary({ mentor, session, price }: OrderSummaryProps) {
           Total
         </span>
         <span className="font-[family-name:var(--font-headline)] text-2xl font-bold text-[#004ac6]">
-          NPR {price.toLocaleString()}
+          {priceLabel ?? `NPR ${price.toLocaleString()}`}
         </span>
       </div>
     </div>

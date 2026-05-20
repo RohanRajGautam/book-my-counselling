@@ -97,7 +97,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden gap-4 sm:flex">
-            {/* <Link
+            <Link
               href="/events"
               className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
             >
@@ -112,9 +112,9 @@ export function Navbar() {
               >
                 "३० मा ३०"
               </span>
-            </Link> */}
+            </Link>
 
-            <Link
+            {/* <Link
               href="/school-to-startup"
               className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
             >
@@ -129,15 +129,15 @@ export function Navbar() {
               >
                 School to Startup
               </span>
-            </Link>
-            {/* <Link
+            </Link> */}
+            <Link
               href={'/school-to-startup'}
               className={`flex items-center rounded-full font-[family-name:var(--font-headline)] text-sm font-bold tracking-tight transition-colors ${
                 isActive('/school-to-startup') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
               }`}
             >
               <div className="px-4"> School to Startup</div>
-            </Link> */}
+            </Link>
             {/* <Link
               href="/school-to-startup"
               className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"

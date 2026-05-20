@@ -82,7 +82,15 @@ export function EventCard({ event }: EventCardProps) {
           </div>
 
           <Link
-            href="/booking?isEvent=true"
+            href={{
+              pathname: '/event-booking',
+              query: {
+                guestName: event.guestName,
+                guestDesc: event.guestDesc,
+                imageUrl: event.imageUrl,
+                topic: event.topic,
+              },
+            }}
             className="mt-6 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
           >
             Secure Spot
