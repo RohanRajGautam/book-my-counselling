@@ -242,7 +242,7 @@ export function Navbar() {
 
           {/* Divider */}
           <div className="my-1 h-px bg-slate-100 dark:bg-slate-800" aria-hidden="true" />
-          {/* <Link
+          <Link
             href="/events"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
@@ -256,7 +256,7 @@ export function Navbar() {
             </span>
             <span className="flex-1"> "३० मा ३०"</span>
             <ArrowRight className="size-4" aria-hidden="true" />
-          </Link> */}
+          </Link>
 
           {/* Primary CTA */}
           <Link

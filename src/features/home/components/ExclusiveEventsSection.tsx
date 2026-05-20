@@ -42,7 +42,7 @@ const exclusiveEvents: ExclusiveEvent[] = [
   },
   {
     name: 'Prayash Poudel',
-    role: 'Principal AI Scientist',
+    role: 'Principal AI Engineer',
     expertise: 'Expertise: Software Engineering, Enterprise Systems, SAP',
 
     logoLabel: '/home/exclusive-events/leapfrog.png',
