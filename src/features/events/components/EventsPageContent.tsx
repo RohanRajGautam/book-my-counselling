@@ -1,13 +1,26 @@
 import { CalendarDays, Clock3, Users } from 'lucide-react'
 import { EventCard, type EventCardDetails } from '@/features/events/components/EventCard'
 
-const eventStats = [
-  { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
-  { Icon: Clock3, title: '60 minutes', label: 'Compact workshop' },
-  { Icon: Users, title: 'Limited seats', label: 'Small cohort' },
-]
+// const eventStats = [
+//   { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
+//   { Icon: Clock3, title: '60 minutes', label: 'Compact workshop' },
+//   { Icon: Users, title: 'Limited seats', label: 'Small cohort' },
+// ]
 
 const events: EventCardDetails[] = [
+  {
+    guestName: 'Bikash Thapaliya',
+    guestDesc: 'Executive Producer and News Coordinator at Image Channel & CEO of NepalVox',
+    imageUrl: '/events/bikash.png',
+    topic: 'Career in Journalism',
+    seats: 100,
+    pricePerSeat: 100,
+    highlights: [
+      'Overview of modern journalism careers',
+      'Live Q&A for starting out',
+      'Building a strong media portfolio',
+    ],
+  },
   {
     guestName: 'Samrat Adhikari',
     guestDesc: 'Founder/Content Creator - Katha Creation',
@@ -16,9 +29,9 @@ const events: EventCardDetails[] = [
     seats: 100,
     pricePerSeat: 100,
     highlights: [
-      '5+ Years of Industry Experience in Digital Marketing',
-      'Founder, Unlocked AI',
-      'AI and Marketing Content Creator',
+      'Monetizing your digital content skills',
+      'Tools for effective storytelling online',
+      'Live Q&A on creator growth',
     ],
   },
   {
@@ -29,12 +42,11 @@ const events: EventCardDetails[] = [
     seats: 80,
     pricePerSeat: 100,
     highlights: [
-      'Practical career decision frameworks',
-      'Live Q&A with mentor guidance',
-      'Designed for students and guardians',
+      'Essential AI tools for beginners',
+      'Enhancing study with AI workflows',
+      'Future-proofing your career skills',
     ],
   },
-
   {
     guestName: 'Nischal Karki',
     guestDesc: 'Content Creator',
@@ -43,9 +55,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Crafting engaging content for brands',
+      'Building a loyal online audience',
+      'Portfolio regarding QnA for new creators',
     ],
   },
   {
@@ -56,9 +68,9 @@ const events: EventCardDetails[] = [
     seats: 75,
     pricePerSeat: 150,
     highlights: [
-      'Prompting workflows for study and work',
-      'Hands-on AI tool walkthrough',
-      'Templates to keep using after class',
+      'Scope of biotechnology in Nepal',
+      'Research and lab career paths',
+      'Live Q&A on biotech studies',
     ],
   },
   {
@@ -69,9 +81,9 @@ const events: EventCardDetails[] = [
     seats: 90,
     pricePerSeat: 100,
     highlights: [
-      'Plan content without overthinking',
-      'Short-form content basics',
-      'Simple posting and review routine',
+      'Starting a professional beauty salon',
+      'Essential skills for makeup artists',
+      'Customer management in beauty industry',
     ],
   },
   {
@@ -82,9 +94,9 @@ const events: EventCardDetails[] = [
     seats: 100,
     pricePerSeat: 200,
     highlights: [
-      'Marketing funnels explained simply',
-      'Beginner-friendly campaign structure',
-      'Real examples from digital brands',
+      'Officer cadet selection process explained',
+      'Life and discipline in military',
+      'Leadership skills for army officers',
     ],
   },
   {
@@ -95,9 +107,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Integrating AI in software development',
+      'Future of coding with AI',
+      'Live Q&A on tech careers',
     ],
   },
   {
@@ -108,9 +120,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Preparing for medical entrance exams',
+      'Life as a medical student',
+      'Specialization paths after MBBS degree',
     ],
   },
   {
@@ -121,9 +133,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Flight school and training requirements',
+      'Day in the life of pilot',
+      'Aviation safety and career growth',
     ],
   },
   {
@@ -134,9 +146,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Core skills for mechanical engineers',
+      'Aircraft maintenance and engineering roles',
+      'Job opportunities in heavy industries',
     ],
   },
   {
@@ -147,9 +159,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'APF inspector exam preparation tips',
+      'Physical and mental fitness requirements',
+      'Serving the nation through APF',
     ],
   },
   {
@@ -160,9 +172,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Pathway to becoming dental surgeon',
+      'Setting up a dental clinic',
+      'Modern technologies in dental care',
     ],
   },
   {
@@ -173,9 +185,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Core skills for HR professionals',
+      'Talent acquisition and team management',
+      'Building effective corporate work cultures',
     ],
   },
   {
@@ -186,9 +198,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Launching successful physical tech products',
+      'Securing funding for your startup',
+      'Navigating hardware business in Nepal',
     ],
   },
   {
@@ -199,9 +211,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Exploring nursing specialties and roles',
+      'Patient care and clinical skills',
+      'Global opportunities for registered nurses',
     ],
   },
   {
@@ -212,9 +224,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Navigating computer engineering career paths',
+      'Software vs hardware engineering roles',
+      'Transitioning to tech project management',
     ],
   },
   {
@@ -225,25 +237,24 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Embedded systems and IoT careers',
+      'Circuit design and hardware development',
+      'Bridging electronics with software programming',
     ],
   },
   {
-    guestName: 'Nabin',
-    guestDesc: 'Civil Engineer at Smart Builder Nepal',
+    guestName: 'Nabin Paudel',
+    guestDesc: 'Product Manager at Webpoint Technology',
     imageUrl: '/events/nabin.png',
-    topic: 'Career in IT Project Management',
+    topic: 'Scope in IT Product and Project Management',
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Agile and Scrum methodologies explained',
+      'Managing tech teams and deadlines',
+      'Essential tools for project managers',
     ],
   },
-
   {
     guestName: 'Sarthak KC',
     guestDesc: 'Ground Handling at Summit Air',
@@ -252,23 +263,22 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Ground handling and airport operations',
+      'Aviation management career growth paths',
+      'Ensuring safety in daily flights',
     ],
   },
-
   {
-    guestName: 'Aashutosh Paudel',
+    guestName: 'Aashutosh Poudel',
     guestDesc: 'Principal Mobile App Developer at Webpoint Technology',
     imageUrl: '/events/aashutosh.png',
     topic: 'Career in Mobile Development',
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'iOS and Android development paths',
+      'Building scalable mobile applications today',
+      'Essential frameworks for app developers',
     ],
   },
   {
@@ -279,9 +289,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Crafting clear software documentation guides',
+      'Tools for modern technical writers',
+      'Bridging developers and end users',
     ],
   },
   {
@@ -292,9 +302,9 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Getting started with machine learning',
+      'Real-world robotics and automation use',
+      'Required math and programming skills',
     ],
   },
   {
@@ -305,12 +315,12 @@ const events: EventCardDetails[] = [
     seats: 60,
     pricePerSeat: 150,
     highlights: [
-      'Turn projects into portfolio stories',
-      'Showcase skills with clear proof',
-      'Review checklist for first portfolio',
+      'Navigating the rigorous CA exams',
+      'Audit, tax, and finance roles',
+      'Career prospects for chartered accountants',
     ],
   },
-]
+];
 
 export function EventsPageContent() {
   return (
