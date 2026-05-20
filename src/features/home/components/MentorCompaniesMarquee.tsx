@@ -1,6 +1,5 @@
 const MENTOR_COMPANIES = [
   'Leapfrog',
-  'Fuse Machine',
   'Snappet',
   'Webpoint',
   'Legal Access Nepal',
