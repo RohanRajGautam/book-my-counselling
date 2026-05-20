@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { Video, Calendar, Clock, TimerIcon } from 'lucide-react'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 
-interface OrderSummaryProps {
+interface EventOrderSummaryProps {
   mentor: {
     name: string
     title: string
@@ -16,11 +16,9 @@ interface OrderSummaryProps {
     startTime?: string | null
     endTime?: string | null
   }
-  price: number
-  priceLabel?: string
 }
 
-export function OrderSummary({ mentor, session, price, priceLabel }: OrderSummaryProps) {
+export function EventOrderSummary({ mentor, session }: EventOrderSummaryProps) {
   const initials = getInitials(mentor.name)
   const imageSrc = mentor.imageUrl?.trim() || null
 
@@ -102,16 +100,6 @@ export function OrderSummary({ mentor, session, price, priceLabel }: OrderSummar
             </div>
           </div>
         )}
-      </div>
-
-      {/* Total */}
-      <div className="flex items-center justify-between border-t border-[#c3c6d7]/15 pt-6">
-        <span className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
-          Total
-        </span>
-        <span className="font-[family-name:var(--font-headline)] text-2xl font-bold text-[#004ac6]">
-          {priceLabel ?? `NPR ${price.toLocaleString()}`}
-        </span>
       </div>
     </div>
   )
