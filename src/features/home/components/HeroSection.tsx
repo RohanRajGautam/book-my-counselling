@@ -153,7 +153,7 @@ export function HeroSection() {
                           className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
                         />
 
-                        <div className="absolute bottom-0 flex h-14 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
+                        <div className="absolute bottom-0 flex h-12 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
                           <span className="text-balance">{FEATURED_EVENT.topic}</span>
                         </div>
                       </div>
@@ -171,7 +171,7 @@ export function HeroSection() {
                           </div>
 
                           <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
-                            <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
+                            <p className="text-center text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
                               Registration
                             </p>
 
@@ -198,7 +198,7 @@ export function HeroSection() {
                         <button
                           type="button"
                           onClick={handleSecureSpot}
-                          className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
+                          className="mt-6 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
                         >
                           Secure Spot
                           <ArrowUpRight className="size-4" aria-hidden="true" />
