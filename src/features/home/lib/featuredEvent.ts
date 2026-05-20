@@ -4,7 +4,7 @@ export const FEATURED_EVENT = {
     title: 'Digital Marketing and AI Content Creator',
     imageUrl: '/home/ashwin.png',
   },
-  topic: 'AI skills for SEE and +2 Appeared Students',
+  topic: 'AI skills for +2 Appeared Students',
   audience: 'Appeared Students',
   highlights: [
     '5+ Years of Industry Experience in Digital Marketing',
