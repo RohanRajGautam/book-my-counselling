@@ -320,12 +320,12 @@ const events: EventCardDetails[] = [
       'Career prospects for chartered accountants',
     ],
   },
-];
+]
 
 export function EventsPageContent() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f8ff] pt-15 pb-20">
-      <section className="relative isolate px-5 py-12 sm:px-8 lg:py-16">
+      <section className="relative isolate px-5 py-12 sm:px-8 lg:py-12">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#ffffff_0%,#f8f9ff_48%,#eef4ff_100%)]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]" />
         <div className="pointer-events-none absolute inset-0 -z-10 [background-image:linear-gradient(#d9e3f6_1px,transparent_1px),linear-gradient(90deg,#d9e3f6_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_72%)] [background-size:72px_72px] opacity-[0.34]" />
@@ -337,12 +337,12 @@ export function EventsPageContent() {
             </p>
 
             <h1 className="mt-7 font-[family-name:var(--font-headline)] text-[clamp(2.35rem,5.2vw,4.25rem)] leading-[0.98] font-extrabold tracking-tight text-[#121c2a]">
-              Learn live with focused mentor-led sessions.
+              Are you +2 appeared student?
             </h1>
 
             <p className="mt-6 text-base leading-8 text-[#434655] sm:text-lg">
-              Browse upcoming workshops and cohort sessions from Book Your Counselling, built for
-              practical guidance from people already doing the work.
+              Don't let a hasty decision ruin your next 4 years. <br /> Join our exclusive 1-hour
+              expert session and get absolute clarity on your future career path.
             </p>
           </div>
 
