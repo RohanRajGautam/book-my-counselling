@@ -5,7 +5,18 @@ import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { WebinarRequestModal } from './WebinarRequestModal'
 
-const exclusiveEvents = [
+export interface ExclusiveEvent {
+  name: string
+  role: string
+  expertise: string
+  logoLabel?: string
+  image: string
+  description: string
+  cta: string
+  date: string
+}
+
+const exclusiveEvents: ExclusiveEvent[] = [
   {
     name: 'Dr. Kamala Shrestha',
     role: 'Women Entrepreneur Leader',
@@ -21,8 +32,8 @@ const exclusiveEvents = [
     name: 'Nirmal Thapa',
     role: 'Director of Client Relations',
     expertise: 'Expertise: Client Relations, Customer Success, Sales, Marketing, Leadership.',
-    company: 'Book My Counselling',
-    logoLabel: '/home/exclusive-events/fuse.png',
+
+    // logoLabel: '/home/exclusive-events/fuse.png',
     image: '/home/exclusive-events/nirmal_thapa.png',
     description:
       "Nirmal Thapa's vision is to help build world-class skilled professionals in Nepal. With over 12 years of experience working with US clients and Nepal-based teams, he brings a unique cross-cultural perspective to skills development - delivering focused workshops and practical frameworks that help Nepali talent excel in global client environments",
@@ -31,9 +42,9 @@ const exclusiveEvents = [
   },
   {
     name: 'Prayash Poudel',
-    role: 'Principal AI Scientist',
+    role: 'Principal AI Engineer',
     expertise: 'Expertise: Software Engineering, Enterprise Systems, SAP',
-    company: 'Andreessen Horowitz',
+
     logoLabel: '/home/exclusive-events/leapfrog.png',
     image: '/home/exclusive-events/prayash_poudel.png',
     description:
@@ -45,7 +56,7 @@ const exclusiveEvents = [
     name: 'Biplab Subedi',
     role: 'Agile Master at Snappet',
     expertise: 'Expertise: Lean-Agile Coaching, Radical Transparency, Self-Managing Teams',
-    company: 'OpenAI',
+
     logoLabel: '/home/exclusive-events/snappet.png',
     image: '/home/exclusive-events/biplab_subedi.png',
     description:
@@ -132,16 +143,20 @@ export function ExclusiveEventsSection() {
                     priority
                   />
 
-                  <div className="absolute bottom-4 left-4 flex max-w-[calc(100%-2rem)] items-center gap-2 rounded-md bg-white/92 px-3 py-2 text-xs font-extrabold text-[#121c2a] shadow-[0_10px_24px_rgba(18,28,42,0.16)] backdrop-blur">
-                    <div className="relative h-6 w-28">
-                      <Image
-                        src={event.logoLabel}
-                        alt={event.name}
-                        fill
-                        className="object-contain"
-                      />
+                  {event.logoLabel ? (
+                    <div className="absolute bottom-4 left-4 flex max-w-[calc(100%-2rem)] items-center gap-2 rounded-md bg-white/92 px-3 py-2 text-xs font-extrabold text-[#121c2a] shadow-[0_10px_24px_rgba(18,28,42,0.16)] backdrop-blur">
+                      <div className="relative h-6 w-28">
+                        <Image
+                          src={event.logoLabel}
+                          alt={event.name}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    ''
+                  )}
                 </div>
 
                 <div className="flex flex-1 flex-col px-2 pt-7">
