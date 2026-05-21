@@ -2,7 +2,14 @@
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 
 import { useRouter } from 'next/navigation'
-import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import {
+  ArrowUpDown,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  SlidersHorizontal,
+} from 'lucide-react'
 
 import { MENTORS_PER_PAGE } from '@/features/mentors/api/mentors.api'
 import { useMentors } from '@/features/mentors/hooks/useMentors'
@@ -16,7 +23,11 @@ const SORT_OPTIONS = [
   { value: 'price-high', label: 'Price: high to low' },
 ] as const
 
-export function MentorGrid() {
+type MentorGridProps = {
+  onOpenMobileFilters?: () => void
+}
+
+export function MentorGrid({ onOpenMobileFilters }: MentorGridProps) {
   const router = useRouter()
   const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, currentPage)
@@ -78,29 +89,42 @@ export function MentorGrid() {
             </button>
           </div>
 
-          <label className="flex h-14 shrink-0 items-center gap-3 rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
-            <ArrowUpDown className="size-5 text-[#0053db]" />
-            <span className="text-sm font-extrabold text-[#434655]">Sort</span>
-            <span className="relative">
-              <select
-                value={filters.sortBy}
-                onChange={(event) =>
-                  updateFilter(
-                    'sortBy',
-                    event.target.value as (typeof SORT_OPTIONS)[number]['value']
-                  )
-                }
-                className="h-10 min-w-[180px] appearance-none rounded-xl bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30"
+          <div className="flex items-center gap-3">
+            <label className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset xl:flex-none">
+              <ArrowUpDown className="size-5 shrink-0 text-[#0053db]" />
+              <span className="text-sm font-extrabold text-[#434655]">Sort</span>
+              <span className="relative min-w-0 flex-1 xl:flex-none">
+                <select
+                  value={filters.sortBy}
+                  onChange={(event) =>
+                    updateFilter(
+                      'sortBy',
+                      event.target.value as (typeof SORT_OPTIONS)[number]['value']
+                    )
+                  }
+                  className="h-10 w-full min-w-0 appearance-none rounded-xl bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30 xl:min-w-[180px]"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#0053db]" />
+              </span>
+            </label>
+
+            {onOpenMobileFilters && (
+              <button
+                type="button"
+                onClick={onOpenMobileFilters}
+                className="inline-flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-extrabold text-[#0053db] shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset lg:hidden"
               >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#0053db]" />
-            </span>
-          </label>
+                <SlidersHorizontal className="size-4" />
+                Filters
+              </button>
+            )}
+          </div>
         </div>
 
         {/* <div className="mb-10 flex flex-wrap items-center gap-2 text-xs font-extrabold">
