@@ -18,7 +18,7 @@ import { EventOrderSummary } from './EventOrderSummery'
 type EventBookingDetails = {
   guestName: string
   guestDesc: string
-  imageUrl: string
+  imageUrl?: string
   topic: string
 }
 
@@ -46,9 +46,13 @@ function readEventDetails(
   const imageUrl = searchParams.get('imageUrl')
   const topic = searchParams.get('topic')
 
-  if (!guestName || !guestDesc || !imageUrl || !topic) return null
+  if (!guestName || !guestDesc || !topic) return null
 
-  return { guestName, guestDesc, imageUrl, topic }
+  if (guestName && guestDesc && imageUrl && topic) {
+    return { guestName, guestDesc, imageUrl, topic }
+  }
+
+  return { guestName, guestDesc, topic }
 }
 
 export function EventBookingPageContent() {

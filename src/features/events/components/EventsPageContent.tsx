@@ -87,9 +87,8 @@ const events: EventCardDetails[] = [
     ],
   },
   {
-    guestName: 'Colonel. Deepchandra KC',
-    guestDesc: 'Colonel, Nepal Army',
-    imageUrl: '/events/colonel.png',
+    guestName: 'SR. Army Officer',
+    guestDesc: ' Nepal Army',
     topic: 'Career in Nepal Army',
     seats: 100,
     pricePerSeat: 200,
