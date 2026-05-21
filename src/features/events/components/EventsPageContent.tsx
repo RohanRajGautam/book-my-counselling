@@ -151,6 +151,19 @@ const events: EventCardDetails[] = [
     ],
   },
   {
+    guestName: 'Er. Samir Pradhan',
+    guestDesc: 'Civil Engineer at Smart Builder Nepal',
+    imageUrl: '/events/ersamir.png',
+    topic: 'Career in Civil Engineering',
+    seats: 60,
+    pricePerSeat: 150,
+    highlights: [
+      'Career opportunities in civil engineering',
+      'Real-world experience in construction projects',
+      'Skills and tools needed for modern engineers',
+    ],
+  },
+  {
     guestName: 'Inspector Sudip Adhikari ',
     guestDesc: 'APF, Nepal Police',
     imageUrl: '/events/inspsudip.png',
@@ -161,6 +174,19 @@ const events: EventCardDetails[] = [
       'APF inspector exam preparation tips',
       'Physical and mental fitness requirements',
       'Serving the nation through APF',
+    ],
+  },
+  {
+    guestName: 'Sushma Dahal',
+    guestDesc: 'Criminal Lawyer at Legal Access Nepal',
+    imageUrl: '/events/sushma.png',
+    topic: 'Career in Law',
+    seats: 60,
+    pricePerSeat: 150,
+    highlights: [
+      'Career pathways in law and advocacy',
+      'Insights into criminal law practice in Nepal',
+      'Skills needed to succeed as a lawyer',
     ],
   },
   {
@@ -317,6 +343,19 @@ const events: EventCardDetails[] = [
       'Navigating the rigorous CA exams',
       'Audit, tax, and finance roles',
       'Career prospects for chartered accountants',
+    ],
+  },
+  {
+    guestName: 'Anjali Sharma',
+    guestDesc: 'Ex cabin crew, Air Asia and Agni Air',
+    imageUrl: '/events/anjali.png',
+    topic: 'Career in Air Hostess',
+    seats: 60,
+    pricePerSeat: 150,
+    highlights: [
+      'How to start a career as cabin crew',
+      'Interview preparation and communication skills',
+      'Life and responsibilities of an air hostess',
     ],
   },
 ]
