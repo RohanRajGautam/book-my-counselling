@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 import { ExploreMentorsHeader } from '@/features/explore-mentors/components/ExploreMentorsHeader'
 import { FiltersSidebar } from '@/features/filters/components/FiltersSidebar'
@@ -22,18 +22,7 @@ export function MentorDiscovery() {
       <div>
         <ExploreMentorsHeader />
 
-        <div className="px-6 pt-5 lg:hidden">
-          <button
-            type="button"
-            onClick={() => setShowMobileFilters(true)}
-            className="inline-flex h-11 items-center gap-2 rounded-xl bg-white px-4 text-sm font-extrabold text-[#0053db] shadow-[0_10px_24px_rgba(18,28,42,0.06)] ring-1 ring-[#eff4ff] ring-inset"
-          >
-            <SlidersHorizontal className="size-4" />
-            Filters
-          </button>
-        </div>
-
-        <MentorGrid />
+        <MentorGrid onOpenMobileFilters={() => setShowMobileFilters(true)} />
       </div>
 
       {showMobileFilters && (

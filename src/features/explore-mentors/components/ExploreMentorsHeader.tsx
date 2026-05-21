@@ -1,6 +1,6 @@
 'use client'
 
-import { BriefcaseBusiness, GraduationCap } from 'lucide-react'
+import { BriefcaseBusiness, GraduationCap, Sparkles } from 'lucide-react'
 
 import { useFilters } from '@/features/filters/context/FilterContext'
 import { CounselingType } from '@/features/filters/types/filter.types'
@@ -30,7 +30,7 @@ export function ExploreMentorsHeader() {
     <section className="px-5 pt-8 sm:px-6 lg:px-8 xl:px-10">
       <div className="flex flex-col gap-5 rounded-[24px] py-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold text-[#121c2a] md:text-[45px]">
+          <h1 className="font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,3rem)] leading-tight font-extrabold text-[#121c2a]">
             Explore <span className="text-[#0053db]">Expert Mentors</span>
           </h1>
           <p className="mt-4 max-w-[600px] text-base leading-8 font-medium text-[#5f6472]">
@@ -42,7 +42,7 @@ export function ExploreMentorsHeader() {
         <div
           role="radiogroup"
           aria-label="Counselling type"
-          className="grid w-full max-w-[330px] grid-cols-2 gap-1.5 rounded-xl bg-[#edf3ff] p-1.5 shadow-[inset_0_0_0_1px_rgba(0,83,219,0.08)]"
+          className="grid w-full grid-cols-2 gap-1.5 rounded-xl bg-[#edf3ff] p-1.5 shadow-[inset_0_0_0_1px_rgba(0,83,219,0.08)] sm:max-w-[330px]"
         >
           {COUNSELING_OPTIONS.map((option) => {
             const Icon = option.icon
