@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 
 export interface EventCardDetails {
-  guestName: string
+  guestName?: string
   guestDesc: string
-  imageUrl: string
+  imageUrl?: string
   topic: string
   highlights: string[]
   seats: number
@@ -29,15 +29,16 @@ export function EventCard({ event }: EventCardProps) {
         <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.62)_100%)]" />
           <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
-
-          <Image
-            src={event.imageUrl}
-            alt={`${event.guestName} portrait`}
-            width={900}
-            height={1125}
-            sizes="(min-width: 1280px) 360px, (min-width: 768px) 45vw, 90vw"
-            className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
-          />
+          {event.imageUrl && (
+            <Image
+              src={event.imageUrl}
+              alt={`${event.guestName} portrait`}
+              width={900}
+              height={1125}
+              sizes="(min-width: 1280px) 360px, (min-width: 768px) 45vw, 90vw"
+              className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
+            />
+          )}
 
           <div className="absolute bottom-0 flex h-12 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
             <span className="text-balance">{event.topic}</span>
