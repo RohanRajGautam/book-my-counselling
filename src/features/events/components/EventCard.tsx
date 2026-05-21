@@ -57,7 +57,7 @@ export function EventCard({ event }: EventCardProps) {
               </h2>
             </div>
 
-            <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-center">
+            {/* <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-center">
               <p className="text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
                 Registration
               </p>
@@ -65,7 +65,7 @@ export function EventCard({ event }: EventCardProps) {
               <p className="mt-1 font-[family-name:var(--font-headline)] text-lg font-extrabold tracking-tight text-[#121c2a]">
                 FREE
               </p>
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-4 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
@@ -94,7 +94,7 @@ export function EventCard({ event }: EventCardProps) {
             }}
             className="mt-6 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
           >
-            Secure Spot
+            Secure Free Spot
             <ArrowUpRight className="size-4" aria-hidden="true" />
           </Link>
         </div>

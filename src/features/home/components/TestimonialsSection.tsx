@@ -7,21 +7,36 @@ import { HOME_TESTIMONIALS } from '../lib/home.constants'
 
 export function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [slideIndex, setSlideIndex] = useState(1)
+  const [isTransitioning, setIsTransitioning] = useState(true)
   const activeTestimonial = HOME_TESTIMONIALS[activeIndex]
+  const testimonialCount = HOME_TESTIMONIALS.length
+  const firstTestimonial = HOME_TESTIMONIALS[0]
+  const lastTestimonial = HOME_TESTIMONIALS[testimonialCount - 1]
+  const carouselTestimonials =
+    firstTestimonial && lastTestimonial
+      ? [lastTestimonial, ...HOME_TESTIMONIALS, firstTestimonial]
+      : HOME_TESTIMONIALS
 
   const showPrevious = useCallback(
-    () =>
+    () => {
+      setIsTransitioning(true)
+      setSlideIndex((currentIndex) => currentIndex - 1)
       setActiveIndex((currentIndex) =>
         currentIndex === 0 ? HOME_TESTIMONIALS.length - 1 : currentIndex - 1
-      ),
+      )
+    },
     []
   )
 
   const showNext = useCallback(
-    () =>
+    () => {
+      setIsTransitioning(true)
+      setSlideIndex((currentIndex) => currentIndex + 1)
       setActiveIndex((currentIndex) =>
         currentIndex === HOME_TESTIMONIALS.length - 1 ? 0 : currentIndex + 1
-      ),
+      )
+    },
     []
   )
 
@@ -31,8 +46,37 @@ export function TestimonialsSection() {
     return () => window.clearInterval(intervalId)
   }, [showNext])
 
+  useEffect(() => {
+    if (!isTransitioning) {
+      const animationFrameId = window.requestAnimationFrame(() => setIsTransitioning(true))
+
+      return () => window.cancelAnimationFrame(animationFrameId)
+    }
+
+    return undefined
+  }, [isTransitioning])
+
   if (!activeTestimonial) {
     return null
+  }
+
+  const showTestimonial = (index: number) => {
+    setIsTransitioning(true)
+    setActiveIndex(index)
+    setSlideIndex(index + 1)
+  }
+
+  const handleTransitionEnd = () => {
+    if (slideIndex === 0) {
+      setIsTransitioning(false)
+      setSlideIndex(testimonialCount)
+      return
+    }
+
+    if (slideIndex === testimonialCount + 1) {
+      setIsTransitioning(false)
+      setSlideIndex(1)
+    }
   }
 
   return (
@@ -48,12 +92,17 @@ export function TestimonialsSection() {
 
           <div className="overflow-hidden">
             <div
-              className="flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+              className={
+                isTransitioning
+                  ? 'flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]'
+                  : 'flex'
+              }
+              style={{ transform: `translateX(-${slideIndex * 100}%)` }}
+              onTransitionEnd={handleTransitionEnd}
             >
-              {HOME_TESTIMONIALS.map((testimonial) => (
+              {carouselTestimonials.map((testimonial, index) => (
                 <article
-                  key={testimonial.name}
+                  key={`${testimonial.name}-${index}`}
                   className="w-full shrink-0 px-1 text-center"
                   aria-hidden={testimonial.name !== activeTestimonial.name}
                 >
@@ -92,7 +141,7 @@ export function TestimonialsSection() {
                 type="button"
                 aria-label={`Show testimonial from ${testimonial.name}`}
                 aria-current={activeIndex === index}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => showTestimonial(index)}
                 className="h-2.5 w-2.5 rounded-full bg-[#b4c5ff] transition-all focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-8 aria-current:bg-[#004ac6]"
               />
             ))}

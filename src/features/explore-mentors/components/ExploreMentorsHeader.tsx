@@ -42,7 +42,7 @@ export function ExploreMentorsHeader() {
         <div
           role="radiogroup"
           aria-label="Counselling type"
-          className="grid w-full max-w-[330px] grid-cols-2 gap-1.5 rounded-xl bg-[#edf3ff] p-1.5 shadow-[inset_0_0_0_1px_rgba(0,83,219,0.08)]"
+          className="grid w-full grid-cols-2 gap-1.5 rounded-xl bg-[#edf3ff] p-1.5 shadow-[inset_0_0_0_1px_rgba(0,83,219,0.08)] sm:max-w-[330px]"
         >
           {COUNSELING_OPTIONS.map((option) => {
             const Icon = option.icon
