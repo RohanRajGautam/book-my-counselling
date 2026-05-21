@@ -1,5 +1,6 @@
 'use client'
 
+import type { TransitionEvent } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react'
@@ -9,6 +10,7 @@ export function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [slideIndex, setSlideIndex] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(true)
+  const [isAnimating, setIsAnimating] = useState(false)
   const activeTestimonial = HOME_TESTIMONIALS[activeIndex]
   const testimonialCount = HOME_TESTIMONIALS.length
   const firstTestimonial = HOME_TESTIMONIALS[0]
@@ -20,24 +22,34 @@ export function TestimonialsSection() {
 
   const showPrevious = useCallback(
     () => {
+      if (isAnimating) {
+        return
+      }
+
+      setIsAnimating(true)
       setIsTransitioning(true)
       setSlideIndex((currentIndex) => currentIndex - 1)
       setActiveIndex((currentIndex) =>
         currentIndex === 0 ? HOME_TESTIMONIALS.length - 1 : currentIndex - 1
       )
     },
-    []
+    [isAnimating]
   )
 
   const showNext = useCallback(
     () => {
+      if (isAnimating) {
+        return
+      }
+
+      setIsAnimating(true)
       setIsTransitioning(true)
       setSlideIndex((currentIndex) => currentIndex + 1)
       setActiveIndex((currentIndex) =>
         currentIndex === HOME_TESTIMONIALS.length - 1 ? 0 : currentIndex + 1
       )
     },
-    []
+    [isAnimating]
   )
 
   useEffect(() => {
@@ -61,12 +73,23 @@ export function TestimonialsSection() {
   }
 
   const showTestimonial = (index: number) => {
+    if (isAnimating || index === activeIndex) {
+      return
+    }
+
+    setIsAnimating(true)
     setIsTransitioning(true)
     setActiveIndex(index)
     setSlideIndex(index + 1)
   }
 
-  const handleTransitionEnd = () => {
+  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget || event.propertyName !== 'transform') {
+      return
+    }
+
+    setIsAnimating(false)
+
     if (slideIndex === 0) {
       setIsTransitioning(false)
       setSlideIndex(testimonialCount)
@@ -141,6 +164,7 @@ export function TestimonialsSection() {
                 type="button"
                 aria-label={`Show testimonial from ${testimonial.name}`}
                 aria-current={activeIndex === index}
+                disabled={isAnimating}
                 onClick={() => showTestimonial(index)}
                 className="h-2.5 w-2.5 rounded-full bg-[#b4c5ff] transition-all focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-8 aria-current:bg-[#004ac6]"
               />
@@ -151,16 +175,18 @@ export function TestimonialsSection() {
             <button
               type="button"
               aria-label="Show previous testimonial"
+              disabled={isAnimating}
               onClick={showPrevious}
-              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none"
+              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               <ChevronLeft className="size-5" />
             </button>
             <button
               type="button"
               aria-label="Show next testimonial"
+              disabled={isAnimating}
               onClick={showNext}
-              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none"
+              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -170,8 +196,9 @@ export function TestimonialsSection() {
         <button
           type="button"
           aria-label="Show previous testimonial"
+          disabled={isAnimating}
           onClick={showPrevious}
-          className="absolute top-1/2 left-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:-translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none lg:flex"
+          className="absolute top-1/2 left-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:-translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
         >
           <ChevronLeft className="size-6" />
         </button>
@@ -179,8 +206,9 @@ export function TestimonialsSection() {
         <button
           type="button"
           aria-label="Show next testimonial"
+          disabled={isAnimating}
           onClick={showNext}
-          className="absolute top-1/2 right-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none lg:flex"
+          className="absolute top-1/2 right-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
         >
           <ChevronRight className="size-6" />
         </button>

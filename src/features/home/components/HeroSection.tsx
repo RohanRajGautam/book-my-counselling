@@ -55,7 +55,7 @@ export function HeroSection() {
               1:1 Mentorship
             </div>
 
-            <h1 className="mt-7 max-w-4xl font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,4.5rem)] leading-[0.96] font-extrabold tracking-tight text-[#121c2a]">
+            <h1 className="mt-3 max-w-4xl font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,4.5rem)] leading-[0.96] font-extrabold tracking-tight text-[#121c2a]">
               Your career journey,{' '}
               <span className="relative isolate inline-block text-[#004ac6]">
                 curated
