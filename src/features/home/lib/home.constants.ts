@@ -43,4 +43,11 @@ export const HOME_TESTIMONIALS = [
     quote:
       'I wanted to get into ethical hacking but did not know where to start. My mentor gave me a clear roadmap, the right resources, and practical guidance that helped me stay focused and improve quickly.',
   },
+  {
+    name: 'Bipul Paudel',
+    role: 'Oxford Secondary School',
+    image: '/home/testimonials/bipul.jpeg',
+    quote:
+      'Confused after my SEE, my mentor gave me the best advice: "You don’t have to take Science to excel." Thanks to our sessions, I realized that studying Management with Maths was the right path for me. It completely cleared my doubts and set me up for success!',
+  },
 ]

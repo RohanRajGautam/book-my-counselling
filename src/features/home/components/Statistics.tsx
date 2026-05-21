@@ -2,8 +2,8 @@ import { HOME_STATS } from '../lib/home.constants'
 
 export function Statistics() {
   return (
-    <section className="bg-gradient-to-r from-[#6CF8BB] to-[#2563EB] px-4 py-10 sm:flex sm:min-h-108 sm:flex-col sm:items-center sm:justify-center">
-      <h2 className="mb-12 text-center text-2xl font-extrabold sm:text-3xl">
+    <section className="bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-10 sm:flex sm:min-h-108 sm:flex-col sm:items-center sm:justify-center">
+      <h2 className="mb-12 text-center text-2xl font-extrabold text-white sm:text-3xl">
         A platform that delivers results
       </h2>
 
