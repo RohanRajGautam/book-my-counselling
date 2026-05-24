@@ -29,7 +29,7 @@ function getSearchText(consultant: StudyAbroadConsultant) {
   return [
     consultant.name,
     consultant.country,
-    consultant.city,
+    consultant.city ?? '',
     profileText,
     consultant.services.join(' '),
   ]

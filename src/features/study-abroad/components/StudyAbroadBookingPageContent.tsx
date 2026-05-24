@@ -42,7 +42,10 @@ function getConsultantTitle(consultant: StudyAbroadConsultant) {
 
   const profileTitle = profileParts.filter(Boolean).join(', ')
 
-  return profileTitle || `${consultant.city}, ${getCountryLabel(consultant.country)}`
+  return (
+    profileTitle ||
+    [consultant.city, getCountryLabel(consultant.country)].filter(Boolean).join(', ')
+  )
 }
 
 function getCountryLabel(country: StudyAbroadConsultant['country']) {
@@ -148,7 +151,7 @@ export function StudyAbroadBookingPageContent() {
           consultantProfileType: consultant.profileType,
           consultantTitle,
           consultantCountry: getCountryLabel(consultant.country),
-          consultantCity: consultant.city,
+          consultantCity: consultant.city ?? '',
           consultantUniversity: consultant.universityName ?? '',
           consultantProgram: consultant.program ?? '',
           consultantCompany:

@@ -146,7 +146,9 @@ export function StudyAbroadConsultantModal({
                   <MapPin className="size-4 text-[#0053db]" />
                   {country?.label}
                 </p>
-                <p className="pl-6 text-sm font-semibold text-[#434655]">{consultant.city}</p>
+                {consultant.city && (
+                  <p className="pl-6 text-sm font-semibold text-[#434655]">{consultant.city}</p>
+                )}
               </div>
             </div>
           </section>

@@ -87,9 +87,7 @@ export function StudyAbroadCard({ consultant, onBook }: StudyAbroadCardProps) {
           </h3>
           <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#62667a]">
             <MapPin className="size-3.5 shrink-0 text-[#0053db]" />
-            <span className="truncate">
-              {consultant.city}, {country?.label}
-            </span>
+            <span className="truncate">{locationLabel}</span>
           </div>
         </div>
       </div>
@@ -110,11 +108,11 @@ export function StudyAbroadCard({ consultant, onBook }: StudyAbroadCardProps) {
 
           <div className="space-y-3">
             <div>
-              <p className="line-clamp-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+              <p className="font-[family-name:var(--font-headline)] text-sm leading-snug font-extrabold text-[#121c2a]">
                 {primaryTitle}
               </p>
               {primarySubtitle && (
-                <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed font-medium text-[#434655]">
+                <p className="mt-0.5 text-xs leading-relaxed font-medium text-[#434655]">
                   {primarySubtitle}
                 </p>
               )}
@@ -123,12 +121,12 @@ export function StudyAbroadCard({ consultant, onBook }: StudyAbroadCardProps) {
             {hasEmployeeEducation && (
               <div className="border-t border-[#dfe7f5]/60 pt-2.5">
                 {consultant.universityName && (
-                  <p className="line-clamp-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                  <p className="font-[family-name:var(--font-headline)] text-sm leading-snug font-extrabold text-[#121c2a]">
                     {consultant.universityName}
                   </p>
                 )}
                 {consultant.program && (
-                  <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#434655]">
+                  <p className="mt-0.5 text-xs leading-relaxed font-medium text-[#434655]">
                     {consultant.program}
                   </p>
                 )}

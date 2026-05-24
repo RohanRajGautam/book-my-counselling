@@ -6,6 +6,8 @@ export type StudyAbroadCountry =
   | 'finland'
   | 'austria'
   | 'germany'
+  | 'japan'
+  | 'portugal'
 
 export type StudyAbroadSort = 'recommended' | 'rating' | 'price-low' | 'price-high' | 'newest'
 
@@ -19,7 +21,7 @@ type StudyAbroadConsultantBase = {
   name: string
   imageUrl: string
   country: StudyAbroadCountry
-  city: string
+  city?: string
   services: string[]
   rating: number
   reviews: number
