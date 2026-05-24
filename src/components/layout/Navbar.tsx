@@ -3,11 +3,13 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, CalendarDays, Compass, Menu, Rocket, X } from 'lucide-react'
+import { ArrowRight, CalendarDays, Compass, Menu, Globe2, Rocket, X } from 'lucide-react'
+// import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
 import Image from 'next/image'
 
 const navItems = [
   { href: '/explore-mentors', label: 'Explore Mentors', icon: Compass },
+  { href: '/study-abroad', label: 'Study Abroad', icon: Globe2 },
   { href: '/how-it-works', label: 'How it Works', icon: Compass },
   // { href: '/events', label: '"३० मा ३०"', icon: BookOpen },
   // { href: '/about', label: 'About Us' },
