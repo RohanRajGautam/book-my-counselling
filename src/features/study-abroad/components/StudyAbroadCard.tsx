@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Check, Clock, MapPin, Briefcase, GraduationCap } from 'lucide-react'
 import type { StudyAbroadConsultant } from '@/features/study-abroad/types/study-abroad.types'
 import { STUDY_ABROAD_COUNTRIES } from '@/features/study-abroad/lib/study-abroad.constants'
@@ -24,13 +25,31 @@ function getInitials(name: string) {
 function formatDisplayName(name: string) {
   return name
     .trim()
-    .toLowerCase()
-    .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
+    .split(/\s+/)
+    .map((part) =>
+      part === part.toUpperCase() && /\p{L}/u.test(part)
+        ? part
+        : part.toLowerCase().replace(/^\p{L}/u, (letter) => letter.toUpperCase())
+    )
+    .join(' ')
 }
 
 export function StudyAbroadCard({ consultant, onBook }: StudyAbroadCardProps) {
   const country = STUDY_ABROAD_COUNTRIES.find((item) => item.value === consultant.country)
   const isStudent = consultant.profileType === 'student'
+  const locationLabel = [consultant.city, country?.label].filter(Boolean).join(', ')
+  const primaryTitle = isStudent
+    ? (consultant.universityName ?? consultant.program ?? locationLabel)
+    : (consultant.position ?? consultant.companyName ?? locationLabel)
+  const primarySubtitle = isStudent
+    ? consultant.universityName
+      ? consultant.program
+      : undefined
+    : consultant.position
+      ? consultant.companyName
+      : undefined
+  const hasEmployeeEducation =
+    !isStudent && (Boolean(consultant.universityName) || Boolean(consultant.program))
 
   // Always slice to 3 elements, empty slots will be handled cleanly by grid layout
   const sortedPackages = [...consultant.packages]
@@ -42,8 +61,15 @@ export function StudyAbroadCard({ consultant, onBook }: StudyAbroadCardProps) {
       {/* Header Profile Section */}
       <div className="mb-4 flex items-center gap-4">
         <div className="relative shrink-0">
-          <div className="flex size-16 items-center justify-center rounded-full border-2 border-[#0053db] bg-[#e6eeff] text-lg font-black text-[#004ac6] shadow-[0_0_0_4px_#f3f7ff]">
-            {getInitials(consultant.name)}
+          <div className="relative flex size-16 items-center justify-center overflow-hidden rounded-full border-2 border-[#0053db] bg-[#e6eeff] text-lg font-black text-[#004ac6] shadow-[0_0_0_4px_#f3f7ff]">
+            <Image
+              src={consultant.imageUrl}
+              alt={formatDisplayName(consultant.name)}
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
+            <span className="sr-only">{getInitials(consultant.name)}</span>
           </div>
           {consultant.verified && (
             <div
@@ -85,21 +111,27 @@ export function StudyAbroadCard({ consultant, onBook }: StudyAbroadCardProps) {
           <div className="space-y-3">
             <div>
               <p className="line-clamp-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
-                {isStudent ? consultant.universityName : consultant.position}
+                {primaryTitle}
               </p>
-              <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed font-medium text-[#434655]">
-                {isStudent ? consultant.program : consultant.companyName}
-              </p>
+              {primarySubtitle && (
+                <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed font-medium text-[#434655]">
+                  {primarySubtitle}
+                </p>
+              )}
             </div>
 
-            {!isStudent && (
+            {hasEmployeeEducation && (
               <div className="border-t border-[#dfe7f5]/60 pt-2.5">
-                <p className="line-clamp-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
-                  {consultant.universityName}
-                </p>
-                <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#434655]">
-                  {consultant.program}
-                </p>
+                {consultant.universityName && (
+                  <p className="line-clamp-1 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                    {consultant.universityName}
+                  </p>
+                )}
+                {consultant.program && (
+                  <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#434655]">
+                    {consultant.program}
+                  </p>
+                )}
               </div>
             )}
           </div>

@@ -17,6 +17,7 @@ export type StudyAbroadPackage = {
 type StudyAbroadConsultantBase = {
   id: string
   name: string
+  imageUrl: string
   country: StudyAbroadCountry
   city: string
   services: string[]
@@ -29,16 +30,16 @@ type StudyAbroadConsultantBase = {
 
 export type StudentConsultant = StudyAbroadConsultantBase & {
   profileType: 'student'
-  universityName: string
-  program: string
+  universityName?: string
+  program?: string
 }
 
 export type EmployeeConsultant = StudyAbroadConsultantBase & {
   profileType: 'employee'
-  position: string
-  companyName: string
-  universityName: string
-  program: string
+  position?: string
+  companyName?: string
+  universityName?: string
+  program?: string
 }
 
 export type StudyAbroadConsultant = StudentConsultant | EmployeeConsultant

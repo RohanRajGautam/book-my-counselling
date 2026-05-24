@@ -21,8 +21,10 @@ function getLowestPackagePrice(consultant: StudyAbroadConsultant) {
 function getSearchText(consultant: StudyAbroadConsultant) {
   const profileText =
     consultant.profileType === 'student'
-      ? `${consultant.universityName} ${consultant.program}`
-      : `${consultant.position} ${consultant.companyName} ${consultant.universityName} ${consultant.program}`
+      ? `${consultant.universityName ?? ''} ${consultant.program ?? ''}`
+      : `${consultant.position ?? ''} ${consultant.companyName ?? ''} ${
+          consultant.universityName ?? ''
+        } ${consultant.program ?? ''}`
 
   return [
     consultant.name,

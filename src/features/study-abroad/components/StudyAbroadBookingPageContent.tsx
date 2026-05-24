@@ -25,14 +25,24 @@ const STUDY_ABROAD_BOOKING_SCRIPT_URL =
 function formatDisplayName(name: string) {
   return name
     .trim()
-    .toLowerCase()
-    .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
+    .split(/\s+/)
+    .map((part) =>
+      part === part.toUpperCase() && /\p{L}/u.test(part)
+        ? part
+        : part.toLowerCase().replace(/^\p{L}/u, (letter) => letter.toUpperCase())
+    )
+    .join(' ')
 }
 
 function getConsultantTitle(consultant: StudyAbroadConsultant) {
-  return consultant.profileType === 'student'
-    ? `${consultant.universityName}, ${consultant.program}`
-    : `${consultant.position}, ${consultant.companyName}`
+  const profileParts =
+    consultant.profileType === 'student'
+      ? [consultant.universityName, consultant.program]
+      : [consultant.position, consultant.companyName]
+
+  const profileTitle = profileParts.filter(Boolean).join(', ')
+
+  return profileTitle || `${consultant.city}, ${getCountryLabel(consultant.country)}`
 }
 
 function getCountryLabel(country: StudyAbroadConsultant['country']) {
@@ -139,10 +149,12 @@ export function StudyAbroadBookingPageContent() {
           consultantTitle,
           consultantCountry: getCountryLabel(consultant.country),
           consultantCity: consultant.city,
-          consultantUniversity: consultant.universityName,
-          consultantProgram: consultant.program,
-          consultantCompany: consultant.profileType === 'employee' ? consultant.companyName : '',
-          consultantPosition: consultant.profileType === 'employee' ? consultant.position : '',
+          consultantUniversity: consultant.universityName ?? '',
+          consultantProgram: consultant.program ?? '',
+          consultantCompany:
+            consultant.profileType === 'employee' ? (consultant.companyName ?? '') : '',
+          consultantPosition:
+            consultant.profileType === 'employee' ? (consultant.position ?? '') : '',
           consultationType: 'Study Abroad Consultation',
           durationMinutes: selectedPackage.durationMinutes,
           durationLabel: `${selectedPackage.durationMinutes} mins`,

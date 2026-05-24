@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Check, Clock, MapPin, X } from 'lucide-react'
 
@@ -31,8 +32,13 @@ function getInitials(name: string) {
 function formatDisplayName(name: string) {
   return name
     .trim()
-    .toLowerCase()
-    .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
+    .split(/\s+/)
+    .map((part) =>
+      part === part.toUpperCase() && /\p{L}/u.test(part)
+        ? part
+        : part.toLowerCase().replace(/^\p{L}/u, (letter) => letter.toUpperCase())
+    )
+    .join(' ')
 }
 
 function getPackageTitle(item: StudyAbroadPackage) {
@@ -70,6 +76,22 @@ export function StudyAbroadConsultantModal({
 
   const country = STUDY_ABROAD_COUNTRIES.find((item) => item.value === consultant.country)
   const packages = [...consultant.packages].sort((a, b) => a.durationMinutes - b.durationMinutes)
+  const locationLabel = [consultant.city, country?.label].filter(Boolean).join(', ')
+  const primaryTitle =
+    consultant.profileType === 'student'
+      ? (consultant.universityName ?? consultant.program ?? locationLabel)
+      : (consultant.position ?? consultant.companyName ?? locationLabel)
+  const primarySubtitle =
+    consultant.profileType === 'student'
+      ? consultant.universityName
+        ? consultant.program
+        : undefined
+      : consultant.position
+        ? consultant.companyName
+        : undefined
+  const hasEmployeeEducation =
+    consultant.profileType === 'employee' &&
+    (Boolean(consultant.universityName) || Boolean(consultant.program))
 
   return (
     <div
@@ -94,8 +116,15 @@ export function StudyAbroadConsultantModal({
             <div className="absolute top-0 left-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]" />
             <div className="relative z-10">
               <div className="relative mx-auto mb-5 size-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
-                <div className="flex size-full items-center justify-center rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]">
-                  {getInitials(consultant.name)}
+                <div className="relative flex size-full items-center justify-center overflow-hidden rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]">
+                  <Image
+                    src={consultant.imageUrl}
+                    alt={formatDisplayName(consultant.name)}
+                    fill
+                    sizes="112px"
+                    className="object-cover"
+                  />
+                  <span className="sr-only">{getInitials(consultant.name)}</span>
                 </div>
                 {consultant.verified && (
                   <div
@@ -150,31 +179,41 @@ export function StudyAbroadConsultantModal({
             {consultant.profileType === 'student' ? (
               <>
                 <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a]">
-                  {consultant.universityName}
+                  {primaryTitle}
                 </h3>
-                <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
-                  {consultant.program}
-                </p>
+                {primarySubtitle && (
+                  <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
+                    {primarySubtitle}
+                  </p>
+                )}
               </>
             ) : (
               <>
                 <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a]">
-                  {consultant.position}
+                  {primaryTitle}
                 </h3>
-                <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
-                  {consultant.companyName}
-                </p>
-                <div className="mt-5 rounded-2xl bg-[#f8f9ff] p-4">
-                  <p className="text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
-                    Education
+                {primarySubtitle && (
+                  <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
+                    {primarySubtitle}
                   </p>
-                  <p className="mt-2 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                    {consultant.universityName}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 font-medium text-[#434655]">
-                    {consultant.program}
-                  </p>
-                </div>
+                )}
+                {hasEmployeeEducation && (
+                  <div className="mt-5 rounded-2xl bg-[#f8f9ff] p-4">
+                    <p className="text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
+                      Education
+                    </p>
+                    {consultant.universityName && (
+                      <p className="mt-2 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                        {consultant.universityName}
+                      </p>
+                    )}
+                    {consultant.program && (
+                      <p className="mt-1 text-sm leading-6 font-medium text-[#434655]">
+                        {consultant.program}
+                      </p>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>
