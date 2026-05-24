@@ -39,10 +39,49 @@ type CategoryFilterRowProps = {
   updateFilters: (nextFilters: Partial<FilterState>) => void
 }
 
+const ACADEMIC_CATEGORY_LABELS: Record<string, string> = {
+  'High School': 'High School (+2 / Junior College)',
+  'High School (+2 / Junior College)': 'High School (+2 / Junior College)',
+  Bachelors: 'Bachelors (Undergraduate)',
+  Undergraduate: 'Bachelors (Undergraduate)',
+  Masters: 'Masters (Postgraduate)',
+  Postgraduate: 'Masters (Postgraduate)',
+  'Phd and research': 'Phd and research',
+  'PhD and Research': 'Phd and research',
+  'PhD & Research': 'Phd and research',
+}
+
+const ACADEMIC_CATEGORY_ORDER = [
+  'High School (+2 / Junior College)',
+  'Bachelors (Undergraduate)',
+  'Masters (Postgraduate)',
+  'Phd and research',
+]
+
 function toggleSelectedValue(values: string[], value: string) {
   return values.includes(value)
     ? values.filter((currentValue) => currentValue !== value)
     : [...values, value]
+}
+
+function getAcademicCategoryLabel(categoryName: string) {
+  return ACADEMIC_CATEGORY_LABELS[categoryName] ?? categoryName
+}
+
+function getAcademicCategoryOrder(categoryName: string) {
+  const label = getAcademicCategoryLabel(categoryName)
+  const index = ACADEMIC_CATEGORY_ORDER.indexOf(label)
+
+  return index === -1 ? ACADEMIC_CATEGORY_ORDER.length : index
+}
+
+function getDisplayCategories(categories: CategoryListItem[], counselingType: CounselingType) {
+  if (counselingType !== 'academic') return categories
+
+  return [...categories].sort(
+    (firstCategory, secondCategory) =>
+      getAcademicCategoryOrder(firstCategory.name) - getAcademicCategoryOrder(secondCategory.name)
+  )
 }
 
 function CategoryFilterRow({
@@ -62,6 +101,8 @@ function CategoryFilterRow({
   const selectedSubcategoryCount = Object.values(subcategoryParents).filter(
     (parentCategory) => parentCategory === category.name
   ).length
+  const categoryLabel =
+    counselingType === 'academic' ? getAcademicCategoryLabel(category.name) : category.name
   const hasSelectedSubcategories = selectedSubcategoryCount > 0
   const isActive = isExpanded || isSelected || hasSelectedSubcategories
   const Icon = isExpanded ? ChevronUp : ChevronDown
@@ -130,7 +171,7 @@ function CategoryFilterRow({
             {isSelected && <Check className="size-3.5" strokeWidth={3.5} />}
           </span>
 
-          <span className="min-w-0 flex-1">{category.name}</span>
+          <span className="min-w-0 flex-1">{categoryLabel}</span>
         </button>
         <button
           type="button"
@@ -141,7 +182,7 @@ function CategoryFilterRow({
               ? 'bg-white text-[#0053db] shadow-sm'
               : 'text-[#7a8494] hover:bg-[#eef5ff] hover:text-[#0053db]'
           }`}
-          aria-label={`${isExpanded ? 'Hide' : 'Show'} ${category.name} subcategories`}
+          aria-label={`${isExpanded ? 'Hide' : 'Show'} ${categoryLabel} subcategories`}
         >
           <Icon
             className={`size-4 transition-transform ${isExpanded || hasSelectedSubcategories ? 'text-[#0053db]' : ''}`}
@@ -213,18 +254,10 @@ function CategoryFilterGroup({
   updateFilters,
 }: CategoryFilterGroupProps) {
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([])
-  const selectedCount = selectedCategories.length + selectedSubcategories.length
+  const displayCategories = getDisplayCategories(categories, counselingType)
 
   const toggleExpandedCategory = (categoryId: string) => {
     setExpandedCategoryIds((currentIds) => toggleSelectedValue(currentIds, categoryId))
-  }
-
-  const clearGroup = () => {
-    updateFilters({
-      [categoryKey]: [],
-      [subcategoryKey]: [],
-      [subcategoryParentKey]: {},
-    })
   }
 
   return (
@@ -244,7 +277,7 @@ function CategoryFilterGroup({
 
       <div className="py-2">
         <div className="custom-scrollbar max-h-[900px] overflow-y-auto">
-          {categories.map((category) => (
+          {displayCategories.map((category) => (
             <CategoryFilterRow
               key={category.id}
               category={category}

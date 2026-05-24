@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, BookOpen, Compass, Menu, Rocket, X } from 'lucide-react'
+import { ArrowRight, CalendarDays, Compass, Menu, Rocket, X } from 'lucide-react'
 import Image from 'next/image'
 
 const navItems = [
@@ -201,7 +201,7 @@ export function Navbar() {
           mobileMenuOpen
             ? 'translate-y-0 scale-100 opacity-100'
             : 'pointer-events-none -translate-y-2 scale-[0.98] opacity-0'
-        } ${showAnnouncement ? 'top-[128px]' : 'top-[68px]'}`}
+        } ${showAnnouncement ? 'top-[128px]' : 'top-[84px]'}`}
       >
         <div className="flex flex-col gap-1 p-2">
           {navItems.map((item) => {
@@ -252,7 +252,7 @@ export function Navbar() {
             }`}
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
-              <Rocket className="size-4" aria-hidden="true" />
+              <CalendarDays className="size-4" aria-hidden="true" />
             </span>
             <span className="flex-1"> "३० मा ३०"</span>
             <ArrowRight className="size-4" aria-hidden="true" />

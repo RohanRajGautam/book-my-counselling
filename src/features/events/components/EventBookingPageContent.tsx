@@ -5,9 +5,6 @@ import { useSearchParams } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
 import { FormInput } from '@/features/booking/components/FormInput'
 import { FormSelect } from '@/features/booking/components/FormSelect'
-import { FormTextarea } from '@/features/booking/components/FormTextarea'
-import { OrderSummary } from '@/features/booking/components/OrderSummary'
-import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
 import {
   formatPhone,
   validateBookingForm,
@@ -24,6 +21,16 @@ type EventBookingDetails = {
 
 const EVENT_BOOKING_SCRIPT_URL =
   process.env.NEXT_PUBLIC_EVENT_BOOKING_GOOGLE_SHEETS_SCRIPT_URL ?? ''
+
+const EVENT_EDUCATION_LEVEL_OPTIONS = [
+  { value: '', label: 'Select Level' },
+  { value: 'BELOW SEE', label: 'BELOW SEE' },
+  { value: 'SEE', label: 'SEE' },
+  { value: '+ 2', label: '+ 2' },
+  { value: 'BACHELORS', label: 'BACHELORS' },
+  { value: 'MASTERS', label: 'MASTERS' },
+  { value: 'Others', label: 'Others' },
+]
 
 const emptyForm: BookingFormData = {
   fullName: '',
@@ -95,7 +102,10 @@ export function EventBookingPageContent() {
     setTouched(allTouched)
     setSubmitError(null)
 
-    const validationErrors = validateBookingForm(formData)
+    const validationErrors = validateBookingForm({
+      ...formData,
+      message: formData.message || 'Event booking',
+    })
 
     if (validationErrors.length > 0) {
       const errorMap = validationErrors.reduce(
@@ -163,7 +173,7 @@ export function EventBookingPageContent() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-20 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 pt-12 pb-32 sm:px-6 md:py-20 lg:px-8">
       <div className="my-12">
         <h1 className="my-4 font-[family-name:var(--font-headline)] text-4xl font-bold tracking-tight text-[#121c2a] md:text-5xl">
           Complete your booking
@@ -184,7 +194,7 @@ export function EventBookingPageContent() {
                 id="fullName"
                 label="Full Name"
                 type="text"
-                placeholder="e.g. Jane Doe"
+                placeholder="e.g. Prabesh Shrestha"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
                 onBlur={() => handleBlur('fullName')}
@@ -195,7 +205,7 @@ export function EventBookingPageContent() {
                   id="email"
                   label="Email Address"
                   type="email"
-                  placeholder="jane@example.com"
+                  placeholder="e.g. prabesh@gmail.com"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   onBlur={() => handleBlur('email')}
@@ -223,9 +233,9 @@ export function EventBookingPageContent() {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormInput
                   id="school"
-                  label="Current School/College"
+                  label="Your school/college"
                   type="text"
-                  placeholder="e.g. Tribhuvan University"
+                  placeholder="e.g. Sagarmatha Engineering College"
                   value={formData.school}
                   onChange={(e) => handleInputChange('school', e.target.value)}
                   onBlur={() => handleBlur('school')}
@@ -234,7 +244,7 @@ export function EventBookingPageContent() {
                 <FormSelect
                   id="educationLevel"
                   label="Education Level"
-                  options={EDUCATION_LEVEL_OPTIONS}
+                  options={EVENT_EDUCATION_LEVEL_OPTIONS}
                   value={formData.educationLevel}
                   onChange={(e) => handleInputChange('educationLevel', e.target.value)}
                   onBlur={() => handleBlur('educationLevel')}
@@ -253,22 +263,6 @@ export function EventBookingPageContent() {
                 optional
               />
             </div>
-          </section>
-
-          <section className="rounded-[24px] bg-[#eff4ff] p-8">
-            <h2 className="mb-8 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
-              Preparation
-            </h2>
-            <FormTextarea
-              id="message"
-              label="How can this mentor help you prepare?"
-              placeholder="Briefly describe your goals and what you'd like to discuss during the session..."
-              rows={5}
-              value={formData.message}
-              onChange={(e) => handleInputChange('message', e.target.value)}
-              onBlur={() => handleBlur('message')}
-              error={touched.message ? errors.message : undefined}
-            />
           </section>
         </div>
 
@@ -299,7 +293,7 @@ export function EventBookingPageContent() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="hidden space-y-3 md:block">
                 {submitError && (
                   <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-[#ba1a1a]">
                     {submitError}
@@ -317,6 +311,23 @@ export function EventBookingPageContent() {
           </div>
         </div>
       </div>
+
+      {!isSubmitted && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#d9e3f6] bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-18px_42px_rgba(18,28,42,0.16)] backdrop-blur md:hidden">
+          {submitError && (
+            <p className="mb-2 rounded-xl bg-red-50 px-4 py-2 text-sm text-[#ba1a1a]">
+              {submitError}
+            </p>
+          )}
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSubmitting ? 'Securing spot...' : 'Secure Free Spot'}
+          </button>
+        </div>
+      )}
     </main>
   )
 }
