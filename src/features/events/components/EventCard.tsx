@@ -7,6 +7,8 @@ export interface EventCardDetails {
   guestDesc: string
   imageUrl?: string
   topic: string
+  date?: string
+  time?: string
   highlights: string[]
   seats: number
   pricePerSeat: number
@@ -29,6 +31,7 @@ export function EventCard({ event }: EventCardProps) {
         <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.62)_100%)]" />
           <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
+
           {event.imageUrl && (
             <Image
               src={event.imageUrl}
@@ -47,14 +50,58 @@ export function EventCard({ event }: EventCardProps) {
 
         <div className="flex flex-1 flex-col px-4 pt-4 pb-4 sm:px-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="mb-2 text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
+            <div className="flex flex-col gap-2">
+              <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
                 Exclusive Event
               </p>
 
-              <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.4rem]">
-                {event.guestName}
-              </h2>
+              <div className="flex flex-col gap-2.5">
+                <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.4rem]">
+                  {event.guestName}
+                </h2>
+
+                {(event.date || event.time) && (
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
+                    {event.date && (
+                      <span className="flex items-center gap-1.5">
+                        {/* Subtle calendar representation */}
+                        <svg
+                          className="size-3.5 text-[#004ac6]/70"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                          <path d="M16 2v4M8 2v4M3 10h18" />
+                        </svg>
+                        {event.date}
+                      </span>
+                    )}
+
+                    {event.date && event.time && (
+                      <span className="size-1 rounded-full bg-[#d9e3f6]" aria-hidden="true" />
+                    )}
+
+                    {event.time && (
+                      <span className="flex items-center gap-1.5">
+                        {/* Subtle clock representation */}
+                        <svg
+                          className="size-3.5 text-[#004ac6]/70"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M12 6v6l4 2" />
+                        </svg>
+                        {event.time}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-center">
