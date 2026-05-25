@@ -9,6 +9,21 @@ import { EventCard, type EventCardDetails } from '@/features/events/components/E
 
 const events: EventCardDetails[] = [
   {
+    guestName: 'Ashwin Neupane',
+    guestDesc: 'Digital Marketing and AI Content Creator',
+    imageUrl: '/home/ashwin.png',
+    topic: 'AI Skill for +2 appeared students',
+    seats: 80,
+    date: 'May 25, Monday',
+    time: '7 PM',
+    pricePerSeat: 100,
+    highlights: [
+      'Essential AI tools for beginners',
+      'Enhancing study with AI workflows',
+      'Future-proofing your career skills',
+    ],
+  },
+  {
     guestName: 'Bikash Thapaliya',
     guestDesc: 'Executive Producer and News Coordinator at Image Channel & CEO of NepalVox',
     imageUrl: '/events/bikash.png',
@@ -34,19 +49,7 @@ const events: EventCardDetails[] = [
       'Live Q&A on creator growth',
     ],
   },
-  {
-    guestName: 'Ashwin Neupane',
-    guestDesc: 'Digital Marketing and AI Content Creator',
-    imageUrl: '/home/ashwin.png',
-    topic: 'AI Skill for +2 appeared students',
-    seats: 80,
-    pricePerSeat: 100,
-    highlights: [
-      'Essential AI tools for beginners',
-      'Enhancing study with AI workflows',
-      'Future-proofing your career skills',
-    ],
-  },
+
   {
     guestName: 'Nischal Karki',
     guestDesc: 'Content Creator',
