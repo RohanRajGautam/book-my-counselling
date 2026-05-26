@@ -12,6 +12,7 @@ export interface EventCardDetails {
   highlights: string[]
   seats: number
   pricePerSeat: number
+  isFinished?: boolean
 }
 
 interface EventCardProps {
@@ -19,16 +20,34 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
+  const isFinished = event.isFinished
+
   return (
-    <article className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.1)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
-      <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
+    <article
+      className={`relative h-full rounded-[1.6rem] border p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.1)] ring-1 backdrop-blur transition ${
+        isFinished
+          ? 'border-slate-200 bg-slate-100/80 opacity-70 ring-slate-200 grayscale'
+          : 'border-white/80 bg-white/86 ring-[#d9e3f6]/80'
+      }`}
+    >
+      <div
+        className={`absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full blur-3xl ${
+          isFinished ? 'bg-slate-400/12' : 'bg-[#004ac6]/14'
+        }`}
+      />
 
       {/* <div className="absolute top-4 right-4 z-20 hidden rounded-full bg-[#004ac6] px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase shadow-[0_18px_36px_rgba(0,74,198,0.22)] sm:block">
         Only {event.seats} seats
       </div> */}
 
       <div className="flex h-full flex-col overflow-hidden rounded-[1.2rem] bg-white">
-        <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
+        <div
+          className={`relative min-h-[220px] overflow-hidden rounded-[1rem] sm:min-h-[250px] ${
+            isFinished
+              ? 'bg-[linear-gradient(140deg,#f1f5f9_0%,#e2e8f0_48%,#ffffff_100%)]'
+              : 'bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)]'
+          }`}
+        >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.62)_100%)]" />
           <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
 
@@ -43,7 +62,17 @@ export function EventCard({ event }: EventCardProps) {
             />
           )}
 
-          <div className="absolute bottom-0 flex h-12 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
+          {isFinished && (
+            <div className="absolute top-4 right-4 z-20 rounded-full bg-slate-700 px-4 py-2 text-[11px] font-extrabold tracking-[0.16em] text-white uppercase shadow-[0_14px_28px_rgba(15,23,42,0.16)]">
+              Completed
+            </div>
+          )}
+
+          <div
+            className={`absolute bottom-0 flex h-12 w-full items-center justify-center px-3 text-center font-bold text-white ${
+              isFinished ? 'bg-slate-600' : 'bg-blue-700'
+            }`}
+          >
             <span className="text-balance">{event.topic}</span>
           </div>
         </div>
@@ -129,21 +158,31 @@ export function EventCard({ event }: EventCardProps) {
             ))}
           </div>
 
-          <Link
-            href={{
-              pathname: '/event-booking',
-              query: {
-                guestName: event.guestName,
-                guestDesc: event.guestDesc,
-                imageUrl: event.imageUrl,
-                topic: event.topic,
-              },
-            }}
-            className="mt-6 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
-          >
-            Secure Free Spot
-            <ArrowUpRight className="size-4" aria-hidden="true" />
-          </Link>
+          {isFinished ? (
+            <button
+              type="button"
+              disabled
+              className="mt-6 flex h-10 w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl bg-slate-400 px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-none"
+            >
+              Registration Closed
+            </button>
+          ) : (
+            <Link
+              href={{
+                pathname: '/event-booking',
+                query: {
+                  guestName: event.guestName,
+                  guestDesc: event.guestDesc,
+                  imageUrl: event.imageUrl,
+                  topic: event.topic,
+                },
+              }}
+              className="mt-6 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
+            >
+              Secure Free Spot
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </div>
     </article>
