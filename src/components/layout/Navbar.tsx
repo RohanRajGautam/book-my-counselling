@@ -3,9 +3,8 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, CalendarDays, Compass, Menu, Globe2, Rocket, X } from 'lucide-react'
+import { ArrowRight, CalendarDays, Compass, Menu, Globe2, Video, X } from 'lucide-react'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
-import Image from 'next/image'
 
 const navItems = [
   { href: '/explore-mentors', label: 'Explore Mentors', icon: Compass },
@@ -20,11 +19,12 @@ export function Navbar() {
   const pathname = usePathname()
 
   const isActive = (path: string) => pathname === path
-  const showAnnouncement = pathname === '/' || pathname === '/school-to-startup'
+  const showAnnouncement = pathname === '/'
 
   // Auto-close mobile menu when the route changes
   useEffect(() => {
-    setMobileMenuOpen(false)
+    const id = window.setTimeout(() => setMobileMenuOpen(false), 0)
+    return () => window.clearTimeout(id)
   }, [pathname])
 
   // Lock body scroll while the mobile menu is open
@@ -112,7 +112,7 @@ export function Navbar() {
                     : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
                 } `}
               >
-                "३० मा ३०"
+                &quot;३० मा ३०&quot;
               </span>
             </Link>
 
@@ -133,12 +133,12 @@ export function Navbar() {
               </span>
             </Link> */}
             <Link
-              href={'/school-to-startup'}
-              className={`flex items-center rounded-full font-[family-name:var(--font-headline)] text-sm font-bold tracking-tight transition-colors ${
-                isActive('/school-to-startup') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
+              href="/webinars"
+              className={`flex items-center rounded-full font-[family-name:var(--font-headline)] text-sm font-extrabold tracking-tight transition-colors ${
+                isActive('/webinars') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
               }`}
             >
-              <div className="px-4"> School to Startup</div>
+              <div className="px-4">Webinars</div>
             </Link>
             {/* <Link
               href="/school-to-startup"
@@ -256,24 +256,24 @@ export function Navbar() {
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
               <CalendarDays className="size-4" aria-hidden="true" />
             </span>
-            <span className="flex-1"> "३० मा ३०"</span>
+            <span className="flex-1">&quot;३० मा ३०&quot;</span>
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
 
           {/* Primary CTA */}
           <Link
-            href="/school-to-startup"
+            href="/webinars"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
-              isActive('/school-to-startup')
+              isActive('/webinars')
                 ? 'ring-2 ring-[#6cf8bb]/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
                 : ''
             }`}
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
-              <Rocket className="size-4" aria-hidden="true" />
+              <Video className="size-4" aria-hidden="true" />
             </span>
-            <span className="flex-1">School to Startup</span>
+            <span className="flex-1 font-extrabold">Webinars</span>
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
