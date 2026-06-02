@@ -1,18 +1,18 @@
 export const FEATURED_EVENT = {
   guest: {
-    name: 'Ashwin Neupane',
-    title: 'Digital Marketing and AI Content Creator',
-    imageUrl: '/home/ashwin.png',
+    name: 'Prayash Poudel',
+    title: 'Principal AI Engineer at Leapfrog Technology',
+    imageUrl: '/events/prayash.png',
   },
-  topic: 'AI skills for +2 Appeared Students',
+  topic: 'Career in Software Engineering using AI',
   audience: 'Appeared Students',
   highlights: [
-    '5+ Years of Industry Experience in Digital Marketing',
-    'Founder, Unlocked AI',
-    'AI and Marketing Content Creator',
+    'Integrating AI in software development',
+    'Future of coding with AI',
+    'Live Q&A on tech careers',
   ],
-  bio: 'Ashwin is a computer engineer, tech content creator, and AI educator with 5+ years in digital marketing and professional training. As the founder of Unlocked AI, he has built a community of 100,000+ across Instagram, TikTok, and Facebook, simplifying complex AI topics into practical systems for productivity, content creation, and income generation.',
+  bio: 'Prayash Poudel is a Principal AI Engineer at Leapfrog Technology. He helps students understand how AI is changing software engineering, what skills matter now, and how beginners can build practical confidence with modern development workflows.',
   durationMinutes: 60,
-  seats: 100,
-  pricePerSeat: 100,
+  seats: 60,
+  pricePerSeat: 150,
 } as const
