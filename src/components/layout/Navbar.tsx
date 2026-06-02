@@ -138,7 +138,7 @@ export function Navbar() {
                 isActive('/webinars') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
               }`}
             >
-              <div className="px-4">Webinars</div>
+              <div className="px-4">Free Trainings</div>
             </Link>
             {/* <Link
               href="/school-to-startup"
@@ -273,7 +273,7 @@ export function Navbar() {
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15">
               <Video className="size-4" aria-hidden="true" />
             </span>
-            <span className="flex-1 font-extrabold">Webinars</span>
+            <span className="flex-1 font-extrabold">Free Trainings</span>
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
