@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { SchoolToStartupForm } from '@/features/school-to-startup/components/SchoolToStartupForm'
-import { SchoolToStartupHero } from '@/features/school-to-startup/components/SchoolToStartupHero'
+import { notFound } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'School to Startup Series',
@@ -9,10 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function SchoolToStartupPage() {
-  return (
-    <main className="min-h-screen bg-[#f7f8ff] pt-36 pb-20">
-      <SchoolToStartupHero />
-      <SchoolToStartupForm />
-    </main>
-  )
+  notFound()
 }

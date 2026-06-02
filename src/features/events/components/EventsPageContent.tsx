@@ -1,4 +1,3 @@
-import { CalendarDays, Clock3, Users } from 'lucide-react'
 import { EventCard, type EventCardDetails } from '@/features/events/components/EventCard'
 
 // const eventStats = [
@@ -22,7 +21,120 @@ const events: EventCardDetails[] = [
       'Enhancing study with AI workflows',
       'Future-proofing your career skills',
     ],
+    isFinished: true,
   },
+  {
+    guestName: 'Prayash Poudel',
+    guestDesc: 'Principal AI Engineer at Leapfrog Technology',
+    imageUrl: '/events/prayash.png',
+    topic: 'Career in Software Engineering using AI',
+    seats: 60,
+    date: 'June 7, Sunday',
+    pricePerSeat: 150,
+    highlights: [
+      'Integrating AI in software development',
+      'Future of coding with AI',
+      'Live Q&A on tech careers',
+    ],
+  },
+  {
+    guestName: 'Aashutosh Poudel',
+    guestDesc: 'Principal Mobile App Developer at Webpoint Technology',
+    imageUrl: '/events/aashutosh.png',
+    topic: 'Career in Mobile Development',
+    seats: 60,
+    date: 'June 8, Monday',
+    pricePerSeat: 150,
+    highlights: [
+      'iOS and Android development paths',
+      'Building scalable mobile applications today',
+      'Essential frameworks for app developers',
+    ],
+  },
+  {
+    guestName: 'Bhupin Baral',
+    guestDesc: 'AI Engineer at Fusemachines',
+    imageUrl: '/events/bhupin.png',
+    topic: 'Career in Robotics and Machine Learning',
+    seats: 60,
+    date: 'June 9, Tuesday',
+    pricePerSeat: 150,
+    highlights: [
+      'Getting started with machine learning',
+      'Real-world robotics and automation use',
+      'Required math and programming skills',
+    ],
+  },
+  {
+    guestName: 'Renuka Shiwakoti',
+    guestDesc: 'Sr. Technical Writer',
+    imageUrl: '/events/renuka.png',
+    topic: 'Career in Technical Writing',
+    seats: 60,
+    date: 'June 10, Wednesday',
+    pricePerSeat: 150,
+    highlights: [
+      'Crafting clear software documentation guides',
+      'Tools for modern technical writers',
+      'Bridging developers and end users',
+    ],
+  },
+  {
+    guestName: 'Bibek Mani Acharya',
+    guestDesc: 'Founder - Charging Station Nepal',
+    imageUrl: '/events/bibek.png',
+    topic: 'Career in Product Enterpreneurship',
+    seats: 60,
+    date: 'June 11, Thursday',
+    pricePerSeat: 150,
+    highlights: [
+      'Launching successful physical tech products',
+      'Securing funding for your startup',
+      'Navigating hardware business in Nepal',
+    ],
+  },
+  {
+    guestName: 'Nabin Paudel',
+    guestDesc: 'Product Manager at Webpoint Technology',
+    imageUrl: '/events/nabin.png',
+    topic: 'Scope in IT Product and Project Management',
+    seats: 60,
+    date: 'June 12, Friday',
+    pricePerSeat: 150,
+    highlights: [
+      'Agile and Scrum methodologies explained',
+      'Managing tech teams and deadlines',
+      'Essential tools for project managers',
+    ],
+  },
+  {
+    guestName: 'Chandra Sekhar Neupane',
+    guestDesc: 'Electronics Engineer/ Senior Developer - Webpoint Technology',
+    imageUrl: '/events/chandra.png',
+    topic: 'Career in Electronics Engineering',
+    seats: 60,
+    date: 'June 13, Saturday',
+    pricePerSeat: 150,
+    highlights: [
+      'Embedded systems and IoT careers',
+      'Circuit design and hardware development',
+      'Bridging electronics with software programming',
+    ],
+  },
+  {
+    guestName: 'Samrat Adhikari',
+    guestDesc: 'Founder/Content Creator - Katha Creation',
+    imageUrl: '/events/samrat.png',
+    topic: 'Career in Content Creation',
+    seats: 100,
+    pricePerSeat: 100,
+    highlights: [
+      'Writing and directing social-first stories',
+      'Building content people watch as a family',
+      'Turning creator skills into brand work',
+    ],
+  },
+
   {
     guestName: 'Bikash Thapaliya',
     guestDesc: 'Executive Producer and News Coordinator at Image Channel & CEO of NepalVox',
@@ -36,20 +148,6 @@ const events: EventCardDetails[] = [
       'Building a strong media portfolio',
     ],
   },
-  {
-    guestName: 'Samrat Adhikari',
-    guestDesc: 'Founder/Content Creator - Katha Creation',
-    imageUrl: '/events/samrat.png',
-    topic: 'Career in Content Creation',
-    seats: 100,
-    pricePerSeat: 100,
-    highlights: [
-      'Monetizing your digital content skills',
-      'Tools for effective storytelling online',
-      'Live Q&A on creator growth',
-    ],
-  },
-
   {
     guestName: 'Nischal Karki',
     guestDesc: 'Content Creator',
@@ -99,19 +197,6 @@ const events: EventCardDetails[] = [
       'Officer cadet selection process explained',
       'Life and discipline in military',
       'Leadership skills for army officers',
-    ],
-  },
-  {
-    guestName: 'Prayas Poudel',
-    guestDesc: 'Principal AI Engineer at Leapfrog Technology',
-    imageUrl: '/events/prayash.png',
-    topic: 'Career in Software Engineering using AI',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'Integrating AI in software development',
-      'Future of coding with AI',
-      'Live Q&A on tech careers',
     ],
   },
   {
@@ -219,19 +304,6 @@ const events: EventCardDetails[] = [
     ],
   },
   {
-    guestName: 'Bibek Mani Acharya',
-    guestDesc: 'Founder - Charging Station Nepal',
-    imageUrl: '/events/bibek.png',
-    topic: 'Career in Product Enterpreneurship',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'Launching successful physical tech products',
-      'Securing funding for your startup',
-      'Navigating hardware business in Nepal',
-    ],
-  },
-  {
     guestName: 'Mandira Shrestha ',
     guestDesc: "Registered nurse at Kanti Children's Hospital",
     imageUrl: '/events/mandira.png',
@@ -258,32 +330,6 @@ const events: EventCardDetails[] = [
     ],
   },
   {
-    guestName: 'Chandra Sekhar Neupane',
-    guestDesc: 'Electronics Engineer/ Senior Developer - Webpoint Technology',
-    imageUrl: '/events/chandra.png',
-    topic: 'Career in Electronics Engineering',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'Embedded systems and IoT careers',
-      'Circuit design and hardware development',
-      'Bridging electronics with software programming',
-    ],
-  },
-  {
-    guestName: 'Nabin Paudel',
-    guestDesc: 'Product Manager at Webpoint Technology',
-    imageUrl: '/events/nabin.png',
-    topic: 'Scope in IT Product and Project Management',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'Agile and Scrum methodologies explained',
-      'Managing tech teams and deadlines',
-      'Essential tools for project managers',
-    ],
-  },
-  {
     guestName: 'Sarthak KC',
     guestDesc: 'Ground Handling at Summit Air',
     imageUrl: '/events/sarthak.png',
@@ -294,45 +340,6 @@ const events: EventCardDetails[] = [
       'Ground handling and airport operations',
       'Aviation management career growth paths',
       'Ensuring safety in daily flights',
-    ],
-  },
-  {
-    guestName: 'Aashutosh Poudel',
-    guestDesc: 'Principal Mobile App Developer at Webpoint Technology',
-    imageUrl: '/events/aashutosh.png',
-    topic: 'Career in Mobile Development',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'iOS and Android development paths',
-      'Building scalable mobile applications today',
-      'Essential frameworks for app developers',
-    ],
-  },
-  {
-    guestName: 'Renuka Shiwakoti',
-    guestDesc: 'Sr. Technical Writer',
-    imageUrl: '/events/renuka.png',
-    topic: 'Career in Technical Writing',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'Crafting clear software documentation guides',
-      'Tools for modern technical writers',
-      'Bridging developers and end users',
-    ],
-  },
-  {
-    guestName: 'Bhupin Baral',
-    guestDesc: 'AI Engineer at Fusemachines',
-    imageUrl: '/events/bhupin.png',
-    topic: 'Career in Robotics and Machine Learning',
-    seats: 60,
-    pricePerSeat: 150,
-    highlights: [
-      'Getting started with machine learning',
-      'Real-world robotics and automation use',
-      'Required math and programming skills',
     ],
   },
   {
@@ -382,8 +389,8 @@ export function EventsPageContent() {
             </h1>
 
             <p className="mt-6 text-base leading-8 text-[#434655] sm:text-lg">
-              Don't let a hasty decision ruin your next 4 years. <br /> Join our exclusive 1-hour
-              expert session and get absolute clarity on your future career path.
+              Don&apos;t let a hasty decision ruin your next 4 years. <br /> Join our exclusive
+              1-hour expert session and get absolute clarity on your future career path.
             </p>
           </div>
 
