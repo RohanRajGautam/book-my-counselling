@@ -11,11 +11,11 @@ export function WebinarsPageContent() {
 
         <div className="mx-auto w-full max-w-[1280px]">
           <p className="inline-flex rounded-full border border-[#c9d7f4] bg-white/74 px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)] backdrop-blur">
-            Webinars
+            Trainings
           </p>
 
           <h1 className="mt-7 font-[family-name:var(--font-headline)] text-[clamp(2.35rem,5.2vw,4.25rem)] leading-[0.98] font-extrabold tracking-tight text-[#121c2a]">
-            Free training webinars
+            Free trainings for +2 appeared students
           </h1>
 
           {/* <p className="mt-6 max-w-3xl text-base leading-8 text-[#434655] sm:text-lg">

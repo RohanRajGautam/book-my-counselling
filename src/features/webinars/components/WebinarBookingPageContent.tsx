@@ -177,7 +177,7 @@ export function WebinarBookingPageContent() {
     <main className="mx-auto max-w-7xl px-4 pt-12 pb-32 sm:px-6 md:py-20 lg:px-8">
       <div className="my-12">
         <h1 className="my-4 font-[family-name:var(--font-headline)] text-4xl font-bold tracking-tight text-[#121c2a] md:text-5xl">
-          Complete your webinar booking
+          Complete your training booking
         </h1>
         <p className="text-lg text-[#434655]">
           Please provide your details to book your free seat.
