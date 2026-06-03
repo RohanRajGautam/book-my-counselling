@@ -22,6 +22,9 @@ type StudyAbroadConsultantBase = {
   imageUrl: string
   country: StudyAbroadCountry
   city?: string
+  headline?: string
+  bio?: string
+  highlights?: string[]
   services: string[]
   rating: number
   reviews: number
@@ -34,6 +37,7 @@ export type StudentConsultant = StudyAbroadConsultantBase & {
   profileType: 'student'
   universityName?: string
   program?: string
+  research?: string
 }
 
 export type EmployeeConsultant = StudyAbroadConsultantBase & {
@@ -42,6 +46,7 @@ export type EmployeeConsultant = StudyAbroadConsultantBase & {
   companyName?: string
   universityName?: string
   program?: string
+  research?: string
 }
 
 export type StudyAbroadConsultant = StudentConsultant | EmployeeConsultant

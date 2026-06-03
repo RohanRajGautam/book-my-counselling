@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Check, Clock, MapPin, X } from 'lucide-react'
+import { Check, Clock, MapPin, Sparkles, X } from 'lucide-react'
 
 import { STUDY_ABROAD_COUNTRIES } from '@/features/study-abroad/lib/study-abroad.constants'
 import type {
@@ -92,6 +92,7 @@ export function StudyAbroadConsultantModal({
   const hasEmployeeEducation =
     consultant.profileType === 'employee' &&
     (Boolean(consultant.universityName) || Boolean(consultant.program))
+  const highlights = consultant.highlights ?? []
 
   return (
     <div
@@ -181,7 +182,7 @@ export function StudyAbroadConsultantModal({
             {consultant.profileType === 'student' ? (
               <>
                 <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a]">
-                  {primaryTitle}
+                  {consultant.headline ?? primaryTitle}
                 </h3>
                 {primarySubtitle && (
                   <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
@@ -217,6 +218,34 @@ export function StudyAbroadConsultantModal({
                   </div>
                 )}
               </>
+            )}
+
+            {consultant.bio && (
+              <p className="mt-5 border-t border-[#dfe7f5] pt-5 text-base leading-8 font-medium text-[#434655]">
+                {consultant.bio}
+              </p>
+            )}
+
+            {highlights.length > 0 && (
+              <div className="mt-5 rounded-[20px] bg-[#f8f9ff] p-4 ring-1 ring-[#eff4ff] ring-inset">
+                <p className="mb-3 flex items-center gap-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
+                  <Sparkles className="size-4 text-[#0053db]" />
+                  Good topics to ask about
+                </p>
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {highlights.map((highlight) => (
+                    <li
+                      key={highlight}
+                      className="flex gap-3 text-sm leading-6 font-semibold text-[#434655]"
+                    >
+                      <span className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ebfff5] text-[#00714d]">
+                        <Check className="size-3.5" strokeWidth={4} />
+                      </span>
+                      <span>{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
 

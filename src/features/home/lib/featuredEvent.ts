@@ -1,7 +1,7 @@
 export const FEATURED_EVENT = {
   guest: {
     name: 'Prayash Poudel',
-    title: 'Principal AI Engineer at Leapfrog Technology',
+    title: 'Principal AI Engineer, Leapfrog Technology',
     imageUrl: '/events/prayash.png',
   },
   topic: 'Career in Software Engineering using AI',

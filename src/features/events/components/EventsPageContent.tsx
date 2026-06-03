@@ -25,7 +25,8 @@ const events: EventCardDetails[] = [
   },
   {
     guestName: 'Prayash Poudel',
-    guestDesc: 'Principal AI Engineer at Leapfrog Technology',
+    guestDesc: 'Principal AI Engineer, Leapfrog Technology',
+    showGuestDesc: true,
     imageUrl: '/events/prayash.png',
     topic: 'Career in Software Engineering using AI',
     seats: 60,
@@ -39,7 +40,8 @@ const events: EventCardDetails[] = [
   },
   {
     guestName: 'Aashutosh Poudel',
-    guestDesc: 'Principal Mobile App Developer at Webpoint Technology',
+    guestDesc: 'Senior Software Engineer, Webpoint Technology',
+    showGuestDesc: true,
     imageUrl: '/events/aashutosh.png',
     topic: 'Career in Mobile Development',
     seats: 60,
@@ -53,7 +55,8 @@ const events: EventCardDetails[] = [
   },
   {
     guestName: 'Bhupin Baral',
-    guestDesc: 'AI Engineer at Fusemachines',
+    guestDesc: 'Sr. AI Engineer, Fusemachines',
+    showGuestDesc: true,
     imageUrl: '/events/bhupin.png',
     topic: 'Career in Robotics and Machine Learning',
     seats: 60,
@@ -68,6 +71,7 @@ const events: EventCardDetails[] = [
   {
     guestName: 'Renuka Shiwakoti',
     guestDesc: 'Sr. Technical Writer',
+    showGuestDesc: true,
     imageUrl: '/events/renuka.png',
     topic: 'Career in Technical Writing',
     seats: 60,
@@ -80,8 +84,9 @@ const events: EventCardDetails[] = [
     ],
   },
   {
-    guestName: 'Bibek Mani Acharya',
-    guestDesc: 'Founder - Charging Station Nepal',
+    guestName: 'Bibekmani Acharya',
+    guestDesc: 'Founder/ CEO, Charging station Nepal',
+    showGuestDesc: true,
     imageUrl: '/events/bibek.png',
     topic: 'Career in Product Enterpreneurship',
     seats: 60,
@@ -95,7 +100,8 @@ const events: EventCardDetails[] = [
   },
   {
     guestName: 'Nabin Paudel',
-    guestDesc: 'Product Manager at Webpoint Technology',
+    guestDesc: 'Sr. Project Manager, Webpoint Technology Pvt Ltd',
+    showGuestDesc: true,
     imageUrl: '/events/nabin.png',
     topic: 'Scope in IT Product and Project Management',
     seats: 60,
@@ -108,8 +114,9 @@ const events: EventCardDetails[] = [
     ],
   },
   {
-    guestName: 'Chandra Sekhar Neupane',
-    guestDesc: 'Electronics Engineer/ Senior Developer - Webpoint Technology',
+    guestName: 'Chandra Shekhar Neupane',
+    guestDesc: 'Sr. Software Engineer, Webpoint Technology Pvt Ltd',
+    showGuestDesc: true,
     imageUrl: '/events/chandra.png',
     topic: 'Career in Electronics Engineering',
     seats: 60,

@@ -4,10 +4,14 @@ import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 
 import { StudyAbroadConsultantModal } from '@/features/study-abroad/components/StudyAbroadConsultantModal'
+import { StudyAbroadFeaturedConsultant } from '@/features/study-abroad/components/StudyAbroadFeaturedConsultant'
 import { StudyAbroadGrid } from '@/features/study-abroad/components/StudyAbroadGrid'
 import { StudyAbroadHeader } from '@/features/study-abroad/components/StudyAbroadHeader'
 import { StudyAbroadSidebar } from '@/features/study-abroad/components/StudyAbroadSidebar'
-import { STUDY_ABROAD_CONSULTANTS } from '@/features/study-abroad/lib/study-abroad.constants'
+import {
+  FEATURED_STUDY_ABROAD_CONSULTANT,
+  STUDY_ABROAD_CONSULTANTS,
+} from '@/features/study-abroad/lib/study-abroad.constants'
 import type {
   StudyAbroadConsultant,
   StudyAbroadCountry,
@@ -104,6 +108,7 @@ export function StudyAbroadPageContent() {
 
       <div>
         <StudyAbroadHeader />
+        <StudyAbroadFeaturedConsultant consultant={FEATURED_STUDY_ABROAD_CONSULTANT} />
         <StudyAbroadGrid
           consultants={consultants}
           search={search}
