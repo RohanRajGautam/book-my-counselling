@@ -14,6 +14,7 @@ import {
   type BookingFormData,
 } from '@/features/booking/lib/validation'
 import {
+  FEATURED_STUDY_ABROAD_CONSULTANT,
   STUDY_ABROAD_CONSULTANTS,
   STUDY_ABROAD_COUNTRIES,
 } from '@/features/study-abroad/lib/study-abroad.constants'
@@ -21,6 +22,11 @@ import type { StudyAbroadConsultant } from '@/features/study-abroad/types/study-
 
 const STUDY_ABROAD_BOOKING_SCRIPT_URL =
   process.env.NEXT_PUBLIC_STUDY_ABROAD_GOOGLE_SHEETS_SCRIPT_URL ?? ''
+
+const STUDY_ABROAD_BOOKING_CONSULTANTS = [
+  FEATURED_STUDY_ABROAD_CONSULTANT,
+  ...STUDY_ABROAD_CONSULTANTS,
+]
 
 function formatDisplayName(name: string) {
   return name
@@ -52,12 +58,17 @@ function getCountryLabel(country: StudyAbroadConsultant['country']) {
   return STUDY_ABROAD_COUNTRIES.find((item) => item.value === country)?.label ?? country
 }
 
+function getBookingPrice(consultant: StudyAbroadConsultant, packagePrice: number) {
+  return consultant.id === FEATURED_STUDY_ABROAD_CONSULTANT.id ? 0 : packagePrice
+}
+
 export function StudyAbroadBookingPageContent() {
   const searchParams = useSearchParams()
   const consultantId = searchParams.get('consultantId')
   const duration = Number(searchParams.get('duration'))
 
-  const consultant = STUDY_ABROAD_CONSULTANTS.find((item) => item.id === consultantId) ?? null
+  const consultant =
+    STUDY_ABROAD_BOOKING_CONSULTANTS.find((item) => item.id === consultantId) ?? null
   const selectedPackage =
     consultant?.packages.find((item) => item.durationMinutes === duration) ?? null
 
@@ -136,6 +147,7 @@ export function StudyAbroadBookingPageContent() {
 
       const consultantName = formatDisplayName(consultant.name)
       const consultantTitle = getConsultantTitle(consultant)
+      const bookingPrice = getBookingPrice(consultant, selectedPackage.price)
 
       await fetch(STUDY_ABROAD_BOOKING_SCRIPT_URL, {
         method: 'POST',
@@ -161,8 +173,8 @@ export function StudyAbroadBookingPageContent() {
           consultationType: 'Study Abroad Consultation',
           durationMinutes: selectedPackage.durationMinutes,
           durationLabel: `${selectedPackage.durationMinutes} mins`,
-          price: selectedPackage.price,
-          priceLabel: `NPR ${selectedPackage.price.toLocaleString()}`,
+          price: bookingPrice,
+          priceLabel: bookingPrice === 0 ? 'Free' : `NPR ${bookingPrice.toLocaleString()}`,
           services: consultant.services.join(', '),
           fullName: formData.fullName.trim(),
           email: formData.email.trim(),
@@ -196,6 +208,7 @@ export function StudyAbroadBookingPageContent() {
   }
 
   const consultantTitle = getConsultantTitle(consultant)
+  const bookingPrice = getBookingPrice(consultant, selectedPackage.price)
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -313,13 +326,14 @@ export function StudyAbroadBookingPageContent() {
               mentor={{
                 name: formatDisplayName(consultant.name),
                 title: consultantTitle,
-                imageUrl: null,
+                imageUrl: consultant.imageUrl,
               }}
               session={{
                 type: 'Study Abroad Consultation',
                 duration: `${selectedPackage.durationMinutes} mins`,
               }}
-              price={selectedPackage.price}
+              price={bookingPrice}
+              priceLabel={bookingPrice === 0 ? 'Free' : undefined}
             />
 
             <div className="space-y-3">

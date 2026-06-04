@@ -54,7 +54,7 @@ export function Navbar() {
           href="/explore-mentors"
           className="fixed inset-x-0 top-0 z-50 flex min-h-10 items-center justify-center gap-2 bg-[#004ac6] px-4 py-2 text-center text-xs font-extrabold text-white shadow-[0_8px_22px_rgba(0,74,198,0.18)] sm:text-sm"
         >
-          <span>Completed SEE or +2 and confused about career?</span>
+          <span>Completed +2 and confused about career?</span>
           <span className="inline-flex items-center gap-1 whitespace-nowrap">
             Find Mentor <ArrowRight className="size-4" />
           </span>

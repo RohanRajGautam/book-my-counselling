@@ -172,6 +172,10 @@ export function HeroSection() {
                             {FEATURED_EVENT.guest.name}
                           </h2>
 
+                          <p className="mt-1 max-w-[18rem] text-sm leading-5 font-semibold text-green-800">
+                            {FEATURED_EVENT.guest.title}
+                          </p>
+
                           {/* <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
                               <span className="flex items-center gap-1.5">
                                 
