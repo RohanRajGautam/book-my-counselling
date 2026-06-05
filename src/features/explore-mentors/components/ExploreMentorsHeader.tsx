@@ -13,11 +13,11 @@ export function ExploreMentorsHeader() {
           <h1 className="font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,3rem)] leading-tight font-extrabold text-[#121c2a]">
             {isAcademic ? (
               <>
-                Explore Academic <span className="text-[#0053db]">Counseller</span>
+                Explore Academic <span className="text-[#0053db]">Counsellors</span>
               </>
             ) : (
               <>
-                Explore Professional <span className="text-[#0053db]">Coach</span>
+                Explore Professional <span className="text-[#0053db]">Coaches</span>
               </>
             )}
           </h1>
