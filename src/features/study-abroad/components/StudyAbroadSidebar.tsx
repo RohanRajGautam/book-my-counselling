@@ -32,7 +32,7 @@ export function StudyAbroadSidebar({
         <h3 className="mb-4 text-[11px] font-extrabold tracking-wider text-[#434655] uppercase">
           Destination country
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {STUDY_ABROAD_COUNTRIES.map((country) => (
             <label
               key={country.value}

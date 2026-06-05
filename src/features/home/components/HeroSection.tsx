@@ -172,9 +172,54 @@ export function HeroSection() {
                             {FEATURED_EVENT.guest.name}
                           </h2>
 
-                          <p className="mt-1 max-w-[18rem] text-sm leading-5 font-semibold text-green-800">
+                          <p className="my-2 text-sm leading-5 font-semibold text-green-800">
                             {FEATURED_EVENT.guest.title}
                           </p>
+
+                          {(FEATURED_EVENT.date || FEATURED_EVENT.time) && (
+                            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
+                              {FEATURED_EVENT.date && (
+                                <span className="flex items-center gap-1.5">
+                                  {/* Subtle calendar representation */}
+                                  <svg
+                                    className="size-3.5 text-[#004ac6]/70"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                  >
+                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                                    <path d="M16 2v4M8 2v4M3 10h18" />
+                                  </svg>
+                                  {FEATURED_EVENT.date}
+                                </span>
+                              )}
+
+                              {FEATURED_EVENT.date && FEATURED_EVENT.time && (
+                                <span
+                                  className="size-1 rounded-full bg-[#d9e3f6]"
+                                  aria-hidden="true"
+                                />
+                              )}
+
+                              {FEATURED_EVENT.time && (
+                                <span className="flex items-center gap-1.5">
+                                  {/* Subtle clock representation */}
+                                  <svg
+                                    className="size-3.5 text-[#004ac6]/70"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                  >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 6v6l4 2" />
+                                  </svg>
+                                  {FEATURED_EVENT.time}
+                                </span>
+                              )}
+                            </div>
+                          )}
 
                           {/* <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
                               <span className="flex items-center gap-1.5">
