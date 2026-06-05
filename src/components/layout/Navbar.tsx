@@ -3,28 +3,72 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, CalendarDays, Compass, Menu, Globe2, Video, X } from 'lucide-react'
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  CalendarDays,
+  Compass,
+  Globe2,
+  GraduationCap,
+  Menu,
+  Video,
+  X,
+} from 'lucide-react'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
-  { href: '/explore-mentors', label: 'Explore Mentors', icon: Compass },
+  {
+    href: '/explore-mentors?type=academic',
+    label: 'Academic Counseller',
+    icon: GraduationCap,
+    type: 'academic',
+  },
+  {
+    href: '/explore-mentors?type=professional',
+    label: 'Professional Coach',
+    icon: BriefcaseBusiness,
+    type: 'professional',
+  },
   { href: '/study-abroad', label: 'Study Abroad', icon: Globe2 },
-  { href: '/how-it-works', label: 'How it Works', icon: Compass },
+  // { href: '/how-it-works', label: 'How it Works', icon: Compass },
   // { href: '/events', label: '"३० मा ३०"', icon: BookOpen },
   // { href: '/about', label: 'About Us' },
 ]
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeMentorType, setActiveMentorType] = useState('academic')
   const pathname = usePathname()
 
-  const isActive = (path: string) => pathname === path
+  const isActive = (item: (typeof navItems)[number] | string) => {
+    if (typeof item === 'string') return pathname === item
+
+    if (item.type) {
+      return pathname.startsWith('/explore-mentors') && activeMentorType === item.type
+    }
+
+    return pathname === item.href
+  }
   const showAnnouncement = pathname === '/'
+
+  const syncActiveMentorType = () => {
+    const params = new URLSearchParams(window.location.search)
+    setActiveMentorType(
+      params.get('type') ?? (params.has('professional') ? 'professional' : 'academic')
+    )
+  }
 
   // Auto-close mobile menu when the route changes
   useEffect(() => {
     const id = window.setTimeout(() => setMobileMenuOpen(false), 0)
     return () => window.clearTimeout(id)
+  }, [pathname])
+
+  useEffect(() => {
+    syncActiveMentorType()
+    window.addEventListener('popstate', syncActiveMentorType)
+
+    return () => window.removeEventListener('popstate', syncActiveMentorType)
   }, [pathname])
 
   // Lock body scroll while the mobile menu is open
@@ -51,7 +95,7 @@ export function Navbar() {
     <>
       {showAnnouncement && (
         <Link
-          href="/explore-mentors"
+          href="/explore-mentors?type=academic"
           className="fixed inset-x-0 top-0 z-50 flex min-h-10 items-center justify-center gap-2 bg-[#004ac6] px-4 py-2 text-center text-xs font-extrabold text-white shadow-[0_8px_22px_rgba(0,74,198,0.18)] sm:text-sm"
         >
           <span>Completed +2 and confused about career?</span>
@@ -87,8 +131,11 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => {
+                  if (item.type) setActiveMentorType(item.type)
+                }}
                 className={`font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
-                  isActive(item.href)
+                  isActive(item)
                     ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                     : 'text-slate-600 dark:text-slate-400'
                 } `}
@@ -208,12 +255,15 @@ export function Navbar() {
         <div className="flex flex-col gap-1 p-2">
           {navItems.map((item) => {
             const Icon = item.icon
-            const active = isActive(item.href)
+            const active = isActive(item)
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  if (item.type) setActiveMentorType(item.type)
+                  setMobileMenuOpen(false)
+                }}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
                   active
                     ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'

@@ -1,6 +1,9 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+
+import { buildExploreMentorsSearchParams } from '@/features/filters/lib/filter-url-state'
 import { type FilterState } from '../types/filter.types'
 
 interface FilterContextType {
@@ -33,33 +36,93 @@ const defaultFilters: FilterState = {
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined)
 
+type LocalFilterState = {
+  urlStateKey: string
+  filters: FilterState
+  page: number
+}
+
+function createFilterState(initialFilters?: Partial<FilterState>): FilterState {
+  return {
+    ...defaultFilters,
+    ...initialFilters,
+  }
+}
+
+function getExploreMentorsStateKey(filters: FilterState, page: number) {
+  return buildExploreMentorsSearchParams(filters, page).toString()
+}
+
 export function FilterProvider({
   children,
   initialFilters,
+  initialPage = 1,
+  syncUrl = false,
 }: {
   children: ReactNode
   initialFilters?: Partial<FilterState>
+  initialPage?: number
+  syncUrl?: boolean
 }) {
-  const [filters, setFilters] = useState<FilterState>(() => ({
-    ...defaultFilters,
-    ...initialFilters,
+  const router = useRouter()
+  const pathname = usePathname()
+  const initialFilterState = useMemo(() => createFilterState(initialFilters), [initialFilters])
+  const initialStateKey = getExploreMentorsStateKey(initialFilterState, initialPage)
+  const [localState, setLocalState] = useState<LocalFilterState>(() => ({
+    urlStateKey: initialStateKey,
+    filters: initialFilterState,
+    page: initialPage,
   }))
-  const [currentPage, setCurrentPage] = useState(1)
+
+  const hasCurrentUrlState = localState.urlStateKey === initialStateKey
+  const filters = hasCurrentUrlState ? localState.filters : initialFilterState
+  const currentPage = hasCurrentUrlState ? localState.page : initialPage
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-    setCurrentPage(1)
+    setLocalState({
+      urlStateKey: initialStateKey,
+      filters: { ...filters, [key]: value },
+      page: 1,
+    })
   }
 
   const updateFilters = (nextFilters: Partial<FilterState>) => {
-    setFilters((prev) => ({ ...prev, ...nextFilters }))
-    setCurrentPage(1)
+    setLocalState({
+      urlStateKey: initialStateKey,
+      filters: { ...filters, ...nextFilters },
+      page: 1,
+    })
   }
 
   const clearFilters = () => {
-    setFilters(defaultFilters)
-    setCurrentPage(1)
+    setLocalState({
+      urlStateKey: initialStateKey,
+      filters: { ...defaultFilters, counselingType: filters.counselingType },
+      page: 1,
+    })
   }
+
+  const setCurrentPage = (page: number) => {
+    setLocalState({
+      urlStateKey: initialStateKey,
+      filters,
+      page,
+    })
+  }
+
+  useEffect(() => {
+    if (!syncUrl) return
+
+    const params = buildExploreMentorsSearchParams(filters, currentPage)
+    const queryString = params.toString()
+    const currentQueryString = window.location.search.replace(/^\?/, '')
+
+    if (queryString === currentQueryString) return
+
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    })
+  }, [currentPage, filters, pathname, router, syncUrl])
 
   return (
     <FilterContext.Provider

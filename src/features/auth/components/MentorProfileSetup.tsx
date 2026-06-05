@@ -57,8 +57,7 @@ export function MentorProfileSetup() {
     )
   }
 
-  const canProceedStep1 =
-    form.title.trim().length >= 2 && form.hourly_rate.trim().length > 0
+  const canProceedStep1 = form.title.trim().length >= 2 && form.hourly_rate.trim().length > 0
 
   const handleSubmit = () => {
     const rate = parseFloat(form.hourly_rate)
@@ -73,9 +72,7 @@ export function MentorProfileSetup() {
         company: form.company.trim() || null,
         bio: form.bio.trim() || null,
         hourly_rate: rate,
-        years_of_experience: form.years_of_experience
-          ? parseInt(form.years_of_experience, 10)
-          : 0,
+        years_of_experience: form.years_of_experience ? parseInt(form.years_of_experience, 10) : 0,
         industry_ids: form.industry_ids,
         booking_mode: form.booking_mode,
         is_professional_counselor: form.is_professional_counselor,
@@ -363,13 +360,7 @@ function DetailsStep({
 // Shared sub-components
 // ---------------------------------------------------------------------------
 
-function SectionTitle({
-  icon,
-  children,
-}: {
-  icon: React.ReactNode
-  children: React.ReactNode
-}) {
+function SectionTitle({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -382,7 +373,7 @@ function SectionTitle({
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500">{children}</p>
+    <p className="text-xs font-extrabold tracking-[0.12em] text-slate-500 uppercase">{children}</p>
   )
 }
 
@@ -437,15 +428,7 @@ function ToggleChip({
   )
 }
 
-function StepDot({
-  active,
-  done,
-  label,
-}: {
-  active: boolean
-  done: boolean
-  label: string
-}) {
+function StepDot({ active, done, label }: { active: boolean; done: boolean; label: string }) {
   return (
     <div
       className={`flex size-8 items-center justify-center rounded-full text-xs font-extrabold transition ${

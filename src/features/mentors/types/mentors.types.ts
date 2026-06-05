@@ -24,6 +24,8 @@ export interface Mentor {
   tag_ids?: string[]
   avatar_url?: string | null
   created_at?: string | null
+  is_professional_counselor: boolean
+  is_academic_counselor: boolean
 }
 
 export interface MentorListResponse {

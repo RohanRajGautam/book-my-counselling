@@ -41,7 +41,7 @@ export function StudyAbroadGrid({
   return (
     <section id="study-abroad-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
       <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
-        <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
+        <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl border border-gray-100 bg-white px-4 ring-1 ring-[#eff4ff] ring-inset">
           <Search className="mr-3 size-6 text-[#0053db]" />
           <input
             type="search"
@@ -64,7 +64,7 @@ export function StudyAbroadGrid({
         </div>
 
         <div className="flex items-center gap-3">
-          <label className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl bg-white px-4 shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset xl:flex-none">
+          <label className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-gray-100 bg-white px-4 ring-1 ring-[#eff4ff] ring-inset xl:flex-none">
             <ArrowUpDown className="size-5 shrink-0 text-[#0053db]" />
             <span className="text-sm font-extrabold text-[#434655]">Sort</span>
             <span className="relative min-w-0 flex-1 xl:flex-none">

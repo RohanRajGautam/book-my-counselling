@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { getMentorById } from '../api/mentors.api'
+import { getMentorBySlugOrId } from '../api/mentors.api'
 import { MentorResponse } from '../types/mentors.types'
 
-export function useMentor(mentorId: string | null) {
-  const enabled = !!mentorId
+export function useMentor(mentorSlugOrId: string | null) {
+  const enabled = !!mentorSlugOrId
 
   return useQuery<MentorResponse>({
-    queryKey: ['mentor', mentorId],
-    queryFn: () => getMentorById(mentorId!),
+    queryKey: ['mentor', mentorSlugOrId],
+    queryFn: () => getMentorBySlugOrId(mentorSlugOrId!),
     enabled,
     staleTime: 5 * 60 * 1000,
   })
