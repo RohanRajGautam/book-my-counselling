@@ -5,6 +5,7 @@ import { ArrowUpRight } from 'lucide-react'
 export interface EventCardDetails {
   guestName?: string
   guestDesc: string
+  showGuestDesc?: boolean
   imageUrl?: string
   topic: string
   date?: string
@@ -88,6 +89,12 @@ export function EventCard({ event }: EventCardProps) {
                 <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.4rem]">
                   {event.guestName}
                 </h2>
+
+                {event.showGuestDesc && (
+                  <p className="max-w-[18rem] text-sm leading-5 font-semibold text-green-800">
+                    {event.guestDesc}
+                  </p>
+                )}
 
                 {(event.date || event.time) && (
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
