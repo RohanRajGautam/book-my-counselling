@@ -5,9 +5,9 @@ export function StudyAbroadHeader() {
         <h1 className="font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,3rem)] leading-tight font-extrabold text-[#121c2a]">
           Study <span className="text-[#0053db]">Abroad Consultation</span>
         </h1>
-        <p className="mt-4 max-w-[680px] text-base leading-8 font-medium text-[#5f6472]">
-          Connect with students and professionals abroad who can guide you through applications,
-          visas, university life, and career planning.
+        <p className="mt-4 text-base leading-8 font-medium text-[#5f6472]">
+          Connect with students and professionals abroad for guidance on applications, visas,
+          university life, and careers.
         </p>
       </div>
     </section>

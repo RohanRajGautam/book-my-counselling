@@ -37,8 +37,9 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   })
 
   const { data: mentor, isPending: isMentorLoading } = useMentor(isOpen ? mentorId : null)
+  const resolvedMentorId = mentor?.id ?? null
   const { data: fetchedPackages = [], isPending: isPackagesLoading } = useMentorPackages(
-    isOpen ? mentorId : null
+    isOpen ? resolvedMentorId : null
   )
 
   // If the mentor has no saved packages, derive the 3 standard tiers from their hourly rate
@@ -50,7 +51,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
         ? [
             {
               id: 'fallback-30',
-              mentor_id: mentorId,
+              mentor_id: resolvedMentorId ?? '',
               title: 'Basic Counselling Package',
               description: 'A focused 30-minute session — ideal for quick guidance or follow-ups.',
               duration_minutes: 30,
@@ -61,7 +62,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             },
             {
               id: 'fallback-60',
-              mentor_id: mentorId,
+              mentor_id: resolvedMentorId ?? '',
               title: 'Standard Counselling Package',
               description:
                 'A full 60-minute session — the most popular choice for in-depth counselling.',
@@ -73,7 +74,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
             },
             {
               id: 'fallback-90',
-              mentor_id: mentorId,
+              mentor_id: resolvedMentorId ?? '',
               title: 'Premium Counselling Package',
               description:
                 'An extended 90-minute session — best for comprehensive planning and deep dives.',
@@ -87,11 +88,11 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
         : []
 
   const { data: availability = [], isPending: isAvailabilityLoading } = useMentorAvailability(
-    isOpen ? mentorId : null
+    isOpen ? resolvedMentorId : null
   )
 
   const { data: reviewsData, isPending: isReviewsLoading } = useMentorReviews(
-    isOpen ? mentorId : null,
+    isOpen ? resolvedMentorId : null,
     reviewPage
   )
 
@@ -102,11 +103,13 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const totalPages = reviewsData?.total_pages ?? 1
   const hasNextPage = reviewsData?.has_next ?? false
   const services = mentor?.tags ?? []
-  const selectedSlotId = selection.mentorId === mentorId ? selection.slicedSlotId : null
-  const selectedParentSlotId = selection.mentorId === mentorId ? selection.parentSlotId : null
-  const selectedSessionStart = selection.mentorId === mentorId ? selection.sessionStart : null
-  const selectedSessionEnd = selection.mentorId === mentorId ? selection.sessionEnd : null
-  const selectedPackageId = selection.mentorId === mentorId ? selection.packageId : null
+  const selectedSlotId = selection.mentorId === resolvedMentorId ? selection.slicedSlotId : null
+  const selectedParentSlotId =
+    selection.mentorId === resolvedMentorId ? selection.parentSlotId : null
+  const selectedSessionStart =
+    selection.mentorId === resolvedMentorId ? selection.sessionStart : null
+  const selectedSessionEnd = selection.mentorId === resolvedMentorId ? selection.sessionEnd : null
+  const selectedPackageId = selection.mentorId === resolvedMentorId ? selection.packageId : null
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
   const hasAvailability = availability.length > 0
@@ -117,7 +120,9 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
       : !selectedSlotId
         ? 'Choose a Time Slot'
         : 'Book a Session'
-  const canBook = Boolean(selectedSlotId && selectedPackageId && hasAvailability)
+  const canBook = Boolean(
+    resolvedMentorId && selectedSlotId && selectedPackageId && hasAvailability
+  )
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
     .replace('.0', '')
@@ -322,7 +327,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                     selectedSessionEnd
                   ) {
                     router.push(
-                      `/booking?mentorId=${mentorId}&packageId=${selectedPackageId}&slotId=${selectedParentSlotId}&sessionStart=${selectedSessionStart}&sessionEnd=${selectedSessionEnd}`
+                      `/booking?mentorId=${resolvedMentorId}&packageId=${selectedPackageId}&slotId=${selectedParentSlotId}&sessionStart=${selectedSessionStart}&sessionEnd=${selectedSessionEnd}`
                     )
                   }
                 }}
@@ -368,7 +373,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                     type="button"
                     onClick={() =>
                       setSelection({
-                        mentorId,
+                        mentorId: resolvedMentorId,
                         slicedSlotId: null,
                         parentSlotId: null,
                         sessionStart: null,
@@ -453,7 +458,7 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
                 }
                 onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>
                   setSelection({
-                    mentorId,
+                    mentorId: resolvedMentorId,
                     slicedSlotId: selectedSlotId === slicedSlotId ? null : slicedSlotId,
                     parentSlotId: selectedSlotId === slicedSlotId ? null : parentSlotId,
                     sessionStart: selectedSlotId === slicedSlotId ? null : startTime,

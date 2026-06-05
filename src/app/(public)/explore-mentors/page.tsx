@@ -1,24 +1,20 @@
 import { MentorDiscovery } from '@/features/mentors/components/MentorDiscovery'
 import { FilterProvider } from '@/features/filters/context/FilterContext'
+import {
+  parseExploreMentorsSearchParams,
+  type ExploreMentorsSearchParams,
+} from '@/features/filters/lib/filter-url-state'
 
 type ExploreMentorsPageProps = {
-  searchParams: Promise<{
-    q?: string | string[]
-    search?: string | string[]
-  }>
-}
-
-function getSearchValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value
+  searchParams: Promise<ExploreMentorsSearchParams>
 }
 
 export default async function ExploreMentorsPage({ searchParams }: ExploreMentorsPageProps) {
-  const params = await searchParams
-  const initialSearch = (getSearchValue(params.q) ?? getSearchValue(params.search) ?? '').trim()
+  const { filters, page } = parseExploreMentorsSearchParams(await searchParams)
 
   return (
     <main className="min-h-screen bg-[#f8f9ff] pt-[73px]">
-      <FilterProvider initialFilters={{ jobTitle: initialSearch }}>
+      <FilterProvider initialFilters={filters} initialPage={page} syncUrl>
         <MentorDiscovery />
       </FilterProvider>
     </main>

@@ -265,7 +265,7 @@ function CategoryFilterGroup({
       <div className="border-b border-[#eef2f7] px-5 py-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center justify-between gap-2">
-            {title === 'Professional Counseling' ? (
+            {title === 'Professional Counselling' ? (
               <BriefcaseBusiness className="text-blue-700" />
             ) : (
               <GraduationCap className="text-blue-700" />
@@ -327,7 +327,9 @@ export function FiltersSidebar() {
     <aside className="h-full border-r border-gray-200 px-4 py-8 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
       <CategoryFilterGroup
         title={
-          filters.counselingType === 'academic' ? 'Academic Counseling' : 'Professional Counseling'
+          filters.counselingType === 'academic'
+            ? 'Academic Counselling'
+            : 'Professional Counselling'
         }
         categories={activeCategories}
         selectedCategories={
