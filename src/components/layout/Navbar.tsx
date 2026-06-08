@@ -19,7 +19,7 @@ import {
 const navItems = [
   {
     href: '/explore-mentors?type=academic',
-    label: 'Academic Counseller',
+    label: 'Academic Counsellor',
     icon: GraduationCap,
     type: 'academic',
   },
