@@ -5,6 +5,8 @@ export interface WebinarDetails {
   imageUrl: string
   topic: string
   duration: string
+  date?: string
+  time?: string
   seats: number
   highlights: string[]
 }

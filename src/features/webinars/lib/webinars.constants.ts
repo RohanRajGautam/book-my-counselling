@@ -7,6 +7,7 @@ export const webinars: WebinarDetails[] = [
     guestDesc: 'Graphic Designer at Uptech',
     imageUrl: '/webinars/sabin-marasini.png',
     topic: 'Free Graphic and Motion Design with AI',
+    date: 'June 12, Sunday',
     duration: '1 month',
     seats: 60,
     highlights: ['Free training cohort', 'One month practical learning', 'Book your seat early'],
