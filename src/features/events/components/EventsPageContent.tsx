@@ -32,6 +32,7 @@ const events: EventCardDetails[] = [
     seats: 60,
     date: 'June 7, Sunday',
     pricePerSeat: 150,
+    isFinished: true,
     highlights: [
       'Integrating AI in software development',
       'Future of coding with AI',

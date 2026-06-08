@@ -17,20 +17,20 @@ type FeaturedEvent = {
 
 export const FEATURED_EVENT: FeaturedEvent = {
   guest: {
-    name: 'Prayash Poudel',
-    title: 'Principal AI Engineer, Leapfrog Technology',
-    imageUrl: '/events/prayash.png',
+    name: 'Aashutosh Poudel',
+    title: 'Senior Software Engineer, Webpoint Technology',
+    imageUrl: '/events/aashutosh.png',
   },
-  topic: 'Career in Software Engineering using AI',
-  audience: 'Appeared Students',
+  topic: 'Career in Mobile Development',
+  audience: 'Aspiring Mobile Developers',
   highlights: [
-    'Integrating AI in software development',
-    'Future of coding with AI',
-    'Live Q&A on tech careers',
+    'iOS and Android development paths',
+    'Building scalable mobile applications today',
+    'Essential frameworks for app developers',
   ],
-  bio: 'Prayash Poudel is a Principal AI Engineer at Leapfrog Technology. He helps students understand how AI is changing software engineering, what skills matter now, and how beginners can build practical confidence with modern development workflows.',
+  bio: 'Aashutosh Poudel is a Senior Software Engineer at Webpoint Technology. He will share insights into mobile app development, career opportunities in the industry, the skills employers look for, and practical guidance for students interested in building applications for Android and iOS platforms.',
   durationMinutes: 60,
   seats: 60,
-  date: 'June 7, Sunday',
+  date: 'June 8, Monday',
   pricePerSeat: 150,
 }
