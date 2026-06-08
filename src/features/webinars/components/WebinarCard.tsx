@@ -49,6 +49,48 @@ export function WebinarCard({ webinar }: WebinarCardProps) {
               <Clock3 className="size-3.5 text-[#004ac6]/70" aria-hidden="true" />
               Duration: {webinar.duration}
             </p>
+
+            {(webinar.date || webinar.time) && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
+                {webinar.date && (
+                  <span className="flex items-center gap-1.5">
+                    {/* Subtle calendar representation */}
+                    <svg
+                      className="size-3.5 text-[#004ac6]/70"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                      <path d="M16 2v4M8 2v4M3 10h18" />
+                    </svg>
+                    {webinar.date}
+                  </span>
+                )}
+
+                {webinar.date && webinar.time && (
+                  <span className="size-1 rounded-full bg-[#d9e3f6]" aria-hidden="true" />
+                )}
+
+                {webinar.time && (
+                  <span className="flex items-center gap-1.5">
+                    {/* Subtle clock representation */}
+                    <svg
+                      className="size-3.5 text-[#004ac6]/70"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 6v6l4 2" />
+                    </svg>
+                    {webinar.time}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-2 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
