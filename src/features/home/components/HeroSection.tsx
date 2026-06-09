@@ -5,26 +5,28 @@ import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { type PointerEvent, useState } from 'react'
+import { type PointerEvent, useEffect, useState } from 'react'
 import { ArrowUpRight, CalendarDays, Clock3, Info, Sparkles, Users } from 'lucide-react'
-import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
+import { getFeaturedEvent } from '@/features/home/lib/featuredEvent'
 
 export function HeroSection() {
   const { filters, updateFilter } = useFilters()
   const [isCardFlipped, setIsCardFlipped] = useState(false)
+  const [now, setNow] = useState(() => new Date())
+  const featuredEvent = getFeaturedEvent(now)
   const eventDetails = [
     { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
-    { Icon: Clock3, title: `${FEATURED_EVENT.durationMinutes} minutes`, label: 'Compact workshop' },
+    { Icon: Clock3, title: `${featuredEvent.durationMinutes} minutes`, label: 'Compact workshop' },
     { Icon: Users, title: `Registration`, label: 'Completely Free' },
   ]
   const router = useRouter()
   const featuredEventBookingHref = {
     pathname: '/event-booking',
     query: {
-      guestName: FEATURED_EVENT.guest.name,
-      guestDesc: FEATURED_EVENT.guest.title,
-      imageUrl: FEATURED_EVENT.guest.imageUrl,
-      topic: FEATURED_EVENT.topic,
+      guestName: featuredEvent.guest.name,
+      guestDesc: featuredEvent.guest.title,
+      imageUrl: featuredEvent.guest.imageUrl,
+      topic: featuredEvent.topic,
     },
   }
 
@@ -34,6 +36,14 @@ export function HeroSection() {
 
     router.push(`/explore-mentors${query}`)
   }
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setNow(new Date())
+    }, 60_000)
+
+    return () => window.clearInterval(interval)
+  }, [])
 
   const handleCardTouchPress = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return
@@ -138,7 +148,7 @@ export function HeroSection() {
                   </button>
 
                   <div className="absolute top-4 right-4 z-20 hidden rounded-full bg-[#004ac6] px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase shadow-[0_18px_36px_rgba(0,74,198,0.22)] sm:block">
-                    Only {FEATURED_EVENT.seats} seats
+                    Only {featuredEvent.seats} seats
                   </div>
 
                   <div className="overflow-hidden rounded-[1.2rem] bg-white">
@@ -147,8 +157,8 @@ export function HeroSection() {
                       <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
 
                       <Image
-                        src={FEATURED_EVENT.guest.imageUrl}
-                        alt={`${FEATURED_EVENT.guest.name} portrait`}
+                        src={featuredEvent.guest.imageUrl}
+                        alt={`${featuredEvent.guest.name} portrait`}
                         width={900}
                         height={1125}
                         priority
@@ -157,7 +167,7 @@ export function HeroSection() {
                       />
 
                       <div className="absolute bottom-0 flex h-12 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
-                        <span className="text-balance">{FEATURED_EVENT.topic}</span>
+                        <span className="text-balance">{featuredEvent.topic}</span>
                       </div>
                     </div>
 
@@ -169,16 +179,16 @@ export function HeroSection() {
                           </p>
 
                           <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                            {FEATURED_EVENT.guest.name}
+                            {featuredEvent.guest.name}
                           </h2>
 
                           <p className="my-2 text-sm leading-5 font-semibold text-green-800">
-                            {FEATURED_EVENT.guest.title}
+                            {featuredEvent.guest.title}
                           </p>
 
-                          {(FEATURED_EVENT.date || FEATURED_EVENT.time) && (
+                          {(featuredEvent.date || featuredEvent.time) && (
                             <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
-                              {FEATURED_EVENT.date && (
+                              {featuredEvent.date && (
                                 <span className="flex items-center gap-1.5">
                                   {/* Subtle calendar representation */}
                                   <svg
@@ -191,18 +201,18 @@ export function HeroSection() {
                                     <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
                                     <path d="M16 2v4M8 2v4M3 10h18" />
                                   </svg>
-                                  {FEATURED_EVENT.date}
+                                  {featuredEvent.date}
                                 </span>
                               )}
 
-                              {FEATURED_EVENT.date && FEATURED_EVENT.time && (
+                              {featuredEvent.date && featuredEvent.time && (
                                 <span
                                   className="size-1 rounded-full bg-[#d9e3f6]"
                                   aria-hidden="true"
                                 />
                               )}
 
-                              {FEATURED_EVENT.time && (
+                              {featuredEvent.time && (
                                 <span className="flex items-center gap-1.5">
                                   {/* Subtle clock representation */}
                                   <svg
@@ -215,7 +225,7 @@ export function HeroSection() {
                                     <circle cx="12" cy="12" r="10" />
                                     <path d="M12 6v6l4 2" />
                                   </svg>
-                                  {FEATURED_EVENT.time}
+                                  {featuredEvent.time}
                                 </span>
                               )}
                             </div>
@@ -271,7 +281,7 @@ export function HeroSection() {
                       </div>
 
                       <div className="mt-4 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
-                        {FEATURED_EVENT.highlights.map((item) => (
+                        {featuredEvent.highlights.map((item) => (
                           <div
                             key={item}
                             className="flex items-center gap-3 rounded-lg bg-[#f8f9ff] px-3 py-1.5"
@@ -314,10 +324,10 @@ export function HeroSection() {
                         Exclusive Guest
                       </p>
                       <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl leading-tight font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                        {FEATURED_EVENT.guest.name}
+                        {featuredEvent.guest.name}
                       </h3>
                       <p className="mt-3 max-w-md text-sm leading-7 text-[#434655]">
-                        {FEATURED_EVENT.bio}
+                        {featuredEvent.bio}
                       </p>
                     </div>
 
