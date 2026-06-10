@@ -5,15 +5,14 @@ import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { type PointerEvent, useEffect, useState } from 'react'
+import { type PointerEvent, useState } from 'react'
 import { ArrowUpRight, CalendarDays, Clock3, Info, Sparkles, Users } from 'lucide-react'
 import { getFeaturedEvent } from '@/features/home/lib/featuredEvent'
 
 export function HeroSection() {
   const { filters, updateFilter } = useFilters()
   const [isCardFlipped, setIsCardFlipped] = useState(false)
-  const [now, setNow] = useState(() => new Date())
-  const featuredEvent = getFeaturedEvent(now)
+  const featuredEvent = getFeaturedEvent()
   const eventDetails = [
     { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
     { Icon: Clock3, title: `${featuredEvent.durationMinutes} minutes`, label: 'Compact workshop' },
@@ -36,14 +35,6 @@ export function HeroSection() {
 
     router.push(`/explore-mentors${query}`)
   }
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setNow(new Date())
-    }, 60_000)
-
-    return () => window.clearInterval(interval)
-  }, [])
 
   const handleCardTouchPress = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return

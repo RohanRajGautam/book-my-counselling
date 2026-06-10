@@ -7,6 +7,6 @@ export type FeaturedEvent = FeaturedThirtyMaThirtyEvent
 
 export const FEATURED_EVENT = getFeaturedThirtyMaThirtyEvent()
 
-export function getFeaturedEvent(now = new Date()) {
-  return getFeaturedThirtyMaThirtyEvent(now)
+export function getFeaturedEvent() {
+  return getFeaturedThirtyMaThirtyEvent()
 }
