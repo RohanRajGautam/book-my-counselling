@@ -1,16 +1,8 @@
 import type { EventCardDetails } from '@/features/events/components/EventCard'
 
-export const THIRTY_MA_THIRTY_EVENT_YEAR_NPT = 2026
-
-export const THIRTY_MA_THIRTY_ROLLOVER_TIME_NPT = '20:00'
-
-const NEPAL_UTC_OFFSET_MINUTES = 5 * 60 + 45
+const FEATURED_GUEST_NAME = 'Renuka Shiwakoti'
 
 type ThirtyMaThirtyEvent = EventCardDetails & {
-  eventDateNpt?: {
-    month: number
-    day: number
-  }
   bio?: string
 }
 
@@ -39,15 +31,13 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/bhupin.png',
     topic: 'Career in Robotics and Machine Learning',
     seats: 60,
-    date: 'June 9, Tuesday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 9 },
     pricePerSeat: 150,
     highlights: [
       'Getting started with machine learning',
       'Real-world robotics and automation use',
       'Required math and programming skills',
     ],
+    isFinished: true,
     bio: 'Bhupin Baral is a Senior AI Engineer at Fusemachines. He will guide students through robotics and machine learning career paths, the foundations needed to get started, and how AI skills connect to real-world automation work.',
   },
   {
@@ -57,9 +47,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/renuka.png',
     topic: 'Career in Technical Writing',
     seats: 60,
-    date: 'June 10, Wednesday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 10 },
     pricePerSeat: 150,
     highlights: [
       'Crafting clear software documentation guides',
@@ -74,9 +61,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/bibek.png',
     topic: 'Career in Product Enterpreneurship',
     seats: 60,
-    date: 'June 11, Thursday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 11 },
     pricePerSeat: 150,
     highlights: [
       'Launching successful physical tech products',
@@ -91,9 +75,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/nabin.png',
     topic: 'Scope in IT Product and Project Management',
     seats: 60,
-    date: 'June 12, Friday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 12 },
     pricePerSeat: 150,
     highlights: [
       'Agile and Scrum methodologies explained',
@@ -108,9 +89,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/chandra.png',
     topic: 'Career in Electronics Engineering',
     seats: 60,
-    date: 'June 13, Saturday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 13 },
     pricePerSeat: 150,
     highlights: [
       'Embedded systems and IoT careers',
@@ -370,9 +348,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/home/ashwin.png',
     topic: 'AI Skill for +2 appeared students',
     seats: 80,
-    date: 'May 25, Monday',
-    time: '7 PM',
-    eventDateNpt: { month: 5, day: 25 },
     pricePerSeat: 100,
     highlights: [
       'Essential AI tools for beginners',
@@ -387,9 +362,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/prayash.png',
     topic: 'Career in Software Engineering using AI',
     seats: 60,
-    date: 'June 7, Sunday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 7 },
     pricePerSeat: 150,
     highlights: [
       'Integrating AI in software development',
@@ -404,9 +376,6 @@ const events: ThirtyMaThirtyEvent[] = [
     imageUrl: '/events/aashutosh.png',
     topic: 'Career in Mobile Development',
     seats: 60,
-    date: 'June 8, Monday',
-    time: '7 PM',
-    eventDateNpt: { month: 6, day: 8 },
     pricePerSeat: 150,
     highlights: [
       'iOS and Android development paths',
@@ -416,48 +385,8 @@ const events: ThirtyMaThirtyEvent[] = [
   },
 ]
 
-function parseRolloverTime(time: string) {
-  const [hourValue, minuteValue] = time.split(':')
-  const hour = Number(hourValue)
-  const minute = Number(minuteValue)
-
-  if (!Number.isInteger(hour) || !Number.isInteger(minute) || hour < 0 || hour > 23) {
-    return { hour: 0, minute: 0 }
-  }
-
-  if (minute < 0 || minute > 59) {
-    return { hour: 0, minute: 0 }
-  }
-
-  return { hour, minute }
-}
-
-function getEventCompletionUtcMs(event: ThirtyMaThirtyEvent) {
-  if (!event.eventDateNpt) return null
-
-  const { hour, minute } = parseRolloverTime(THIRTY_MA_THIRTY_ROLLOVER_TIME_NPT)
-  const completionDayOffset = hour === 0 && minute === 0 ? 1 : 0
-  const nptUtcMs = Date.UTC(
-    THIRTY_MA_THIRTY_EVENT_YEAR_NPT,
-    event.eventDateNpt.month - 1,
-    event.eventDateNpt.day + completionDayOffset,
-    hour,
-    minute
-  )
-
-  return nptUtcMs - NEPAL_UTC_OFFSET_MINUTES * 60 * 1000
-}
-
-function isEventCompleted(event: ThirtyMaThirtyEvent, now: Date) {
-  const completionUtcMs = getEventCompletionUtcMs(event)
-
-  if (completionUtcMs === null) return false
-
-  return now.getTime() >= completionUtcMs
-}
-
-function withDynamicCompletion(event: ThirtyMaThirtyEvent, now: Date): EventCardDetails {
-  const cardEvent: EventCardDetails = {
+function toEventCardDetails(event: ThirtyMaThirtyEvent): EventCardDetails {
+  return {
     guestName: event.guestName,
     guestDesc: event.guestDesc,
     showGuestDesc: event.showGuestDesc,
@@ -468,11 +397,6 @@ function withDynamicCompletion(event: ThirtyMaThirtyEvent, now: Date): EventCard
     highlights: event.highlights,
     seats: event.seats,
     pricePerSeat: event.pricePerSeat,
-  }
-
-  return {
-    ...cardEvent,
-    isFinished: isEventCompleted(event, now),
   }
 }
 
@@ -499,16 +423,23 @@ function toFeaturedEvent(event: ThirtyMaThirtyEvent): FeaturedThirtyMaThirtyEven
   }
 }
 
-export function getThirtyMaThirtyEventsForDisplay(now = new Date()): EventCardDetails[] {
-  const cardEvents = events.map((event) => withDynamicCompletion(event, now))
+export function getThirtyMaThirtyEventsForDisplay(): EventCardDetails[] {
+  const cardEvents = events.map((event) => ({
+    ...toEventCardDetails(event),
+    isFinished: event.isFinished ?? false,
+  }))
+
   const openEvents = cardEvents.filter((event) => !event.isFinished)
   const completedEvents = cardEvents.filter((event) => event.isFinished)
 
   return [...openEvents, ...completedEvents]
 }
 
-export function getFeaturedThirtyMaThirtyEvent(now = new Date()): FeaturedThirtyMaThirtyEvent {
-  const featuredEvent = events.find((event) => !isEventCompleted(event, now)) ?? events[0]
+export function getFeaturedThirtyMaThirtyEvent(): FeaturedThirtyMaThirtyEvent {
+  const featuredEvent =
+    events.find((event) => event.guestName === FEATURED_GUEST_NAME) ??
+    events.find((event) => !event.isFinished) ??
+    events[0]
 
   if (!featuredEvent) {
     throw new Error('No 30 ma 30 events are configured.')

@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { EventCard } from '@/features/events/components/EventCard'
 import { getThirtyMaThirtyEventsForDisplay } from '@/features/events/lib/thirty-ma-thirty-events'
 
@@ -11,16 +10,7 @@ import { getThirtyMaThirtyEventsForDisplay } from '@/features/events/lib/thirty-
 // ]
 
 export function EventsPageContent() {
-  const [now, setNow] = useState(() => new Date())
-  const events = getThirtyMaThirtyEventsForDisplay(now)
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setNow(new Date())
-    }, 60_000)
-
-    return () => window.clearInterval(interval)
-  }, [])
+  const events = getThirtyMaThirtyEventsForDisplay()
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f8ff] pt-15 pb-20">
