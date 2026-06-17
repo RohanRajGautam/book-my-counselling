@@ -2,6 +2,7 @@
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 
 import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowUpDown,
   ChevronDown,
@@ -16,6 +17,8 @@ import { useMentors } from '@/features/mentors/hooks/useMentors'
 import { useFilters } from '@/features/filters/context/FilterContext'
 import { buildExploreMentorsSearchParams } from '@/features/filters/lib/filter-url-state'
 import { getMentorProfileHref } from '@/features/mentors/utils/mentors.utils'
+
+const SEARCH_DEBOUNCE_MS = 300
 
 const SORT_OPTIONS = [
   { value: 'rating', label: 'Top rated' },
@@ -33,6 +36,25 @@ export function MentorGrid({ onOpenMobileFilters }: MentorGridProps) {
   const router = useRouter()
   const { filters, updateFilter, currentPage, setCurrentPage } = useFilters()
   const { data, isLoading, isFetching, isError } = useMentors(filters, currentPage)
+
+  const [searchInputValue, setSearchInputValue] = useState(filters.jobTitle ?? '')
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    setSearchInputValue(filters.jobTitle ?? '')
+  }, [filters.jobTitle])
+
+  const handleSearchChange = (value: string) => {
+    setSearchInputValue(value)
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      updateFilter('jobTitle', value)
+    }, SEARCH_DEBOUNCE_MS)
+  }
 
   const totalPages = data?.total_pages ?? 1
   const currentMentors = data?.items ?? []
@@ -84,14 +106,19 @@ export function MentorGrid({ onOpenMobileFilters }: MentorGridProps) {
             <Search className="mr-3 size-6 text-[#0053db]" />
             <input
               type="search"
-              value={filters.jobTitle ?? ''}
-              onChange={(event) => updateFilter('jobTitle', event.target.value)}
+              value={searchInputValue}
+              onChange={(event) => handleSearchChange(event.target.value)}
               placeholder="Search by name, role, or company..."
               className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[#121c2a] outline-none placeholder:text-[#b5bbc8]"
             />
             <button
               type="button"
-              onClick={() => updateFilter('jobTitle', filters.jobTitle ?? '')}
+              onClick={() => {
+                if (debounceTimerRef.current) {
+                  clearTimeout(debounceTimerRef.current)
+                }
+                updateFilter('jobTitle', searchInputValue)
+              }}
               className="ml-2 h-10 rounded-xl bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
             >
               Search
