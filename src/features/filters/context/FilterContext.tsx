@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
 import { buildExploreMentorsSearchParams } from '@/features/filters/lib/filter-url-state'
@@ -73,6 +73,7 @@ export function FilterProvider({
     filters: initialFilterState,
     page: initialPage,
   }))
+  const urlSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const hasCurrentUrlState = localState.urlStateKey === initialStateKey
   const filters = hasCurrentUrlState ? localState.filters : initialFilterState
@@ -113,15 +114,22 @@ export function FilterProvider({
   useEffect(() => {
     if (!syncUrl) return
 
-    const params = buildExploreMentorsSearchParams(filters, currentPage)
-    const queryString = params.toString()
-    const currentQueryString = window.location.search.replace(/^\?/, '')
+    if (urlSyncTimer.current) clearTimeout(urlSyncTimer.current)
+    urlSyncTimer.current = setTimeout(() => {
+      const params = buildExploreMentorsSearchParams(filters, currentPage)
+      const queryString = params.toString()
+      const currentQueryString = window.location.search.replace(/^\?/, '')
 
-    if (queryString === currentQueryString) return
+      if (queryString === currentQueryString) return
 
-    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
-      scroll: false,
-    })
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      })
+    }, 300)
+
+    return () => {
+      if (urlSyncTimer.current) clearTimeout(urlSyncTimer.current)
+    }
   }, [currentPage, filters, pathname, router, syncUrl])
 
   return (
