@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import {
   getAdminMentors,
   getAdminStats,
@@ -6,6 +7,9 @@ import {
   rejectMentor,
   featureMentor,
   reindexElasticsearch,
+  getMentorsWithoutAvailability,
+  sendAvailabilityReminder,
+  sendBulkAvailabilityReminder,
 } from '../api/admin.api'
 import { PaginatedResponse } from '@/lib/api/api.types'
 import { AdminMentorProfile } from '../types/admin.types'
@@ -69,6 +73,38 @@ export function useFeatureMentor() {
 
 export function useReindexES() {
   return useMutation({ mutationFn: reindexElasticsearch })
+}
+
+export function useMentorsWithoutAvailability(params: {
+  isVerified?: boolean
+  page?: number
+}) {
+  return useQuery({
+    queryKey: ['admin', 'mentors', 'without-availability', params],
+    queryFn: () => getMentorsWithoutAvailability(params),
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useSendReminder() {
+  return useMutation({
+    mutationFn: (mentorId: string) => sendAvailabilityReminder(mentorId),
+    onSuccess: (data) => toast.success(data.message),
+    onError: () => toast.error('Failed to send reminder.'),
+  })
+}
+
+export function useSendBulkReminder() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (params: { isVerified?: boolean }) => sendBulkAvailabilityReminder(params),
+    onSuccess: (data) => {
+      toast.success(data.message)
+      void qc.invalidateQueries({ queryKey: ['admin', 'mentors', 'without-availability'] })
+    },
+    onError: () => toast.error('Failed to send bulk reminders.'),
+  })
 }
 
 // ---------------------------------------------------------------------------

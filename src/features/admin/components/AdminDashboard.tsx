@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import {
   Banknote, CalendarSearch,
-  Check, ChevronLeft, ChevronRight, Clock, Database,
-  Loader2, RotateCcw, ShieldCheck, Star, Users, UserCheck, X,
+  Check, ChevronLeft, ChevronRight, Database,
+  Loader2, Mail, RotateCcw, ShieldCheck, Star, Users, UserCheck, X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -20,6 +20,7 @@ import {
   type AdminMentorFilter,
 } from '../hooks/useAdminMentors'
 import { AdminMentorProfile } from '../types/admin.types'
+import { AvailabilityReminderPanel } from './AvailabilityReminderPanel'
 import { BookingsPanel } from './BookingsPanel'
 import { RefundsPanel } from './RefundsPanel'
 
@@ -65,7 +66,7 @@ function getInitials(name: string) {
   return name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
 }
 
-type Section = 'mentors' | 'bookings' | 'refunds'
+type Section = 'mentors' | 'bookings' | 'refunds' | 'reminders'
 
 export function AdminDashboard() {
   const { user, logout } = useAuth()
@@ -209,6 +210,18 @@ export function AdminDashboard() {
             <Banknote className="size-4" />
             Refunds
           </button>
+          <button
+            type="button"
+            onClick={() => setSection('reminders')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-extrabold transition ${
+              section === 'reminders'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Mail className="size-4" />
+            Reminders
+          </button>
         </div>
 
         {section === 'mentors' ? (
@@ -291,6 +304,8 @@ export function AdminDashboard() {
           </>
         ) : section === 'bookings' ? (
           <BookingsPanel />
+        ) : section === 'reminders' ? (
+          <AvailabilityReminderPanel />
         ) : (
           <RefundsPanel />
         )}

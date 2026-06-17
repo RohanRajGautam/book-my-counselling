@@ -51,6 +51,40 @@ export async function reindexElasticsearch(): Promise<{ message: string }> {
   return res.data
 }
 
+// ── Mentors without availability ────────────────────────────────────────────
+
+export async function getMentorsWithoutAvailability(params: {
+  isVerified?: boolean
+  page?: number
+  pageSize?: number
+}): Promise<PaginatedResponse<AdminMentorProfile>> {
+  const res = await apiClient.get<PaginatedResponse<AdminMentorProfile>>(
+    '/admin/mentors/without-availability',
+    { params },
+  )
+  return res.data
+}
+
+export async function sendAvailabilityReminder(
+  mentorId: string,
+): Promise<{ message: string }> {
+  const res = await apiClient.post<{ message: string }>(
+    `/admin/mentors/${mentorId}/availability-reminder`,
+  )
+  return res.data
+}
+
+export async function sendBulkAvailabilityReminder(params: {
+  isVerified?: boolean
+}): Promise<{ message: string }> {
+  const res = await apiClient.post<{ message: string }>(
+    '/admin/mentors/availability-reminder',
+    null,
+    { params },
+  )
+  return res.data
+}
+
 // ── Refunds ────────────────────────────────────────────────────────────────
 
 export async function listRefunds(
