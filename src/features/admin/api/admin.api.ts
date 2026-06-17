@@ -60,7 +60,13 @@ export async function getMentorsWithoutAvailability(params: {
 }): Promise<PaginatedResponse<AdminMentorProfile>> {
   const res = await apiClient.get<PaginatedResponse<AdminMentorProfile>>(
     '/admin/mentors/without-availability',
-    { params },
+    {
+      params: {
+        is_verified: params.isVerified,
+        page: params.page,
+        page_size: params.pageSize,
+      },
+    },
   )
   return res.data
 }

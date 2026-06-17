@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Bell, BellRing, ChevronLeft, ChevronRight, Loader2, Mail,
-} from 'lucide-react'
+import { Bell, BellRing, ChevronLeft, ChevronRight, Loader2, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -14,14 +12,18 @@ import {
 } from '../hooks/useAdminMentors'
 
 function getInitials(name: string) {
-  return name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
+  return name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 }
 
 export function AvailabilityReminderPanel() {
-  const [isVerified, setIsVerified] = useState(true)
   const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useMentorsWithoutAvailability({ isVerified, page })
+  const { data, isLoading } = useMentorsWithoutAvailability({ isVerified: true, page })
   const { mutate: sendOne, isPending: sendingOne } = useSendReminder()
   const { mutate: sendAll, isPending: sendingAll } = useSendBulkReminder()
 
@@ -32,9 +34,12 @@ export function AvailabilityReminderPanel() {
   }
 
   const handleSendAll = () => {
-    sendAll({ isVerified }, {
-      onSuccess: (res) => toast.success(res.message),
-    })
+    sendAll(
+      { isVerified: true },
+      {
+        onSuccess: (res) => toast.success(res.message),
+      }
+    )
   }
 
   return (
@@ -50,38 +55,13 @@ export function AvailabilityReminderPanel() {
               Mentors Without Availability
             </h2>
             <p className="mt-0.5 text-sm text-slate-500">
-              {data?.total ?? '—'} mentor{data?.total !== 1 ? 's' : ''} haven&apos;t set upcoming slots
+              {data?.total ?? '—'} mentor{data?.total !== 1 ? 's ' : ' '} haven&apos;t set upcoming
+              slots
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Filter */}
-          <div className="inline-flex gap-1 rounded-xl bg-slate-100 p-1">
-            <button
-              type="button"
-              onClick={() => { setIsVerified(true); setPage(1) }}
-              className={`rounded-lg px-3 py-1.5 text-sm font-extrabold transition ${
-                isVerified
-                  ? 'bg-white text-slate-950 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              Verified
-            </button>
-            <button
-              type="button"
-              onClick={() => { setIsVerified(false); setPage(1) }}
-              className={`rounded-lg px-3 py-1.5 text-sm font-extrabold transition ${
-                !isVerified
-                  ? 'bg-white text-slate-950 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              Unverified
-            </button>
-          </div>
-
           {/* Bulk remind */}
           <Button
             size="sm"
@@ -89,7 +69,11 @@ export function AvailabilityReminderPanel() {
             disabled={sendingAll || !data?.total}
             onClick={handleSendAll}
           >
-            {sendingAll ? <Loader2 className="size-3 animate-spin" /> : <BellRing className="size-3.5" />}
+            {sendingAll ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : (
+              <BellRing className="size-3.5" />
+            )}
             Remind all ({data?.total ?? 0})
           </Button>
         </div>
@@ -107,7 +91,9 @@ export function AvailabilityReminderPanel() {
           <div className="mx-auto inline-flex size-12 items-center justify-center rounded-full bg-emerald-50">
             <Bell className="size-5 text-emerald-600" />
           </div>
-          <p className="mt-4 text-sm font-semibold text-slate-600">All mentors have set their availability</p>
+          <p className="mt-4 text-sm font-semibold text-slate-600">
+            All mentors have set their availability
+          </p>
           <p className="mt-1 text-xs text-slate-400">No one needs a reminder right now.</p>
         </div>
       ) : (
