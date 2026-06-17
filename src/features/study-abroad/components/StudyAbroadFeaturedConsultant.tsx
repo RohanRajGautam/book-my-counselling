@@ -49,7 +49,7 @@ export function StudyAbroadFeaturedConsultant({ consultant }: StudyAbroadFeature
           <div className="flex items-center gap-4">
             <span className="inline-flex shrink-0 items-center gap-1.5 text-amber-700">
               <CalendarDays className="size-3.5 text-amber-600 sm:size-4" />
-              Friday, June 12
+              Friday, July 2
             </span>
             <span className="font-medium text-slate-300">•</span>
             <span className="inline-flex shrink-0 items-center gap-1.5 text-slate-600">
