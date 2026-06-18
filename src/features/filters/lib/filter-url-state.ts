@@ -92,11 +92,9 @@ export function buildExploreMentorsSearchParams(filters: FilterState, page: numb
     activeType === 'academic' ? filters.academicCategory : filters.professionalCategory
   const subcategories =
     activeType === 'academic' ? filters.academicSubcategory : filters.professionalSubcategory
-  const search = filters.jobTitle?.trim()
 
   params.set('type', activeType)
 
-  if (search) params.set('q', search)
   categories.forEach((category) => params.append('category', category))
   subcategories.forEach((subcategory) => params.append('subcategory', subcategory))
   if (filters.availableThisWeek) params.set('available', 'this-week')
