@@ -39,12 +39,16 @@ export function MentorGrid({ onOpenMobileFilters }: MentorGridProps) {
 
   const [searchInputValue, setSearchInputValue] = useState(filters.jobTitle ?? '')
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isUserTypingRef = useRef(false)
 
   useEffect(() => {
-    setSearchInputValue(filters.jobTitle ?? '')
+    if (!isUserTypingRef.current) {
+      setSearchInputValue(filters.jobTitle ?? '')
+    }
   }, [filters.jobTitle])
 
   const handleSearchChange = (value: string) => {
+    isUserTypingRef.current = true
     setSearchInputValue(value)
 
     if (debounceTimerRef.current) {
@@ -52,6 +56,7 @@ export function MentorGrid({ onOpenMobileFilters }: MentorGridProps) {
     }
 
     debounceTimerRef.current = setTimeout(() => {
+      isUserTypingRef.current = false
       updateFilter('jobTitle', value)
     }, SEARCH_DEBOUNCE_MS)
   }
