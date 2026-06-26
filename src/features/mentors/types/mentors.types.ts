@@ -22,6 +22,10 @@ export interface Mentor {
   availability_slots?: AvailabilitySlot[]
   tags?: string[]
   tag_ids?: string[]
+  professional_categories?: string[]
+  professional_subcategories?: string[]
+  academic_categories?: string[]
+  academic_subcategories?: string[]
   avatar_url?: string | null
   created_at?: string | null
   is_professional_counselor: boolean
