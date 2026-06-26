@@ -7,7 +7,7 @@ export interface GuestBookingPayload {
   phone: string
   // Booking target
   mentor_id: string
-  slot_id: string
+  slot_id?: string
   package_id?: string
   session_start?: string
   session_end?: string
