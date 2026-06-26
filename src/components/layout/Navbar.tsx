@@ -5,15 +5,18 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import {
   ArrowRight,
-  BriefcaseBusiness,
   CalendarDays,
-  Compass,
-  Globe2,
+  ChevronDown,
   GraduationCap,
   Menu,
   Video,
   X,
 } from 'lucide-react'
+
+import {
+  COACH_SERVICE_PAGES,
+  getFreshersServiceTag,
+} from '@/features/coach-services/lib/coach-services.constants'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
@@ -23,17 +26,40 @@ const navItems = [
     icon: GraduationCap,
     type: 'academic',
   },
-  {
-    href: '/explore-mentors?type=professional',
-    label: 'Professional Coach',
-    icon: BriefcaseBusiness,
-    type: 'professional',
-  },
-  { href: '/study-abroad', label: 'Study Abroad', icon: Globe2 },
+  // {
+  //   href: '/explore-mentors?type=professional',
+  //   label: 'Professional Coach',
+  //   icon: BriefcaseBusiness,
+  //   type: 'professional',
+  // },
+  // { href: '/study-abroad', label: 'Study Abroad', icon: Globe2 },
   // { href: '/how-it-works', label: 'How it Works', icon: Compass },
   // { href: '/events', label: '"३० मा ३०"', icon: BookOpen },
   // { href: '/about', label: 'About Us' },
 ]
+
+const coachNavItems = [
+  {
+    ...COACH_SERVICE_PAGES.freshers,
+    icon: GraduationCap,
+  },
+  // {
+  //   ...COACH_SERVICE_PAGES.professionals,
+  //   icon: BriefcaseBusiness,
+  // },
+]
+
+function getCoachServiceHref(item: (typeof coachNavItems)[number], service: string) {
+  const tag = getFreshersServiceTag(service)
+
+  if (!tag) return item.href
+
+  const params = new URLSearchParams({
+    service: tag,
+  })
+
+  return `${item.href}?${params.toString()}`
+}
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -47,6 +73,9 @@ export function Navbar() {
       return pathname.startsWith('/explore-mentors') && activeMentorType === item.type
     }
 
+    return pathname === item.href
+  }
+  const isCoachActive = (item: (typeof coachNavItems)[number]) => {
     return pathname === item.href
   }
   const showAnnouncement = pathname === '/'
@@ -65,10 +94,19 @@ export function Navbar() {
   }, [pathname])
 
   useEffect(() => {
-    syncActiveMentorType()
-    window.addEventListener('popstate', syncActiveMentorType)
+    const id = window.setTimeout(() => {
+      syncActiveMentorType()
+    }, 0)
+    const syncActiveNavState = () => {
+      syncActiveMentorType()
+    }
 
-    return () => window.removeEventListener('popstate', syncActiveMentorType)
+    window.addEventListener('popstate', syncActiveNavState)
+
+    return () => {
+      window.clearTimeout(id)
+      window.removeEventListener('popstate', syncActiveNavState)
+    }
   }, [pathname])
 
   // Lock body scroll while the mobile menu is open
@@ -143,10 +181,43 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+
+            {coachNavItems.map((item) => {
+              const active = isCoachActive(item)
+              return (
+                <div key={item.href} className="group relative">
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-1 font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
+                      active
+                        ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                        : 'text-slate-600 dark:text-slate-400'
+                    } `}
+                  >
+                    {item.navLabel}
+                    <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
+                  </Link>
+
+                  <div className="pointer-events-none absolute top-full left-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <div className="rounded-xl border border-slate-100 bg-white p-2 shadow-[0_18px_44px_rgba(15,23,42,0.16)] dark:border-slate-800 dark:bg-slate-900">
+                      {item.services.map((service) => (
+                        <Link
+                          key={service}
+                          href={getCoachServiceHref(item, service)}
+                          className="block rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
+                          {service}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
 
           <div className="hidden gap-4 sm:flex">
-            <Link
+            {/* <Link
               href="/events"
               className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
             >
@@ -161,7 +232,7 @@ export function Navbar() {
               >
                 &quot;३० मा ३०&quot;
               </span>
-            </Link>
+            </Link> */}
 
             {/* <Link
               href="/school-to-startup"
@@ -181,7 +252,7 @@ export function Navbar() {
             </Link> */}
             <Link
               href="/webinars"
-              className={`flex items-center rounded-full font-[family-name:var(--font-headline)] text-sm font-extrabold tracking-tight transition-colors ${
+              className={`flex items-center rounded-full py-2 font-[family-name:var(--font-headline)] text-sm font-extrabold tracking-tight transition-colors ${
                 isActive('/webinars') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
               }`}
             >
@@ -289,6 +360,60 @@ export function Navbar() {
                   aria-hidden="true"
                 />
               </Link>
+            )
+          })}
+
+          {coachNavItems.map((item) => {
+            const Icon = item.icon
+            const active = isCoachActive(item)
+
+            return (
+              <div
+                key={item.href}
+                className="rounded-xl border border-slate-100 dark:border-slate-800"
+              >
+                <Link
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
+                    active
+                      ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
+                      : 'text-[#27313f] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+                  }`}
+                >
+                  <span
+                    className={`grid size-9 shrink-0 place-items-center rounded-lg transition ${
+                      active
+                        ? 'bg-[#004ac6] text-white shadow-[0_6px_14px_rgba(0,74,198,0.25)]'
+                        : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:text-[#004ac6] dark:bg-slate-800 dark:text-slate-300'
+                    }`}
+                  >
+                    <Icon className="size-4" aria-hidden="true" />
+                  </span>
+                  <span className="flex-1">{item.navLabel}</span>
+                  <ArrowRight
+                    className={`size-4 transition ${
+                      active
+                        ? 'text-[#004ac6]'
+                        : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </Link>
+
+                <div className="px-3 pb-3">
+                  {item.services.map((service) => (
+                    <Link
+                      key={service}
+                      href={getCoachServiceHref(item, service)}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block rounded-lg px-12 py-2 text-sm font-bold text-slate-500 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-400 dark:hover:bg-slate-800"
+                    >
+                      {service}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )
           })}
 
