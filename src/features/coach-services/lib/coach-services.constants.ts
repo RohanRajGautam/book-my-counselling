@@ -34,11 +34,11 @@ export const COACH_SERVICE_PAGES: Record<CoachServiceAudience, CoachServicePageC
     title: 'Kickstart Your Career',
     subtitle: 'Book practical career guidance from verified mentors for your first big step.',
     href: '/coaches/freshers',
-    services: ['CV & Resume Review', 'Interview Preparation', 'First Job Readiness'],
+    services: ['Career Clarity Roadmap', 'First-Job CV Builder', 'Mock Interview Lab'],
     serviceTags: {
-      'CV & Resume Review': 'cv',
-      'Interview Preparation': 'mock-interview',
-      'First Job Readiness': 'career-clarity',
+      'Career Clarity Roadmap': 'career-clarity',
+      'First-Job CV Builder': 'cv',
+      'Mock Interview Lab': 'mock-interview',
     },
   },
   professionals: {
