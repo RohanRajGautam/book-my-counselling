@@ -3,15 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import {
-  ArrowRight,
-  CalendarDays,
-  ChevronDown,
-  GraduationCap,
-  Menu,
-  Video,
-  X,
-} from 'lucide-react'
+import { ArrowRight, CalendarDays, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
 
 import {
   COACH_SERVICE_PAGES,
@@ -198,15 +190,16 @@ export function Navbar() {
                     <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
                   </Link>
 
-                  <div className="pointer-events-none absolute top-full left-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
-                    <div className="rounded-xl border border-slate-100 bg-white p-2 shadow-[0_18px_44px_rgba(15,23,42,0.16)] dark:border-slate-800 dark:bg-slate-900">
+                  <div className="pointer-events-none absolute top-full right-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <div className="space-y-1 overflow-hidden rounded-xl border border-slate-100/80 bg-white p-2 ring-1 ring-[#004ac6]/5 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5">
                       {item.services.map((service) => (
                         <Link
                           key={service}
                           href={getCoachServiceHref(item, service)}
-                          className="block rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-300 dark:hover:bg-slate-800"
+                          className="group/item relative flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-3 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
                         >
-                          {service}
+                          <span className="flex-1">{service}</span>
+                          <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
                         </Link>
                       ))}
                     </div>
@@ -214,68 +207,6 @@ export function Navbar() {
                 </div>
               )
             })}
-          </div>
-
-          <div className="hidden gap-4 sm:flex">
-            {/* <Link
-              href="/events"
-              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
-            >
-              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
-
-              <span
-                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-1 text-lg font-semibold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
-                  isActive('/events')
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
-                } `}
-              >
-                &quot;३० मा ३०&quot;
-              </span>
-            </Link> */}
-
-            {/* <Link
-              href="/school-to-startup"
-              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
-            >
-              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
-
-              <span
-                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-1 py-2 text-lg text-sm font-semibold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
-                  isActive('/school-to-startup')
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
-                } `}
-              >
-                School to Startup
-              </span>
-            </Link> */}
-            <Link
-              href="/webinars"
-              className={`flex items-center rounded-full py-2 font-[family-name:var(--font-headline)] text-sm font-extrabold tracking-tight transition-colors ${
-                isActive('/webinars') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
-              }`}
-            >
-              <div className="px-4">Free Trainings</div>
-            </Link>
-            {/* <Link
-              href="/school-to-startup"
-              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
-            >
-            
-              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
-
-            
-              <span
-                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
-                  isActive('/school-to-startup')
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
-                } `}
-              >
-                School to Startup
-              </span>
-            </Link> */}
           </div>
 
           <button
@@ -401,15 +332,16 @@ export function Navbar() {
                   />
                 </Link>
 
-                <div className="px-3 pb-3">
+                <div className="space-y-1 px-3 pb-3">
                   {item.services.map((service) => (
                     <Link
                       key={service}
                       href={getCoachServiceHref(item, service)}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block rounded-lg px-12 py-2 text-sm font-bold text-slate-500 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-400 dark:hover:bg-slate-800"
+                      className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-12 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
                     >
-                      {service}
+                      <span className="flex-1">{service}</span>
+                      <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
                     </Link>
                   ))}
                 </div>
@@ -436,7 +368,7 @@ export function Navbar() {
           </Link>
 
           {/* Primary CTA */}
-          <Link
+          {/* <Link
             href="/webinars"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
@@ -450,7 +382,7 @@ export function Navbar() {
             </span>
             <span className="flex-1 font-extrabold">Free Trainings</span>
             <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          </Link> */}
         </div>
       </div>
     </>
