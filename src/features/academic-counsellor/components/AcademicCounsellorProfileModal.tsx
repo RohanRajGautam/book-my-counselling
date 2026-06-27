@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Check, Link, Globe, Star, ChevronRight, ChevronLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { useMentor } from '../hooks/useMentor'
+import { useAcademicCounsellorProfile } from '../hooks/useAcademicCounsellorProfile'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
-import { getInitials } from './MentorCard'
+import { getInitials } from '@/features/mentors/components/MentorCard'
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
   mentorId: string
 }
 
-export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
+export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const router = useRouter()
   const [reviewPage, setReviewPage] = useState(1)
   const [selection, setSelection] = useState<{
@@ -36,7 +36,9 @@ export function MentorProfileModal({ isOpen, onClose, mentorId }: Props) {
     packageId: null,
   })
 
-  const { data: mentor, isPending: isMentorLoading } = useMentor(isOpen ? mentorId : null)
+  const { data: mentor, isPending: isMentorLoading } = useAcademicCounsellorProfile(
+    isOpen ? mentorId : null
+  )
   const resolvedMentorId = mentor?.id ?? null
   const { data: fetchedPackages = [], isPending: isPackagesLoading } = useMentorPackages(
     isOpen ? resolvedMentorId : null
