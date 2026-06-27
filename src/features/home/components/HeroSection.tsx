@@ -33,7 +33,7 @@ export function HeroSection() {
     const search = filters.jobTitle?.trim()
     const query = search ? `?q=${encodeURIComponent(search)}` : ''
 
-    router.push(`/explore-mentors${query}`)
+    router.push(`/academic-counsellor${query}`)
   }
 
   const handleCardTouchPress = (event: PointerEvent<HTMLDivElement>) => {
