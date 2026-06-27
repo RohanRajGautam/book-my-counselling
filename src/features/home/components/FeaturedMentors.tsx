@@ -1,4 +1,4 @@
-import { FeaturedMentorsGrid } from '@/features/mentors/components/FeaturedMentorsGrid'
+import { FeaturedMentorsGrid } from './FeaturedMentorsGrid'
 
 export function FeaturedMentors() {
   return (

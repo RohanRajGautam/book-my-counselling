@@ -53,7 +53,7 @@ export function FeaturedMentorsGrid() {
                 fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
                 verified={mentor.is_verified}
-                onClick={() => router.push(`/explore-mentors/${mentor.id}`)}
+                onClick={() => router.push(`/academic-counsellor/${mentor.id}`)}
               />
             ))}
           </div>
@@ -68,7 +68,7 @@ export function FeaturedMentorsGrid() {
         {!isLoading && !isError && featuredMentors.length > 0 && (
           <div className="mt-10 flex justify-center">
             <Link
-              href="/explore-mentors"
+              href="/academic-counsellor"
               className="rounded-lg bg-[#004ac6] px-6 py-3 font-bold text-white shadow-[0_12px_28px_rgba(0,74,198,0.2)] transition hover:bg-[#003fa8]"
             >
               Explore all mentors
