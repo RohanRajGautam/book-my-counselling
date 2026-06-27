@@ -6,9 +6,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     '',
     '/about',
+    '/academic-counsellor',
     '/apply-counsellor',
     '/booking',
-    '/explore-mentors',
     '/how-it-works',
     '/privacy',
     '/school-to-startup',
