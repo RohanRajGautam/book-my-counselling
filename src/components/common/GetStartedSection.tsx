@@ -14,7 +14,7 @@ export function GetStartedSection() {
         </p>
 
         <button className="mt-3 rounded-md bg-white px-8 py-3 font-bold text-[#004ac6] shadow-md transition-all hover:shadow-lg active:scale-95">
-          <Link href={'/explore-mentors'}>Book a session</Link>
+          <Link href={'/academic-counsellor'}>Book a session</Link>
         </button>
       </div>
     </div>
