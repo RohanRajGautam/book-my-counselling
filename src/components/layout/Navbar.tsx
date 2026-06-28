@@ -5,10 +5,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { ArrowRight, CalendarDays, ChevronDown, GraduationCap, Menu, Video, X } from 'lucide-react'
 
-import {
-  COACH_SERVICE_PAGES,
-  getFreshersServiceTag,
-} from '@/features/coach-services/lib/coach-services.constants'
+import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
@@ -30,25 +27,18 @@ const navItems = [
 
 const coachNavItems = [
   {
-    ...COACH_SERVICE_PAGES.freshers,
+    href: '/coach-for-freshers/career-clarity-roadmap',
+    navLabel: 'Coach for Freshers',
+    services: Object.values(COACH_FOR_FRESHERS_VARIETIES).map((variety) => ({
+      label: variety.navLabel,
+      href: `/coach-for-freshers/${variety.slug}`,
+    })),
     icon: GraduationCap,
   },
-  // {
-  //   ...COACH_SERVICE_PAGES.professionals,
-  //   icon: BriefcaseBusiness,
-  // },
 ]
 
-function getCoachServiceHref(item: (typeof coachNavItems)[number], service: string) {
-  const tag = getFreshersServiceTag(service)
-
-  if (!tag) return item.href
-
-  const params = new URLSearchParams({
-    service: tag,
-  })
-
-  return `${item.href}?${params.toString()}`
+function getCoachServiceHref(service: { label: string; href: string }) {
+  return service.href
 }
 
 export function Navbar() {
@@ -63,7 +53,12 @@ export function Navbar() {
     return pathname.startsWith(`${item.href}/`)
   }
   const isCoachActive = (item: (typeof coachNavItems)[number]) => {
-    return pathname === item.href
+    if (pathname === item.href) return true
+    if (pathname.startsWith('/coach-for-freshers/')) {
+      return item.services.some((service) => service.href === pathname)
+    }
+
+    return false
   }
   const showAnnouncement = pathname === '/'
 
@@ -163,11 +158,11 @@ export function Navbar() {
                     <div className="rounded-xl border border-slate-100 bg-white p-2 shadow-[0_18px_44px_rgba(15,23,42,0.16)] dark:border-slate-800 dark:bg-slate-900">
                       {item.services.map((service) => (
                         <Link
-                          key={service}
-                          href={getCoachServiceHref(item, service)}
+                          key={service.href}
+                          href={getCoachServiceHref(service)}
                           className="block rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-300 dark:hover:bg-slate-800"
                         >
-                          {service}
+                          {service.label}
                         </Link>
                       ))}
                     </div>
@@ -364,12 +359,12 @@ export function Navbar() {
                 <div className="px-3 pb-3">
                   {item.services.map((service) => (
                     <Link
-                      key={service}
-                      href={getCoachServiceHref(item, service)}
+                      key={service.href}
+                      href={getCoachServiceHref(service)}
                       onClick={() => setMobileMenuOpen(false)}
                       className="block rounded-lg px-12 py-2 text-sm font-bold text-slate-500 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-400 dark:hover:bg-slate-800"
                     >
-                      {service}
+                      {service.label}
                     </Link>
                   ))}
                 </div>
