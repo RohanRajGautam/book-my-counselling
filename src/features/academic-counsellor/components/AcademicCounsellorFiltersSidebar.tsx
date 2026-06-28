@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react'
 
-import { useFilters } from '@/features/filters/context/FilterContext'
-
 import {
   useAcademicCounsellorCategories,
   useAcademicCounsellorSubcategories,
 } from '../hooks/useAcademicCounsellorCategories'
+import { useAcademicFilters } from '../context/AcademicFiltersContext'
 
 function toggleId(ids: string[], id: string) {
   return ids.includes(id) ? ids.filter((current) => current !== id) : [...ids, id]
@@ -21,13 +20,8 @@ interface CategoryRowProps {
   onToggleExpanded: (id: string) => void
 }
 
-function CategoryRow({
-  categoryId,
-  categoryName,
-  isExpanded,
-  onToggleExpanded,
-}: CategoryRowProps) {
-  const { filters, updateFilters } = useFilters()
+function CategoryRow({ categoryId, categoryName, isExpanded, onToggleExpanded }: CategoryRowProps) {
+  const { filters, updateFilters } = useAcademicFilters()
   const isSelected = filters.academicCategory.includes(categoryName)
   const hasSelectedSubcategories = Object.values(filters.academicSubcategoryParents).some(
     (parent) => parent === categoryName
@@ -51,9 +45,15 @@ function CategoryRow({
       }
     }
     if (changed) {
-      updateFilters({ academicSubcategoryParents: nextParents })
+      updateFilters({ academicSubcategoryParents: nextParents }, false)
     }
-  }, [subcategories, filters.academicSubcategory, filters.academicSubcategoryParents, categoryName, updateFilters])
+  }, [
+    subcategories,
+    filters.academicSubcategory,
+    filters.academicSubcategoryParents,
+    categoryName,
+    updateFilters,
+  ])
 
   const handleCategoryClick = () => {
     if (isSelected) {
@@ -100,9 +100,7 @@ function CategoryRow({
       delete nextParents[subcategoryName]
 
       updateFilters({
-        academicSubcategory: filters.academicSubcategory.filter(
-          (name) => name !== subcategoryName
-        ),
+        academicSubcategory: filters.academicSubcategory.filter((name) => name !== subcategoryName),
         academicSubcategoryParents: nextParents,
       })
       return
@@ -175,9 +173,7 @@ function CategoryRow({
 
           {!isFetching &&
             subcategories.map((subcategory) => {
-              const isSubcategorySelected = filters.academicSubcategory.includes(
-                subcategory.name
-              )
+              const isSubcategorySelected = filters.academicSubcategory.includes(subcategory.name)
 
               return (
                 <button
@@ -186,9 +182,7 @@ function CategoryRow({
                   onClick={() => handleSubcategoryClick(subcategory.name)}
                   aria-pressed={isSubcategorySelected}
                   className={`mx-2 flex min-h-10 w-[calc(100%-1rem)] items-center gap-3 px-3 py-2 text-left text-sm font-semibold transition hover:bg-[#3c56e8] ${
-                    isSubcategorySelected
-                      ? 'text-[#0053db]'
-                      : 'text-[#4b5563] hover:text-[#111827]'
+                    isSubcategorySelected ? 'text-[#0053db]' : 'text-[#4b5563] hover:text-[#111827]'
                   }`}
                 >
                   <span
@@ -217,7 +211,7 @@ function CategoryRow({
 }
 
 export function AcademicCounsellorFiltersSidebar() {
-  const { filters, updateFilters } = useFilters()
+  const { filters, updateFilters } = useAcademicFilters()
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([])
   const { data: categories = [], isLoading } = useAcademicCounsellorCategories()
   const initialExpandDoneRef = useRef(false)
@@ -281,9 +275,7 @@ export function AcademicCounsellorFiltersSidebar() {
           <input
             type="checkbox"
             checked={Boolean(filters.availableThisWeek)}
-            onChange={(event) =>
-              updateFilters({ availableThisWeek: event.target.checked })
-            }
+            onChange={(event) => updateFilters({ availableThisWeek: event.target.checked })}
             className="size-4 border-0 bg-white text-[#0053db] shadow-sm ring-1 ring-[#e2e8f0] ring-inset focus:ring-2 focus:ring-[#0053db]/20"
           />
           <span>This Week</span>
