@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Check, Link, Globe, Star, ChevronRight, ChevronLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { useAcademicCounsellorProfile } from '../hooks/useAcademicCounsellorProfile'
+import { useMentorProfile } from '@/features/mentors/hooks/useMentorProfile'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
@@ -36,9 +36,9 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
     packageId: null,
   })
 
-  const { data: mentor, isPending: isMentorLoading } = useAcademicCounsellorProfile(
-    isOpen ? mentorId : null
-  )
+  const { data: mentor, isPending: isMentorLoading } = useMentorProfile(isOpen ? mentorId : null, {
+    isAcademicCounselor: true,
+  })
   const resolvedMentorId = mentor?.id ?? null
   const { data: fetchedPackages = [], isPending: isPackagesLoading } = useMentorPackages(
     isOpen ? resolvedMentorId : null
