@@ -6,7 +6,7 @@ export function CoachForFreshersListingHeader({ variety }: { variety: CoachForFr
   const firstWords = words.length > 1 ? words.slice(0, -1).join(' ') : ''
 
   return (
-    <section className="px-5 pt-8 sm:px-6 lg:px-8 xl:px-10">
+    <section className="px-5 pt-6 sm:px-6 lg:px-8 xl:px-10">
       <div className="rounded-[24px] py-5">
         <div>
           <h1 className="font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,3rem)] leading-tight font-extrabold text-[#121c2a]">
