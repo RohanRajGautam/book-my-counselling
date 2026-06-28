@@ -2,21 +2,20 @@
 
 import { useRouter } from 'next/navigation'
 
-import { FilterProvider, useFilters } from '@/features/filters/context/FilterContext'
-import { type FilterState } from '@/features/filters/types/filter.types'
-
 import { AcademicCounsellorProfileModal } from './AcademicCounsellorProfileModal'
-import { buildAcademicCounsellorSearchParams } from '../lib/filter-url-state'
+import { AcademicFiltersProvider, useAcademicFilters } from '../context/AcademicFiltersContext'
+import { buildAcademicCounsellorSearchParams } from '../lib/url-state'
+import type { AcademicFilters } from '../types/filters.types'
 
 interface AcademicCounsellorProfileProps {
   mentorSlugOrId: string
-  initialFilters?: Partial<FilterState>
+  initialFilters?: Partial<AcademicFilters>
   initialPage?: number
 }
 
 function ProfileRouteModal({ mentorSlugOrId }: { mentorSlugOrId: string }) {
   const router = useRouter()
-  const { filters, currentPage } = useFilters()
+  const { filters, currentPage } = useAcademicFilters()
 
   const handleClose = () => {
     const params = buildAcademicCounsellorSearchParams(filters, currentPage)
@@ -35,14 +34,9 @@ export function AcademicCounsellorProfile({
 }: AcademicCounsellorProfileProps) {
   return (
     <main className="min-h-screen bg-[#f8f9ff] pt-[73px]">
-      <FilterProvider
-        initialFilters={initialFilters}
-        initialPage={initialPage}
-        syncUrl
-        urlStateEncoder={buildAcademicCounsellorSearchParams}
-      >
+      <AcademicFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
         <ProfileRouteModal mentorSlugOrId={mentorSlugOrId} />
-      </FilterProvider>
+      </AcademicFiltersProvider>
     </main>
   )
 }
