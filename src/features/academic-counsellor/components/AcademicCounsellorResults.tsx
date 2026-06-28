@@ -4,16 +4,16 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
-import { useFilters } from '@/features/filters/context/FilterContext'
 import { getMentorProfileHref } from '@/features/mentors/utils/mentors.utils'
 
-import { ACADEMIC_COUNSELLORS_PER_PAGE, getAcademicCounsellors } from '../api/academic-counsellor.api'
+import { ACADEMIC_COUNSELLORS_PER_PAGE } from '../api/academic-counsellor.api'
+import { useAcademicFilters } from '../context/AcademicFiltersContext'
 import { useAcademicCounsellors } from '../hooks/useAcademicCounsellors'
-import { buildAcademicCounsellorSearchParams } from '../lib/filter-url-state'
+import { buildAcademicCounsellorSearchParams } from '../lib/url-state'
 
 export function AcademicCounsellorResults() {
   const router = useRouter()
-  const { filters, currentPage, setCurrentPage } = useFilters()
+  const { filters, currentPage, setCurrentPage } = useAcademicFilters()
   const { data, isLoading, isFetching, isError } = useAcademicCounsellors(filters, currentPage)
 
   const totalPages = data?.total_pages ?? 1
