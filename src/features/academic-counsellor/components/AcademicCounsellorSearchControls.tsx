@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal } from 'lucide-react'
 
-import { useFilters } from '@/features/filters/context/FilterContext'
+import { useAcademicFilters } from '../context/AcademicFiltersContext'
 
 const SEARCH_DEBOUNCE_MS = 300
 
@@ -22,7 +22,7 @@ interface AcademicCounsellorSearchControlsProps {
 export function AcademicCounsellorSearchControls({
   onOpenMobileFilters,
 }: AcademicCounsellorSearchControlsProps) {
-  const { filters, updateFilter } = useFilters()
+  const { filters, updateFilter } = useAcademicFilters()
   const [searchInputValue, setSearchInputValue] = useState(filters.jobTitle ?? '')
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isUserTypingRef = useRef(false)
@@ -81,10 +81,7 @@ export function AcademicCounsellorSearchControls({
             <select
               value={filters.sortBy}
               onChange={(event) =>
-                updateFilter(
-                  'sortBy',
-                  event.target.value as (typeof SORT_OPTIONS)[number]['value']
-                )
+                updateFilter('sortBy', event.target.value as (typeof SORT_OPTIONS)[number]['value'])
               }
               className="h-10 w-full min-w-0 appearance-none rounded-xl bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30 xl:min-w-[180px]"
             >
