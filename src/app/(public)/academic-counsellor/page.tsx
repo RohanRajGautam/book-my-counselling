@@ -1,12 +1,16 @@
 import { AcademicCounsellorPageContent } from '@/features/academic-counsellor/components/AcademicCounsellorPageContent'
-import { loadAcademicCounsellorState } from '@/features/academic-counsellor/lib/search-params'
-import type { AcademicCounsellorSearchParams } from '@/features/academic-counsellor/lib/filter-url-state'
+import {
+  loadAcademicCounsellorState,
+  type AcademicCounsellorSearchParams,
+} from '@/features/academic-counsellor/lib/url-state'
 
 type AcademicCounsellorPageProps = {
   searchParams: Promise<AcademicCounsellorSearchParams>
 }
 
-export default async function AcademicCounsellorPage({ searchParams }: AcademicCounsellorPageProps) {
+export default async function AcademicCounsellorPage({
+  searchParams,
+}: AcademicCounsellorPageProps) {
   const { filters, page } = await loadAcademicCounsellorState(searchParams)
 
   return (
