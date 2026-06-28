@@ -1,6 +1,8 @@
 import { AcademicCounsellorProfile } from '@/features/academic-counsellor/components/AcademicCounsellorProfile'
-import { loadAcademicCounsellorState } from '@/features/academic-counsellor/lib/search-params'
-import type { AcademicCounsellorSearchParams } from '@/features/academic-counsellor/lib/filter-url-state'
+import {
+  loadAcademicCounsellorState,
+  type AcademicCounsellorSearchParams,
+} from '@/features/academic-counsellor/lib/url-state'
 
 type AcademicCounsellorProfilePageProps = {
   params: Promise<{ mentorId: string }>
