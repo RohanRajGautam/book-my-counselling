@@ -3,17 +3,16 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 
-import { FilterProvider } from '@/features/filters/context/FilterContext'
-import { type FilterState } from '@/features/filters/types/filter.types'
+import { AcademicFiltersProvider } from '../context/AcademicFiltersContext'
+import type { AcademicFilters } from '../types/filters.types'
 
 import { AcademicCounsellorFiltersSidebar } from './AcademicCounsellorFiltersSidebar'
 import { AcademicCounsellorListingHeader } from './AcademicCounsellorListingHeader'
 import { AcademicCounsellorResults } from './AcademicCounsellorResults'
 import { AcademicCounsellorSearchControls } from './AcademicCounsellorSearchControls'
-import { buildAcademicCounsellorSearchParams } from '../lib/filter-url-state'
 
 interface AcademicCounsellorPageContentProps {
-  initialFilters?: Partial<FilterState>
+  initialFilters?: Partial<AcademicFilters>
   initialPage?: number
 }
 
@@ -24,12 +23,7 @@ export function AcademicCounsellorPageContent({
   const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   return (
-    <FilterProvider
-      initialFilters={initialFilters}
-      initialPage={initialPage}
-      syncUrl
-      urlStateEncoder={buildAcademicCounsellorSearchParams}
-    >
+    <AcademicFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
       <div
         id="mentor-discovery"
         className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[280px_minmax(0,1fr)]"
@@ -41,11 +35,10 @@ export function AcademicCounsellorPageContent({
         <div>
           <AcademicCounsellorListingHeader />
 
-          <section
-            id="mentor-results"
-            className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10"
-          >
-            <AcademicCounsellorSearchControls onOpenMobileFilters={() => setShowMobileFilters(true)} />
+          <section id="mentor-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
+            <AcademicCounsellorSearchControls
+              onOpenMobileFilters={() => setShowMobileFilters(true)}
+            />
 
             <AcademicCounsellorResults />
           </section>
@@ -75,6 +68,6 @@ export function AcademicCounsellorPageContent({
           </div>
         )}
       </div>
-    </FilterProvider>
+    </AcademicFiltersProvider>
   )
 }
