@@ -36,9 +36,9 @@ export const COACH_SERVICE_PAGES: Record<CoachServiceAudience, CoachServicePageC
     href: '/coaches/freshers',
     services: ['Career Clarity Roadmap', 'First-Job CV Builder', 'Mock Interview Lab'],
     serviceTags: {
-      'Career Clarity Roadmap': 'career-clarity',
-      'First-Job CV Builder': 'cv',
-      'Mock Interview Lab': 'mock-interview',
+      'Career Clarity Roadmap': 'career-clarity-roadmap',
+      'First-Job CV Builder': 'first-job-builder',
+      'Mock Interview Lab': 'mock-interview-lab',
     },
   },
   professionals: {
@@ -108,6 +108,18 @@ export const STATIC_COACH_MENTORS: StaticCoachMentor[] = [
     availableThisWeek: false,
   },
 ]
+
+export const FRESHERS_SERVICE_LABELS: Record<string, string> = Object.fromEntries(
+  Object.entries(COACH_SERVICE_PAGES.freshers.serviceTags).map(([label, slug]) => [slug, label])
+)
+
+export function getFreshersServiceLabels(tags: string[] | undefined): string[] {
+  if (!tags) return []
+
+  return tags
+    .map((tag) => FRESHERS_SERVICE_LABELS[tag])
+    .filter((label): label is string => Boolean(label))
+}
 
 export function getFreshersServiceTag(service: string) {
   return COACH_SERVICE_PAGES.freshers.serviceTags[service] ?? null
