@@ -128,6 +128,9 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
     .replace('.0', '')
+  const hasRating = Number(mentor?.average_rating || 0) > 0
+  const bioText = (mentor?.bio ?? '').replace(/\n+/g, '\n')
+  const bioFallback = `${mentor?.user?.full_name ?? 'This mentor'} is an experienced ${mentor?.title ?? 'mentor'} passionate about mentoring professionals.`
 
   const isInitialLoading = isMentorLoading || isPackagesLoading || isAvailabilityLoading
 
@@ -207,19 +210,29 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                 {mentor.title} {mentor.company && `at ${mentor.company}`}
               </p>
 
-              <div className="mb-5 grid grid-cols-2 overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]">
-                <div className="px-3 py-3">
-                  <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                    {ratingLabel}
-                  </p>
-                  <p className="text-[11px] font-bold text-[#737686]">Rating</p>
-                </div>
-                <div className="border-x border-[#eff4ff] px-3 py-3">
+              <div
+                className={`mb-5 grid ${
+                  hasRating ? 'grid-cols-2' : 'grid-cols-1'
+                } overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-[#eff4ff]`}
+              >
+                {hasRating && (
+                  <div className="px-3 py-3">
+                    <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                      {ratingLabel}
+                    </p>
+                    <p className="text-[11px] font-bold text-[#737686]">Rating</p>
+                  </div>
+                )}
+                {/* <div
+                  className={`${
+                    hasRating ? 'border-x border-[#eff4ff]' : ''
+                  } px-3 py-3`}
+                >
                   <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                     {mentor.total_reviews}
                   </p>
                   <p className="text-[11px] font-bold text-[#737686]">Reviews</p>
-                </div>
+                </div> */}
                 {/* <div className="px-3 py-3">
                   <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                     {mentor.total_sessions}
@@ -347,9 +360,8 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             <h3 className="mb-3 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
               About {mentor.user?.full_name?.split(' ')[0]}
             </h3>
-            <p className="text-base leading-8 font-medium text-[#434655]">
-              {mentor.bio ||
-                `${mentor.user?.full_name} is an experienced ${mentor.title} passionate about mentoring professionals.`}
+            <p className="whitespace-pre-line text-base leading-8 font-medium text-[#434655]">
+              {bioText || bioFallback}
             </p>
           </div>
 

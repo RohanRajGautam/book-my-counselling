@@ -143,14 +143,20 @@ export function MentorCard({
       </div>
 
       <div className="mt-auto mb-5 flex items-center gap-2">
-        <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
-        <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
-          {Number(rating || 0)
-            .toFixed(1)
-            .replace('.0', '')}
-        </span>
+        {Number(rating || 0) > 0 && (
+          <>
+            <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
+            <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
+              {Number(rating || 0)
+                .toFixed(1)
+                .replace('.0', '')}
+            </span>
+          </>
+        )}
         <span className="flex w-full items-center justify-between">
-          <span className="text-sm font-medium text-[#737686]">({reviews} reviews)</span>
+          {/* <span className="text-sm font-medium text-[#737686]">
+            ({reviews} {reviews === 1 ? 'review' : 'reviews'})
+          </span> */}
 
           {typeof totalSessions === 'number' && (
             <span className="ml-2 text-sm font-medium text-[#737686]">

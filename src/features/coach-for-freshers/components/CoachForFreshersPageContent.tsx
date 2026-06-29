@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 
+import { SearchCrossLinkBanner } from '@/features/search/components/SearchCrossLinkBanner'
+import type { CrossLinkInfo } from '@/features/search/lib/parse-cross-link'
 import { CoachForFreshersFiltersProvider } from '../context/CoachForFreshersFiltersContext'
 import type { CoachForFreshersFilters } from '../types/filters.types'
 import type { CoachForFreshersVariety } from '../types/coach-for-freshers.types'
@@ -16,14 +18,18 @@ interface CoachForFreshersPageContentProps {
   variety: CoachForFreshersVariety
   initialFilters?: Partial<CoachForFreshersFilters>
   initialPage?: number
+  crossLink?: CrossLinkInfo
 }
 
 export function CoachForFreshersPageContent({
   variety,
   initialFilters,
   initialPage = 1,
+  crossLink,
 }: CoachForFreshersPageContentProps) {
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const showAcademicBanner = crossLink?.category === 'academic'
+  const currentQuery = initialFilters?.jobTitle ?? ''
 
   return (
     <CoachForFreshersFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
@@ -39,6 +45,16 @@ export function CoachForFreshersPageContent({
           <CoachForFreshersListingHeader variety={variety} />
 
           <section id="coach-for-freshers-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
+            {showAcademicBanner && crossLink && (
+              <div className="pt-4 pb-1 sm:pt-0">
+                <SearchCrossLinkBanner
+                  targetCategory="academic"
+                  count={crossLink.count}
+                  query={currentQuery}
+                />
+              </div>
+            )}
+
             <CoachForFreshersSearchControls onOpenMobileFilters={() => setShowMobileFilters(true)} />
 
             <CoachForFreshersResults variety={variety} />

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 
+import { SearchCrossLinkBanner } from '@/features/search/components/SearchCrossLinkBanner'
+import type { CrossLinkInfo } from '@/features/search/lib/parse-cross-link'
 import { AcademicFiltersProvider } from '../context/AcademicFiltersContext'
 import type { AcademicFilters } from '../types/filters.types'
 
@@ -14,13 +16,17 @@ import { AcademicCounsellorSearchControls } from './AcademicCounsellorSearchCont
 interface AcademicCounsellorPageContentProps {
   initialFilters?: Partial<AcademicFilters>
   initialPage?: number
+  crossLink?: CrossLinkInfo
 }
 
 export function AcademicCounsellorPageContent({
   initialFilters,
   initialPage = 1,
+  crossLink,
 }: AcademicCounsellorPageContentProps) {
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const showCffBanner = crossLink?.category === 'cff'
+  const currentQuery = initialFilters?.jobTitle ?? ''
 
   return (
     <AcademicFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
@@ -36,6 +42,17 @@ export function AcademicCounsellorPageContent({
           <AcademicCounsellorListingHeader />
 
           <section id="mentor-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
+            {showCffBanner && crossLink && (
+              <div className="pt-4 pb-1 sm:pt-0">
+                <SearchCrossLinkBanner
+                  targetCategory="cff"
+                  count={crossLink.count}
+                  query={currentQuery}
+                  cffVariety={crossLink.variety}
+                />
+              </div>
+            )}
+
             <AcademicCounsellorSearchControls
               onOpenMobileFilters={() => setShowMobileFilters(true)}
             />

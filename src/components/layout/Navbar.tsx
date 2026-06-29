@@ -3,7 +3,13 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, CalendarDays, ChevronDown, GraduationCap, Menu, Video, X } from 'lucide-react'
+import {
+  ArrowRight,
+  ChevronDown,
+  GraduationCap,
+  Menu,
+  X,
+} from 'lucide-react'
 
 import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
@@ -14,6 +20,11 @@ const navItems = [
     label: 'Academic Counsellor',
     icon: GraduationCap,
   },
+  // {
+  //   href: '/blog',
+  //   label: 'Blog',
+  //   icon: BookText,
+  // },
   // {
   //   href: '/professional-counsellor',
   //   label: 'Professional Coach',
@@ -172,68 +183,6 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="hidden gap-4 sm:flex">
-            {/* <Link
-              href="/events"
-              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
-            >
-              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
-
-              <span
-                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-1 text-lg font-semibold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
-                  isActive('/events')
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
-                } `}
-              >
-                &quot;३० मा ३०&quot;
-              </span>
-            </Link> */}
-
-            {/* <Link
-              href="/school-to-startup"
-              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
-            >
-              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
-
-              <span
-                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-1 py-2 text-lg text-sm font-semibold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
-                  isActive('/school-to-startup')
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
-                } `}
-              >
-                School to Startup
-              </span>
-            </Link> */}
-            <Link
-              href="/webinars"
-              className={`flex items-center rounded-full py-2 font-[family-name:var(--font-headline)] text-sm font-extrabold tracking-tight transition-colors ${
-                isActive('/webinars') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
-              }`}
-            >
-              <div className="px-4">Free Trainings</div>
-            </Link>
-            {/* <Link
-              href="/school-to-startup"
-              className="relative inline-flex items-center justify-center overflow-hidden rounded-full p-[1.5px] transition-all focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none"
-            >
-            
-              <span className="animate-spin-slow absolute inset-[-1000%] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#3B82F6_50%,#E2E8F0_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#1E293B_0%,#3B82F6_50%,#1E293B_100%)]" />
-
-            
-              <span
-                className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold backdrop-blur-3xl transition-colors dark:bg-slate-950 ${
-                  isActive('/school-to-startup')
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-slate-600 hover:text-blue-500 dark:text-slate-400'
-                } `}
-              >
-                School to Startup
-              </span>
-            </Link> */}
-          </div>
-
           <button
             type="button"
             className="relative grid size-11 place-items-center rounded-xl text-[#121c2a] transition-colors hover:bg-[#eff4ff] active:bg-[#dbe6ff] md:hidden dark:text-slate-100 dark:hover:bg-slate-800"
@@ -374,7 +323,7 @@ export function Navbar() {
 
           {/* Divider */}
           <div className="my-1 h-px bg-slate-100 dark:bg-slate-800" aria-hidden="true" />
-          <Link
+          {/* <Link
             href="/events"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
@@ -388,10 +337,10 @@ export function Navbar() {
             </span>
             <span className="flex-1">&quot;३० मा ३०&quot;</span>
             <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          </Link> */}
 
           {/* Primary CTA */}
-          <Link
+          {/* <Link
             href="/webinars"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
@@ -405,7 +354,7 @@ export function Navbar() {
             </span>
             <span className="flex-1 font-extrabold">Free Trainings</span>
             <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          </Link> */}
         </div>
       </div>
     </>

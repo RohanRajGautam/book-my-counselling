@@ -63,6 +63,9 @@ export function CoachForFreshersProfileModal({
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
     .replace('.0', '')
+  const hasRating = Number(mentor?.average_rating || 0) > 0
+  const bioText = (mentor?.bio ?? '').replace(/\n+/g, '\n')
+  const bioFallback = 'Choose a package and time for focused guidance on CVs, interviews, and first-job readiness.'
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
   const isLoading = isMentorLoading || isPackagesLoading || isAvailabilityLoading
@@ -178,14 +181,24 @@ export function CoachForFreshersProfileModal({
                     {mentor.title} {mentor.company && `at ${mentor.company}`}
                   </p>
 
-                  <div className="mb-5 grid grid-cols-2 overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]">
-                    <div className="px-3 py-3">
-                      <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                        {ratingLabel}
-                      </p>
-                      <p className="text-[11px] font-bold text-[#737686]">Rating</p>
-                    </div>
-                    <div className="border-l border-[#eff4ff] px-3 py-3">
+                  <div
+                    className={`mb-5 grid ${
+                      hasRating ? 'grid-cols-2' : 'grid-cols-1'
+                    } overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]`}
+                  >
+                    {hasRating && (
+                      <div className="px-3 py-3">
+                        <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                          {ratingLabel}
+                        </p>
+                        <p className="text-[11px] font-bold text-[#737686]">Rating</p>
+                      </div>
+                    )}
+                    <div
+                      className={`${
+                        hasRating ? 'border-l border-[#eff4ff]' : ''
+                      } px-3 py-3`}
+                    >
                       <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                         {mentor.total_reviews}
                       </p>
@@ -272,9 +285,8 @@ export function CoachForFreshersProfileModal({
                 <h3 className="mb-3 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
                   About {firstName}
                 </h3>
-                <p className="text-base leading-8 font-medium text-[#434655]">
-                  {mentor.bio ||
-                    'Choose a package and time for focused guidance on CVs, interviews, and first-job readiness.'}
+                <p className="whitespace-pre-line text-base leading-8 font-medium text-[#434655]">
+                  {bioText || bioFallback}
                 </p>
               </div>
 

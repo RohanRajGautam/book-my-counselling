@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+import { getAllPosts } from '@/features/blog/lib/posts';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bookyourcounselling.com';
 
   const routes = [
@@ -8,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/about',
     '/academic-counsellor',
     '/apply-counsellor',
+    '/blog',
     '/booking',
     '/how-it-works',
     '/privacy',
@@ -19,8 +22,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route === '' ? 1 : 0.8,
   }));
 
-  // You can also fetch dynamic routes (e.g., individual mentor profiles, blog posts) here
-  // and append them to the sitemap array.
+  const posts = await getAllPosts();
+  const blogRoutes = posts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.frontmatter.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
 
-  return [...routes];
+  return [...routes, ...blogRoutes];
 }
