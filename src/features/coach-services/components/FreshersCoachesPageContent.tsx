@@ -21,7 +21,10 @@ import {
 import { useFreshersCoaches } from '@/features/coach-services/hooks/useFreshersCoaches'
 import { useCounselingCategories } from '@/features/categories/hooks/useCounselingCategories'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
-import { COACH_SERVICE_PAGES } from '@/features/coach-services/lib/coach-services.constants'
+import {
+  COACH_SERVICE_PAGES,
+  getFreshersServiceLabels,
+} from '@/features/coach-services/lib/coach-services.constants'
 
 const FRESHERS_CATEGORY_NAMES = ['IT', 'Management', 'General']
 const SEARCH_DEBOUNCE_MS = 300
@@ -235,7 +238,7 @@ export function FreshersCoachesPageContent({ serviceTag }: FreshersCoachesPageCo
           </div>
         </section>
 
-        <section id="freshers-coach-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
+        <section id="freshers-coach-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10 mb-10">
           <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
             <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl border border-gray-100 bg-white px-4 ring-1 ring-[#eff4ff] ring-inset">
               <Search className="mr-3 size-6 text-[#0053db]" />
@@ -311,29 +314,33 @@ export function FreshersCoachesPageContent({ serviceTag }: FreshersCoachesPageCo
                 isFetching ? 'opacity-60' : 'opacity-100'
               }`}
             >
-              {mentors.map((mentor) => (
-                <MentorCardWithPackages
-                  key={mentor.id}
-                  mentorId={mentor.id}
-                  name={mentor.full_name}
-                  role={mentor.title}
-                  company={mentor.company ?? ''}
-                  tags={
-                    mentor.professional_categories?.length
-                      ? mentor.professional_categories
-                      : mentor.tags?.length
-                        ? mentor.tags
-                        : (mentor.industries ?? [])
-                  }
-                  rating={mentor.average_rating}
-                  reviews={mentor.total_reviews}
-                  description={`${mentor.title} with ${mentor.total_sessions} sessions`}
-                  fallbackPrice={Number(mentor.hourly_rate)}
-                  imageUrl={mentor.avatar_url}
-                  verified={mentor.is_verified}
-                  onClick={() => setActiveMentorId(mentor.id)}
-                />
-              ))}
+              {mentors.map((mentor) => {
+                const serviceLabels = getFreshersServiceLabels(mentor.tags)
+
+                return (
+                  <MentorCardWithPackages
+                    key={mentor.id}
+                    mentorId={mentor.id}
+                    name={mentor.full_name}
+                    role={mentor.title}
+                    company={mentor.company ?? ''}
+                    tags={
+                      serviceLabels.length
+                        ? serviceLabels
+                        : mentor.professional_categories?.length
+                          ? mentor.professional_categories
+                          : (mentor.industries ?? [])
+                    }
+                    rating={mentor.average_rating}
+                    reviews={mentor.total_reviews}
+                    description={`${mentor.title} with ${mentor.total_sessions} sessions`}
+                    fallbackPrice={Number(mentor.hourly_rate)}
+                    imageUrl={mentor.avatar_url}
+                    verified={mentor.is_verified}
+                    onClick={() => setActiveMentorId(mentor.id)}
+                  />
+                )
+              })}
             </div>
           ) : (
             <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
