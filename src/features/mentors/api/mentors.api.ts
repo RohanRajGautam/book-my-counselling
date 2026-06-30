@@ -53,10 +53,9 @@ function getCategorySearchParams(filters: FilterState): Partial<SearchParams> {
 function getCounselorTypeSearchParams(
   filters: FilterState
 ): Pick<SearchParams, 'is_academic_counselor' | 'is_professional_counselor'> {
-  return {
-    is_academic_counselor: filters.counselingType === 'academic',
-    is_professional_counselor: filters.counselingType === 'professional',
-  }
+  return filters.counselingType === 'academic'
+    ? { is_academic_counselor: true }
+    : { is_professional_counselor: true }
 }
 
 function getSearchParams(filters: FilterState, page: number, pageSize: number): SearchParams {
