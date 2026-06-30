@@ -273,7 +273,7 @@ export function MySessionsPage() {
 
 function ShareProfileCard({ mentorId }: { mentorId?: string }) {
   const profileUrl = mentorId
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/explore-mentors/${mentorId}`
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/academic-counsellor/${mentorId}`
     : '#'
 
   const handleShare = () => {

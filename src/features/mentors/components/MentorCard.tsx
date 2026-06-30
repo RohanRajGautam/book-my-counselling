@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Check, Clock, Star } from 'lucide-react'
+import { Building2, Check, Clock, Star } from 'lucide-react'
 
 interface PackageTier {
   duration_minutes: number
@@ -43,6 +43,15 @@ function formatDisplayName(name: string) {
     .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
 }
 
+function cleanCompanyName(company: string): string | null {
+  const trimmed = company.trim()
+  if (!trimmed) return null
+  return trimmed
+    .replace(/^https?:\/\//i, '')
+    .replace(/^www\./i, '')
+    .replace(/\/$/, '')
+}
+
 export function MentorCard({
   name,
   role,
@@ -60,6 +69,7 @@ export function MentorCard({
   const imageSrc = imageUrl?.trim() || null
   const displayName = formatDisplayName(name)
   const initials = getInitials(name)
+  const companyDisplay = cleanCompanyName(company)
   const services = tags.slice(0, 4).map((tag) => tag.replace(/^#/, ''))
 
   // Show the 3 standard tiers if available, otherwise fall back to "Starting at"
@@ -107,10 +117,18 @@ export function MentorCard({
           {/* {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>} */}
           <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
             {role}
-            {company ? `, ${company}` : ''}
           </p>
         </div>
       </div>
+
+      {companyDisplay && (
+        <div className="mb-4 flex items-center gap-2">
+          <Building2 className="size-4 shrink-0 text-[#737686]" aria-hidden />
+          <span className="line-clamp-1 text-sm font-semibold text-[#5f6472]">
+            {companyDisplay}
+          </span>
+        </div>
+      )}
 
       <div className="mb-5">
         <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
@@ -143,14 +161,20 @@ export function MentorCard({
       </div>
 
       <div className="mt-auto mb-5 flex items-center gap-2">
-        <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
-        <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
-          {Number(rating || 0)
-            .toFixed(1)
-            .replace('.0', '')}
-        </span>
+        {Number(rating || 0) > 0 && (
+          <>
+            <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
+            <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
+              {Number(rating || 0)
+                .toFixed(1)
+                .replace('.0', '')}
+            </span>
+          </>
+        )}
         <span className="flex w-full items-center justify-between">
-          <span className="text-sm font-medium text-[#737686]">({reviews} reviews)</span>
+          {/* <span className="text-sm font-medium text-[#737686]">
+            ({reviews} {reviews === 1 ? 'review' : 'reviews'})
+          </span> */}
 
           {typeof totalSessions === 'number' && (
             <span className="ml-2 text-sm font-medium text-[#737686]">

@@ -59,7 +59,7 @@ export function getMentorProfileSlug(mentor: Pick<Mentor, 'id' | 'full_name'>) {
 }
 
 export function getMentorProfileHref(mentor: Pick<Mentor, 'id' | 'full_name'>) {
-  return `/explore-mentors/${getMentorProfileSlug(mentor)}`
+  return `/academic-counsellor/${getMentorProfileSlug(mentor)}`
 }
 
 export function getMentorShortIdFromSlug(slugOrId: string) {
