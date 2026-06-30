@@ -93,27 +93,29 @@ export async function smartSearch(rawQuery: string): Promise<SmartSearchDestinat
   }
 
   if (academicTotal === 0 && bestCff !== null && bestCff.count > 0) {
+    const bestSlug = bestCff.variety.slug as CoachForFreshersVarietySlug
     return {
       kind: 'cff',
-      variety: bestCff.variety.slug,
-      href: `/coach-for-freshers/${bestCff.variety.slug}?${buildQueryString(query)}`,
+      variety: bestSlug,
+      href: `/coach-for-freshers/${bestSlug}?${buildQueryString(query)}`,
     }
   }
 
   if (academicTotal > 0 && bestCff !== null && bestCff.count > 0) {
+    const bestSlug = bestCff.variety.slug as CoachForFreshersVarietySlug
     if (academicTotal >= cffTotal) {
       return {
         kind: 'academic',
-        href: `/academic-counsellor?${buildQueryString(query, { alsoIn: 'cff', alsoInCount: cffTotal, alsoInVariety: bestCff.variety.slug })}`,
+        href: `/academic-counsellor?${buildQueryString(query, { alsoIn: 'cff', alsoInCount: cffTotal, alsoInVariety: bestSlug })}`,
         alsoIn: 'cff',
         alsoInCount: cffTotal,
-        alsoInVariety: bestCff.variety.slug,
+        alsoInVariety: bestSlug,
       }
     }
     return {
       kind: 'cff',
-      variety: bestCff.variety.slug,
-      href: `/coach-for-freshers/${bestCff.variety.slug}?${buildQueryString(query, { alsoIn: 'academic', alsoInCount: academicTotal })}`,
+      variety: bestSlug,
+      href: `/coach-for-freshers/${bestSlug}?${buildQueryString(query, { alsoIn: 'academic', alsoInCount: academicTotal })}`,
       alsoIn: 'academic',
       alsoInCount: academicTotal,
     }

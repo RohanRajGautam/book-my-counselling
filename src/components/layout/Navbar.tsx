@@ -3,13 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import {
-  ArrowRight,
-  ChevronDown,
-  GraduationCap,
-  Menu,
-  X,
-} from 'lucide-react'
+import { ArrowRight, BookText, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
 
 import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
@@ -38,7 +32,7 @@ const navItems = [
 
 const coachNavItems = [
   {
-    href: '/coach-for-freshers/career-clarity-roadmap',
+    href: '/coach-for-freshers',
     navLabel: 'Coach for Freshers',
     services: Object.values(COACH_FOR_FRESHERS_VARIETIES).map((variety) => ({
       label: variety.navLabel,
@@ -165,15 +159,16 @@ export function Navbar() {
                     <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
                   </Link>
 
-                  <div className="pointer-events-none absolute top-full left-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
-                    <div className="rounded-xl border border-slate-100 bg-white p-2 shadow-[0_18px_44px_rgba(15,23,42,0.16)] dark:border-slate-800 dark:bg-slate-900">
+                  <div className="pointer-events-none absolute top-full right-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <div className="space-y-1 overflow-hidden rounded-xl border border-slate-100/80 bg-white p-2 ring-1 ring-[#004ac6]/5 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5">
                       {item.services.map((service) => (
                         <Link
                           key={service.href}
                           href={getCoachServiceHref(service)}
-                          className="block rounded-lg px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-300 dark:hover:bg-slate-800"
+                          className="group/item relative flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-3 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
                         >
-                          {service.label}
+                          <span className="flex-1">{service.label}</span>
+                          <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
                         </Link>
                       ))}
                     </div>
@@ -282,7 +277,7 @@ export function Navbar() {
                   className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
                     active
                       ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
-                      : 'text-[#27313f] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+                      : 'text-[#000000] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   <span

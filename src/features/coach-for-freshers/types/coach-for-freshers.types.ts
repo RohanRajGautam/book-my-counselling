@@ -4,7 +4,7 @@ export type CoachForFreshersVarietySlug =
   | 'mock-interview-lab'
 
 export interface CoachForFreshersVariety {
-  slug: CoachForFreshersVarietySlug
+  slug: string
   tag: string
   navLabel: string
   title: string
@@ -14,7 +14,7 @@ export interface CoachForFreshersVariety {
 export const COACH_FOR_FRESHERS_VARIETIES: Record<CoachForFreshersVarietySlug, CoachForFreshersVariety> = {
   'career-clarity-roadmap': {
     slug: 'career-clarity-roadmap',
-    tag: 'career-clarity',
+    tag: 'career-clarity-roadmap',
     navLabel: 'Career Clarity Roadmap',
     title: 'Career Clarity Roadmap',
     subtitle:
@@ -22,7 +22,7 @@ export const COACH_FOR_FRESHERS_VARIETIES: Record<CoachForFreshersVarietySlug, C
   },
   'first-job-cv-builder': {
     slug: 'first-job-cv-builder',
-    tag: 'cv',
+    tag: 'first-job-builder',
     navLabel: 'First-Job CV Builder',
     title: 'First-Job CV Builder',
     subtitle:
@@ -30,12 +30,21 @@ export const COACH_FOR_FRESHERS_VARIETIES: Record<CoachForFreshersVarietySlug, C
   },
   'mock-interview-lab': {
     slug: 'mock-interview-lab',
-    tag: 'mock-interview',
+    tag: 'mock-interview-lab',
     navLabel: 'Mock Interview Lab',
     title: 'Mock Interview Lab',
     subtitle:
       'Practice real interview rounds with mentors who have sat on both sides of the table and sharpen your answers.',
   },
+}
+
+export const COACH_FOR_FRESHERS_ROOT_VARIETY: CoachForFreshersVariety = {
+  slug: 'coach-for-freshers',
+  tag: 'coach-for-freshers',
+  navLabel: 'Coach for Freshers',
+  title: 'Coach for Freshers',
+  subtitle:
+    'Find mentors ready to help you with the early-career decisions that matter most — from career direction to CVs and interviews.',
 }
 
 export const COACH_FOR_FRESHERS_CATEGORIES = ['IT', 'Management', 'General'] as const

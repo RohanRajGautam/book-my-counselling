@@ -8,7 +8,14 @@ import { MentorCardWithPackages } from '@/features/mentors/components/MentorCard
 import { COACH_FOR_FRESHERS_PER_PAGE } from '../api/coach-for-freshers.api'
 import { useCoachForFreshersFilters } from '../context/CoachForFreshersFiltersContext'
 import { useCoachForFreshers } from '../hooks/useCoachForFreshers'
-import type { CoachForFreshersVariety } from '../types/coach-for-freshers.types'
+import {
+  COACH_FOR_FRESHERS_VARIETIES,
+  type CoachForFreshersVariety,
+} from '../types/coach-for-freshers.types'
+
+const COACH_FOR_FRESHERS_TAG_LABELS: Record<string, string> = Object.fromEntries(
+  Object.values(COACH_FOR_FRESHERS_VARIETIES).map((v) => [v.tag, v.navLabel])
+)
 
 import { CoachForFreshersProfileModal } from './CoachForFreshersProfileModal'
 
@@ -108,10 +115,12 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
             role={mentor.title}
             company={mentor.company ?? ''}
             tags={
-              mentor.professional_categories?.length
-                ? mentor.professional_categories
-                : mentor.tags?.length
-                  ? mentor.tags
+              mentor.tags?.length
+                ? mentor.tags
+                    .filter((tag) => tag !== 'coach-for-freshers')
+                    .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? tag)
+                : mentor.professional_categories?.length
+                  ? mentor.professional_categories
                   : (mentor.industries ?? [])
             }
             rating={mentor.average_rating}
