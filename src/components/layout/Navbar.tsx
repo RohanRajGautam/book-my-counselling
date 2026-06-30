@@ -274,7 +274,7 @@ export function Navbar() {
                 <Link
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
+                  className={`group mb-2 flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
                     active
                       ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
                       : 'text-[#000000] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
@@ -300,15 +300,16 @@ export function Navbar() {
                   />
                 </Link>
 
-                <div className="px-3 pb-3">
+                <div className="space-y-1 px-3 pb-3">
                   {item.services.map((service) => (
                     <Link
                       key={service.href}
                       href={getCoachServiceHref(service)}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block rounded-lg px-12 py-2 text-sm font-bold text-slate-500 transition hover:bg-[#eff4ff] hover:text-[#004ac6] dark:text-slate-400 dark:hover:bg-slate-800"
+                      className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-4 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-colors hover:bg-[#004ac6]/10 hover:text-[#004ac6] active:bg-[#004ac6]/15 active:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:active:bg-[#3b82f6]/20 dark:active:shadow-[inset_2px_0_0_0_#3b82f6]"
                     >
-                      {service.label}
+                      <span className="flex-1">{service.label}</span>
+                      <ArrowRight className="size-3.5 text-[#004ac6] dark:text-blue-300" />
                     </Link>
                   ))}
                 </div>
