@@ -67,6 +67,7 @@ export interface MentorProfileUpdate {
   requires_24h_approval?: boolean
   is_professional_counselor?: boolean
   is_academic_counselor?: boolean
+  coaching_services?: string[]
 }
 
 export interface ServicePackage {

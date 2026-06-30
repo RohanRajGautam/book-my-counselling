@@ -1,10 +1,13 @@
 'use client'
 
-import { BriefcaseBusiness, GraduationCap, Briefcase } from 'lucide-react'
+import { BriefcaseBusiness, GraduationCap, Briefcase, Check } from 'lucide-react'
+
+import { COACH_FOR_FRESHERS_SERVICE_TAGS } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 
 export type CounsellingType = {
   is_professional_counselor: boolean
   is_academic_counselor: boolean
+  coaching_services: string[]
 }
 
 type ProfileCounsellingCardProps = {
@@ -13,6 +16,37 @@ type ProfileCounsellingCardProps = {
 }
 
 export function ProfileCounsellingCard({ value, onChange }: ProfileCounsellingCardProps) {
+  const toggleProfessional = () => {
+    const next = !value.is_professional_counselor
+    onChange({
+      ...value,
+      is_professional_counselor: next,
+      coaching_services: next ? value.coaching_services : [],
+    })
+  }
+
+  const toggleService = (slug: string) => {
+    const selected = value.coaching_services.includes(slug)
+    onChange({
+      ...value,
+      is_professional_counselor: selected ? value.is_professional_counselor : true,
+      coaching_services: selected
+        ? value.coaching_services.filter((s) => s !== slug)
+        : [...value.coaching_services, slug],
+    })
+  }
+
+  const allSlugs = COACH_FOR_FRESHERS_SERVICE_TAGS.map((s) => s.tag)
+  const allSelected = allSlugs.every((slug) => value.coaching_services.includes(slug))
+
+  const toggleAllServices = () => {
+    onChange({
+      ...value,
+      is_professional_counselor: true,
+      coaching_services: allSelected ? [] : allSlugs,
+    })
+  }
+
   return (
     <section
       id="counselling-provided"
@@ -37,9 +71,7 @@ export function ProfileCounsellingCard({ value, onChange }: ProfileCounsellingCa
           icon={<Briefcase className="size-5" />}
           title="Professional Coaching"
           description="Career guidance, industry transitions, interview prep"
-          onClick={() =>
-            onChange({ ...value, is_professional_counselor: !value.is_professional_counselor })
-          }
+          onClick={toggleProfessional}
         />
         <CounsellingToggle
           active={value.is_academic_counselor}
@@ -51,6 +83,52 @@ export function ProfileCounsellingCard({ value, onChange }: ProfileCounsellingCa
           }
         />
       </div>
+
+      {value.is_professional_counselor && (
+        <div className="mt-4 rounded-2xl border-2 border-blue-100 bg-blue-50/40 p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-extrabold text-slate-800">Coach for Freshers services</p>
+            <button
+              type="button"
+              onClick={toggleAllServices}
+              className="text-xs font-bold text-blue-700 underline-offset-2 hover:underline"
+            >
+              {allSelected ? 'Clear all' : 'Select all'}
+            </button>
+          </div>
+          <p className="mt-1 text-xs font-medium text-slate-500">
+            Pick the early-career services you offer. These appear on the matching Coach for
+            Freshers pages.
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {COACH_FOR_FRESHERS_SERVICE_TAGS.map((service) => {
+              const active = value.coaching_services.includes(service.tag)
+              return (
+                <button
+                  key={service.tag}
+                  type="button"
+                  onClick={() => toggleService(service.tag)}
+                  aria-pressed={active}
+                  className={`flex items-center gap-3 rounded-xl border-2 p-3 text-left text-sm font-bold transition ${
+                    active
+                      ? 'border-blue-600 bg-white text-blue-700'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                  }`}
+                >
+                  <span
+                    className={`flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition ${
+                      active ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    {active && <Check className="size-3.5" strokeWidth={3} />}
+                  </span>
+                  {service.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </section>
   )
 }

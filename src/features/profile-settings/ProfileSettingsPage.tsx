@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
@@ -30,6 +30,7 @@ import {
   useMyPackages,
   useUpsertMentorPackages,
 } from '@/features/service-packages/hooks/useMentorPackages'
+import { COACH_FOR_FRESHERS_SERVICE_SLUGS } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 
 const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
   professionalTitle: '',
@@ -40,7 +41,6 @@ const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
 
 const DEFAULT_BIO: ProfessionalBioForm = {
   headline: '',
-  specializedFields: [],
   fullBiography: '',
   linkedinUrl: '',
   portfolioUrl: '',
@@ -49,6 +49,7 @@ const DEFAULT_BIO: ProfessionalBioForm = {
 const DEFAULT_COUNSELLING: CounsellingType = {
   is_professional_counselor: false,
   is_academic_counselor: false,
+  coaching_services: [],
 }
 
 const DEFAULT_PACKAGES: PackagesForm = {
@@ -68,9 +69,9 @@ export function ProfileSettingsPage() {
   const { data: myPackages = [] } = useMyPackages()
   const { mutate: upsertPackages, isPending: isSavingPackages } = useUpsertMentorPackages()
 
-  // Populate form state from API data once loaded
-  useEffect(() => {
-    if (!profile) return
+  const [seededProfileId, setSeededProfileId] = useState<string | null>(null)
+  if (profile && profile.id !== seededProfileId) {
+    setSeededProfileId(profile.id)
 
     setGeneralInfo({
       professionalTitle: profile.title ?? '',
@@ -81,10 +82,6 @@ export function ProfileSettingsPage() {
 
     setProfessionalBio({
       headline: profile.title ?? '',
-      specializedFields: [
-        ...(profile.is_academic_counselor ? ['Academic Counselling'] : []),
-        ...(profile.is_professional_counselor ? ['Professional Coaching'] : []),
-      ],
       fullBiography: profile.bio ?? '',
       linkedinUrl: profile.linkedin_url ?? '',
       portfolioUrl: profile.website_url ?? '',
@@ -93,12 +90,15 @@ export function ProfileSettingsPage() {
     setCounselling({
       is_professional_counselor: profile.is_professional_counselor ?? false,
       is_academic_counselor: profile.is_academic_counselor ?? false,
+      coaching_services: (profile.tags ?? [])
+        .map((tag) => tag.slug)
+        .filter((slug) => COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug)),
     })
 
     setPackages({
       hourlyRate: profile.hourly_rate ? String(profile.hourly_rate) : '',
     })
-  }, [profile])
+  }
 
   const handleSave = () => {
     if (activeTab === 'packages') {
@@ -132,6 +132,9 @@ export function ProfileSettingsPage() {
       website_url: professionalBio.portfolioUrl.trim() || null,
       is_academic_counselor: counselling.is_academic_counselor,
       is_professional_counselor: counselling.is_professional_counselor,
+      coaching_services: counselling.is_professional_counselor
+        ? counselling.coaching_services
+        : [],
     }
 
     updateProfile(payload, {
@@ -211,7 +214,12 @@ export function ProfileSettingsPage() {
         )}
 
         {activeTab === 'professional-bio' && (
-          <ProfileProfessionalBioCard value={professionalBio} onChange={setProfessionalBio} />
+          <ProfileProfessionalBioCard
+            value={professionalBio}
+            onChange={setProfessionalBio}
+            counselling={counselling}
+            onCounsellingChange={setCounselling}
+          />
         )}
 
         {activeTab === 'session-availability' && <ProfileSessionAvailabilityCard />}
