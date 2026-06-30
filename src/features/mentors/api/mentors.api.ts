@@ -132,7 +132,15 @@ export async function getMentorById(mentorId: string): Promise<MentorResponse> {
   return response.data
 }
 
-export async function resolveMentorId(slugOrId: string): Promise<string> {
+export type MentorLookupOptions = {
+  isAcademicCounselor?: boolean
+  isProfessionalCounselor?: boolean
+}
+
+export async function resolveMentorId(
+  slugOrId: string,
+  options?: MentorLookupOptions
+): Promise<string> {
   if (isMentorId(slugOrId)) return slugOrId
 
   const shortId = getMentorShortIdFromSlug(slugOrId)
@@ -145,6 +153,8 @@ export async function resolveMentorId(slugOrId: string): Promise<string> {
   const response = await apiClient.get<PaginatedResponse<Mentor>>('/search', {
     params: {
       keyword: keyword || undefined,
+      is_academic_counselor: options?.isAcademicCounselor || undefined,
+      is_professional_counselor: options?.isProfessionalCounselor || undefined,
       sort_by: 'rating',
       sort_order: 'desc',
       page: 1,
@@ -162,8 +172,11 @@ export async function resolveMentorId(slugOrId: string): Promise<string> {
   return matchedMentor.id
 }
 
-export async function getMentorBySlugOrId(slugOrId: string): Promise<MentorResponse> {
-  const mentorId = await resolveMentorId(slugOrId)
+export async function getMentorBySlugOrId(
+  slugOrId: string,
+  options?: MentorLookupOptions
+): Promise<MentorResponse> {
+  const mentorId = await resolveMentorId(slugOrId, options)
 
   return getMentorById(mentorId)
 }

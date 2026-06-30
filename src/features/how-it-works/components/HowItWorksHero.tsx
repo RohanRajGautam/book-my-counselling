@@ -18,7 +18,7 @@ export function HowItWorksHero() {
 
         <div className="mt-9 flex flex-col gap-4 sm:flex-row">
           <Link
-            href="/explore-mentors"
+            href="/academic-counsellor"
             className="inline-flex min-h-12 items-center justify-center rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-7 font-[family-name:var(--font-headline)] text-sm font-bold text-white shadow-[0_16px_32px_rgba(0,74,198,0.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(0,74,198,0.28)] active:translate-y-0"
           >
             Explore Mentors

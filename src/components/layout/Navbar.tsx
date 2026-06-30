@@ -3,26 +3,26 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { ArrowRight, CalendarDays, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
+import { ArrowRight, BookText, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
 
-import {
-  COACH_SERVICE_PAGES,
-  getFreshersServiceTag,
-} from '@/features/coach-services/lib/coach-services.constants'
+import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
   {
-    href: '/explore-mentors?type=academic',
+    href: '/academic-counsellor',
     label: 'Academic Counsellor',
     icon: GraduationCap,
-    type: 'academic',
   },
   // {
-  //   href: '/explore-mentors?type=professional',
+  //   href: '/blog',
+  //   label: 'Blog',
+  //   icon: BookText,
+  // },
+  // {
+  //   href: '/professional-counsellor',
   //   label: 'Professional Coach',
   //   icon: BriefcaseBusiness,
-  //   type: 'professional',
   // },
   // { href: '/study-abroad', label: 'Study Abroad', icon: Globe2 },
   // { href: '/how-it-works', label: 'How it Works', icon: Compass },
@@ -32,73 +32,45 @@ const navItems = [
 
 const coachNavItems = [
   {
-    ...COACH_SERVICE_PAGES.freshers,
+    href: '/coach-for-freshers',
+    navLabel: 'Coach for Freshers',
+    services: Object.values(COACH_FOR_FRESHERS_VARIETIES).map((variety) => ({
+      label: variety.navLabel,
+      href: `/coach-for-freshers/${variety.slug}`,
+    })),
     icon: GraduationCap,
   },
-  // {
-  //   ...COACH_SERVICE_PAGES.professionals,
-  //   icon: BriefcaseBusiness,
-  // },
 ]
 
-function getCoachServiceHref(item: (typeof coachNavItems)[number], service: string) {
-  const tag = getFreshersServiceTag(service)
-
-  if (!tag) return item.href
-
-  const params = new URLSearchParams({
-    service: tag,
-  })
-
-  return `${item.href}?${params.toString()}`
+function getCoachServiceHref(service: { label: string; href: string }) {
+  return service.href
 }
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeMentorType, setActiveMentorType] = useState('academic')
   const pathname = usePathname()
 
   const isActive = (item: (typeof navItems)[number] | string) => {
     if (typeof item === 'string') return pathname === item
 
-    if (item.type) {
-      return pathname.startsWith('/explore-mentors') && activeMentorType === item.type
-    }
+    if (pathname === item.href) return true
 
-    return pathname === item.href
+    return pathname.startsWith(`${item.href}/`)
   }
   const isCoachActive = (item: (typeof coachNavItems)[number]) => {
-    return pathname === item.href
+    if (pathname === item.href) return true
+    if (pathname.startsWith('/coach-for-freshers/')) {
+      return item.services.some((service) => service.href === pathname)
+    }
+
+    return false
   }
   const showAnnouncement = pathname === '/'
-
-  const syncActiveMentorType = () => {
-    const params = new URLSearchParams(window.location.search)
-    setActiveMentorType(
-      params.get('type') ?? (params.has('professional') ? 'professional' : 'academic')
-    )
-  }
 
   // Auto-close mobile menu when the route changes
   useEffect(() => {
     const id = window.setTimeout(() => setMobileMenuOpen(false), 0)
     return () => window.clearTimeout(id)
-  }, [pathname])
-
-  useEffect(() => {
-    const id = window.setTimeout(() => {
-      syncActiveMentorType()
-    }, 0)
-    const syncActiveNavState = () => {
-      syncActiveMentorType()
-    }
-
-    window.addEventListener('popstate', syncActiveNavState)
-
-    return () => {
-      window.clearTimeout(id)
-      window.removeEventListener('popstate', syncActiveNavState)
-    }
   }, [pathname])
 
   // Lock body scroll while the mobile menu is open
@@ -125,7 +97,7 @@ export function Navbar() {
     <>
       {showAnnouncement && (
         <Link
-          href="/explore-mentors?type=academic"
+          href="/academic-counsellor"
           className="fixed inset-x-0 top-0 z-50 flex min-h-10 items-center justify-center gap-2 bg-[#004ac6] px-4 py-2 text-center text-xs font-extrabold text-white shadow-[0_8px_22px_rgba(0,74,198,0.18)] sm:text-sm"
         >
           <span>Completed +2 and confused about career?</span>
@@ -161,9 +133,6 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => {
-                  if (item.type) setActiveMentorType(item.type)
-                }}
                 className={`font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
                   isActive(item)
                     ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
@@ -194,11 +163,11 @@ export function Navbar() {
                     <div className="space-y-1 overflow-hidden rounded-xl border border-slate-100/80 bg-white p-2 ring-1 ring-[#004ac6]/5 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5">
                       {item.services.map((service) => (
                         <Link
-                          key={service}
-                          href={getCoachServiceHref(item, service)}
+                          key={service.href}
+                          href={getCoachServiceHref(service)}
                           className="group/item relative flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-3 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
                         >
-                          <span className="flex-1">{service}</span>
+                          <span className="flex-1">{service.label}</span>
                           <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
                         </Link>
                       ))}
@@ -263,7 +232,6 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => {
-                  if (item.type) setActiveMentorType(item.type)
                   setMobileMenuOpen(false)
                 }}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
@@ -306,10 +274,10 @@ export function Navbar() {
                 <Link
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
+                  className={`group mb-2 flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
                     active
                       ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
-                      : 'text-[#27313f] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+                      : 'text-[#000000] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   <span
@@ -335,13 +303,13 @@ export function Navbar() {
                 <div className="space-y-1 px-3 pb-3">
                   {item.services.map((service) => (
                     <Link
-                      key={service}
-                      href={getCoachServiceHref(item, service)}
+                      key={service.href}
+                      href={getCoachServiceHref(service)}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-12 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
+                      className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-4 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-colors hover:bg-[#004ac6]/10 hover:text-[#004ac6] active:bg-[#004ac6]/15 active:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:active:bg-[#3b82f6]/20 dark:active:shadow-[inset_2px_0_0_0_#3b82f6]"
                     >
-                      <span className="flex-1">{service}</span>
-                      <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
+                      <span className="flex-1">{service.label}</span>
+                      <ArrowRight className="size-3.5 text-[#004ac6] dark:text-blue-300" />
                     </Link>
                   ))}
                 </div>
@@ -351,7 +319,7 @@ export function Navbar() {
 
           {/* Divider */}
           <div className="my-1 h-px bg-slate-100 dark:bg-slate-800" aria-hidden="true" />
-          <Link
+          {/* <Link
             href="/events"
             onClick={() => setMobileMenuOpen(false)}
             className={`relative flex items-center gap-3 overflow-hidden rounded-xl bg-[#004ac6] px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-extrabold text-white shadow-[0_12px_28px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] active:translate-y-px ${
@@ -365,7 +333,7 @@ export function Navbar() {
             </span>
             <span className="flex-1">&quot;३० मा ३०&quot;</span>
             <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          </Link> */}
 
           {/* Primary CTA */}
           {/* <Link

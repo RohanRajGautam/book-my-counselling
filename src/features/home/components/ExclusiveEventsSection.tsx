@@ -20,23 +20,21 @@ const exclusiveEvents: ExclusiveEvent[] = [
   {
     name: 'Dr. Kamala Shrestha',
     role: 'Women Entrepreneur Leader',
-    expertise: 'Expertise: Beauty Industry Advocacy, Women Entrepreneurship & Leadership ',
+    expertise: 'Expertise: Beauty Industry Advocacy, Women Entrepreneurship & Leadership',
     logoLabel: '/home/exclusive-events/siam.svg',
     image: '/home/exclusive-events/kamala.jpeg',
     description:
-      'Dr. Kamala Shrestha is a pioneering Nepalese beautician, entrepreneur, educator, and social leader who founded Siam Beauty Salon and Siam Institute of Hair Design and Beauty Care, played a major role in professionalizing Nepal’s beauty industry, and held leadership positions in organizations like FNCCI and Beautician Professional Association Nepal.',
+      'Founder of Siam Beauty Salon and Siam Institute, Dr. Kamala Shrestha has helped shape Nepal’s beauty industry while empowering women through entrepreneurship and professional education.',
     cta: 'Request for Webinar',
     date: 'Jun 08',
   },
   {
     name: 'Nirmal Thapa',
     role: 'Director of Client Relations',
-    expertise: 'Expertise: Client Relations, Customer Success, Sales, Marketing, Leadership.',
-
-    // logoLabel: '/home/exclusive-events/fuse.png',
+    expertise: 'Expertise: Client Relations, Customer Success, Sales, Marketing, Leadership',
     image: '/home/exclusive-events/nirmal_thapa.png',
     description:
-      "Nirmal Thapa's vision is to help build world-class skilled professionals in Nepal. With over 12 years of experience working with US clients and Nepal-based teams, he brings a unique cross-cultural perspective to skills development - delivering focused workshops and practical frameworks that help Nepali talent excel in global client environments",
+      'With over 12 years of experience working with US clients, Nirmal Thapa equips professionals with practical skills to thrive in global client-facing environments.',
     cta: 'Request for Webinar',
     date: 'Jun 15',
   },
@@ -44,11 +42,10 @@ const exclusiveEvents: ExclusiveEvent[] = [
     name: 'Prayash Poudel',
     role: 'Principal AI Engineer',
     expertise: 'Expertise: Software Engineering, Enterprise Systems, SAP',
-
     logoLabel: '/home/exclusive-events/leapfrog.png',
     image: '/home/exclusive-events/prayash_poudel.png',
     description:
-      'Software engineer since 2013, Prayash Poudel has experience building software products that are used in real companies and real-world systems. Over the years, Prayash Poudel has worked in different areas like healthcare systems, financial platforms, and large enterprise tools. One of the key systems he has worked with is SAP, which is used by companies around the world.',
+      'A software engineer since 2013, Prayash Poudel has built enterprise solutions across healthcare, finance, and SAP, delivering software used by organizations worldwide.',
     cta: 'Request for Webinar',
     date: 'Jun 22',
   },
@@ -56,11 +53,10 @@ const exclusiveEvents: ExclusiveEvent[] = [
     name: 'Biplab Subedi',
     role: 'Agile Master at Snappet',
     expertise: 'Expertise: Lean-Agile Coaching, Radical Transparency, Self-Managing Teams',
-
     logoLabel: '/home/exclusive-events/snappet.png',
     image: '/home/exclusive-events/biplab_subedi.png',
     description:
-      'Biplab Subedi is a Self-Management and Continuous Improvement Coach with over 16 years of experience in the software industry, blending a strong foundation as a former developer with valuable entrepreneurial insights. As a Certified Professional Scrum Master (PSM II), he has driven the success of complex products like Snappet, Reduct Video, and Programiz.',
+      'With over 16 years of experience, Biplab Subedi helps organizations build self-managing teams and foster continuous improvement through modern agile practices.',
     cta: 'Request for Webinar',
     date: 'Jun 29',
   },

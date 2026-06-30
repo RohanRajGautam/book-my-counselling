@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
-import { buildExploreMentorsSearchParams } from '@/features/filters/lib/filter-url-state'
 import { type FilterState } from '../types/filter.types'
 
 interface FilterContextType {
@@ -36,8 +35,10 @@ const defaultFilters: FilterState = {
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined)
 
+type FilterUrlStateEncoder = (filters: FilterState, page: number) => URLSearchParams
+
 type LocalFilterState = {
-  urlStateKey: string
+  urlStateKey: string | null
   filters: FilterState
   page: number
 }
@@ -49,8 +50,12 @@ function createFilterState(initialFilters?: Partial<FilterState>): FilterState {
   }
 }
 
-function getExploreMentorsStateKey(filters: FilterState, page: number) {
-  return buildExploreMentorsSearchParams(filters, page).toString()
+function encodeUrlState(
+  encoder: FilterUrlStateEncoder | undefined,
+  filters: FilterState,
+  page: number
+): string | null {
+  return encoder ? encoder(filters, page).toString() : null
 }
 
 export function FilterProvider({
@@ -58,16 +63,21 @@ export function FilterProvider({
   initialFilters,
   initialPage = 1,
   syncUrl = false,
+  urlStateEncoder,
 }: {
   children: ReactNode
   initialFilters?: Partial<FilterState>
   initialPage?: number
   syncUrl?: boolean
+  urlStateEncoder?: FilterUrlStateEncoder
 }) {
   const router = useRouter()
   const pathname = usePathname()
   const initialFilterState = useMemo(() => createFilterState(initialFilters), [initialFilters])
-  const initialStateKey = getExploreMentorsStateKey(initialFilterState, initialPage)
+  const initialStateKey = useMemo(
+    () => encodeUrlState(urlStateEncoder, initialFilterState, initialPage),
+    [urlStateEncoder, initialFilterState, initialPage]
+  )
   const [localState, setLocalState] = useState<LocalFilterState>(() => ({
     urlStateKey: initialStateKey,
     filters: initialFilterState,
@@ -75,7 +85,7 @@ export function FilterProvider({
   }))
   const urlSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const hasCurrentUrlState = localState.urlStateKey === initialStateKey
+  const hasCurrentUrlState = initialStateKey === null || localState.urlStateKey === initialStateKey
   const filters = hasCurrentUrlState ? localState.filters : initialFilterState
   const currentPage = hasCurrentUrlState ? localState.page : initialPage
 
@@ -112,11 +122,11 @@ export function FilterProvider({
   }
 
   useEffect(() => {
-    if (!syncUrl) return
+    if (!syncUrl || !urlStateEncoder) return
 
     if (urlSyncTimer.current) clearTimeout(urlSyncTimer.current)
     urlSyncTimer.current = setTimeout(() => {
-      const params = buildExploreMentorsSearchParams(filters, currentPage)
+      const params = urlStateEncoder(filters, currentPage)
       const queryString = params.toString()
       const currentQueryString = window.location.search.replace(/^\?/, '')
 
@@ -130,7 +140,7 @@ export function FilterProvider({
     return () => {
       if (urlSyncTimer.current) clearTimeout(urlSyncTimer.current)
     }
-  }, [currentPage, filters, pathname, router, syncUrl])
+  }, [currentPage, filters, pathname, router, syncUrl, urlStateEncoder])
 
   return (
     <FilterContext.Provider
