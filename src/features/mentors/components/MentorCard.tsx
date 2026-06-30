@@ -3,6 +3,14 @@
 import Image from 'next/image'
 import { Building2, Check, Clock, Star } from 'lucide-react'
 
+import {
+  COACH_FOR_FRESHERS_GROUP_TAG,
+  COACH_FOR_FRESHERS_TAG_LABELS,
+} from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+
+const COACH_FOR_FRESHERS_GROUP_LABEL =
+  COACH_FOR_FRESHERS_TAG_LABELS[COACH_FOR_FRESHERS_GROUP_TAG]
+
 interface PackageTier {
   duration_minutes: number
   price: number
@@ -70,7 +78,11 @@ export function MentorCard({
   const displayName = formatDisplayName(name)
   const initials = getInitials(name)
   const companyDisplay = cleanCompanyName(company)
-  const services = tags.slice(0, 4).map((tag) => tag.replace(/^#/, ''))
+  const services = tags
+    .map((tag) => tag.replace(/^#/, ''))
+    .filter((tag) => tag !== COACH_FOR_FRESHERS_GROUP_TAG && tag !== COACH_FOR_FRESHERS_GROUP_LABEL)
+    .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? tag)
+    .slice(0, 4)
 
   // Show the 3 standard tiers if available, otherwise fall back to "Starting at"
   const hasTiers = packageTiers && packageTiers.length > 0
