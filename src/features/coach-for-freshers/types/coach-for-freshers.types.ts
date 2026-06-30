@@ -47,6 +47,18 @@ export const COACH_FOR_FRESHERS_ROOT_VARIETY: CoachForFreshersVariety = {
     'Find mentors ready to help you with the early-career decisions that matter most — from career direction to CVs and interviews.',
 }
 
+export const COACH_FOR_FRESHERS_SERVICE_TAGS: { tag: string; label: string }[] =
+  Object.values(COACH_FOR_FRESHERS_VARIETIES).map((v) => ({ tag: v.tag, label: v.navLabel }))
+
+export const COACH_FOR_FRESHERS_SERVICE_SLUGS = COACH_FOR_FRESHERS_SERVICE_TAGS.map((s) => s.tag)
+
+export const COACH_FOR_FRESHERS_TAG_LABELS: Record<string, string> = Object.fromEntries([
+  ...COACH_FOR_FRESHERS_SERVICE_TAGS.map((s) => [s.tag, s.label]),
+  [COACH_FOR_FRESHERS_ROOT_VARIETY.tag, COACH_FOR_FRESHERS_ROOT_VARIETY.navLabel],
+])
+
+export const COACH_FOR_FRESHERS_GROUP_TAG = COACH_FOR_FRESHERS_ROOT_VARIETY.tag
+
 export const COACH_FOR_FRESHERS_CATEGORIES = ['IT', 'Management', 'General'] as const
 
 export type CoachForFreshersCategory = (typeof COACH_FOR_FRESHERS_CATEGORIES)[number]

@@ -1,8 +1,11 @@
 import { BriefcaseBusiness, Check, Link } from 'lucide-react'
 
+import { COACH_FOR_FRESHERS_SERVICE_TAGS } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+
+import type { CounsellingType } from './ProfileCounsellingCard'
+
 export type ProfessionalBioForm = {
   headline: string
-  specializedFields: string[]
   fullBiography: string
   linkedinUrl: string
   portfolioUrl: string
@@ -11,22 +14,48 @@ export type ProfessionalBioForm = {
 type ProfileProfessionalBioCardProps = {
   value: ProfessionalBioForm
   onChange: (value: ProfessionalBioForm) => void
+  counselling: CounsellingType
+  onCounsellingChange: (value: CounsellingType) => void
 }
 
-const SPECIALIZED_FIELD_OPTIONS = ['Academic Counselling', 'Professional Coaching'] as const
+const ACADEMIC_FIELD = 'academic-counselling'
 
-export function ProfileProfessionalBioCard({ value, onChange }: ProfileProfessionalBioCardProps) {
-  const updateField = (field: keyof ProfessionalBioForm, nextValue: string | string[]) => {
+export function ProfileProfessionalBioCard({
+  value,
+  onChange,
+  counselling,
+  onCounsellingChange,
+}: ProfileProfessionalBioCardProps) {
+  const updateField = (field: keyof ProfessionalBioForm, nextValue: string) => {
     onChange({ ...value, [field]: nextValue })
   }
 
-  const toggleSpecializedField = (field: (typeof SPECIALIZED_FIELD_OPTIONS)[number]) => {
-    updateField(
-      'specializedFields',
-      value.specializedFields.includes(field)
-        ? value.specializedFields.filter((selectedField) => selectedField !== field)
-        : [...value.specializedFields, field]
-    )
+  const specializedFields = [
+    { id: ACADEMIC_FIELD, label: 'Academic Counselling' },
+    ...COACH_FOR_FRESHERS_SERVICE_TAGS.map((s) => ({ id: s.tag, label: s.label })),
+  ]
+
+  const isFieldSelected = (id: string) =>
+    id === ACADEMIC_FIELD
+      ? counselling.is_academic_counselor
+      : counselling.coaching_services.includes(id)
+
+  const toggleSpecializedField = (id: string) => {
+    if (id === ACADEMIC_FIELD) {
+      onCounsellingChange({
+        ...counselling,
+        is_academic_counselor: !counselling.is_academic_counselor,
+      })
+      return
+    }
+    const selected = counselling.coaching_services.includes(id)
+    onCounsellingChange({
+      ...counselling,
+      is_professional_counselor: selected ? counselling.is_professional_counselor : true,
+      coaching_services: selected
+        ? counselling.coaching_services.filter((s) => s !== id)
+        : [...counselling.coaching_services, id],
+    })
   }
 
   return (
@@ -59,15 +88,15 @@ export function ProfileProfessionalBioCard({ value, onChange }: ProfileProfessio
           <Label>Specialized Fields</Label>
           <div className="mt-2 min-h-24 rounded-2xl bg-[#eef4ff] p-3">
             <div className="flex flex-wrap gap-2">
-              {SPECIALIZED_FIELD_OPTIONS.map((field) => {
-                const isSelected = value.specializedFields.includes(field)
+              {specializedFields.map((field) => {
+                const isSelected = isFieldSelected(field.id)
 
                 return (
                   <button
-                    key={field}
+                    key={field.id}
                     type="button"
                     aria-pressed={isSelected}
-                    onClick={() => toggleSpecializedField(field)}
+                    onClick={() => toggleSpecializedField(field.id)}
                     className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold transition ${
                       isSelected
                         ? 'bg-emerald-300 text-emerald-950'
@@ -75,7 +104,7 @@ export function ProfileProfessionalBioCard({ value, onChange }: ProfileProfessio
                     }`}
                   >
                     {isSelected ? <Check className="size-4" /> : null}
-                    {field}
+                    {field.label}
                   </button>
                 )
               })}
