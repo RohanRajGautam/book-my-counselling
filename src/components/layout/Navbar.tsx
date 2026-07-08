@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ArrowRight, BookText, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
 import { getStoredCoachForFreshersSearchParams } from '@/features/coach-for-freshers/lib/filter-storage'
@@ -50,20 +50,20 @@ function isCoachForFreshersPath(pathname: string) {
 }
 
 function mergeCoachForFreshersSearch(
-  urlSearchParams: URLSearchParams | null
+  urlSearchParams: URLSearchParams | null,
+  storedParams: URLSearchParams | null
 ): URLSearchParams | null {
-  const stored = getStoredCoachForFreshersSearchParams()
   const urlHasKeys = urlSearchParams
     ? CFF_FORWARDED_PARAMS.some((key) => urlSearchParams.get(key))
     : false
 
-  if (!stored && !urlHasKeys) return null
-  if (!stored) return urlSearchParams
-  if (!urlHasKeys) return stored
+  if (!storedParams && !urlHasKeys) return null
+  if (!storedParams) return urlSearchParams
+  if (!urlHasKeys) return storedParams
 
   const merged = new URLSearchParams()
   for (const key of CFF_FORWARDED_PARAMS) {
-    const storedValue = stored.get(key)
+    const storedValue = storedParams.get(key)
     const urlValue = urlSearchParams?.get(key)
     const value = urlValue ?? storedValue
     if (value) merged.set(key, value)
@@ -82,9 +82,20 @@ export function Navbar() {
   const searchParams = useSearchParams()
   const onCoachForFreshersPath = isCoachForFreshersPath(pathname)
 
+  // localStorage is unavailable on the server, so useSyncExternalStore returns
+  // `null` during SSR/hydration (matching the server-rendered hrefs) and the
+  // real stored params after hydration. This avoids an SSR/CSR mismatch on
+  // the navbar <Link> hrefs.
+  const storedParams = useSyncExternalStore(
+    () => () => {},
+    () => getStoredCoachForFreshersSearchParams(),
+    () => null
+  )
+
   const coachForFreshersQuery = useMemo(
-    () => (onCoachForFreshersPath ? mergeCoachForFreshersSearch(searchParams) : null),
-    [onCoachForFreshersPath, searchParams]
+    () =>
+      onCoachForFreshersPath ? mergeCoachForFreshersSearch(searchParams, storedParams) : null,
+    [onCoachForFreshersPath, searchParams, storedParams]
   )
 
   const isActive = (item: (typeof navItems)[number] | string) => {
