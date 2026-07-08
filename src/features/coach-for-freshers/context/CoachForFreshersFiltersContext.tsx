@@ -13,6 +13,10 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { buildCoachForFreshersSearchParams } from '../lib/url-state'
 import type { CoachForFreshersFilters, SortBy } from '../types/filters.types'
+import {
+  clearCoachForFreshersFilters,
+  saveCoachForFreshersFilters,
+} from '../lib/filter-storage'
 
 const DEFAULT_FILTERS: CoachForFreshersFilters = {
   jobTitle: '',
@@ -84,22 +88,31 @@ export function CoachForFreshersFiltersProvider({
     key: K,
     value: CoachForFreshersFilters[K]
   ) => {
-    setLocalState((prev) => ({
-      urlStateKey: initialState.urlStateKey,
-      filters: { ...prev.filters, [key]: value },
-      page: 1,
-    }))
+    setLocalState((prev) => {
+      const nextFilters = { ...prev.filters, [key]: value }
+      saveCoachForFreshersFilters(nextFilters)
+      return {
+        urlStateKey: initialState.urlStateKey,
+        filters: nextFilters,
+        page: 1,
+      }
+    })
   }
 
   const updateFilters = (nextFilters: Partial<CoachForFreshersFilters>, resetPage = true) => {
-    setLocalState((prev) => ({
-      urlStateKey: initialState.urlStateKey,
-      filters: { ...prev.filters, ...nextFilters },
-      page: resetPage ? 1 : prev.page,
-    }))
+    setLocalState((prev) => {
+      const merged = { ...prev.filters, ...nextFilters }
+      saveCoachForFreshersFilters(merged)
+      return {
+        urlStateKey: initialState.urlStateKey,
+        filters: merged,
+        page: resetPage ? 1 : prev.page,
+      }
+    })
   }
 
   const clearFilters = () => {
+    clearCoachForFreshersFilters()
     setLocalState({
       urlStateKey: initialState.urlStateKey,
       filters: DEFAULT_FILTERS,
