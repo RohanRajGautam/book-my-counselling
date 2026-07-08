@@ -13,10 +13,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { buildCoachForFreshersSearchParams } from '../lib/url-state'
 import type { CoachForFreshersFilters, SortBy } from '../types/filters.types'
-import {
-  clearCoachForFreshersFilters,
-  saveCoachForFreshersFilters,
-} from '../lib/filter-storage'
+import { saveCoachForFreshersFilters } from '../lib/filter-storage'
 
 const DEFAULT_FILTERS: CoachForFreshersFilters = {
   jobTitle: '',
@@ -88,31 +85,22 @@ export function CoachForFreshersFiltersProvider({
     key: K,
     value: CoachForFreshersFilters[K]
   ) => {
-    setLocalState((prev) => {
-      const nextFilters = { ...prev.filters, [key]: value }
-      saveCoachForFreshersFilters(nextFilters)
-      return {
-        urlStateKey: initialState.urlStateKey,
-        filters: nextFilters,
-        page: 1,
-      }
-    })
+    setLocalState((prev) => ({
+      urlStateKey: initialState.urlStateKey,
+      filters: { ...prev.filters, [key]: value },
+      page: 1,
+    }))
   }
 
   const updateFilters = (nextFilters: Partial<CoachForFreshersFilters>, resetPage = true) => {
-    setLocalState((prev) => {
-      const merged = { ...prev.filters, ...nextFilters }
-      saveCoachForFreshersFilters(merged)
-      return {
-        urlStateKey: initialState.urlStateKey,
-        filters: merged,
-        page: resetPage ? 1 : prev.page,
-      }
-    })
+    setLocalState((prev) => ({
+      urlStateKey: initialState.urlStateKey,
+      filters: { ...prev.filters, ...nextFilters },
+      page: resetPage ? 1 : prev.page,
+    }))
   }
 
   const clearFilters = () => {
-    clearCoachForFreshersFilters()
     setLocalState({
       urlStateKey: initialState.urlStateKey,
       filters: DEFAULT_FILTERS,
@@ -144,6 +132,14 @@ export function CoachForFreshersFiltersProvider({
       if (syncTimer.current) clearTimeout(syncTimer.current)
     }
   }, [filters, currentPage, pathname, router])
+
+  // Mirror filter state into localStorage so the navbar (which lives in a
+  // sibling layout) can compose its hrefs from a synchronous source. This runs
+  // after commit, never during render, so notifying subscribers can't trigger
+  // a setState-on-other-component warning.
+  useEffect(() => {
+    saveCoachForFreshersFilters(filters)
+  }, [filters])
 
   return (
     <CoachForFreshersFiltersContext.Provider

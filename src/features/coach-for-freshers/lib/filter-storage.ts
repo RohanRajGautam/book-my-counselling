@@ -68,17 +68,6 @@ if (typeof window !== 'undefined') {
   })
 }
 
-export function loadCoachForFreshersFilters(): Partial<CoachForFreshersFilters> | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    return sanitizeFilters(JSON.parse(raw))
-  } catch {
-    return null
-  }
-}
-
 export function saveCoachForFreshersFilters(filters: CoachForFreshersFilters): void {
   if (typeof window === 'undefined') return
   try {
@@ -86,16 +75,6 @@ export function saveCoachForFreshersFilters(filters: CoachForFreshersFilters): v
     invalidateSnapshot()
   } catch {
     /* storage unavailable — ignore */
-  }
-}
-
-export function clearCoachForFreshersFilters(): void {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.removeItem(STORAGE_KEY)
-    invalidateSnapshot()
-  } catch {
-    /* ignore */
   }
 }
 
