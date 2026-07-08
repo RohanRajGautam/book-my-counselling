@@ -13,6 +13,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { buildCoachForFreshersSearchParams } from '../lib/url-state'
 import type { CoachForFreshersFilters, SortBy } from '../types/filters.types'
+import { saveCoachForFreshersFilters } from '../lib/filter-storage'
 
 const DEFAULT_FILTERS: CoachForFreshersFilters = {
   jobTitle: '',
@@ -131,6 +132,14 @@ export function CoachForFreshersFiltersProvider({
       if (syncTimer.current) clearTimeout(syncTimer.current)
     }
   }, [filters, currentPage, pathname, router])
+
+  // Mirror filter state into localStorage so the navbar (which lives in a
+  // sibling layout) can compose its hrefs from a synchronous source. This runs
+  // after commit, never during render, so notifying subscribers can't trigger
+  // a setState-on-other-component warning.
+  useEffect(() => {
+    saveCoachForFreshersFilters(filters)
+  }, [filters])
 
   return (
     <CoachForFreshersFiltersContext.Provider
