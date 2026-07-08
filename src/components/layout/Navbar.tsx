@@ -1,9 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { ArrowRight, BookText, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
+import {
+  getStoredCoachForFreshersSearchParams,
+  subscribeToStoredCoachForFreshersParams,
+} from '@/features/coach-for-freshers/lib/filter-storage'
 
 import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
@@ -42,13 +46,60 @@ const coachNavItems = [
   },
 ]
 
-function getCoachServiceHref(service: { label: string; href: string }) {
-  return service.href
+const CFF_FORWARDED_PARAMS = ['q', 'search', 'category', 'available', 'sort'] as const
+
+function isCoachForFreshersPath(pathname: string) {
+  return pathname === '/coach-for-freshers' || pathname.startsWith('/coach-for-freshers/')
+}
+
+function mergeCoachForFreshersSearch(
+  urlSearchParams: URLSearchParams | null,
+  storedParams: URLSearchParams | null
+): URLSearchParams | null {
+  const urlHasKeys = urlSearchParams
+    ? CFF_FORWARDED_PARAMS.some((key) => urlSearchParams.get(key))
+    : false
+
+  if (!storedParams && !urlHasKeys) return null
+  if (!storedParams) return urlSearchParams
+  if (!urlHasKeys) return storedParams
+
+  const merged = new URLSearchParams()
+  for (const key of CFF_FORWARDED_PARAMS) {
+    const storedValue = storedParams.get(key)
+    const urlValue = urlSearchParams?.get(key)
+    const value = urlValue ?? storedValue
+    if (value) merged.set(key, value)
+  }
+  return merged.toString() ? merged : null
+}
+
+function withQuery(href: string, params: URLSearchParams | null) {
+  const query = params?.toString()
+  return query ? `${href}?${query}` : href
 }
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const onCoachForFreshersPath = isCoachForFreshersPath(pathname)
+
+  // localStorage is unavailable on the server, so useSyncExternalStore returns
+  // `null` during SSR/hydration (matching the server-rendered hrefs) and the
+  // real stored params after hydration. `filter-storage` caches the snapshot
+  // until filters are written, giving us a stable reference between updates.
+  const storedParams = useSyncExternalStore(
+    subscribeToStoredCoachForFreshersParams,
+    getStoredCoachForFreshersSearchParams,
+    () => null
+  )
+
+  const coachForFreshersQuery = useMemo(
+    () =>
+      onCoachForFreshersPath ? mergeCoachForFreshersSearch(searchParams, storedParams) : null,
+    [onCoachForFreshersPath, searchParams, storedParams]
+  )
 
   const isActive = (item: (typeof navItems)[number] | string) => {
     if (typeof item === 'string') return pathname === item
@@ -145,10 +196,11 @@ export function Navbar() {
 
             {coachNavItems.map((item) => {
               const active = isCoachActive(item)
+              const mainHref = withQuery(item.href, coachForFreshersQuery)
               return (
                 <div key={item.href} className="group relative">
                   <Link
-                    href={item.href}
+                    href={mainHref}
                     className={`flex items-center gap-1 font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
                       active
                         ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
@@ -164,7 +216,7 @@ export function Navbar() {
                       {item.services.map((service) => (
                         <Link
                           key={service.href}
-                          href={getCoachServiceHref(service)}
+                          href={withQuery(service.href, coachForFreshersQuery)}
                           className="group/item relative flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-3 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
                         >
                           <span className="flex-1">{service.label}</span>
@@ -265,6 +317,7 @@ export function Navbar() {
           {coachNavItems.map((item) => {
             const Icon = item.icon
             const active = isCoachActive(item)
+            const mainHref = withQuery(item.href, coachForFreshersQuery)
 
             return (
               <div
@@ -272,7 +325,7 @@ export function Navbar() {
                 className="rounded-xl border border-slate-100 dark:border-slate-800"
               >
                 <Link
-                  href={item.href}
+                  href={mainHref}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`group mb-2 flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
                     active
@@ -304,7 +357,7 @@ export function Navbar() {
                   {item.services.map((service) => (
                     <Link
                       key={service.href}
-                      href={getCoachServiceHref(service)}
+                      href={withQuery(service.href, coachForFreshersQuery)}
                       onClick={() => setMobileMenuOpen(false)}
                       className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-4 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-colors hover:bg-[#004ac6]/10 hover:text-[#004ac6] active:bg-[#004ac6]/15 active:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:active:bg-[#3b82f6]/20 dark:active:shadow-[inset_2px_0_0_0_#3b82f6]"
                     >

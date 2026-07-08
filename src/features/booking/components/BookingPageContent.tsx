@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { FormInput } from '@/features/booking/components/FormInput'
 import { FormSelect } from '@/features/booking/components/FormSelect'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
 import { OrderSummary } from '@/features/booking/components/OrderSummary'
 import { FonepayPaymentSection } from '@/features/booking/components/FonepayPaymentSection'
+import { BookingCompleteModal } from '@/features/booking/components/BookingCompleteModal'
 import { CalendlySection } from '@/features/booking/components/CalendlySection'
 import {
   validateBookingForm,
@@ -54,6 +55,8 @@ export function BookingPageContent() {
   const [bookingId, setBookingId] = useState<string | null>(null)
   const [bookingAmount, setBookingAmount] = useState<number>(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [bookingCompleteOpen, setBookingCompleteOpen] = useState(false)
+  const handlePaymentSuccess = useCallback(() => setBookingCompleteOpen(true), [])
 
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -327,9 +330,7 @@ export function BookingPageContent() {
                 <FonepayPaymentSection
                   bookingId={bookingId}
                   amount={bookingAmount}
-                  onSuccess={() => {
-                    console.log('Payment successful for booking:', bookingId)
-                  }}
+                  onSuccess={handlePaymentSuccess}
                 />
                 {/* {mentorId && (
                   <CalendlySection
@@ -360,6 +361,15 @@ export function BookingPageContent() {
           </div>
         </div>
       </div>
+
+      <BookingCompleteModal
+        open={bookingCompleteOpen}
+        onClose={() => setBookingCompleteOpen(false)}
+        bookingId={bookingId}
+        mentor={orderSummaryMentor}
+        session={orderSummarySession}
+        price={orderSummaryPrice}
+      />
     </main>
   )
 }
