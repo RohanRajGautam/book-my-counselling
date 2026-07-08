@@ -28,6 +28,46 @@ function sanitizeFilters(raw: unknown): Partial<CoachForFreshersFilters> | null 
   return out
 }
 
+function buildSearchParams(
+  stored: Partial<CoachForFreshersFilters> | null,
+): URLSearchParams | null {
+  if (!stored) return null
+
+  const params = new URLSearchParams()
+  if (stored.jobTitle && stored.jobTitle.trim()) params.set('q', stored.jobTitle.trim())
+  if (stored.category) params.set('category', stored.category)
+  if (stored.availableThisWeek) params.set('available', 'this-week')
+  if (stored.sortBy && stored.sortBy !== 'rating') params.set('sort', stored.sortBy)
+
+  const query = params.toString()
+  return query ? params : null
+}
+
+function readFromStorage(): URLSearchParams | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return buildSearchParams(sanitizeFilters(JSON.parse(raw)))
+  } catch {
+    return null
+  }
+}
+
+let cachedSnapshot: URLSearchParams | null | undefined = undefined
+const subscribers = new Set<() => void>()
+
+function invalidateSnapshot() {
+  cachedSnapshot = undefined
+  for (const cb of subscribers) cb()
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === STORAGE_KEY) invalidateSnapshot()
+  })
+}
+
 export function loadCoachForFreshersFilters(): Partial<CoachForFreshersFilters> | null {
   if (typeof window === 'undefined') return null
   try {
@@ -43,8 +83,9 @@ export function saveCoachForFreshersFilters(filters: CoachForFreshersFilters): v
   if (typeof window === 'undefined') return
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filters))
+    invalidateSnapshot()
   } catch {
-    /* storage unavailable — fall back to URL-only state */
+    /* storage unavailable — ignore */
   }
 }
 
@@ -52,21 +93,24 @@ export function clearCoachForFreshersFilters(): void {
   if (typeof window === 'undefined') return
   try {
     window.localStorage.removeItem(STORAGE_KEY)
+    invalidateSnapshot()
   } catch {
     /* ignore */
   }
 }
 
+// useSyncExternalStore pair. getSnapshot must return a stable reference until
+// the underlying value actually changes; the module-level cache gives us that.
 export function getStoredCoachForFreshersSearchParams(): URLSearchParams | null {
-  const stored = loadCoachForFreshersFilters()
-  if (!stored) return null
+  if (cachedSnapshot === undefined) {
+    cachedSnapshot = readFromStorage()
+  }
+  return cachedSnapshot
+}
 
-  const params = new URLSearchParams()
-  if (stored.jobTitle && stored.jobTitle.trim()) params.set('q', stored.jobTitle.trim())
-  if (stored.category) params.set('category', stored.category)
-  if (stored.availableThisWeek) params.set('available', 'this-week')
-  if (stored.sortBy && stored.sortBy !== 'rating') params.set('sort', stored.sortBy)
-
-  const query = params.toString()
-  return query ? params : null
+export function subscribeToStoredCoachForFreshersParams(callback: () => void): () => void {
+  subscribers.add(callback)
+  return () => {
+    subscribers.delete(callback)
+  }
 }

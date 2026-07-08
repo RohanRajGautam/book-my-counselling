@@ -4,7 +4,10 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ArrowRight, BookText, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
-import { getStoredCoachForFreshersSearchParams } from '@/features/coach-for-freshers/lib/filter-storage'
+import {
+  getStoredCoachForFreshersSearchParams,
+  subscribeToStoredCoachForFreshersParams,
+} from '@/features/coach-for-freshers/lib/filter-storage'
 
 import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 // import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
@@ -84,11 +87,11 @@ export function Navbar() {
 
   // localStorage is unavailable on the server, so useSyncExternalStore returns
   // `null` during SSR/hydration (matching the server-rendered hrefs) and the
-  // real stored params after hydration. This avoids an SSR/CSR mismatch on
-  // the navbar <Link> hrefs.
+  // real stored params after hydration. `filter-storage` caches the snapshot
+  // until filters are written, giving us a stable reference between updates.
   const storedParams = useSyncExternalStore(
-    () => () => {},
-    () => getStoredCoachForFreshersSearchParams(),
+    subscribeToStoredCoachForFreshersParams,
+    getStoredCoachForFreshersSearchParams,
     () => null
   )
 
