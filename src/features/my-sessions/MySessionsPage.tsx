@@ -11,7 +11,7 @@ import { useMentorProfile } from '@/features/mentor-dashboard/hooks/useMentorPro
 
 const STATUS_TABS: { label: string; value: BookingStatus | undefined }[] = [
   { label: 'Upcoming', value: 'confirmed' },
-  { label: 'Pending', value: 'pending' },
+  // { label: 'Pending', value: 'pending' },
   { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' },
 ]
@@ -36,7 +36,10 @@ function formatSessionTime(sessionStart: string): string {
   const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
   if (sessionDay.getTime() === today.getTime()) return `Today, ${timeStr}`
   if (sessionDay.getTime() === tomorrow.getTime()) return `Tomorrow, ${timeStr}`
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + `, ${timeStr}`
+  return (
+    date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+    `, ${timeStr}`
+  )
 }
 
 function formatDuration(sessionStart: string, sessionEnd: string): string {
@@ -68,7 +71,11 @@ function SessionCard({
   const handleConfirm = () => updateStatus({ bookingId: booking.id, status: 'confirmed' })
   const handleComplete = () => updateStatus({ bookingId: booking.id, status: 'completed' })
   const handleCancel = () =>
-    updateStatus({ bookingId: booking.id, status: 'cancelled', cancellationReason: 'Cancelled by mentor' })
+    updateStatus({
+      bookingId: booking.id,
+      status: 'cancelled',
+      cancellationReason: 'Cancelled by mentor',
+    })
 
   return (
     <article className="grid min-h-[132px] gap-5 rounded-[24px] bg-white px-4 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:px-7 sm:py-6 md:grid-cols-[minmax(0,1fr)_175px_auto] md:items-center">
@@ -79,7 +86,7 @@ function SessionCard({
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h2 className="font-headline text-lg font-extrabold leading-tight text-slate-950 sm:text-xl">
+          <h2 className="font-headline text-lg leading-tight font-extrabold text-slate-950 sm:text-xl">
             {booking.mentee.full_name}
           </h2>
           <p className="mt-2 max-w-[250px] text-sm leading-5 text-slate-500 sm:text-base sm:leading-6">
@@ -202,7 +209,7 @@ export function MySessionsPage() {
           </div>
 
           {/* Status tabs */}
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
+          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden">
             {STATUS_TABS.map((tab) => (
               <button
                 key={tab.label}
