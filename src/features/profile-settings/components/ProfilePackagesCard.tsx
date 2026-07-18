@@ -90,7 +90,7 @@ export function ProfilePackagesCard({ value, onChange }: ProfilePackagesCardProp
           return (
             <div
               key={tier.duration}
-              className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-[#f8f9ff] p-5"
+              className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5"
             >
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-extrabold text-blue-700">

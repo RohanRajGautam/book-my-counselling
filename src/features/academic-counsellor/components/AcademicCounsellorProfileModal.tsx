@@ -9,7 +9,9 @@ import { useMentorAvailability } from '@/features/availability/hooks/useMentorAv
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
 import { getInitials } from '@/features/mentors/components/MentorCard'
+import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
+import { COACH_FOR_FRESHERS_SERVICE_SLUGS } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 
 interface Props {
   isOpen: boolean
@@ -104,7 +106,13 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
   const totalReviews = reviewsData?.total ?? 0
   const totalPages = reviewsData?.total_pages ?? 1
   const hasNextPage = reviewsData?.has_next ?? false
-  const services = mentor?.tags ?? []
+  // Coach for Freshers service tags (Career Clarity Roadmap, First-Job CV
+  // Builder, Mock Interview Lab) belong to the CFF page only — hide them
+  // here so the academic modal doesn't show a tag the mentor never opted
+  // into for academic counselling.
+  const services = (mentor?.tags ?? []).filter(
+    (tag) => !COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(tag.slug)
+  )
   const selectedSlotId = selection.mentorId === resolvedMentorId ? selection.slicedSlotId : null
   const selectedParentSlotId =
     selection.mentorId === resolvedMentorId ? selection.parentSlotId : null
@@ -288,7 +296,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     key={tag.id}
                     className="rounded-full bg-[#e6eeff] px-4 py-2 text-[12px] font-extrabold text-[#004ac6]"
                   >
-                    {tag.name}
+                    {displayTagName(tag.name)}
                   </span>
                 ))
               ) : (

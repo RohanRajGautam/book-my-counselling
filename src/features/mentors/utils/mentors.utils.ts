@@ -76,3 +76,12 @@ export function getMentorNameSearchFromSlug(slugOrId: string) {
 
   return parts.join(' ').trim()
 }
+
+/**
+ * Normalizes a catalog tag for display so it always renders with exactly one
+ * `#` prefix — backend data is inconsistent (some tags arrive pre-prefixed, some
+ * don't). Pairs with any string-shaped tag name; safe on raw objects too.
+ */
+export function displayTagName(name: string): string {
+  return `#${name.replace(/^#+/, '').trim()}`
+}

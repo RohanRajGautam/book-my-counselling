@@ -1,5 +1,6 @@
 import { IndustryResponse } from '@/features/industries/types/industries.types'
 import { AvailabilitySlot } from '@/features/availability/types/availability.types'
+import { Subcategory } from '@/features/categories/types/categories.types'
 import { TagResponse } from '@/features/tags/types/tags.types'
 import { UserPublic } from '@/features/users/types/users.types'
 
@@ -70,6 +71,7 @@ export interface MentorResponse {
   website_url: string | null
   calendly_link: string | null
   tags: TagResponse[]
+  subcategories: Subcategory[]
   created_at: string
   is_professional_counselor: boolean
   is_academic_counselor: boolean

@@ -16,6 +16,7 @@ interface MentorCardWithPackagesProps {
   imageUrl?: string | null
   verified?: boolean
   onClick?: () => void
+  context?: 'academic' | 'coach-for-freshers'
 }
 
 export function MentorCardWithPackages({
