@@ -49,6 +49,16 @@ export interface MentorProfileCreate {
   is_professional_counselor?: boolean
   is_academic_counselor?: boolean
   requires_24h_approval?: boolean
+  // Academic subcategory picker — required when is_academic_counselor = true.
+  subcategory_ids?: string[]
+  // Professional category picker — pairs each professional parent category with the
+  // subcategories the mentor picks under it. Persisted via mentor_subcategories.
+  professional_categories?: ProfessionalCategoryWithSubs[]
+}
+
+export interface ProfessionalCategoryWithSubs {
+  category_id: string
+  subcategory_ids: string[]
 }
 
 export interface MentorProfileUpdate {
@@ -67,7 +77,10 @@ export interface MentorProfileUpdate {
   requires_24h_approval?: boolean
   is_professional_counselor?: boolean
   is_academic_counselor?: boolean
-  coaching_services?: string[]
+  // Sending subcategory_ids replaces the mentor's existing set; omitting it leaves them untouched.
+  subcategory_ids?: string[]
+  // Sending professional_categories replaces the mentor's existing set; omitting it leaves them untouched.
+  professional_categories?: ProfessionalCategoryWithSubs[]
 }
 
 export interface ServicePackage {

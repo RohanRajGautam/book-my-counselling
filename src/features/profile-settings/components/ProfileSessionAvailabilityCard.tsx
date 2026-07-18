@@ -286,7 +286,7 @@ export function ProfileSessionAvailabilityCard() {
       {/* LEFT: Add availability form */}
       <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
         <div className="mb-6">
-          <h2 className="font-headline text-xl font-extrabold text-slate-950">
+          <h2 className="font-headline text-xl font-extrabold text-slate-950 sm:text-2xl">
             Add Availability
           </h2>
           <p className="mt-1 text-sm font-medium text-slate-500">
@@ -302,19 +302,19 @@ export function ProfileSessionAvailabilityCard() {
               value={form.date}
               min={TODAY}
               onChange={(e) => handleDateChange(e.target.value)}
-              className="h-11 w-full rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+              className="mt-2 flex min-h-14 w-full items-center rounded-2xl bg-[#eef4ff] px-4 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 sm:px-5"
             />
           </Field>
 
           {/* Time */}
           <Field label="Time">
-            <div className="grid gap-2 min-[420px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[420px]:items-center">
+            <div className="mt-2 grid gap-2 min-[420px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[420px]:items-center">
               <TimeSelect
                 value={`${form.startHour}:${form.startMinute}`}
                 options={TIME_OPTIONS}
                 onChange={updateStart}
               />
-              <span className="text-center text-sm font-medium text-slate-400">to</span>
+              <span className="text-center text-sm font-medium text-slate-500">to</span>
               <TimeSelect
                 value={`${form.endHour}:${form.endMinute}`}
                 options={endTimeOptions}
@@ -328,7 +328,7 @@ export function ProfileSessionAvailabilityCard() {
             <select
               value={form.mode}
               onChange={(e) => update('mode', e.target.value as RecurrenceMode)}
-              className="h-11 w-full rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+              className="mt-2 flex min-h-14 w-full items-center rounded-2xl bg-[#eef4ff] px-4 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 sm:px-5"
             >
               <option value="none">Does not repeat</option>
               <option value="weekly">
@@ -341,7 +341,7 @@ export function ProfileSessionAvailabilityCard() {
           {/* Custom day picker */}
           {form.mode === 'custom' && (
             <Field label="Repeat on">
-              <div className="flex flex-wrap gap-1.5">
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {DAYS_OF_WEEK.map((d) => {
                   const active = form.customDays.includes(d.value)
                   return (
@@ -351,10 +351,10 @@ export function ProfileSessionAvailabilityCard() {
                       aria-pressed={active}
                       aria-label={d.label}
                       onClick={() => toggleCustomDay(d.value)}
-                      className={`flex size-10 items-center justify-center rounded-full text-sm font-extrabold transition ${
+                      className={`inline-flex min-h-8 items-center justify-center rounded-full border px-3 text-xs font-extrabold transition ${
                         active
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-[#f8f9ff] text-slate-600 ring-1 ring-slate-200 hover:bg-[#eef4ff]'
+                          ? 'border-blue-600 bg-blue-600 text-white'
+                          : 'border-slate-200 bg-[#eef4ff] text-slate-700 hover:border-slate-300'
                       }`}
                     >
                       {d.short}
@@ -373,7 +373,7 @@ export function ProfileSessionAvailabilityCard() {
                 value={form.endDate}
                 min={form.date}
                 onChange={(e) => update('endDate', e.target.value)}
-                className="h-11 w-full rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+                className="mt-2 flex min-h-14 w-full items-center rounded-2xl bg-[#eef4ff] px-4 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 sm:px-5"
               />
             </Field>
           )}
@@ -398,7 +398,7 @@ export function ProfileSessionAvailabilityCard() {
                 </>
               )}
             </button>
-            <p className="mt-2 text-center text-xs text-slate-400">
+            <p className="mt-2 text-center text-xs font-medium text-slate-500">
               Times that overlap existing availability are skipped automatically.
             </p>
           </div>
@@ -407,9 +407,9 @@ export function ProfileSessionAvailabilityCard() {
 
       {/* RIGHT: Published slots */}
       <aside>
-        <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-6">
+        <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-headline text-lg font-extrabold text-slate-950">
+            <h2 className="font-headline text-xl font-extrabold text-slate-950 sm:text-2xl">
               Published Slots
             </h2>
             <span className="rounded-full bg-[#eef4ff] px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-blue-700 uppercase">
@@ -418,17 +418,17 @@ export function ProfileSessionAvailabilityCard() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center gap-2 py-6 text-sm text-slate-400">
+            <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
               <Loader2 className="size-4 animate-spin" />
               Loading…
             </div>
           ) : sortedDateKeys.length === 0 ? (
             <div className="rounded-2xl bg-[#f8f9ff] p-6 text-center">
               <CalendarDays className="mx-auto mb-2 size-6 text-slate-400" />
-              <p className="text-sm font-medium text-slate-500">
+              <p className="text-sm font-medium text-slate-700">
                 No availability yet.
               </p>
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs font-medium text-slate-500">
                 Use the form to add your first time window.
               </p>
             </div>
@@ -438,7 +438,7 @@ export function ProfileSessionAvailabilityCard() {
                 const daySlots = groupedExisting.get(dateKey)!
                 return (
                   <div key={dateKey}>
-                    <p className="mb-2 text-xs font-extrabold tracking-[0.12em] text-slate-500 uppercase">
+                    <p className="mb-2 text-xs font-bold tracking-[0.16em] text-slate-600 uppercase">
                       {formatShortDate(dateKey)}
                     </p>
                     <div className="space-y-1.5">
@@ -472,7 +472,7 @@ export function ProfileSessionAvailabilityCard() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-extrabold tracking-[0.08em] text-slate-500 uppercase">
+      <span className="block text-xs font-bold tracking-[0.16em] text-slate-600 uppercase">
         {label}
       </span>
       {children}
@@ -496,7 +496,7 @@ function TimeSelect({
         const [h, m] = e.target.value.split(':').map(Number)
         onChange(h!, m!)
       }}
-      className="h-11 flex-1 rounded-xl bg-[#f8f9ff] px-3 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-300"
+      className="h-11 flex-1 rounded-2xl bg-[#eef4ff] px-3 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 sm:px-4"
     >
       {options.map((t) => (
         <option key={`${t.hour}:${t.minute}`} value={`${t.hour}:${t.minute}`}>
@@ -522,8 +522,8 @@ function SlotRow({
 
   return (
     <div
-      className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2 ${
-        isBooked ? 'bg-amber-50' : 'bg-[#eef4ff]'
+      className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-2 ${
+        isBooked ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white'
       }`}
     >
       <div className="flex min-w-0 items-center gap-2">
@@ -548,7 +548,7 @@ function SlotRow({
           disabled={isDeleting}
           aria-label="Delete slot"
           title={formatDateLabel(toDateKey(new Date(slot.start_time)))}
-          className="flex size-6 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-40"
+          className="flex size-6 items-center justify-center rounded-lg text-blue-700 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-40"
         >
           <Trash2 className="size-3.5" />
         </button>

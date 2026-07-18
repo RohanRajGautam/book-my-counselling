@@ -198,7 +198,9 @@ export function MySessionsPage() {
       <div className="mx-auto grid w-full max-w-[1180px] gap-6 px-3 py-5 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8 lg:px-8 lg:py-11">
         <section className="min-w-0">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h1 className="font-headline text-2xl font-extrabold text-slate-950">My Sessions</h1>
+            <h1 className="font-headline text-3xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+              My Sessions
+            </h1>
           </div>
 
           {/* Status tabs */}

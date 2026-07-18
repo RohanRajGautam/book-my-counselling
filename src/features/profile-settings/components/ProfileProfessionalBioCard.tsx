@@ -61,7 +61,7 @@ export function ProfileProfessionalBioCard({
   return (
     <section
       id="professional-bio"
-      className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-10"
+      className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8"
     >
       <div className="flex items-center gap-4">
         <div className="flex size-11 items-center justify-center rounded-xl bg-amber-200 text-amber-900">
@@ -86,29 +86,27 @@ export function ProfileProfessionalBioCard({
 
         <div>
           <Label>Specialized Fields</Label>
-          <div className="mt-2 min-h-24 rounded-2xl bg-[#eef4ff] p-3">
-            <div className="flex flex-wrap gap-2">
-              {specializedFields.map((field) => {
-                const isSelected = isFieldSelected(field.id)
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {specializedFields.map((field) => {
+              const isSelected = isFieldSelected(field.id)
 
-                return (
-                  <button
-                    key={field.id}
-                    type="button"
-                    aria-pressed={isSelected}
-                    onClick={() => toggleSpecializedField(field.id)}
-                    className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold transition ${
-                      isSelected
-                        ? 'bg-emerald-300 text-emerald-950'
-                        : 'bg-white text-slate-700 hover:bg-blue-50 hover:text-blue-700'
-                    }`}
-                  >
-                    {isSelected ? <Check className="size-4" /> : null}
-                    {field.label}
-                  </button>
-                )
-              })}
-            </div>
+              return (
+                <button
+                  key={field.id}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => toggleSpecializedField(field.id)}
+                  className={`inline-flex min-h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition ${
+                    isSelected
+                      ? 'border-blue-600 bg-blue-600 text-white'
+                      : 'border-slate-200 bg-[#eef4ff] text-slate-700 hover:border-slate-300'
+                  }`}
+                >
+                  {isSelected ? <Check className="size-3.5" strokeWidth={3} /> : null}
+                  {field.label}
+                </button>
+              )
+            })}
           </div>
         </div>
 

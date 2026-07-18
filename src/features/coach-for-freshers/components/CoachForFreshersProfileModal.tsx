@@ -10,6 +10,7 @@ import { AvailabilityPicker } from '@/features/availability/components/Availabil
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 import { useMentor } from '@/features/mentors/hooks/useMentor'
+import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 
 type BookingSelection = {
@@ -255,7 +256,7 @@ export function CoachForFreshersProfileModal({
                         key={tag.id}
                         className="rounded-full bg-[#e6eeff] px-4 py-2 text-[12px] font-extrabold text-[#004ac6]"
                       >
-                        {tag.name}
+                        {displayTagName(tag.name)}
                       </span>
                     ))
                   ) : (

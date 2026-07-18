@@ -9,6 +9,7 @@ import { useMentorAvailability } from '@/features/availability/hooks/useMentorAv
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
 import { getInitials } from '@/features/mentors/components/MentorCard'
+import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
 
 interface Props {
@@ -288,7 +289,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     key={tag.id}
                     className="rounded-full bg-[#e6eeff] px-4 py-2 text-[12px] font-extrabold text-[#004ac6]"
                   >
-                    {tag.name}
+                    {displayTagName(tag.name)}
                   </span>
                 ))
               ) : (

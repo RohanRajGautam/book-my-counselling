@@ -7,6 +7,7 @@ import {
   COACH_FOR_FRESHERS_GROUP_TAG,
   COACH_FOR_FRESHERS_TAG_LABELS,
 } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 
 const COACH_FOR_FRESHERS_GROUP_LABEL =
   COACH_FOR_FRESHERS_TAG_LABELS[COACH_FOR_FRESHERS_GROUP_TAG]
@@ -83,6 +84,7 @@ export function MentorCard({
     .filter((tag) => tag !== COACH_FOR_FRESHERS_GROUP_TAG && tag !== COACH_FOR_FRESHERS_GROUP_LABEL)
     .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? tag)
     .slice(0, 4)
+    .map(displayTagName)
 
   // Show the 3 standard tiers if available, otherwise fall back to "Starting at"
   const hasTiers = packageTiers && packageTiers.length > 0
