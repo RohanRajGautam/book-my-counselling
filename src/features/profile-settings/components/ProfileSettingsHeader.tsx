@@ -9,7 +9,7 @@ export function ProfileSettingsHeader({ onSave, isSaving = false }: ProfileSetti
   return (
     <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <h1 className="font-headline text-2xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+        <h1 className="font-headline text-3xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
           Profile Settings
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 font-medium text-slate-500 sm:text-base sm:leading-7">

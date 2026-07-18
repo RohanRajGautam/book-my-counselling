@@ -126,6 +126,7 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
             fallbackPrice={Number(mentor.hourly_rate)}
             imageUrl={mentor.avatar_url}
             verified={mentor.is_verified}
+            context="coach-for-freshers"
             onClick={() => setActiveMentorId(mentor.id)}
           />
         ))}

@@ -25,12 +25,18 @@ import {
   useMentorProfile,
   useUpdateMentorProfile,
 } from '@/features/mentor-dashboard/hooks/useMentorProfile'
+import { MentorProfileUpdate } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser'
 import {
   useMyPackages,
   useUpsertMentorPackages,
 } from '@/features/service-packages/hooks/useMentorPackages'
-import { COACH_FOR_FRESHERS_SERVICE_SLUGS } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import { COACH_FOR_FRESHERS_SERVICE_SLUGS, COACH_FOR_FRESHERS_GROUP_TAG } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import {
+  useAllAcademicSubcategoryIds,
+  useProfessionalSubcategoryBuckets,
+} from '@/features/categories/hooks/useCounselingCategories'
+import { useTags } from '@/features/tags/hooks/useTags'
 
 const DEFAULT_GENERAL_INFO: GeneralInfoForm = {
   professionalTitle: '',
@@ -50,6 +56,10 @@ const DEFAULT_COUNSELLING: CounsellingType = {
   is_professional_counselor: false,
   is_academic_counselor: false,
   coaching_services: [],
+  subcategory_ids: [],
+  professional_categories: [],
+  academic_tags: [],
+  industry_ids: [],
 }
 
 const DEFAULT_PACKAGES: PackagesForm = {
@@ -69,8 +79,25 @@ export function ProfileSettingsPage() {
   const { data: myPackages = [] } = useMyPackages()
   const { mutate: upsertPackages, isPending: isSavingPackages } = useUpsertMentorPackages()
 
+  const { ids: academicSubIds, isLoading: academicBucketingLoading } = useAllAcademicSubcategoryIds()
+  const professionalSubIds = (profile?.subcategories ?? []).map((s) => s.id)
+  const { buckets: professionalBuckets, isLoading: professionalBucketingLoading } =
+    useProfessionalSubcategoryBuckets(professionalSubIds)
+  const { data: catalogTags = [] } = useTags()
+
+  // Seed form state from the loaded profile. Waits for the academic + professional
+  // subcategory lookups to finish so we can split the flat `subcategories` array
+  // into the academic `subcategory_ids` and structured `professional_categories`
+  // channels. The seeding flag lives in state so the side effect runs at most once
+  // per loaded profile; the setState here is the "derived state from props" pattern
+  // (https://react.dev/learn/you-might-not-need-an-effect#resetting-all-state-when-a-prop-changes).
   const [seededProfileId, setSeededProfileId] = useState<string | null>(null)
-  if (profile && profile.id !== seededProfileId) {
+  if (
+    profile &&
+    profile.id !== seededProfileId &&
+    !academicBucketingLoading &&
+    !professionalBucketingLoading
+  ) {
     setSeededProfileId(profile.id)
 
     setGeneralInfo({
@@ -87,12 +114,25 @@ export function ProfileSettingsPage() {
       portfolioUrl: profile.website_url ?? '',
     })
 
+    const subIds = (profile.subcategories ?? []).map((s) => s.id)
+    const profileTagSlugs = (profile.tags ?? []).map((tag) => tag.slug)
     setCounselling({
       is_professional_counselor: profile.is_professional_counselor ?? false,
       is_academic_counselor: profile.is_academic_counselor ?? false,
-      coaching_services: (profile.tags ?? [])
-        .map((tag) => tag.slug)
-        .filter((slug) => COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug)),
+      coaching_services: profileTagSlugs.filter((slug) =>
+        COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug)
+      ),
+      subcategory_ids: subIds.filter((id) => academicSubIds.has(id)),
+      professional_categories: professionalBuckets,
+      // Any tag the mentor has that isn't a curated service tag or the auto-added
+      // coach-for-freshers group tag is treated as an academic tag. The seed is
+      // best-effort — if a tag isn't in the catalog it stays attached server-side
+      // and simply won't appear as selected here.
+      academic_tags: profileTagSlugs.filter(
+        (slug) =>
+          !COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug) && slug !== COACH_FOR_FRESHERS_GROUP_TAG
+      ),
+      industry_ids: (profile.industries ?? []).map((i) => i.id),
     })
 
     setPackages({
@@ -122,7 +162,7 @@ export function ProfileSettingsPage() {
       return
     }
 
-    const payload = {
+    const payload: MentorProfileUpdate = {
       title: generalInfo.professionalTitle.trim() || undefined,
       company: generalInfo.currentCompany.trim() || null,
       years_of_experience: yearsNum,
@@ -132,9 +172,49 @@ export function ProfileSettingsPage() {
       website_url: professionalBio.portfolioUrl.trim() || null,
       is_academic_counselor: counselling.is_academic_counselor,
       is_professional_counselor: counselling.is_professional_counselor,
-      coaching_services: counselling.is_professional_counselor
-        ? counselling.coaching_services
-        : [],
+      industry_ids: counselling.industry_ids,
+    }
+
+    // Map selected tag slugs (coaching_services + academic_tags) → backend tag IDs.
+    // We look up in both the profile's attached tags and the full catalog so newly
+    // picked tags resolve even when they weren't previously attached.
+    const tagSlugs = [
+      ...(counselling.is_professional_counselor
+        ? counselling.coaching_services.filter((slug) =>
+            COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug)
+          )
+        : []),
+      ...(counselling.is_academic_counselor ? counselling.academic_tags : []),
+    ]
+    if (tagSlugs.length > 0 && profile) {
+      const slugToId = new Map<string, string>([
+        ...profile.tags.map((t) => [t.slug, t.id] as const),
+        ...catalogTags.map((t) => [t.slug, t.id] as const),
+      ])
+      const tagIds = tagSlugs
+        .map((slug) => slugToId.get(slug))
+        .filter((id): id is string => Boolean(id))
+      if (tagIds.length > 0) {
+        payload.tag_ids = tagIds
+      }
+    }
+
+    // Sending subcategory_ids replaces the existing set. Omitting leaves it untouched,
+    // so we only include it when the user is an academic counsellor.
+    if (counselling.is_academic_counselor) {
+      payload.subcategory_ids = counselling.subcategory_ids
+    }
+
+    // Sending professional_categories replaces the existing set of (parent, subcats)
+    // pairs. Omitting leaves it untouched. We strip empty parent buckets so the
+    // backend doesn't reject them.
+    if (counselling.is_professional_counselor) {
+      const nonEmpty = counselling.professional_categories.filter(
+        (c) => c.subcategory_ids.length > 0
+      )
+      if (nonEmpty.length > 0) {
+        payload.professional_categories = nonEmpty
+      }
     }
 
     updateProfile(payload, {
@@ -203,7 +283,11 @@ export function ProfileSettingsPage() {
                 readOnlyName={currentUser?.full_name}
                 readOnlyEmail={currentUser?.email}
               />
-              <ProfileCounsellingCard value={counselling} onChange={setCounselling} />
+              <ProfileCounsellingCard
+                value={counselling}
+                onChange={setCounselling}
+                loading={!profile || profile.id !== seededProfileId}
+              />
             </div>
 
             <aside className="space-y-6 lg:space-y-7">
@@ -247,6 +331,24 @@ function extractApiError(err: unknown): string | null {
   const e = err as Record<string, unknown>
   const response = e['response'] as Record<string, unknown> | undefined
   const data = response?.['data'] as Record<string, unknown> | undefined
-  if (typeof data?.['detail'] === 'string') return data['detail']
+  if (!data) return null
+
+  // 422 from Pydantic — detail is an array of {loc, msg, type}.
+  if (Array.isArray(data['detail'])) {
+    const items = (data['detail'] as Array<Record<string, unknown>>)
+      .map((row) => {
+        const loc = Array.isArray(row['loc'])
+          ? (row['loc'] as unknown[]).filter((l) => l !== 'body').join('.')
+          : ''
+        const msg = typeof row['msg'] === 'string' ? row['msg'] : ''
+        return loc && msg ? `${loc}: ${msg}` : msg
+      })
+      .filter(Boolean)
+    if (items.length > 0) return items.join('\n')
+  }
+
+  // 400 from service layer — detail is a flat string.
+  if (typeof data['detail'] === 'string') return data['detail']
+
   return null
 }

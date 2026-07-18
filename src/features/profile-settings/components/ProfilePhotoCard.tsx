@@ -57,7 +57,7 @@ export function ProfilePhotoCard() {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-5 text-center shadow-sm sm:rounded-3xl sm:p-7">
+    <section className="rounded-[28px] bg-white p-5 text-center shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -93,7 +93,7 @@ export function ProfilePhotoCard() {
         </button>
       </div>
 
-      <h2 className="mt-7 font-headline text-xl font-extrabold text-slate-950">Profile Photo</h2>
+      <h2 className="mt-7 font-headline text-xl font-extrabold text-slate-950 sm:text-2xl">Profile Photo</h2>
       <p className="mx-auto mt-2 max-w-44 text-sm leading-5 text-slate-500">
         Upload a high-resolution headshot. JPG, PNG or WebP, max 5 MB.
       </p>

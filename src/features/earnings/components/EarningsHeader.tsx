@@ -16,7 +16,7 @@ export function EarningsHeader() {
   return (
     <header className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h1 className="font-headline text-2xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+        <h1 className="font-headline text-3xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
           Earnings Overview
         </h1>
         <p className="mt-2 text-sm leading-6 font-medium text-slate-500 sm:text-base sm:leading-7">
