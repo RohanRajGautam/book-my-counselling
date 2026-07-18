@@ -1,3 +1,5 @@
+// ── Mentors ────────────────────────────────────────────────────────────────
+
 export interface AdminMentorProfile {
   id: string
   user_id: string
@@ -32,9 +34,10 @@ export interface AdminStats {
   total_users: number
   total_mentors: number
   total_bookings: number
+  total_revenue: number
 }
 
-// ── Admin bookings ─────────────────────────────────────────────────────────
+// ── Bookings ──────────────────────────────────────────────────────────────
 
 export type AdminBookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
 export type AdminPaymentStatus = 'unpaid' | 'paid' | 'refunded' | 'failed'
@@ -74,6 +77,8 @@ export interface AdminBookingRow {
   mentor: AdminBookingMentor
   refund: AdminBookingRefundSummary | null
 }
+
+// ── Refunds ───────────────────────────────────────────────────────────────
 
 export type RefundStatus = 'requested' | 'approved' | 'rejected' | 'processed'
 
@@ -116,4 +121,38 @@ export interface RefundRequest {
   booking: RefundBookingSummary | null
   created_at: string
   updated_at: string
+}
+
+// ── Revenue ───────────────────────────────────────────────────────────────
+
+export type RevenuePeriod = 'weekly' | 'monthly' | 'yearly' | 'custom'
+
+/**
+ * One bucket of revenue. Granularity of `period_start` depends on the
+ * response's `period` field — see `AdminRevenue.period`.
+ */
+export interface RevenueBreakdownItem {
+  /**
+   * First day of the bucket, as `YYYY-MM-DD` (UTC calendar date).
+   * - `weekly` / `custom` → a single calendar day
+   * - `monthly`            → the first day of a calendar month (YYYY-MM-01)
+   * - `yearly`             → Jan 1 of a calendar year (YYYY-01-01)
+   */
+  period_start: string
+  revenue: number
+  booking_count: number
+}
+
+export interface AdminRevenue {
+  /** Echoes back what was asked for (or `weekly` if no filter was passed). */
+  period: RevenuePeriod
+  /** Actual window start. Use for the coverage label. */
+  start_date: string
+  /** Actual window end. Use for the coverage label. */
+  end_date: string
+  /** NPR float. Sum over the window — matches the sum of `breakdown`. */
+  total_revenue: number
+  total_paid_bookings: number
+  /** Ascending by `period_start`. Empty buckets are OMITTED — fill client-side. */
+  breakdown: RevenueBreakdownItem[]
 }

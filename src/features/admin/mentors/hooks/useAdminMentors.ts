@@ -1,51 +1,47 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+
 import {
-  getAdminMentors,
-  getAdminStats,
-  verifyMentor,
-  rejectMentor,
   featureMentor,
-  reindexElasticsearch,
+  getAdminMentors,
   getMentorsWithoutAvailability,
+  reindexElasticsearch,
+  rejectMentor,
   sendAvailabilityReminder,
   sendBulkAvailabilityReminder,
-} from '../api/admin.api'
+  verifyMentor,
+} from '../api/mentors.api'
 import { PaginatedResponse } from '@/lib/api/api.types'
-import { AdminMentorProfile } from '../types/admin.types'
+import { AdminMentorProfile } from '../../types/admin.types'
 
-export function useAdminStats() {
-  return useQuery({
-    queryKey: ['admin', 'stats'],
-    queryFn: getAdminStats,
-    staleTime: 30 * 1000,
-  })
-}
+// ── Mentor list ───────────────────────────────────────────────────────────
 
-// Tab filter params — each tab maps to specific query params
 export type AdminMentorFilter = {
   isVerified?: boolean
   isRejected?: boolean
 }
 
+export const ADMIN_MENTORS_KEY = ['admin', 'mentors'] as const
+
 export function useAdminMentors(filter: AdminMentorFilter, page = 1) {
   return useQuery({
-    queryKey: ['admin', 'mentors', filter, page],
-    queryFn: () => getAdminMentors(filter.isVerified, filter.isRejected, page),
+    queryKey: [...ADMIN_MENTORS_KEY, filter, page],
+    queryFn: () => getAdminMentors({ ...filter, page }),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })
 }
+
+// ── Mutations ─────────────────────────────────────────────────────────────
 
 export function useVerifyMentor() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => verifyMentor(id),
     onSuccess: (_data, id) => {
-      // Remove from pending + rejected lists immediately
-      _removeMentorFromAllCaches(qc, id)
-      qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
-      qc.invalidateQueries({ queryKey: ['admin', 'stats'] })
+      removeMentorFromAdminCaches(qc, id)
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
     },
   })
 }
@@ -55,9 +51,9 @@ export function useRejectMentor() {
   return useMutation({
     mutationFn: (id: string) => rejectMentor(id),
     onSuccess: (_data, id) => {
-      _removeMentorFromAllCaches(qc, id)
-      qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
-      qc.invalidateQueries({ queryKey: ['admin', 'stats'] })
+      removeMentorFromAdminCaches(qc, id)
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
     },
   })
 }
@@ -67,20 +63,22 @@ export function useFeatureMentor() {
   return useMutation({
     mutationFn: ({ id, featured }: { id: string; featured: boolean }) =>
       featureMentor(id, featured),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'mentors'] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+    },
   })
 }
 
-export function useReindexES() {
-  return useMutation({ mutationFn: reindexElasticsearch })
-}
+// ── Reminders ─────────────────────────────────────────────────────────────
+
+export const ADMIN_REMINDERS_KEY = ['admin', 'reminders'] as const
 
 export function useMentorsWithoutAvailability(params: {
   isVerified?: boolean
   page?: number
 }) {
   return useQuery({
-    queryKey: ['admin', 'mentors', 'without-availability', params],
+    queryKey: [...ADMIN_REMINDERS_KEY, params],
     queryFn: () => getMentorsWithoutAvailability(params),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
@@ -101,22 +99,26 @@ export function useSendBulkReminder() {
     mutationFn: (params: { isVerified?: boolean }) => sendBulkAvailabilityReminder(params),
     onSuccess: (data) => {
       toast.success(data.message)
-      void qc.invalidateQueries({ queryKey: ['admin', 'mentors', 'without-availability'] })
+      void qc.invalidateQueries({ queryKey: ADMIN_REMINDERS_KEY })
     },
     onError: () => toast.error('Failed to send bulk reminders.'),
   })
 }
 
-// ---------------------------------------------------------------------------
-// Cache helper — removes a mentor row from every cached admin list
-// ---------------------------------------------------------------------------
+// ── Maintenance ───────────────────────────────────────────────────────────
 
-function _removeMentorFromAllCaches(
+export function useReindexES() {
+  return useMutation({ mutationFn: reindexElasticsearch })
+}
+
+// ── Cache helper ─────────────────────────────────────────────────────────
+
+function removeMentorFromAdminCaches(
   qc: ReturnType<typeof useQueryClient>,
   mentorId: string,
 ) {
   const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
-    queryKey: ['admin', 'mentors'],
+    queryKey: ADMIN_MENTORS_KEY,
   })
   for (const [key, data] of queries) {
     if (!data) continue
