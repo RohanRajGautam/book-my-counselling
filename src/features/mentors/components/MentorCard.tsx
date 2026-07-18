@@ -5,12 +5,29 @@ import { Building2, Check, Clock, Star } from 'lucide-react'
 
 import {
   COACH_FOR_FRESHERS_GROUP_TAG,
+  COACH_FOR_FRESHERS_SERVICE_SLUGS,
+  COACH_FOR_FRESHERS_SERVICE_TAGS,
   COACH_FOR_FRESHERS_TAG_LABELS,
 } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 
 const COACH_FOR_FRESHERS_GROUP_LABEL =
   COACH_FOR_FRESHERS_TAG_LABELS[COACH_FOR_FRESHERS_GROUP_TAG]
+
+// Mentor tags can arrive as raw slugs (e.g. "career-clarity-roadmap") or as the
+// pre-resolved labels some callers pass through. The membership sets below
+// include both forms so the context-based filter matches whichever the caller
+// sent — without forcing every caller to normalize.
+const CFF_SERVICE_VALUES = new Set<string>([
+  ...COACH_FOR_FRESHERS_SERVICE_SLUGS,
+  ...COACH_FOR_FRESHERS_SERVICE_TAGS.map((s) => s.label),
+])
+
+const CFF_GROUP_VALUES = new Set<string>(
+  [COACH_FOR_FRESHERS_GROUP_TAG, COACH_FOR_FRESHERS_GROUP_LABEL].filter(
+    (v): v is string => typeof v === 'string'
+  )
+)
 
 interface PackageTier {
   duration_minutes: number
@@ -31,6 +48,15 @@ interface MentorCardProps {
   imageUrl?: string | null
   verified?: boolean
   onClick?: () => void
+  /**
+   * Where the card is being shown. The card filters its tag list to match the
+   * surrounding page so the CFF service tags only render in the Coach for
+   * Freshers flow and never leak into the academic or home pages.
+   * - `'coach-for-freshers'`: show only the CFF group + CFF service tags
+   * - `'academic'`: hide the CFF group + CFF service tags
+   * - omitted: hide only the CFF group tag (default — home page, etc.)
+   */
+  context?: 'academic' | 'coach-for-freshers'
 }
 
 export function getInitials(name: string) {
@@ -74,14 +100,29 @@ export function MentorCard({
   imageUrl,
   verified = true,
   onClick,
+  context,
 }: MentorCardProps) {
   const imageSrc = imageUrl?.trim() || null
   const displayName = formatDisplayName(name)
   const initials = getInitials(name)
   const companyDisplay = cleanCompanyName(company)
-  const services = tags
-    .map((tag) => tag.replace(/^#/, ''))
-    .filter((tag) => tag !== COACH_FOR_FRESHERS_GROUP_TAG && tag !== COACH_FOR_FRESHERS_GROUP_LABEL)
+  const cleanedTags = tags.map((tag) => tag.replace(/^#/, ''))
+
+  const filteredTags = (() => {
+    if (context === 'coach-for-freshers') {
+      return cleanedTags.filter(
+        (tag) => CFF_GROUP_VALUES.has(tag) || CFF_SERVICE_VALUES.has(tag)
+      )
+    }
+    if (context === 'academic') {
+      return cleanedTags.filter(
+        (tag) => !CFF_GROUP_VALUES.has(tag) && !CFF_SERVICE_VALUES.has(tag)
+      )
+    }
+    return cleanedTags.filter((tag) => !CFF_GROUP_VALUES.has(tag))
+  })()
+
+  const services = filteredTags
     .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? tag)
     .slice(0, 4)
     .map(displayTagName)

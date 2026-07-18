@@ -117,6 +117,7 @@ export function AcademicCounsellorResults() {
             fallbackPrice={Number(mentor.hourly_rate)}
             imageUrl={mentor.avatar_url}
             verified={mentor.is_verified}
+            context="academic"
             onClick={() => router.push(getMentorHref(mentor))}
           />
         ))}
