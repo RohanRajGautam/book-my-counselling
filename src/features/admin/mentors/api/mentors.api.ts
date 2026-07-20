@@ -1,6 +1,11 @@
 import apiClient from '@/lib/api/api-client'
 import { PaginatedResponse } from '@/lib/api/api.types'
-import { AdminMentorProfile } from '../../types/admin.types'
+import { AdminMentorCreateResponse } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
+import {
+  AdminMentorProfile,
+  AdminUserProfileResponse,
+  AdminUserProfileUpdate,
+} from '../../types/admin.types'
 
 export async function getAdminMentors(params: {
   isVerified?: boolean
@@ -19,6 +24,17 @@ export async function getAdminMentors(params: {
   return res.data
 }
 
+export async function updateAdminUserProfile(
+  userId: string,
+  payload: AdminUserProfileUpdate
+): Promise<AdminUserProfileResponse> {
+  const res = await apiClient.put<AdminUserProfileResponse>(
+    `/admin/users/${userId}/profile`,
+    payload
+  )
+  return res.data
+}
+
 export async function verifyMentor(mentorId: string): Promise<{ message: string }> {
   const res = await apiClient.patch<{ message: string }>(`/admin/mentors/${mentorId}/verify`)
   return res.data
@@ -31,12 +47,12 @@ export async function rejectMentor(mentorId: string): Promise<{ message: string 
 
 export async function featureMentor(
   mentorId: string,
-  featured: boolean,
+  featured: boolean
 ): Promise<{ message: string }> {
   const res = await apiClient.patch<{ message: string }>(
     `/admin/mentors/${mentorId}/feature`,
     null,
-    { params: { featured } },
+    { params: { featured } }
   )
   return res.data
 }
@@ -59,16 +75,14 @@ export async function getMentorsWithoutAvailability(params: {
         page: params.page ?? 1,
         page_size: params.pageSize ?? 20,
       },
-    },
+    }
   )
   return res.data
 }
 
-export async function sendAvailabilityReminder(
-  mentorId: string,
-): Promise<{ message: string }> {
+export async function sendAvailabilityReminder(mentorId: string): Promise<{ message: string }> {
   const res = await apiClient.post<{ message: string }>(
-    `/admin/mentors/${mentorId}/availability-reminder`,
+    `/admin/mentors/${mentorId}/availability-reminder`
   )
   return res.data
 }
@@ -79,7 +93,20 @@ export async function sendBulkAvailabilityReminder(params: {
   const res = await apiClient.post<{ message: string }>(
     '/admin/mentors/availability-reminder',
     null,
-    { params },
+    { params }
   )
+  return res.data
+}
+
+/**
+ * Creates a mentor on behalf of someone. Sends multipart/form-data with:
+ *   - `metadata`: JSON-stringified `AdminMentorCreate` (user + profile)
+ *   - `avatar`: optional avatar file
+ * Returns the created user, profile, and a one-time `temp_password`.
+ */
+export async function createAdminMentor(formData: FormData): Promise<AdminMentorCreateResponse> {
+  const res = await apiClient.post<AdminMentorCreateResponse>('/admin/mentors', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
   return res.data
 }

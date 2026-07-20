@@ -1,7 +1,9 @@
+import { useSyncExternalStore } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
+  createAdminMentor,
   featureMentor,
   getAdminMentors,
   getMentorsWithoutAvailability,
@@ -9,10 +11,16 @@ import {
   rejectMentor,
   sendAvailabilityReminder,
   sendBulkAvailabilityReminder,
+  updateAdminUserProfile,
   verifyMentor,
 } from '../api/mentors.api'
 import { PaginatedResponse } from '@/lib/api/api.types'
-import { AdminMentorProfile } from '../../types/admin.types'
+import { AdminMentorCreateResponse } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
+import {
+  AdminMentorProfile,
+  AdminUserProfileResponse,
+  AdminUserProfileUpdate,
+} from '../../types/admin.types'
 
 // ── Mentor list ───────────────────────────────────────────────────────────
 
@@ -73,10 +81,7 @@ export function useFeatureMentor() {
 
 export const ADMIN_REMINDERS_KEY = ['admin', 'reminders'] as const
 
-export function useMentorsWithoutAvailability(params: {
-  isVerified?: boolean
-  page?: number
-}) {
+export function useMentorsWithoutAvailability(params: { isVerified?: boolean; page?: number }) {
   return useQuery({
     queryKey: [...ADMIN_REMINDERS_KEY, params],
     queryFn: () => getMentorsWithoutAvailability(params),
@@ -111,12 +116,28 @@ export function useReindexES() {
   return useMutation({ mutationFn: reindexElasticsearch })
 }
 
+// ── Create mentor ─────────────────────────────────────────────────────────
+
+/**
+ * Creates a mentor on behalf of someone. The caller composes a multipart
+ * FormData with `metadata` (JSON) + optional `avatar` file and passes it in.
+ * On success the admin sees the one-time `temp_password`; we also invalidate
+ * the mentor list cache so the new mentor shows up in the pending tab.
+ */
+export function useCreateAdminMentor() {
+  const qc = useQueryClient()
+  return useMutation<AdminMentorCreateResponse, Error, FormData>({
+    mutationFn: (formData) => createAdminMentor(formData),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
+    },
+  })
+}
+
 // ── Cache helper ─────────────────────────────────────────────────────────
 
-function removeMentorFromAdminCaches(
-  qc: ReturnType<typeof useQueryClient>,
-  mentorId: string,
-) {
+function removeMentorFromAdminCaches(qc: ReturnType<typeof useQueryClient>, mentorId: string) {
   const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
     queryKey: ADMIN_MENTORS_KEY,
   })
@@ -131,4 +152,59 @@ function removeMentorFromAdminCaches(
       })
     }
   }
+}
+
+// ── Admin profile (read + update) ─────────────────────────────────────────
+
+function findMentorInAdminListCache(
+  qc: ReturnType<typeof useQueryClient>,
+  userId: string
+): AdminMentorProfile | undefined {
+  const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
+    queryKey: ADMIN_MENTORS_KEY,
+  })
+  for (const [, data] of queries) {
+    if (!data) continue
+    const found = data.items.find((m) => m.user_id === userId)
+    if (found) return found
+  }
+  return undefined
+}
+
+/**
+ * Looks up a mentor by `user_id` from whatever pages of the admin mentor list
+ * are currently cached. The backend doesn't expose `GET /admin/users/{id}` —
+ * the Edit button always originates from a mentor card, so the data is in
+ * cache from `useAdminMentors`. Subscribes to the query cache via
+ * `useSyncExternalStore` so it re-reads whenever the cache mutates (e.g.
+ * after `useUpdateAdminUserProfile` invalidates the list).
+ *
+ * Returns `undefined` for direct-URL access where the mentor isn't in cache;
+ * the edit page renders a "go back to mentors list" fallback in that case.
+ */
+export function useMentorFromAdminListCache(userId: string): AdminMentorProfile | undefined {
+  const qc = useQueryClient()
+  return useSyncExternalStore(
+    (onChange) => qc.getQueryCache().subscribe(onChange),
+    () => findMentorInAdminListCache(qc, userId),
+    () => undefined
+  )
+}
+
+/**
+ * Updates an admin-targeted user profile via
+ * `PUT /admin/users/{userId}/profile`. On success, invalidates every
+ * mentor-list cache (so changed names/titles/prices/tags show up across tabs)
+ * and the admin analytics stats. Does NOT toast here so the caller can decide
+ * how to phrase success messaging.
+ */
+export function useUpdateAdminUserProfile(userId: string) {
+  const qc = useQueryClient()
+  return useMutation<AdminUserProfileResponse, Error, AdminUserProfileUpdate>({
+    mutationFn: (payload) => updateAdminUserProfile(userId, payload),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
+    },
+  })
 }

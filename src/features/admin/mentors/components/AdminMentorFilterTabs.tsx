@@ -16,7 +16,7 @@ export function AdminMentorFilterTabs({ value, onChange }: AdminMentorFilterTabs
     <div
       role="tablist"
       aria-label="Mentor verification status"
-      className="flex flex-wrap gap-1 rounded-2xl bg-white p-1 shadow-sm"
+      className="inline-flex flex-wrap rounded-full bg-slate-100 p-1"
     >
       {ADMIN_MENTOR_TABS.map((tab) => {
         const active = tab.id === value
@@ -28,9 +28,9 @@ export function AdminMentorFilterTabs({ value, onChange }: AdminMentorFilterTabs
             aria-selected={active}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-extrabold transition',
+              'rounded-full px-4 py-1.5 text-xs font-extrabold transition',
               active
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-white text-slate-950 shadow-sm'
                 : 'text-slate-500 hover:text-slate-800',
             )}
           >

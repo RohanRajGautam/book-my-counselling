@@ -136,3 +136,40 @@ export interface CalendlyLinkResponse {
   mentor_id: string
   calendly_link: string | null
 }
+
+// ── Admin mentor creation ──────────────────────────────────────────────────
+
+/**
+ * Payload for `POST /admin/mentors` (sent as JSON in the multipart `metadata`
+ * field). Creates a User + MentorProfile in one call.
+ */
+export interface AdminMentorCreate {
+  user: {
+    email: string
+    full_name: string
+    avatar_url?: string | null
+  }
+  title: string
+  company?: string | null
+  bio?: string | null
+  industry_ids?: string[]
+  years_of_experience?: number
+  hourly_rate: number
+  linkedin_url?: string | null
+  website_url?: string | null
+  calendly_link?: string | null
+  tag_ids?: string[]
+  booking_mode?: 'instant' | 'approval_required'
+  is_professional_counselor?: boolean
+  is_academic_counselor?: boolean
+  requires_24h_approval?: boolean
+  subcategory_ids?: string[]
+  professional_categories?: ProfessionalCategoryWithSubs[]
+}
+
+/** Returned from `POST /admin/mentors` on 201. `temp_password` is shown ONCE. */
+export interface AdminMentorCreateResponse {
+  user: { id: string; email: string; full_name: string; avatar_url: string | null }
+  profile: import('@/features/mentors/types/mentors.types').MentorResponse
+  temp_password: string
+}

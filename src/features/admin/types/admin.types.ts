@@ -1,4 +1,10 @@
+import type { UserResponse } from '@/features/auth/types/auth.types'
+import type { ProfessionalCategoryWithSubs } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
+import type { MentorResponse } from '@/features/mentors/types/mentors.types'
+
 // ── Mentors ────────────────────────────────────────────────────────────────
+
+export type AdminMentorBookingMode = 'instant' | 'approval_required'
 
 export interface AdminMentorProfile {
   id: string
@@ -7,11 +13,16 @@ export interface AdminMentorProfile {
     id: string
     full_name: string
     avatar_url: string | null
+    email: string
     role: string
   }
   title: string
   company: string | null
   bio: string | null
+  /** Lightweight industry refs the mentor specializes in. */
+  industries: { id: string; name: string; slug: string }[]
+  /** Subcategories within those industries — the specific topics the mentor covers. */
+  subcategories: { id: string; name: string; slug: string }[]
   hourly_rate: string
   years_of_experience: number
   average_rating: number
@@ -20,21 +31,62 @@ export interface AdminMentorProfile {
   is_accepting_bookings: boolean
   is_featured: boolean
   is_verified: boolean
-  booking_mode: string
+  is_rejected: boolean
+  booking_mode: AdminMentorBookingMode
+  /** Whether instant-book requests still need 24h mentor review. */
+  requires_24h_approval: boolean
   linkedin_url: string | null
   website_url: string | null
+  calendly_link: string | null
   is_professional_counselor: boolean
   is_academic_counselor: boolean
-  is_rejected: boolean
   tags: { id: string; name: string; slug: string }[]
   created_at: string
+}
+
+export interface AdminUserProfileResponse {
+  user: UserResponse
+  profile: MentorResponse | null
+}
+
+export interface AdminUserUpdate {
+  full_name?: string | null
+  avatar_url?: string | null
+}
+
+export interface AdminMentorProfileUpdate {
+  title?: string | null
+  company?: string | null
+  bio?: string | null
+  linkedin_url?: string | null
+  website_url?: string | null
+  calendly_link?: string | null
+  years_of_experience?: number | null
+  hourly_rate?: string | null
+  booking_mode?: AdminMentorBookingMode | null
+  requires_24h_approval?: boolean | null
+  is_accepting_bookings?: boolean | null
+  is_featured?: boolean | null
+  industry_ids?: string[] | null
+  tag_ids?: string[] | null
+  subcategory_ids?: string[] | null
+  professional_categories?: ProfessionalCategoryWithSubs[] | null
+  is_professional_counselor?: boolean | null
+  is_academic_counselor?: boolean | null
+  coaching_services?: string[] | null
+}
+
+export interface AdminUserProfileUpdate {
+  user?: AdminUserUpdate
+  mentor_profile?: AdminMentorProfileUpdate
 }
 
 export interface AdminStats {
   total_users: number
   total_mentors: number
   total_bookings: number
-  total_revenue: number
+  // Pydantic serializes Decimal as a JSON string; coerce at the consumer.
+  total_revenue: string
 }
 
 // ── Bookings ──────────────────────────────────────────────────────────────
@@ -139,7 +191,8 @@ export interface RevenueBreakdownItem {
    * - `yearly`             → Jan 1 of a calendar year (YYYY-01-01)
    */
   period_start: string
-  revenue: number
+  // Pydantic serializes Decimal as a JSON string; coerce at the consumer.
+  revenue: string
   booking_count: number
 }
 
@@ -150,9 +203,22 @@ export interface AdminRevenue {
   start_date: string
   /** Actual window end. Use for the coverage label. */
   end_date: string
-  /** NPR float. Sum over the window — matches the sum of `breakdown`. */
-  total_revenue: number
+  /** NPR Decimal, sum over the window. Pydantic serializes as a JSON string; coerce at the consumer. */
+  total_revenue: string
   total_paid_bookings: number
   /** Ascending by `period_start`. Empty buckets are OMITTED — fill client-side. */
   breakdown: RevenueBreakdownItem[]
 }
+
+/** Returned only when the request was `?period=all`. Each section is a full `AdminRevenue`. */
+export interface AdminRevenueMulti {
+  weekly: AdminRevenue
+  monthly: AdminRevenue
+  yearly: AdminRevenue
+}
+
+/** Response from `GET /admin/revenue`. Discriminate on shape (the bundle has `weekly` / `monthly` / `yearly` keys, the single-period response does not). */
+export type AdminRevenueResponse = AdminRevenue | AdminRevenueMulti
+
+/** A single preset (excludes `custom`, which is handled separately and excludes `all`, which is request-only). */
+export type PresetRevenuePeriod = 'weekly' | 'monthly' | 'yearly'

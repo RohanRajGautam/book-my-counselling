@@ -79,7 +79,7 @@ function fillDaily(
     const existing = byDate.get(iso)
     filled.push({
       bucketStart: iso,
-      revenue: existing?.revenue ?? 0,
+      revenue: existing ? Number(existing.revenue) : 0,
       booking_count: existing?.booking_count ?? 0,
       chartLabel: formatMonthDay(iso),
     })
@@ -107,7 +107,7 @@ function fillMonthly(
     const existing = byMonth.get(key)
     filled.push({
       bucketStart: key,
-      revenue: existing?.revenue ?? 0,
+      revenue: existing ? Number(existing.revenue) : 0,
       booking_count: existing?.booking_count ?? 0,
       chartLabel: formatMonthLabel(key),
     })
@@ -133,7 +133,7 @@ function fillYearly(
     const existing = byYear.get(key)
     filled.push({
       bucketStart: key,
-      revenue: existing?.revenue ?? 0,
+      revenue: existing ? Number(existing.revenue) : 0,
       booking_count: existing?.booking_count ?? 0,
       chartLabel: String(y),
     })

@@ -1,11 +1,4 @@
-import {
-  BarChart3,
-  Bell,
-  Banknote,
-  CalendarSearch,
-  Database,
-  UserCheck,
-} from 'lucide-react'
+import { BarChart3, Bell, Banknote, CalendarSearch, Database, UserCheck } from 'lucide-react'
 
 export type AdminNavItem = {
   icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>

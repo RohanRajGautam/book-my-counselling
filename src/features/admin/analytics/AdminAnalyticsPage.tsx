@@ -11,10 +11,18 @@ import {
 
 import { AdminPageHeader } from '../layout/AdminPageHeader'
 import { useAdminStats } from './hooks/useAdminStats'
-import { useAdminRevenue, type UseAdminRevenueParams } from './hooks/useAdminRevenue'
+import {
+  useAdminRevenue,
+  useAdminRevenueAll,
+  type UseAdminRevenueParams,
+} from './hooks/useAdminRevenue'
 import { fillBreakdownGaps, formatCoverageWindow } from './lib/dateRanges'
 import { formatNPR, formatNPRCompact } from '../lib/format'
-import type { RevenuePeriod } from '../types/admin.types'
+import type {
+  AdminRevenue,
+  PresetRevenuePeriod,
+  RevenuePeriod,
+} from '../types/admin.types'
 
 import { AdminStatCard } from './components/AdminStatCard'
 import { AdminRevenueChart } from './components/AdminRevenueChart'
@@ -32,39 +40,85 @@ function utcIsoFromDateInput(value: string, edge: 'start' | 'end'): string | und
   return new Date(`${value}${time}`).toISOString()
 }
 
+/** Subtract `days - 1` from `YYYY-MM-DD` so the returned range spans exactly that many days inclusive. */
+function shiftIsoDay(iso: string, days: number): string {
+  const d = new Date(`${iso}T00:00:00`)
+  d.setDate(d.getDate() - (days - 1))
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 export function AdminAnalyticsPage() {
   const [period, setPeriod] = useState<RevenuePeriod>('weekly')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
 
-  const revenueParams: UseAdminRevenueParams = useMemo(() => {
-    if (period === 'custom') {
-      return {
-        period: 'custom',
-        startDate: utcIsoFromDateInput(customStart, 'start'),
-        endDate: utcIsoFromDateInput(customEnd, 'end'),
-      }
+  // Bundled fetch: one round-trip loads weekly + monthly + yearly so the
+  // period selector switches instantly without re-hitting the server.
+  const {
+    data: revenueAll,
+    isLoading: revenueAllLoading,
+  } = useAdminRevenueAll()
+
+  // Custom range uses its own request (the bundled endpoint doesn't accept dates).
+  // Fetch fires the moment the admin sets an end date — if they haven't picked
+  // a start yet, we default it to (end - 7 days) so the chart isn't blank
+  // while the admin is mid-pick.
+  const customParams: UseAdminRevenueParams | null = useMemo(() => {
+    if (period !== 'custom') return null
+    if (!customEnd) return null
+    const effectiveStart = customStart || shiftIsoDay(customEnd, 7)
+    return {
+      period: 'custom',
+      startDate: utcIsoFromDateInput(effectiveStart, 'start'),
+      endDate: utcIsoFromDateInput(customEnd, 'end'),
     }
-    return { period }
   }, [period, customStart, customEnd])
 
-  const { data: stats, isLoading: statsLoading } = useAdminStats()
-  const { data: revenue, isLoading: revenueLoading } = useAdminRevenue(revenueParams)
+  const { data: customRevenue, isFetching: customFetching } = useAdminRevenue({
+    period: 'custom',
+    startDate: customParams?.startDate,
+    endDate: customParams?.endDate,
+  })
+
+  // Pick the active AdminRevenue based on the selected period.
+  const activeRevenue: AdminRevenue | undefined = useMemo(() => {
+    if (period === 'custom') {
+      return customRevenue && 'period' in customRevenue
+        ? (customRevenue as AdminRevenue)
+        : undefined
+    }
+    if (!revenueAll) return undefined
+    return revenueAll[period as PresetRevenuePeriod]
+  }, [period, revenueAll, customRevenue])
+
+  const isLoading =
+    period === 'custom'
+      ? customFetching && !activeRevenue
+      : revenueAllLoading && !activeRevenue
 
   const filledData = useMemo(() => {
-    if (!revenue) return undefined
+    if (!activeRevenue) return undefined
     return fillBreakdownGaps(
-      revenue.breakdown,
-      revenue.period,
-      revenue.start_date,
-      revenue.end_date,
+      activeRevenue.breakdown,
+      activeRevenue.period,
+      activeRevenue.start_date,
+      activeRevenue.end_date,
     )
-  }, [revenue])
+  }, [activeRevenue])
 
-  const totalRevenue = stats?.total_revenue ?? 0
-  const isFreshData = !statsLoading && !revenueLoading
-  const coverageLabel = revenue
-    ? formatCoverageWindow(revenue.start_date, revenue.end_date, revenue.period)
+  const { data: stats, isLoading: statsLoading } = useAdminStats()
+
+  const totalRevenue = Number(stats?.total_revenue ?? 0)
+  const isFreshData = !statsLoading && !revenueAllLoading
+  const coverageLabel = activeRevenue
+    ? formatCoverageWindow(
+        activeRevenue.start_date,
+        activeRevenue.end_date,
+        activeRevenue.period,
+      )
     : null
 
   return (
@@ -131,9 +185,9 @@ export function AdminAnalyticsPage() {
                   <>
                     <span className="font-bold text-slate-700">{coverageLabel}</span>
                     {' · '}
-                    {formatNPR(revenue?.total_revenue ?? 0)}
+                    {formatNPR(Number(activeRevenue?.total_revenue ?? 0))}
                     {' · '}
-                    {revenue?.total_paid_bookings ?? 0} paid bookings
+                    {activeRevenue?.total_paid_bookings ?? 0} paid bookings
                   </>
                 ) : (
                   'Pick a period to load revenue.'
@@ -143,18 +197,28 @@ export function AdminAnalyticsPage() {
 
             <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
               <AdminRevenuePeriodSelector value={period} onChange={setPeriod} />
-              {period === 'custom' ? (
+            </div>
+
+            {period === 'custom' ? (
+              <div className="mt-4">
                 <AdminCustomRangeForm
                   startDate={customStart}
                   endDate={customEnd}
                   onStartChange={setCustomStart}
                   onEndChange={setCustomEnd}
                 />
-              ) : null}
-            </div>
+              </div>
+            ) : null}
 
             <div className="mt-5">
-              <AdminRevenueChart data={filledData} isLoading={revenueLoading} />
+              <AdminRevenueChart
+                data={filledData}
+                isLoading={isLoading}
+                totalRevenue={
+                  activeRevenue ? Number(activeRevenue.total_revenue) : 0
+                }
+                totalBookings={activeRevenue?.total_paid_bookings ?? 0}
+              />
             </div>
           </div>
 

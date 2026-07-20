@@ -1,16 +1,15 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Loader2, UserCheck } from 'lucide-react'
+import { Loader2, UserCheck, UserPlus } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
 
 import { AdminPageHeader } from '../layout/AdminPageHeader'
 import { useAdminMentors } from './hooks/useAdminMentors'
-import {
-  ADMIN_MENTOR_TABS,
-  findAdminMentorTab,
-  type AdminMentorTabId,
-} from './lib/filterConfig'
+import { ADMIN_MENTOR_TABS, findAdminMentorTab, type AdminMentorTabId } from './lib/filterConfig'
 import { AdminMentorFilterTabs } from './components/AdminMentorFilterTabs'
 import { AdminMentorCard } from './components/AdminMentorCard'
 import { AdminMentorPagination } from './components/AdminMentorPagination'
@@ -29,7 +28,11 @@ export function AdminMentorsPage() {
 
   const [page, setPage] = useState(1)
   const activeTab = findAdminMentorTab(tabId)
-  const { data, isLoading } = useAdminMentors(activeTab.filter, page)
+  const { data, isLoading, isFetching, isPlaceholderData } = useAdminMentors(activeTab.filter, page)
+  // `placeholderData: keepPreviousData` keeps the previous query's results
+  // visible while a tab switch or page change is in flight — swap in a
+  // skeleton instead so the admin doesn't see stale data from the wrong tab.
+  const showSkeleton = isLoading || isPlaceholderData
 
   const handleTabChange = (next: AdminMentorTabId) => {
     setPage(1)
@@ -45,23 +48,35 @@ export function AdminMentorsPage() {
           title="Mentor Management"
           subtitle="Review applications, approve mentors, feature the best, and nudge anyone missing availability."
           action={
-            <span className="hidden self-start rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700 sm:inline-flex">
-              {data?.total ?? 0} mentors on this view
-            </span>
+            <>
+              <Button
+                nativeButton={false}
+                render={<Link href="/admin/mentors/new" />}
+                className="gap-1.5 rounded-xl bg-[#0755d8] px-6 py-6 font-bold text-white shadow-sm hover:bg-blue-700"
+              >
+                <UserPlus className="size-4" strokeWidth={2.4} />
+                Create mentor
+              </Button>
+              <span className="hidden self-start rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700 sm:inline-flex">
+                {data?.total ?? 0} mentors on this view
+              </span>
+            </>
           }
         />
 
-        <AdminMentorFilterTabs value={tabId} onChange={handleTabChange} />
+        <div className="mt-2 sm:mt-3">
+          <AdminMentorFilterTabs value={tabId} onChange={handleTabChange} />
+        </div>
 
         <section aria-label="Mentor list" className="space-y-3">
-          {isLoading ? (
-            <div className="space-y-3">
+          {showSkeleton ? (
+            <div className="space-y-3" aria-busy="true" aria-live="polite">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 animate-pulse rounded-2xl bg-white" />
+                <div key={i} className="h-24 animate-pulse rounded-lg bg-white" />
               ))}
             </div>
           ) : !data?.items.length ? (
-            <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
+            <div className="rounded-lg bg-white p-12 text-center shadow-sm">
               <UserCheck className="mx-auto mb-3 size-8 text-slate-300" />
               <p className="text-sm font-semibold text-slate-400">{activeTab.emptyMsg}</p>
             </div>
@@ -72,7 +87,7 @@ export function AdminMentorsPage() {
           )}
         </section>
 
-        {data ? (
+        {!showSkeleton && data ? (
           <AdminMentorPagination
             page={data.page}
             totalPages={data.total_pages}
@@ -85,8 +100,8 @@ export function AdminMentorsPage() {
           />
         ) : null}
 
-        {/* Data fetch in flight; show subtle inline indicator. */}
-        {data && isLoading ? (
+        {/* Background refetch in flight (placeholder data already shown above). */}
+        {!showSkeleton && data && isFetching ? (
           <p className="text-center text-xs text-slate-400">
             <Loader2 className="mr-1 inline size-3 animate-spin" />
             Refreshing…
