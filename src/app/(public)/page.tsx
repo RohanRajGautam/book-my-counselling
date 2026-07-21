@@ -14,7 +14,7 @@ export default function Home() {
         <FilterProvider>
           <HeroSection />
           <MentorCompaniesMarquee />
-          {/* <FeaturedMentors /> */}
+
           <ExclusiveEventsSection />
 
           <Statistics />
