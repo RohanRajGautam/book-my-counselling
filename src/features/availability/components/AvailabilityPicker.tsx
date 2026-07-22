@@ -152,8 +152,10 @@ export function AvailabilityPicker({
   const canPrev = dayOffset > 0
   const canNext = dayOffset + DAYS_VISIBLE < days.length
 
-  // Auto-select first day when days load
-  const activeDateKey = selectedDateKey ?? days[0]?.dateKey ?? null
+  // Visitor picks a day explicitly — no day is selected on mount, even if
+  // the mentor has slots. This forces the visitor to actively choose instead
+  // of silently booking the first day.
+  const activeDateKey = selectedDateKey
   const activeDay = days.find((d) => d.dateKey === activeDateKey) ?? null
 
   if (days.length === 0) {

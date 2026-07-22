@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Check, Globe, Link, X } from 'lucide-react'
+import { Check, ChevronRight, Globe, Link, X, CalendarPlus } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
@@ -45,7 +45,6 @@ export function CoachForFreshersProfileModal({
   const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(
     isOpen ? resolvedMentorId : null
   )
-  console.log(packages)
   const { data: availability = [], isPending: isAvailabilityLoading } = useMentorAvailability(
     isOpen ? resolvedMentorId : null
   )
@@ -66,7 +65,8 @@ export function CoachForFreshersProfileModal({
     .replace('.0', '')
   const hasRating = Number(mentor?.average_rating || 0) > 0
   const bioText = (mentor?.bio ?? '').replace(/\n+/g, '\n')
-  const bioFallback = 'Choose a package and time for focused guidance on CVs, interviews, and first-job readiness.'
+  const bioFallback =
+    'Choose a package and time for focused guidance on CVs, interviews, and first-job readiness.'
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
   const isLoading = isMentorLoading || isPackagesLoading || isAvailabilityLoading
@@ -195,11 +195,7 @@ export function CoachForFreshersProfileModal({
                         <p className="text-[11px] font-bold text-[#737686]">Rating</p>
                       </div>
                     )}
-                    <div
-                      className={`${
-                        hasRating ? 'border-l border-[#eff4ff]' : ''
-                      } px-3 py-3`}
-                    >
+                    <div className={`${hasRating ? 'border-l border-[#eff4ff]' : ''} px-3 py-3`}>
                       <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                         {mentor.total_reviews}
                       </p>
@@ -286,7 +282,7 @@ export function CoachForFreshersProfileModal({
                 <h3 className="mb-3 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
                   About {firstName}
                 </h3>
-                <p className="whitespace-pre-line text-base leading-8 font-medium text-[#434655]">
+                <p className="text-base leading-8 font-medium whitespace-pre-line text-[#434655]">
                   {bioText || bioFallback}
                 </p>
               </div>
@@ -416,6 +412,34 @@ export function CoachForFreshersProfileModal({
                     />
                   )}
                 </div>
+
+                {resolvedMentorId ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose()
+                      router.push(
+                        `/request-availability?mentorId=${resolvedMentorId}&source=coach-for-freshers`
+                      )
+                    }}
+                    className="mt-4 flex w-full items-center justify-between gap-3 rounded-2xl border border-dashed border-[#c3c6d7]/70 bg-[#f8f9ff] px-4 py-3 text-left transition hover:border-[#004ac6]/60 hover:bg-[#eff4ff]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#004ac6] shadow-sm ring-1 ring-[#dfe7f5]">
+                        <CalendarPlus className="size-4" strokeWidth={2.4} />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                          Don&apos;t see a time that works?
+                        </p>
+                        <p className="text-xs font-medium text-[#737686]">
+                          Ask {firstName} to open a specific slot — they&apos;ll reply by email.
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronRight className="size-4 shrink-0 text-[#737686]" strokeWidth={2.4} />
+                  </button>
+                ) : null}
               </div>
             </section>
           </>
