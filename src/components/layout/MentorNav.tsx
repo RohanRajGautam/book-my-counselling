@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   CalendarDays,
+  Inbox,
   LayoutDashboard,
   LogOut,
   UserRound,
@@ -29,6 +30,7 @@ const BYC_LOGO_SRC = '/byc-logo.svg'
 const mentorNavItems = [
   { icon: LayoutDashboard, href: '/mentor/dashboard', label: 'Dashboard' },
   { icon: CalendarDays, href: '/mentor/my-sessions', label: 'My Sessions' },
+  { icon: Inbox, href: '/mentor/availability-requests', label: 'Availability Requests' },
   { icon: WalletCards, href: '/mentor/earnings', label: 'Earnings' },
   { icon: UserRound, href: '/mentor/profile-settings', label: 'Profile Settings' },
 ]
