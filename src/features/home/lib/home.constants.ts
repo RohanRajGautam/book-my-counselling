@@ -1,23 +1,23 @@
 export const HOME_STATS = [
   {
-    label: 'Majors changed by',
-    value: '80%',
-    detail: 'Of students',
+    label: 'CV Screening',
+    value: '85%',
+    detail: 'Of standard CVs fail recruiter scan',
   },
   {
-    label: 'Unused degrees for',
-    value: '70%',
-    detail: 'Of graduates',
+    label: 'Career Direction',
+    value: '72%',
+    detail: 'Of freshers graduate with no set path',
   },
   {
-    label: 'Studies abandoned by',
-    value: '33%',
-    detail: 'Of undergrads',
+    label: 'Communication Skills',
+    value: '65%',
+    detail: 'Of applicants rejected in interviews due to communication',
   },
   {
-    label: 'Career burnout hits',
-    value: '80%',
-    detail: 'Of workers',
+    label: 'Work-Life Balance',
+    value: '60%',
+    detail: 'Of professional workers face work life stress',
   },
 ]
 
