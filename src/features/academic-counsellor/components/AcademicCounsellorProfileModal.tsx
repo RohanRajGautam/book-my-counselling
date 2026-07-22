@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { X, Check, Link, Globe, Star, ChevronRight, ChevronLeft } from 'lucide-react'
+import { X, Check, Link, Globe, Star, ChevronRight, ChevronLeft, CalendarPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMentorProfile } from '@/features/mentors/hooks/useMentorProfile'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
@@ -498,6 +498,39 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                 />
               )}
             </div>
+
+            {resolvedMentorId ? (
+              <button
+                type="button"
+                onClick={() => {
+                  // Close the profile modal first, then push the dedicated
+                  // request page so the user lands on a clean full-screen
+                  // form instead of a nested popup-on-popup stack.
+                  onClose()
+                  router.push(`/request-availability?mentorId=${resolvedMentorId}`)
+                }}
+                className="mt-4 flex w-full items-center justify-between gap-3 rounded-2xl border border-dashed border-[#c3c6d7]/70 bg-[#f8f9ff] px-4 py-3 text-left transition hover:border-[#004ac6]/60 hover:bg-[#eff4ff]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#004ac6] shadow-sm ring-1 ring-[#dfe7f5]">
+                    <CalendarPlus className="size-4" strokeWidth={2.4} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
+                      Don&apos;t see a time that works?
+                    </p>
+                    <p className="text-xs font-medium text-[#737686]">
+                      Ask {mentor.user?.full_name?.split(' ')[0] ?? 'this mentor'} to open a
+                      specific slot — they&apos;ll reply by email.
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight
+                  className="size-4 shrink-0 text-[#737686]"
+                  strokeWidth={2.4}
+                />
+              </button>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-1 gap-6">
