@@ -509,24 +509,23 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                   onClose()
                   router.push(`/request-availability?mentorId=${resolvedMentorId}`)
                 }}
-                className="mt-4 flex w-full items-center justify-between gap-3 rounded-2xl border border-dashed border-[#c3c6d7]/70 bg-[#f8f9ff] px-4 py-3 text-left transition hover:border-[#004ac6]/60 hover:bg-[#eff4ff]"
+                className="animated-border-card group mt-4 flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-4 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#004ac6] shadow-sm ring-1 ring-[#dfe7f5]">
-                    <CalendarPlus className="size-4" strokeWidth={2.4} />
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
+                    <CalendarPlus className="size-5" strokeWidth={2.4} />
                   </span>
                   <div className="min-w-0">
-                    <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
-                      Don&apos;t see a time that works?
+                    <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-white">
+                      No Slots Available?
                     </p>
-                    <p className="text-xs font-medium text-[#737686]">
-                      Ask {mentor.user?.full_name?.split(' ')[0] ?? 'this mentor'} to open a
-                      specific slot — they&apos;ll reply by email.
+                    <p className="text-xs font-medium text-white/80">
+                      Don&apos;t worry, now you can request your booking too.
                     </p>
                   </div>
                 </div>
                 <ChevronRight
-                  className="size-4 shrink-0 text-[#737686]"
+                  className="size-4 shrink-0 text-white transition group-hover:translate-x-0.5"
                   strokeWidth={2.4}
                 />
               </button>
