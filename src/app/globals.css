@@ -48,6 +48,40 @@
   transform: translate3d(0, 0, 0);
   will-change: transform;
 }
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-angle-spin {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+/* Blue card with a highlight that travels around the border. */
+.animated-border-card {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(to bottom right, #004ac6, #2563eb) padding-box,
+    conic-gradient(
+        from var(--border-angle),
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.9) 12%,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0) 100%
+      )
+      border-box;
+  animation: border-angle-spin 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-border-card {
+    animation: none;
+  }
+}
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
