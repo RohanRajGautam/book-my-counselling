@@ -122,32 +122,31 @@ export function CoachForFreshersProfileModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-[#27313f]/40 backdrop-blur-[12px] sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-4 pb-26 backdrop-blur-[12px] lg:pb-4"
       onClick={onClose}
     >
       <div
-        className="custom-scrollbar relative grid h-[94vh] w-full max-w-7xl touch-pan-y grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-t-[24px] rounded-b-none bg-[#f8f9ff] p-4 pt-5 pb-32 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:h-auto sm:max-h-[90vh] sm:gap-5 sm:rounded-[24px] sm:p-6 sm:pb-6 lg:grid-cols-12"
-        style={{ WebkitOverflowScrolling: 'touch' }}
+        className="custom-scrollbar relative grid max-h-[90vh] w-full max-w-7xl grid-cols-1 gap-5 overflow-y-auto rounded-[32px] bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:p-6 lg:grid-cols-12"
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="sticky top-0 right-0 z-[60] ml-auto -mb-11 flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] sm:absolute sm:top-5 sm:right-5 sm:ml-0 sm:mb-0"
+          className="fixed top-5 right-5 z-[60] flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc]"
           aria-label="Close booking details"
         >
           <X className="size-6" />
         </button>
 
         {isLoading || !mentor ? (
-          <div className="h-[90vh] animate-pulse rounded-[24px] bg-white lg:col-span-12" />
+          <div className="h-[90vh] animate-pulse rounded-[32px] bg-white lg:col-span-12" />
         ) : (
           <>
-            <div className="flex flex-col gap-4 sm:gap-5 lg:col-span-4">
-              <div className="relative flex flex-col items-center overflow-hidden rounded-[20px] bg-white p-5 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-7">
-                <div className="absolute top-0 left-0 -z-0 h-24 w-full rounded-t-[20px] bg-[#eff4ff] sm:h-28 sm:rounded-t-[24px]" />
+            <div className="flex flex-col gap-5 lg:col-span-4">
+              <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-7 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+                <div className="absolute top-0 left-0 -z-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]" />
                 <div className="relative z-10">
-                  <div className="relative mx-auto mb-4 size-24 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10 sm:mb-5 sm:size-28">
+                  <div className="relative mx-auto mb-5 size-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
                     <div className="size-full overflow-hidden rounded-full">
                       {mentor.user?.avatar_url ? (
                         <Image
@@ -160,7 +159,7 @@ export function CoachForFreshersProfileModal({
                       ) : (
                         <div
                           aria-label={`${mentor.user?.full_name} profile initials`}
-                          className="flex size-full items-center justify-center rounded-full bg-[#e6eeff] text-4xl font-extrabold text-[#004ac6] sm:text-5xl"
+                          className="flex size-full items-center justify-center rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]"
                         >
                           {initials}
                         </div>
@@ -168,43 +167,43 @@ export function CoachForFreshersProfileModal({
                     </div>
                     {mentor.is_verified && (
                       <div
-                        className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-[3px] border-white bg-green-700 shadow-[0_8px_18px_rgba(0,83,219,0.24)] sm:size-8"
+                        className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border-[3px] border-white bg-green-700 shadow-[0_8px_18px_rgba(0,83,219,0.24)]"
                         aria-label="Verified profile"
                         title="Verified profile"
                       >
-                        <Check className="size-3.5 text-white sm:size-4" strokeWidth={4} aria-hidden="true" />
+                        <Check className="size-4 text-white" strokeWidth={4} aria-hidden="true" />
                       </div>
                     )}
                   </div>
-                  <h2 className="mb-1.5 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a] break-words sm:mb-2 sm:text-2xl lg:text-3xl">
+                  <h2 className="mb-2 font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-3xl">
                     {mentor.user?.full_name}
                   </h2>
-                  <p className="mx-auto mb-4 max-w-[320px] text-sm leading-6 font-medium break-words text-[#434655] sm:mb-5 sm:text-base sm:leading-7">
+                  <p className="mx-auto mb-4 max-w-[320px] text-base leading-7 font-medium text-[#434655]">
                     {mentor.title} {mentor.company && `at ${mentor.company}`}
                   </p>
 
                   <div
-                    className={`mb-4 grid overflow-hidden rounded-[16px] bg-[#f8f9ff] ring-1 ring-[#eff4ff] sm:mb-5 sm:rounded-[20px] ${
+                    className={`mb-5 grid ${
                       hasRating ? 'grid-cols-2' : 'grid-cols-1'
-                    }`}
+                    } overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]`}
                   >
                     {hasRating && (
-                      <div className="px-3 py-3 sm:py-3.5">
-                        <p className="font-[family-name:var(--font-headline)] text-base font-extrabold text-[#121c2a] sm:text-lg">
+                      <div className="px-3 py-3">
+                        <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                           {ratingLabel}
                         </p>
                         <p className="text-[11px] font-bold text-[#737686]">Rating</p>
                       </div>
                     )}
-                    <div className={`${hasRating ? 'border-l border-[#eff4ff]' : ''} px-3 py-3 sm:py-3.5`}>
-                      <p className="font-[family-name:var(--font-headline)] text-base font-extrabold text-[#121c2a] sm:text-lg">
+                    <div className={`${hasRating ? 'border-l border-[#eff4ff]' : ''} px-3 py-3`}>
+                      <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                         {mentor.total_reviews}
                       </p>
                       <p className="text-[11px] font-bold text-[#737686]">Reviews</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <a
                       href={linkedinHref}
                       target={mentor.linkedin_url ? '_blank' : undefined}
@@ -212,11 +211,11 @@ export function CoachForFreshersProfileModal({
                       onClick={(event) => {
                         if (!mentor.linkedin_url) event.preventDefault()
                       }}
-                      className={`flex min-h-[48px] items-center justify-center gap-2 rounded-[14px] bg-[#eff4ff] px-3 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] sm:rounded-[16px] sm:px-4 ${
+                      className={`flex items-center justify-center gap-2 rounded-[16px] bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
                         !mentor.linkedin_url ? 'cursor-not-allowed opacity-55' : ''
                       }`}
                     >
-                      <Link className="size-5 shrink-0" />
+                      <Link className="size-5" />
                       LinkedIn
                     </a>
                     <a
@@ -226,85 +225,84 @@ export function CoachForFreshersProfileModal({
                       onClick={(event) => {
                         if (!mentor.website_url) event.preventDefault()
                       }}
-                      className={`flex min-h-[48px] items-center justify-center gap-2 rounded-[14px] bg-[#eff4ff] px-3 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] sm:rounded-[16px] sm:px-4 ${
+                      className={`flex items-center justify-center gap-2 rounded-[16px] bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
                         !mentor.website_url ? 'cursor-not-allowed opacity-55' : ''
                       }`}
                     >
-                      <Globe className="size-5 shrink-0" />
+                      <Globe className="size-5" />
                       Portfolio
                     </a>
                   </div>
                 </div>
               </div>
 
-              <div className="flex min-h-[180px] flex-col rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6">
-                <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
-                  <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
+              <div className="flex h-[250px] flex-col rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
                     Services offered
                   </h3>
                   <span className="text-xs font-bold text-[#737686]">
                     {mentor.tags.length} total
                   </span>
                 </div>
-                <div className="custom-scrollbar flex min-h-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto pr-2 sm:gap-3">
+                <div className="custom-scrollbar flex min-h-0 flex-1 flex-wrap content-start gap-3 overflow-y-auto pr-2">
                   {mentor.tags.length > 0 ? (
                     mentor.tags.map((tag) => (
                       <span
                         key={tag.id}
-                        className="rounded-full bg-[#e6eeff] px-3.5 py-1.5 text-[12px] font-extrabold text-[#004ac6] sm:px-4 sm:py-2"
+                        className="rounded-full bg-[#e6eeff] px-4 py-2 text-[12px] font-extrabold text-[#004ac6]"
                       >
                         {displayTagName(tag.name)}
                       </span>
                     ))
                   ) : (
-                    <span className="rounded-full bg-[#e6eeff] px-3.5 py-1.5 text-sm font-extrabold text-[#004ac6] sm:px-4 sm:py-2">
+                    <span className="rounded-full bg-[#e6eeff] px-4 py-2 text-sm font-extrabold text-[#004ac6]">
                       Mentorship
                     </span>
                   )}
                 </div>
               </div>
 
-              <div
-                className="fixed right-0 bottom-0 left-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 px-4 pt-3 shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur-[8px] lg:sticky lg:right-auto lg:bottom-0 lg:left-auto lg:z-auto lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:px-3 lg:pt-3 lg:border-t-0 lg:bg-[#f8f9ff]/90 lg:shadow-none"
-                style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
-              >
-                <button
-                  type="button"
-                  disabled={!canBook}
-                  onClick={handleBook}
-                  className="block w-full rounded-[18px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:rounded-[20px] sm:px-8 sm:py-4 sm:text-lg"
-                >
-                  {ctaLabel}
-                </button>
+              <div className="fixed right-4 bottom-0 left-4 z-20 mx-auto mt-auto max-w-7xl border-t border-none bg-[#f8f9ff]/95 p-3 shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur lg:sticky lg:right-auto lg:bottom-0 lg:left-auto lg:z-auto lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:border-t-0 lg:bg-[#f8f9ff]/90 lg:shadow-none">
+                <div className="mt-auto rounded-[24px] p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+                  <button
+                    type="button"
+                    disabled={!canBook}
+                    onClick={handleBook}
+                    className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-4 text-center font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    {ctaLabel}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <section className="flex flex-col gap-4 sm:gap-5 lg:col-span-8">
-              <div className="rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6 lg:p-7">
-                <h3 className="mb-2.5 font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] break-words sm:mb-3 sm:text-xl lg:text-2xl">
+            <section className="flex flex-col gap-5 lg:col-span-8">
+              <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+                <h3 className="mb-3 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
                   About {firstName}
                 </h3>
-                <p className="text-sm leading-7 font-medium whitespace-pre-line text-[#434655] sm:text-base sm:leading-8">
+                <p className="text-base leading-8 font-medium whitespace-pre-line text-[#434655]">
                   {bioText || bioFallback}
                 </p>
               </div>
 
-              <div className="rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6">
-                <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+                <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-xl">
+                    <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
                       Packages
                     </h3>
-                    <p className="mt-0.5 text-xs font-medium text-[#737686] sm:mt-1 sm:text-sm">
+                    <p className="mt-1 text-sm font-medium text-[#737686]">
                       Select a package before choosing a time.
                     </p>
                   </div>
-                  <span className="w-fit rounded-full bg-[#e6eeff] px-3 py-1 text-[11px] font-extrabold text-[#004ac6] sm:py-1.5 sm:text-xs">
+                  <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
                     Choose one
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   {activePackages.length > 0 ? (
                     activePackages.map((servicePackage, index) => {
                       const isSelected = selection.packageId === servicePackage.id
@@ -321,7 +319,7 @@ export function CoachForFreshersProfileModal({
                               sessionEnd: null,
                             })
                           }
-                          className={`group relative cursor-pointer overflow-hidden rounded-[18px] p-4 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset sm:rounded-[24px] sm:p-5 ${
+                          className={`group relative cursor-pointer overflow-hidden rounded-[24px] p-5 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset ${
                             isSelected
                               ? 'bg-[#004ac6] text-white ring-[#004ac6]'
                               : 'bg-[#f8f9ff] ring-[#eff4ff] hover:bg-[#eff4ff]/70'
@@ -329,7 +327,7 @@ export function CoachForFreshersProfileModal({
                         >
                           {index === 1 && (
                             <div
-                              className={`absolute top-0 right-0 rounded-tr-[18px] rounded-bl-[10px] px-2.5 py-0.5 text-[10px] font-bold sm:rounded-tr-[24px] sm:rounded-bl-[12px] sm:px-3 sm:py-1 ${
+                              className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-[10px] font-bold ${
                                 isSelected
                                   ? 'bg-white/20 text-white'
                                   : 'bg-[#6cf8bb] text-[#00714d]'
@@ -339,21 +337,21 @@ export function CoachForFreshersProfileModal({
                             </div>
                           )}
                           <h4
-                            className={`mb-1 font-[family-name:var(--font-headline)] text-base font-bold sm:text-lg ${
+                            className={`mb-1 font-[family-name:var(--font-headline)] text-lg font-bold ${
                               isSelected ? 'text-white' : 'text-[#121c2a]'
                             }`}
                           >
                             {servicePackage.title}
                           </h4>
                           <p
-                            className={`mb-4 text-xs font-semibold sm:mb-5 sm:text-sm ${
+                            className={`mb-5 text-sm font-semibold ${
                               isSelected ? 'text-white/80' : 'text-[#434655]'
                             }`}
                           >
                             {servicePackage.duration_minutes} minutes
                           </p>
                           <div
-                            className={`font-[family-name:var(--font-headline)] text-xl font-extrabold sm:text-2xl ${
+                            className={`font-[family-name:var(--font-headline)] text-2xl font-extrabold ${
                               isSelected ? 'text-white' : 'text-[#004ac6]'
                             }`}
                           >
@@ -363,24 +361,24 @@ export function CoachForFreshersProfileModal({
                       )
                     })
                   ) : (
-                    <div className="col-span-full rounded-[16px] bg-[#f8f9ff] p-4 text-center text-xs font-semibold text-[#737686] sm:p-5 sm:text-sm">
+                    <div className="col-span-full rounded-[16px] bg-[#f8f9ff] p-5 text-center text-sm font-semibold text-[#737686]">
                       No active packages are available for this coach yet.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6">
-                <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+                <div className="mb-6 flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-xl">
+                    <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
                       Upcoming Availability
                     </h3>
-                    <p className="mt-0.5 text-xs font-medium text-[#737686] sm:mt-1 sm:text-sm">
+                    <p className="mt-1 text-sm font-medium text-[#737686]">
                       Times are shown in your local timezone.
                     </p>
                   </div>
-                  <span className="w-fit rounded-full bg-[#e6eeff] px-3 py-1 text-[11px] font-extrabold text-[#004ac6] sm:py-1.5 sm:text-xs">
+                  <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
                     {!hasAvailability
                       ? 'Unavailable'
                       : selectedPackage
@@ -424,18 +422,20 @@ export function CoachForFreshersProfileModal({
                         `/request-availability?mentorId=${resolvedMentorId}&source=coach-for-freshers`
                       )
                     }}
-                    className="animated-border-card group mt-4 flex w-full flex-col items-center gap-3 rounded-[16px] p-8 text-center shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
+                    className="animated-border-card group mt-4 flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-4 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
                   >
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
-                      <CalendarPlus className="size-5" strokeWidth={2.4} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-white">
-                        No slots available? Or don&apos;t see a time that works for you?
-                      </p>
-                      <p className="mt-1 text-xs font-medium text-white/80">
-                        Don&apos;t worry, now you can request your booking too.
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
+                        <CalendarPlus className="size-5" strokeWidth={2.4} />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-white">
+                          No Slots Available?
+                        </p>
+                        <p className="text-xs font-medium text-white/80">
+                          Don&apos;t worry, now you can request your booking too.
+                        </p>
+                      </div>
                     </div>
                     <ChevronRight
                       className="size-4 shrink-0 text-white transition group-hover:translate-x-0.5"
