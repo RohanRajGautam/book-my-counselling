@@ -422,7 +422,7 @@ export function CoachForFreshersProfileModal({
                         `/request-availability?mentorId=${resolvedMentorId}&source=coach-for-freshers`
                       )
                     }}
-                    className="animated-border-card group mt-4 flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-4 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
+                    className="animated-border-card group mt-4 flex h-[144px] w-full items-center justify-between gap-3 rounded-2xl px-8 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
                   >
                     <div className="flex items-center gap-3">
                       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
@@ -430,7 +430,7 @@ export function CoachForFreshersProfileModal({
                       </span>
                       <div className="min-w-0">
                         <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-white">
-                          No Slots Available?
+                          No slots available? or don&apos;t see a time that fits you?
                         </p>
                         <p className="text-xs font-medium text-white/80">
                           Don&apos;t worry, now you can request your booking too.
