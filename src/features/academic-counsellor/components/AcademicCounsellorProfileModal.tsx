@@ -172,7 +172,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
       >
         <button
           onClick={onClose}
-          className="sticky top-0 right-0 z-[60] ml-auto -mb-11 flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] sm:absolute sm:top-5 sm:right-5 sm:ml-0 sm:mb-0"
+          className="sticky top-0 right-0 z-[60] -mb-11 ml-auto flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] sm:absolute sm:top-5 sm:right-5 sm:mb-0 sm:ml-0"
           aria-label="Close modal"
         >
           <X className="h-6 w-6" />
@@ -208,11 +208,15 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     aria-label="Verified profile"
                     title="Verified profile"
                   >
-                    <Check className="size-3.5 text-white sm:size-4" strokeWidth={4} aria-hidden="true" />
+                    <Check
+                      className="size-3.5 text-white sm:size-4"
+                      strokeWidth={4}
+                      aria-hidden="true"
+                    />
                   </div>
                 )}
               </div>
-              <h2 className="mb-1.5 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a] break-words sm:mb-2 sm:text-2xl lg:text-3xl">
+              <h2 className="mb-1.5 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight break-words text-[#121c2a] sm:mb-2 sm:text-2xl lg:text-3xl">
                 {mentor.user?.full_name}
               </h2>
               <p className="mx-auto mb-4 max-w-[320px] text-sm leading-6 font-medium break-words text-[#434655] sm:mb-5 sm:text-base sm:leading-7">
@@ -324,7 +328,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
           </div> */}
 
           <div
-            className="fixed right-0 bottom-0 left-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 px-4 pt-3 shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur-[8px] lg:sticky lg:right-auto lg:bottom-0 lg:left-auto lg:z-auto lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:px-3 lg:pt-3 lg:border-t-0 lg:bg-[#f8f9ff]/90 lg:shadow-none"
+            className="fixed right-0 bottom-0 left-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 px-4 pt-3 shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur-[8px] lg:sticky lg:right-auto lg:bottom-0 lg:left-auto lg:z-auto lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:border-t-0 lg:bg-[#f8f9ff]/90 lg:px-3 lg:pt-3 lg:shadow-none"
             style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           >
             <button
@@ -351,7 +355,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
         {/* RIGHT COLUMN: Details Bento */}
         <div className="flex flex-col gap-4 sm:gap-5 lg:col-span-8">
           <div className="rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6 lg:p-7">
-            <h3 className="mb-2.5 font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] break-words sm:mb-3 sm:text-xl lg:text-2xl">
+            <h3 className="mb-2.5 font-[family-name:var(--font-headline)] text-lg font-bold break-words text-[#121c2a] sm:mb-3 sm:text-xl lg:text-2xl">
               About {mentor.user?.full_name?.split(' ')[0]}
             </h3>
             <p className="text-sm leading-7 font-medium whitespace-pre-line text-[#434655] sm:text-base sm:leading-8">
@@ -505,7 +509,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     No slots available? or don&apos;t see a time that works for you?
                   </p>
                   <p className="mt-1 text-xs font-medium text-white/80">
-                    Don&apos;t worry, now you can request your booking too.
+                    Don&apos;t worry, now you can easily request your booking too.
                   </p>
                 </div>
                 <ChevronRight
