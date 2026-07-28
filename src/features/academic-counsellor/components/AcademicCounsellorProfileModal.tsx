@@ -523,10 +523,10 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     <CalendarPlus className="size-5" strokeWidth={2.4} />
                   </span>
                   <div className="min-w-0">
-                    <p className="font-[family-name:var(--font-headline)] text-sm font-extrabold text-white">
+                    <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-white">
                       No slots available? or don&apos;t see a time that fits you?
                     </p>
-                    <p className="text-xs font-medium text-white/80">
+                    <p className="mt-1 text-xs font-medium text-white/80">
                       Don&apos;t worry, now you can request your booking too.
                     </p>
                   </div>
