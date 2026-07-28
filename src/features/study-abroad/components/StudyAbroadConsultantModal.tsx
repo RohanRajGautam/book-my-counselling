@@ -96,29 +96,28 @@ export function StudyAbroadConsultantModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-[#27313f]/40 backdrop-blur-[12px] sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-4 backdrop-blur-[12px]"
       onClick={onClose}
     >
       <div
-        className="custom-scrollbar relative grid h-[94vh] w-full max-w-5xl touch-pan-y grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-t-[24px] rounded-b-none bg-[#f8f9ff] p-4 pt-5 pb-28 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:h-auto sm:max-h-[90vh] sm:gap-5 sm:rounded-[24px] sm:p-6 sm:pb-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]"
-        style={{ WebkitOverflowScrolling: 'touch' }}
+        className="custom-scrollbar relative grid max-h-[90vh] w-full max-w-5xl grid-cols-1 gap-5 overflow-y-auto rounded-[32px] bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:p-6 lg:grid-cols-[340px_minmax(0,1fr)]"
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="sticky top-0 right-0 z-[60] ml-auto -mb-11 flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] focus-visible:ring-3 focus-visible:ring-[#0053db]/30 focus-visible:outline-none sm:absolute sm:top-5 sm:right-5 sm:ml-0 sm:mb-0"
+          className="fixed top-5 right-5 z-[60] flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] focus-visible:ring-3 focus-visible:ring-[#0053db]/30 focus-visible:outline-none"
           aria-label="Close consultant details"
         >
           <X className="size-6" />
         </button>
 
-        <div className="flex flex-col gap-4 sm:gap-5">
-          <section className="relative flex flex-col items-center overflow-hidden rounded-[20px] bg-white p-5 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-7">
-            <div className="absolute top-0 left-0 h-24 w-full rounded-t-[20px] bg-[#eff4ff] sm:h-28 sm:rounded-t-[24px]" />
+        <div className="flex flex-col gap-5">
+          <section className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-7 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+            <div className="absolute top-0 left-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]" />
             <div className="relative z-10">
-              <div className="relative mx-auto mb-4 size-24 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10 sm:mb-5 sm:size-28">
-                <div className="relative flex size-full items-center justify-center overflow-hidden rounded-full bg-[#e6eeff] text-4xl font-extrabold text-[#004ac6] sm:text-5xl">
+              <div className="relative mx-auto mb-5 size-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
+                <div className="relative flex size-full items-center justify-center overflow-hidden rounded-full bg-[#e6eeff] text-5xl font-extrabold text-[#004ac6]">
                   <Image
                     src={consultant.imageUrl}
                     alt={formatDisplayName(consultant.name)}
@@ -130,20 +129,20 @@ export function StudyAbroadConsultantModal({
                 </div>
                 {consultant.verified && (
                   <div
-                    className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-[3px] border-white bg-green-700 shadow-[0_8px_18px_rgba(0,83,219,0.24)] sm:size-8"
+                    className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border-[3px] border-white bg-green-700 shadow-[0_8px_18px_rgba(0,83,219,0.24)]"
                     aria-label="Verified profile"
                     title="Verified profile"
                   >
-                    <Check className="size-3.5 text-white sm:size-4" strokeWidth={4} aria-hidden="true" />
+                    <Check className="size-4 text-white" strokeWidth={4} aria-hidden="true" />
                   </div>
                 )}
               </div>
 
-              <h2 className="font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a] break-words sm:text-2xl lg:text-3xl">
+              <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-3xl">
                 {formatDisplayName(consultant.name)}
               </h2>
 
-              <div className="mt-4 grid gap-2.5 rounded-[16px] bg-[#f8f9ff] p-3.5 text-left ring-1 ring-[#eff4ff] ring-inset sm:mt-5 sm:gap-3 sm:rounded-[20px] sm:p-4">
+              <div className="mt-5 grid gap-3 rounded-[20px] bg-[#f8f9ff] p-4 text-left ring-1 ring-[#eff4ff] ring-inset">
                 <p className="flex items-center gap-2 text-sm font-extrabold text-[#121c2a]">
                   <MapPin className="size-4 text-[#0053db]" />
                   {country?.label}
@@ -155,7 +154,7 @@ export function StudyAbroadConsultantModal({
             </div>
           </section>
 
-          <div className="rounded-[20px] bg-white p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px]">
+          <div className="rounded-[24px] bg-white p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <button
               type="button"
               disabled={selectedPackage?.consultantId !== consultant.id}
@@ -165,7 +164,7 @@ export function StudyAbroadConsultantModal({
                   `/study-abroad/booking?consultantId=${consultant.id}&duration=${selectedPackage.durationMinutes}`
                 )
               }}
-              className="flex min-h-[48px] w-full items-center justify-center rounded-[14px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-5 py-3 text-center font-[family-name:var(--font-headline)] text-sm font-bold text-white shadow-lg shadow-[#004ac6]/20 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:scale-100 sm:rounded-[18px] sm:px-8 sm:text-base"
+              className="h-12 w-full rounded-[18px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:scale-100"
             >
               {selectedPackage?.consultantId === consultant.id
                 ? 'Continue Booking'
@@ -174,40 +173,40 @@ export function StudyAbroadConsultantModal({
           </div>
         </div>
 
-        <section className="flex flex-col gap-4 sm:gap-5">
-          <div className="rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6 lg:p-7">
+        <section className="flex flex-col gap-5">
+          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)] lg:p-8">
             <p className="text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
               {consultant.profileType === 'student' ? 'Student' : 'Employee'}
             </p>
 
             {consultant.profileType === 'student' ? (
               <>
-                <h3 className="mt-2 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a] break-words sm:mt-3 sm:text-2xl">
+                <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a]">
                   {consultant.headline ?? primaryTitle}
                 </h3>
                 {primarySubtitle && (
-                  <p className="mt-2 text-sm leading-7 font-medium break-words text-[#434655] sm:text-base sm:leading-7">
+                  <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
                     {primarySubtitle}
                   </p>
                 )}
               </>
             ) : (
               <>
-                <h3 className="mt-2 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a] break-words sm:mt-3 sm:text-2xl">
+                <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a]">
                   {primaryTitle}
                 </h3>
                 {primarySubtitle && (
-                  <p className="mt-2 text-sm leading-7 font-medium break-words text-[#434655] sm:text-base sm:leading-7">
+                  <p className="mt-2 text-base leading-7 font-medium text-[#434655]">
                     {primarySubtitle}
                   </p>
                 )}
                 {hasEmployeeEducation && (
-                  <div className="mt-4 rounded-2xl bg-[#f8f9ff] p-3.5 sm:mt-5 sm:p-4">
+                  <div className="mt-5 rounded-2xl bg-[#f8f9ff] p-4">
                     <p className="text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
                       Education
                     </p>
                     {consultant.universityName && (
-                      <p className="mt-2 font-[family-name:var(--font-headline)] text-base font-extrabold text-[#121c2a] break-words sm:text-lg">
+                      <p className="mt-2 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
                         {consultant.universityName}
                       </p>
                     )}
@@ -222,22 +221,22 @@ export function StudyAbroadConsultantModal({
             )}
 
             {consultant.bio && (
-              <p className="mt-4 border-t border-[#dfe7f5] pt-4 text-sm leading-7 font-medium text-[#434655] sm:mt-5 sm:pt-5 sm:text-base sm:leading-8">
+              <p className="mt-5 border-t border-[#dfe7f5] pt-5 text-base leading-8 font-medium text-[#434655]">
                 {consultant.bio}
               </p>
             )}
 
             {highlights.length > 0 && (
-              <div className="mt-4 rounded-[16px] bg-[#f8f9ff] p-3.5 ring-1 ring-[#eff4ff] ring-inset sm:mt-5 sm:rounded-[20px] sm:p-4">
-                <p className="mb-2.5 flex items-center gap-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase sm:mb-3">
+              <div className="mt-5 rounded-[20px] bg-[#f8f9ff] p-4 ring-1 ring-[#eff4ff] ring-inset">
+                <p className="mb-3 flex items-center gap-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
                   <Sparkles className="size-4 text-[#0053db]" />
                   Good topics to ask about
                 </p>
-                <ul className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
+                <ul className="grid gap-3 sm:grid-cols-2">
                   {highlights.map((highlight) => (
                     <li
                       key={highlight}
-                      className="flex gap-2.5 text-sm leading-6 font-semibold text-[#434655] sm:gap-3"
+                      className="flex gap-3 text-sm leading-6 font-semibold text-[#434655]"
                     >
                       <span className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ebfff5] text-[#00714d]">
                         <Check className="size-3.5" strokeWidth={4} />
@@ -250,22 +249,22 @@ export function StudyAbroadConsultantModal({
             )}
           </div>
 
-          <div className="rounded-[20px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:rounded-[24px] sm:p-6">
-            <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-xl">
+                <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
                   Session Packages
                 </h3>
-                <p className="mt-0.5 text-xs font-medium text-[#737686] sm:mt-1 sm:text-sm">
+                <p className="mt-1 text-sm font-medium text-[#737686]">
                   Choose the consultation length that fits your question.
                 </p>
               </div>
-              <span className="w-fit rounded-full bg-[#e6eeff] px-3 py-1 text-[11px] font-extrabold text-[#004ac6] sm:py-1.5 sm:text-xs">
+              <span className="w-fit rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
                 Choose one
               </span>
             </div>
 
-            <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-3">
               {packages.map((item) => {
                 const isSelected =
                   selectedPackage?.consultantId === consultant.id &&
@@ -287,7 +286,7 @@ export function StudyAbroadConsultantModal({
                       )
                     }
                     className={cn(
-                      'relative overflow-hidden rounded-[18px] p-4 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset sm:rounded-[24px] sm:p-5',
+                      'relative overflow-hidden rounded-[24px] p-5 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset',
                       'focus-visible:ring-3 focus-visible:ring-[#0053db]/30 focus-visible:outline-none',
                       isSelected
                         ? 'bg-[#004ac6] text-white ring-[#004ac6]'
@@ -297,7 +296,7 @@ export function StudyAbroadConsultantModal({
                     {item.durationMinutes === 60 && (
                       <span
                         className={cn(
-                          'absolute top-0 right-0 rounded-tr-[18px] rounded-bl-[10px] px-2.5 py-0.5 text-[10px] font-bold sm:rounded-tr-[24px] sm:rounded-bl-[12px] sm:px-3 sm:py-1',
+                          'absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-[10px] font-bold',
                           isSelected ? 'bg-white/20 text-white' : 'bg-[#6cf8bb] text-[#00714d]'
                         )}
                       >
@@ -306,7 +305,7 @@ export function StudyAbroadConsultantModal({
                     )}
                     <h4
                       className={cn(
-                        'font-[family-name:var(--font-headline)] text-base font-bold sm:text-lg',
+                        'font-[family-name:var(--font-headline)] text-lg font-bold',
                         isSelected ? 'text-white' : 'text-[#121c2a]'
                       )}
                     >
@@ -314,7 +313,7 @@ export function StudyAbroadConsultantModal({
                     </h4>
                     <p
                       className={cn(
-                        'mt-1.5 flex items-center gap-1.5 text-xs font-semibold sm:mt-2 sm:text-sm',
+                        'mt-2 flex items-center gap-1.5 text-sm font-semibold',
                         isSelected ? 'text-white/80' : 'text-[#434655]'
                       )}
                     >
@@ -323,7 +322,7 @@ export function StudyAbroadConsultantModal({
                     </p>
                     <p
                       className={cn(
-                        'mt-4 font-[family-name:var(--font-headline)] text-xl font-extrabold sm:mt-5 sm:text-2xl',
+                        'mt-5 font-[family-name:var(--font-headline)] text-2xl font-extrabold',
                         isSelected ? 'text-white' : 'text-[#004ac6]'
                       )}
                     >
