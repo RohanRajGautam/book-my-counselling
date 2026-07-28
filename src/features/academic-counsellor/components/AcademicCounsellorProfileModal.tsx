@@ -123,13 +123,11 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
   const hasAvailability = availability.length > 0
-  const ctaLabel = !hasAvailability
-    ? 'Not Accepting Bookings'
-    : !selectedPackageId
-      ? 'Choose a Package'
-      : !selectedSlotId
-        ? 'Choose a Time Slot'
-        : 'Book a Session'
+  const ctaLabel = !selectedPackageId
+    ? 'Choose a Package'
+    : !selectedSlotId
+      ? 'Choose a Time Slot'
+      : 'Book a Session'
   const canBook = Boolean(
     resolvedMentorId && selectedSlotId && selectedPackageId && hasAvailability
   )
@@ -146,8 +144,17 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
-    if (isOpen) window.addEventListener('keydown', handleEsc)
-    return () => window.removeEventListener('keydown', handleEsc)
+    if (!isOpen) return
+    window.addEventListener('keydown', handleEsc)
+    const previousOverflow = document.body.style.overflow
+    const previousTouchAction = document.body.style.touchAction
+    document.body.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
+    return () => {
+      window.removeEventListener('keydown', handleEsc)
+      document.body.style.overflow = previousOverflow
+      document.body.style.touchAction = previousTouchAction
+    }
   }, [isOpen, onClose])
 
   if (!isOpen) return null
@@ -162,24 +169,24 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-4 pb-26 backdrop-blur-[12px] lg:pb-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-3 backdrop-blur-[12px] sm:p-4"
       onClick={onClose}
     >
       <div
-        className="custom-scrollbar relative grid max-h-[90vh] w-full max-w-7xl grid-cols-1 gap-5 overflow-y-auto rounded-[32px] bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:p-6 lg:grid-cols-12"
+        className="relative grid max-h-[calc(100dvh-1.5rem)] w-full max-w-7xl grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-[24px] bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:max-h-[calc(100dvh-2rem)] sm:gap-5 sm:rounded-[32px] sm:p-6 lg:grid-cols-12 lg:gap-6 lg:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="fixed top-5 right-5 z-[60] flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc]"
+          className="fixed top-3 right-3 z-[60] flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] sm:top-5 sm:right-5"
           aria-label="Close modal"
         >
           <X className="h-6 w-6" />
         </button>
 
         {/* LEFT COLUMN: Identity & Quick Actions */}
-        <div className="flex flex-col gap-5 lg:col-span-4">
-          <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-7 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+        <div className="flex flex-col gap-4 sm:gap-5 lg:col-span-4">
+          <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-5 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6 lg:p-7">
             <div className="absolute top-0 left-0 -z-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]"></div>
             <div className="relative z-10">
               <div className="relative mx-auto mb-5 h-28 w-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
@@ -282,14 +289,14 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             </div>
           </div>
 
-          <div className="flex h-[250px] flex-col rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
+          <div className="flex h-[220px] flex-col rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:h-[250px] sm:p-6">
+            <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+              <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
                 Services offered
               </h3>
               <span className="text-xs font-bold text-[#737686]">{services.length} total</span>
             </div>
-            <div className="custom-scrollbar flex min-h-0 flex-1 flex-wrap content-start gap-3 overflow-y-auto pr-2">
+            <div className="custom-scrollbar flex min-h-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto pr-2 sm:gap-3">
               {services.length > 0 ? (
                 services.map((tag) => (
                   <span
@@ -338,8 +345,8 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             </a>
           </div> */}
 
-          <div className="fixed right-4 bottom-0 left-4 z-20 mx-auto mt-auto max-w-7xl border-t border-none bg-[#f8f9ff]/95 p-3 shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur lg:sticky lg:right-auto lg:bottom-0 lg:left-auto lg:z-auto lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:border-t-0 lg:bg-[#f8f9ff]/90 lg:shadow-none">
-            <div className="mt-auto rounded-[24px] p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+          {hasAvailability ? (
+            <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur-[8px] sm:inset-x-4 sm:rounded-b-[32px] lg:sticky lg:inset-auto lg:right-auto lg:bottom-4 lg:left-auto lg:z-30 lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:bg-[#f8f9ff]/90 lg:p-3 lg:pt-3 lg:shadow-none lg:backdrop-blur-md">
               <button
                 disabled={!canBook}
                 onClick={() => {
@@ -354,40 +361,40 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     )
                   }
                 }}
-                className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 py-4 text-center font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
               >
                 {ctaLabel}
               </button>
             </div>
-          </div>
+          ) : null}
         </div>
 
         {/* RIGHT COLUMN: Details Bento */}
-        <div className="flex flex-col gap-5 lg:col-span-8">
-          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)] lg:p-8">
-            <h3 className="mb-3 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
+        <div className="flex flex-col gap-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:gap-5 sm:pb-[calc(6rem+env(safe-area-inset-bottom))] lg:col-span-8 lg:gap-6 lg:pb-0">
+          <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6 lg:p-8">
+            <h3 className="mb-3 font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a] sm:text-2xl">
               About {mentor.user?.full_name?.split(' ')[0]}
             </h3>
-            <p className="text-base leading-8 font-medium whitespace-pre-line text-[#434655]">
+            <p className="text-base leading-7 font-medium whitespace-pre-line text-[#434655] sm:leading-8">
               {bioText || bioFallback}
             </p>
           </div>
 
-          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-            <div className="mb-6 flex items-center justify-between">
+          <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
+            <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
               <div>
-                <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
+                <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] sm:text-xl">
                   Packages
                 </h3>
                 <p className="mt-1 text-sm font-medium text-[#737686]">
                   Select a package before choosing a time.
                 </p>
               </div>
-              <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+              <span className="shrink-0 rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
                 Choose one
               </span>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
               {packages.length > 0 ? (
                 packages.map((service, index) => (
                   <button
@@ -451,17 +458,17 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             </div>
           </div>
 
-          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-            <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
+            <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 sm:gap-4">
               <div>
-                <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
+                <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] sm:text-xl">
                   Upcoming Availability
                 </h3>
                 <p className="mt-1 text-sm font-medium text-[#737686]">
                   Times are shown in your local timezone.
                 </p>
               </div>
-              <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+              <span className="shrink-0 rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
                 {!hasAvailability
                   ? 'Unavailable'
                   : selectedPackageId
@@ -509,7 +516,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                   onClose()
                   router.push(`/request-availability?mentorId=${resolvedMentorId}`)
                 }}
-                className="animated-border-card group mt-4 flex h-[144px] w-full items-center justify-between gap-3 rounded-lg px-4 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
+                className="animated-border-card group mt-4 flex h-[144px] w-full items-center justify-between gap-3 rounded-lg px-4 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)] sm:px-6 lg:px-8"
               >
                 <div className="flex items-center gap-3">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
@@ -532,8 +539,8 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             ) : null}
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
-            <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:gap-6">
+            <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
               {totalReviews > 0 || isReviewsLoading ? (
                 <div className="flex flex-col gap-6">
                   <div className="flex items-center justify-between">
