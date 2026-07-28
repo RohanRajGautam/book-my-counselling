@@ -11,8 +11,7 @@ import {
 } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 
-const COACH_FOR_FRESHERS_GROUP_LABEL =
-  COACH_FOR_FRESHERS_TAG_LABELS[COACH_FOR_FRESHERS_GROUP_TAG]
+const COACH_FOR_FRESHERS_GROUP_LABEL = COACH_FOR_FRESHERS_TAG_LABELS[COACH_FOR_FRESHERS_GROUP_TAG]
 
 // Mentor tags can arrive as raw slugs (e.g. "career-clarity-roadmap") or as the
 // pre-resolved labels some callers pass through. The membership sets below
@@ -110,14 +109,10 @@ export function MentorCard({
 
   const filteredTags = (() => {
     if (context === 'coach-for-freshers') {
-      return cleanedTags.filter(
-        (tag) => CFF_GROUP_VALUES.has(tag) || CFF_SERVICE_VALUES.has(tag)
-      )
+      return cleanedTags.filter((tag) => CFF_GROUP_VALUES.has(tag) || CFF_SERVICE_VALUES.has(tag))
     }
     if (context === 'academic') {
-      return cleanedTags.filter(
-        (tag) => !CFF_GROUP_VALUES.has(tag) && !CFF_SERVICE_VALUES.has(tag)
-      )
+      return cleanedTags.filter((tag) => !CFF_GROUP_VALUES.has(tag) && !CFF_SERVICE_VALUES.has(tag))
     }
     return cleanedTags.filter((tag) => !CFF_GROUP_VALUES.has(tag))
   })()
@@ -170,20 +165,17 @@ export function MentorCard({
             {displayName}
           </h3>
           {/* {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>} */}
-          <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">
-            {role}
-          </p>
+          <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">{role}</p>
+          {companyDisplay && (
+            <div className="mb-4 flex items-center gap-2">
+              {/* <Building2 className="size-4 shrink-0 text-[#737686]" aria-hidden /> */}
+              <span className="line-clamp-1 text-sm font-bold text-[#5f6472]">
+                {companyDisplay}
+              </span>
+            </div>
+          )}
         </div>
       </div>
-
-      {companyDisplay && (
-        <div className="mb-4 flex items-center gap-2">
-          <Building2 className="size-4 shrink-0 text-[#737686]" aria-hidden />
-          <span className="line-clamp-1 text-sm font-semibold text-[#5f6472]">
-            {companyDisplay}
-          </span>
-        </div>
-      )}
 
       <div className="mb-5">
         <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
