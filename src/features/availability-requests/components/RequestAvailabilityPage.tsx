@@ -3,12 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect } from 'react'
-import {
-  ArrowLeft,
-  CalendarPlus,
-  ShieldCheck,
-  UserX,
-} from 'lucide-react'
+import { ArrowLeft, CalendarPlus, ShieldCheck, UserX } from 'lucide-react'
 
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { Button } from '@/components/ui/button'
@@ -52,7 +47,7 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
         {/* Back link */}
         <Link
           href={`/academic-counsellor/${mentorId}`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-blue-700"
+          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 py-4 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-blue-700"
         >
           <ArrowLeft className="size-3.5" strokeWidth={2.4} />
           Back to {firstName}&apos;s profile
@@ -64,9 +59,8 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
             Request a session with {firstName}
           </h1>
           <p className="mt-3 text-sm leading-6 font-medium text-slate-600 sm:text-base">
-            Tell {firstName} when you&apos;d like to meet and for how long.
-            They&apos;ll review your request and email you a booking link if
-            they can open that time.
+            Tell {firstName} {''} when you&apos;d like to meet and for how long. They&apos;ll review
+            your request and email you a booking link if they can open that time.
           </p>
         </header>
 
@@ -82,9 +76,7 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
                 <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-950 sm:text-xl">
                   Your request
                 </h2>
-                <p className="mt-0.5 text-xs font-medium text-slate-500">
-                  Takes about a minute.
-                </p>
+                <p className="mt-0.5 text-xs font-medium text-slate-500">Takes about a minute.</p>
               </div>
             </div>
 
@@ -101,7 +93,7 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
                 Requesting from
               </p>
               <div className="mt-3 flex items-center gap-3">
-                <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-blue-50 ring-2 ring-white shadow-sm">
+                <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-blue-50 shadow-sm ring-2 ring-white">
                   {mentorAvatarUrl ? (
                     <Image
                       src={mentorAvatarUrl}
@@ -111,7 +103,7 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
                       className="size-full object-cover"
                     />
                   ) : (
-                    <span className="flex size-full items-center justify-center font-headline text-sm font-extrabold text-blue-700">
+                    <span className="font-headline flex size-full items-center justify-center text-sm font-extrabold text-blue-700">
                       {mentorName
                         .split(' ')
                         .map((p) => p[0])
@@ -150,11 +142,7 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
                   title={`${firstName} replies`}
                   body="Most mentors respond within a day."
                 />
-                <Step
-                  n={3}
-                  title="Slot opens"
-                  body="If accepted, we email you a booking link."
-                />
+                <Step n={3} title="Slot opens" body="If accepted, we email you a booking link." />
               </ol>
             </section>
 
@@ -169,8 +157,7 @@ export function RequestAvailabilityPage({ mentorId }: RequestAvailabilityPagePro
                     Your info stays private
                   </p>
                   <p className="mt-1 text-xs leading-5 font-medium text-slate-600">
-                    Only {firstName} sees your name and email — and only for
-                    this request.
+                    Only {firstName} sees your name and email — and only for this request.
                   </p>
                 </div>
               </div>
@@ -189,12 +176,8 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
         {n}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="font-headline text-xs font-extrabold text-slate-950">
-          {title}
-        </p>
-        <p className="mt-0.5 text-xs leading-5 font-medium text-slate-500">
-          {body}
-        </p>
+        <p className="font-headline text-xs font-extrabold text-slate-950">{title}</p>
+        <p className="mt-0.5 text-xs leading-5 font-medium text-slate-500">{body}</p>
       </div>
     </li>
   )
@@ -229,12 +212,12 @@ function PickMentorFirstState() {
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
           <CalendarPlus className="size-7" strokeWidth={2.2} />
         </div>
-        <h1 className="mt-5 font-headline text-2xl font-extrabold tracking-tight text-slate-950">
+        <h1 className="font-headline mt-5 text-2xl font-extrabold tracking-tight text-slate-950">
           Pick a mentor first
         </h1>
         <p className="mt-2 text-sm font-medium text-slate-600">
-          Browse our mentors and use the &ldquo;Request availability&rdquo;
-          option on their profile to ask them to open a specific time slot.
+          Browse our mentors and use the &ldquo;Request availability&rdquo; option on their profile
+          to ask them to open a specific time slot.
         </p>
         <Button
           nativeButton={false}
@@ -255,12 +238,11 @@ function MentorNotFoundState() {
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-red-100 text-red-600">
           <UserX className="size-7" strokeWidth={2.2} />
         </div>
-        <h1 className="mt-5 font-headline text-2xl font-extrabold tracking-tight text-red-700">
+        <h1 className="font-headline mt-5 text-2xl font-extrabold tracking-tight text-red-700">
           We couldn&apos;t find that mentor
         </h1>
         <p className="mt-2 text-sm font-medium text-red-600">
-          The link may be expired or the mentor&apos;s profile is no longer
-          available.
+          The link may be expired or the mentor&apos;s profile is no longer available.
         </p>
         <Button
           nativeButton={false}
