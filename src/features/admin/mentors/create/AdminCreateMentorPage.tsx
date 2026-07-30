@@ -130,9 +130,7 @@ export function AdminCreateMentorPage() {
         ? counselling.coachingServices.filter((s) => COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(s))
         : []),
       ...(counselling.isAcademicCounselor ? counselling.academicTags : []),
-      ...(counselling.isProfessionalCounselor &&
-      counselling.coachingServices.length > 0 &&
-      slugToId.has(COACH_FOR_FRESHERS_GROUP_TAG)
+      ...(counselling.isProfessionalCounselor && slugToId.has(COACH_FOR_FRESHERS_GROUP_TAG)
         ? [COACH_FOR_FRESHERS_GROUP_TAG]
         : []),
     ]
