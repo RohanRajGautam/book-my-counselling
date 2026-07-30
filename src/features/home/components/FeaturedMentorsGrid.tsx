@@ -52,6 +52,7 @@ export function FeaturedMentorsGrid() {
                 description={`Mentor in ${mentor.industries?.join(', ') || 'various fields'} with ${mentor.total_sessions} sessions`}
                 fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}
+                companyLogoUrl={mentor.company_logo_url ?? null}
                 verified={mentor.is_verified}
                 onClick={() => router.push(`/academic-counsellor/${mentor.id}`)}
               />

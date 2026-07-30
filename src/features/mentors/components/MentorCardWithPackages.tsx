@@ -14,6 +14,7 @@ interface MentorCardWithPackagesProps {
   description: string
   fallbackPrice: number
   imageUrl?: string | null
+  companyLogoUrl?: string | null
   verified?: boolean
   onClick?: () => void
   context?: 'academic' | 'coach-for-freshers'
