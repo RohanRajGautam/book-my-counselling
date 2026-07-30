@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/api-client'
 import { PaginatedResponse } from '@/lib/api/api.types'
+import { UserResponse } from '@/features/auth/types/auth.types'
 import { AdminMentorCreateResponse } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import {
   AdminMentorProfile,
@@ -32,6 +33,22 @@ export async function updateAdminUserProfile(
     `/admin/users/${userId}/profile`,
     payload
   )
+  return res.data
+}
+
+/**
+ * Uploads a new avatar file for any user (mentee, mentor, or admin) on the
+ * user's behalf. Returns the full `UserResponse` so callers can read the
+ * fresh `avatar_url` immediately.
+ *
+ * Doc: `POST /api/v1/admin/users/{user_id}/avatar` (multipart, single `file` part).
+ */
+export async function adminSetUserAvatar(userId: string, file: File): Promise<UserResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await apiClient.post<UserResponse>(`/admin/users/${userId}/avatar`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
   return res.data
 }
 

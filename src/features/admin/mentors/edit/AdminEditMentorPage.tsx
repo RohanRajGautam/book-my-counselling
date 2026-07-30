@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
+  useAdminSetUserAvatar,
   useMentorFromAdminListCache,
   useUpdateAdminUserProfile,
 } from '@/features/admin/mentors/hooks/useAdminMentors'
@@ -82,6 +83,7 @@ type AdminEditMentorPageProps = {
 export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
   const router = useRouter()
   const { mutate: updateProfile, isPending } = useUpdateAdminUserProfile(userId)
+  const { mutateAsync: uploadAvatar } = useAdminSetUserAvatar(userId)
   const { data: catalogTags = [] } = useTags()
   const { ids: academicIds, isLoading: academicIdsLoading } = useAllAcademicSubcategoryIds()
   const cachedMentor = useMentorFromAdminListCache(userId)
@@ -96,6 +98,16 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
 
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [snapshot, setSnapshot] = useState<InitialSnapshot | null>(null)
+
+  // Local override for the avatar preview. Updated immediately from the upload
+  // response so the user sees their new photo without waiting for the mentor
+  // list to refetch. The cache invalidation in useAdminSetUserAvatar keeps
+  // every other page in sync.
+  const [avatarUrlOverride, setAvatarUrlOverride] = useState<string | null>(null)
+  // Set true when an avatar was uploaded during this session, so the "Save
+  // changes" handler can distinguish "user uploaded a photo and then clicked
+  // save" from "user opened the page and clicked save with no edits".
+  const [avatarUploadedInSession, setAvatarUploadedInSession] = useState(false)
 
   // Split the flat subcategory list into academic IDs (used as
   // `subcategoryIds`) and professional buckets (one entry per parent category).
@@ -228,7 +240,14 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
     })
 
     if (Object.keys(payload).length === 0) {
-      toast.info('No changes to save.')
+      // Avatar (if any) already saved via its own mutation. Skip the
+      // "nothing happened" toast in that case so the user isn't told their
+      // photo upload was ignored.
+      if (avatarUploadedInSession) {
+        toast.success('Profile photo already updated.')
+      } else {
+        toast.info('No changes to save.')
+      }
       return
     }
 
@@ -252,6 +271,18 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
         toast.error(extractApiError(err) ?? 'Failed to update mentor.')
       },
     })
+  }
+
+  const handleAvatarUpload = async (file: File) => {
+    try {
+      const updated = await uploadAvatar(file)
+      setAvatarUrlOverride(updated.avatar_url ?? null)
+      setAvatarUploadedInSession(true)
+      toast.success(updated.avatar_url ? 'Profile photo updated.' : 'Profile photo removed.')
+    } catch (err) {
+      toast.error(extractApiError(err) ?? 'Failed to upload photo. Please try again.')
+      throw err
+    }
   }
 
   // ── Not-in-cache state (direct URL access without a prior mentors list visit) ──
@@ -373,10 +404,10 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                 avatarFile={null}
                 fullName={fullName}
                 onAvatarChange={() => {
-                  /* read-only on edit; no-op */
+                  /* edit uses onUpload (immediate upload); onAvatarChange is unused here */
                 }}
-                existingAvatarUrl={cachedMentor.user.avatar_url ?? null}
-                readOnly
+                existingAvatarUrl={avatarUrlOverride ?? cachedMentor.user.avatar_url ?? null}
+                onUpload={handleAvatarUpload}
               />
             </aside>
           </div>

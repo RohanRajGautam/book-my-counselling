@@ -3,6 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { toast } from 'sonner'
 
 import {
+  adminSetUserAvatar,
   createAdminMentor,
   featureMentor,
   getAdminMentors,
@@ -15,6 +16,7 @@ import {
   verifyMentor,
 } from '../api/mentors.api'
 import { PaginatedResponse } from '@/lib/api/api.types'
+import { UserResponse } from '@/features/auth/types/auth.types'
 import { AdminMentorCreateResponse } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import {
   AdminMentorProfile,
@@ -205,6 +207,28 @@ export function useUpdateAdminUserProfile(userId: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
+    },
+  })
+}
+
+/**
+ * Uploads a new avatar for an admin-targeted user via
+ * `POST /admin/users/{userId}/avatar`. On success, invalidates every cache
+ * that surfaces a mentor's avatar — the admin mentor list, public listings
+ * (coach-for-freshers / academic-counsellors), the general mentor search, and
+ * single-mentor detail. Mirrors the backend's `mentor_detail:{id}` /
+ * `mentor_search:*` cache bust. Does NOT toast here — the caller decides copy.
+ */
+export function useAdminSetUserAvatar(userId: string) {
+  const qc = useQueryClient()
+  return useMutation<UserResponse, Error, File>({
+    mutationFn: (file) => adminSetUserAvatar(userId, file),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+      void qc.invalidateQueries({ queryKey: ['coach-for-freshers'] })
+      void qc.invalidateQueries({ queryKey: ['academic-counsellors'] })
+      void qc.invalidateQueries({ queryKey: ['mentors'] })
+      void qc.invalidateQueries({ queryKey: ['mentor'] })
     },
   })
 }
