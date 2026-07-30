@@ -28,6 +28,7 @@ import {
   type AdminCounsellingForm,
 } from './components/AdminCreateMentorCounsellingCard'
 import { AdminCreateMentorPhotoCard } from './components/AdminCreateMentorPhotoCard'
+import { AdminCreateMentorLogoCard } from './components/AdminCreateMentorLogoCard'
 import {
   AdminCreateMentorBioCard,
   type AdminCreateMentorBioForm,
@@ -75,6 +76,7 @@ export function AdminCreateMentorPage() {
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null)
   const [general, setGeneral] = useState<AdminCreateMentorGeneralInfoForm>(EMPTY_GENERAL)
   const [counselling, setCounselling] = useState<AdminCounsellingForm>(EMPTY_COUNSELLING)
   const [bio, setBio] = useState<AdminCreateMentorBioForm>(EMPTY_BIO)
@@ -89,6 +91,7 @@ export function AdminCreateMentorPage() {
         email,
         fullName,
         avatarFile,
+        companyLogoFile,
         title: general.title,
         company: general.company,
         yearsOfExperience: general.yearsOfExperience,
@@ -105,7 +108,7 @@ export function AdminCreateMentorPage() {
         academicTags: counselling.academicTags,
         industryIds: counselling.industryIds,
       }),
-    [email, fullName, avatarFile, general, bio, counselling]
+    [email, fullName, avatarFile, companyLogoFile, general, bio, counselling]
   )
 
   const showError = (field: string) => submitAttempted && fieldHasError(errors, field)
@@ -171,6 +174,7 @@ export function AdminCreateMentorPage() {
 
     formData.append('metadata', JSON.stringify(metadata))
     if (avatarFile) formData.append('avatar', avatarFile)
+    if (companyLogoFile) formData.append('company_logo', companyLogoFile)
 
     createMentor(formData, {
       onSuccess: (data) => {
@@ -256,6 +260,11 @@ export function AdminCreateMentorPage() {
                 avatarFile={avatarFile}
                 fullName={fullName}
                 onAvatarChange={setAvatarFile}
+              />
+              <AdminCreateMentorLogoCard
+                companyLogoFile={companyLogoFile}
+                onCompanyLogoChange={setCompanyLogoFile}
+                companyName={general.company}
               />
             </aside>
           </div>

@@ -29,6 +29,14 @@ type Props = {
    * avatar edits aren't available in the admin edit flow yet.
    */
   readOnly?: boolean
+  /**
+   * When provided, a selected file is uploaded immediately via this callback
+   * instead of being staged for a later form submit. While the promise is
+   * pending, the camera button and "Upload Photo" button show a spinner and
+   * are disabled. Use this for flows where the avatar is its own mutation,
+   * not part of the surrounding form.
+   */
+  onUpload?: (file: File) => Promise<void>
 }
 
 export function AdminCreateMentorPhotoCard({
@@ -37,9 +45,11 @@ export function AdminCreateMentorPhotoCard({
   onAvatarChange,
   existingAvatarUrl = null,
   readOnly = false,
+  onUpload,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (!avatarFile) {
@@ -51,6 +61,10 @@ export function AdminCreateMentorPhotoCard({
     return () => URL.revokeObjectURL(url)
   }, [avatarFile])
 
+  const resetInput = () => {
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return
     const file = e.target.files?.[0]
@@ -59,9 +73,19 @@ export function AdminCreateMentorPhotoCard({
     if (err) {
       toast.error(err)
       onAvatarChange(null)
-      if (fileInputRef.current) fileInputRef.current.value = ''
+      resetInput()
       return
     }
+
+    if (onUpload) {
+      setUploading(true)
+      void onUpload(file).finally(() => {
+        setUploading(false)
+        resetInput()
+      })
+      return
+    }
+
     onAvatarChange(file)
   }
 
@@ -69,6 +93,7 @@ export function AdminCreateMentorPhotoCard({
   const initials = getInitials(fullName)
   const accept = ACCEPTED_AVATAR_MIME.join(',')
   const maxMb = (MAX_AVATAR_BYTES / (1024 * 1024)).toFixed(0)
+  const isUploading = uploading
 
   return (
     <section className="rounded-[28px] bg-white p-5 text-center shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
@@ -80,6 +105,7 @@ export function AdminCreateMentorPhotoCard({
           className="sr-only"
           aria-label="Upload mentor avatar"
           onChange={handleFileChange}
+          disabled={isUploading}
         />
       ) : null}
 
@@ -96,9 +122,14 @@ export function AdminCreateMentorPhotoCard({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             aria-label="Upload profile photo"
-            className="absolute right-1 bottom-1 flex size-10 items-center justify-center rounded-full bg-blue-700 text-white shadow-sm transition hover:bg-blue-800"
+            disabled={isUploading}
+            className="absolute right-1 bottom-1 flex size-10 items-center justify-center rounded-full bg-blue-700 text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-60"
           >
-            <Camera className="size-5" />
+            {isUploading ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <Camera className="size-5" />
+            )}
           </button>
         ) : (
           <span
@@ -128,10 +159,16 @@ export function AdminCreateMentorPhotoCard({
         <Button
           type="button"
           variant="outline"
-          className="mt-6 h-12 w-full rounded-xl border-blue-700 font-bold text-blue-700 hover:bg-blue-50"
+          className="mt-6 h-12 w-full rounded-xl border-blue-700 font-bold text-blue-700 hover:bg-blue-50 disabled:opacity-60"
           onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
         >
-          {avatarFile ? (
+          {isUploading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Uploading…
+            </>
+          ) : avatarFile ? (
             <>
               <Loader2 className="size-4 animate-spin" />
               Change Photo

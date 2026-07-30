@@ -37,6 +37,7 @@ export interface MentorBooking {
 export interface MentorProfileCreate {
   title: string
   company?: string | null
+  company_logo_url?: string | null
   bio?: string | null
   industry_ids?: string[]
   years_of_experience?: number
@@ -64,6 +65,7 @@ export interface ProfessionalCategoryWithSubs {
 export interface MentorProfileUpdate {
   title?: string
   company?: string | null
+  company_logo_url?: string | null
   bio?: string | null
   industry_ids?: string[]
   years_of_experience?: number
@@ -151,6 +153,7 @@ export interface AdminMentorCreate {
   }
   title: string
   company?: string | null
+  company_logo_url?: string | null
   bio?: string | null
   industry_ids?: string[]
   years_of_experience?: number

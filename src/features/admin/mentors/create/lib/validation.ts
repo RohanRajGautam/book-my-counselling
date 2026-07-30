@@ -6,6 +6,7 @@ export type CreateMentorForm = {
   email: string
   fullName: string
   avatarFile: File | null
+  companyLogoFile: File | null
   title: string
   company: string
   yearsOfExperience: string
@@ -49,6 +50,17 @@ export function validateAvatarFile(file: File | null): string | null {
   return null
 }
 
+export function validateLogoFile(file: File | null): string | null {
+  if (!file) return null
+  if (!(ACCEPTED_AVATAR_MIME as readonly string[]).includes(file.type)) {
+    return 'Logo must be a JPG, PNG, or WebP image.'
+  }
+  if (file.size > MAX_AVATAR_BYTES) {
+    return 'Logo must be smaller than 5 MB.'
+  }
+  return null
+}
+
 export function validateCreateMentorForm(form: CreateMentorForm): ValidationError[] {
   const errors: ValidationError[] = []
 
@@ -68,6 +80,9 @@ export function validateCreateMentorForm(form: CreateMentorForm): ValidationErro
 
   const avatarError = validateAvatarFile(form.avatarFile)
   if (avatarError) errors.push({ field: 'avatar', message: avatarError })
+
+  const logoError = validateLogoFile(form.companyLogoFile)
+  if (logoError) errors.push({ field: 'companyLogo', message: logoError })
 
   const title = form.title.trim()
   if (!title) {

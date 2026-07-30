@@ -22,7 +22,11 @@ interface CoachForFreshersResultsProps {
 
 export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProps) {
   const { filters, currentPage, setCurrentPage } = useCoachForFreshersFilters()
-  const { data, isLoading, isFetching, isError } = useCoachForFreshers(variety, filters, currentPage)
+  const { data, isLoading, isFetching, isError } = useCoachForFreshers(
+    variety,
+    filters,
+    currentPage
+  )
   const [activeMentorId, setActiveMentorId] = useState<string | null>(null)
 
   const totalPages = data?.total_pages ?? 1
@@ -125,6 +129,7 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
             description={`${mentor.title} with ${mentor.total_sessions} sessions`}
             fallbackPrice={Number(mentor.hourly_rate)}
             imageUrl={mentor.avatar_url}
+            companyLogoUrl={mentor.company_logo_url ?? null}
             verified={mentor.is_verified}
             context="coach-for-freshers"
             onClick={() => setActiveMentorId(mentor.id)}
