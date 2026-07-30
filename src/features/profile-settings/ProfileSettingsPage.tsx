@@ -196,6 +196,7 @@ export function ProfileSettingsPage() {
     // We look up in both the profile's attached tags and the full catalog so newly
     // picked tags resolve even when they weren't previously attached.
     const tagSlugs = [
+      ...(counselling.is_professional_counselor ? [COACH_FOR_FRESHERS_GROUP_TAG] : []),
       ...(counselling.is_professional_counselor
         ? counselling.coaching_services.filter((slug) =>
             COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug)

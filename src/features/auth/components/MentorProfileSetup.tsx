@@ -15,6 +15,7 @@ import { AcademicTagPicker } from '@/features/mentor-onboarding/components/Acade
 import { ProfessionalCategoryPicker } from '@/features/mentor-onboarding/components/ProfessionalCategoryPicker'
 import {
   COACH_FOR_FRESHERS_CATEGORIES,
+  COACH_FOR_FRESHERS_GROUP_TAG,
   COACH_FOR_FRESHERS_SERVICE_SLUGS,
   COACH_FOR_FRESHERS_SERVICE_TAGS,
 } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
@@ -155,12 +156,9 @@ export function MentorProfileSetup() {
         payload.professional_categories = nonEmpty
       }
     }
-    // Resolve selected tag slugs (from the academic picker and/or the curated
-    // 3-service-tag picker) into backend tag UUIDs. The catalog/tags endpoint is
-    // the source of truth. The coach-for-freshers group tag is added automatically
-    // by the backend for professional counsellors — we still send any explicit
-    // selection (dedup happens server-side).
+    // Resolve selected tag slugs into backend tag UUIDs.
     const selectedTagSlugs = [
+      ...(isProfessional ? [COACH_FOR_FRESHERS_GROUP_TAG] : []),
       ...(isProfessional
         ? form.coaching_services.filter((slug) => COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug))
         : []),
@@ -525,7 +523,7 @@ function CounsellingChoiceCard({
         >
           {title}
         </p>
-        <p className="mt-1 text-xs font-medium leading-4 text-slate-500">{description}</p>
+        <p className="mt-1 text-xs leading-4 font-medium text-slate-500">{description}</p>
       </div>
       <div
         className={`mt-1 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
@@ -639,7 +637,9 @@ function SpecialiseStep({
                     >
                       <span
                         className={`flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition ${
-                          active ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 bg-white'
+                          active
+                            ? 'border-blue-600 bg-blue-600 text-white'
+                            : 'border-slate-300 bg-white'
                         }`}
                       >
                         {active && <Check className="size-3.5" strokeWidth={3} />}
@@ -708,9 +708,7 @@ function SectionPanel({
             {title}
             {required && <span className="ml-1 text-blue-600">*</span>}
           </p>
-          {description && (
-            <p className="mt-1 text-xs font-medium text-slate-500">{description}</p>
-          )}
+          {description && <p className="mt-1 text-xs font-medium text-slate-500">{description}</p>}
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </div>

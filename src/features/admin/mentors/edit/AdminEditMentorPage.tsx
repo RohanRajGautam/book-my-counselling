@@ -18,7 +18,10 @@ import {
   useAllAcademicSubcategoryIds,
   useProfessionalSubcategoryBuckets,
 } from '@/features/categories/hooks/useCounselingCategories'
-import { COACH_FOR_FRESHERS_SERVICE_SLUGS } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import {
+  COACH_FOR_FRESHERS_GROUP_TAG,
+  COACH_FOR_FRESHERS_SERVICE_SLUGS,
+} from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 import { AdminCreateMentorHeader } from '../create/components/AdminCreateMentorHeader'
 import {
   AdminCreateMentorTabs,
@@ -151,7 +154,9 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
     const tagSlugs = cachedMentor.tags.map((t) => idToSlug.get(t.id) ?? t.slug).filter(Boolean)
 
     const managedServiceSlugs = tagSlugs.filter((s) => COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(s))
-    const academicTagSlugs = tagSlugs.filter((s) => !COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(s))
+    const academicTagSlugs = tagSlugs.filter(
+      (s) => !COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(s) && s !== COACH_FOR_FRESHERS_GROUP_TAG
+    )
 
     setEmail(cachedMentor.user.email)
     setFullName(cachedMentor.user.full_name)
@@ -557,10 +562,23 @@ function buildUpdatePayload(args: {
     profile.hourly_rate = rateTrim
   }
 
-  if (counselling.isProfessionalCounselor !== snapshot.counselling.isProfessionalCounselor) {
+  const professionalChanged =
+    counselling.isProfessionalCounselor !== snapshot.counselling.isProfessionalCounselor
+  const academicChanged =
+    counselling.isAcademicCounselor !== snapshot.counselling.isAcademicCounselor
+  const coachingServicesChanged = !arraysEqual(
+    [...counselling.coachingServices].sort(),
+    [...snapshot.counselling.coachingServices].sort()
+  )
+  const academicTagsChanged = !arraysEqual(
+    [...counselling.academicTags].sort(),
+    [...snapshot.counselling.academicTags].sort()
+  )
+
+  if (professionalChanged) {
     profile.is_professional_counselor = counselling.isProfessionalCounselor
   }
-  if (counselling.isAcademicCounselor !== snapshot.counselling.isAcademicCounselor) {
+  if (academicChanged) {
     profile.is_academic_counselor = counselling.isAcademicCounselor
   }
 
@@ -568,29 +586,34 @@ function buildUpdatePayload(args: {
     profile.industry_ids = [...counselling.industryIds]
   }
 
-  if (
-    !arraysEqual(
-      [...counselling.coachingServices].sort(),
-      [...snapshot.counselling.coachingServices].sort()
-    )
-  ) {
+  if (coachingServicesChanged) {
     profile.coaching_services = [...counselling.coachingServices]
   }
 
   if (
-    !arraysEqual(
-      [...counselling.academicTags].sort(),
-      [...snapshot.counselling.academicTags].sort()
-    )
+    counselling.isProfessionalCounselor ||
+    professionalChanged ||
+    academicChanged ||
+    coachingServicesChanged ||
+    academicTagsChanged
   ) {
     const slugToId = new Map(catalogTags.map((t) => [t.slug, t.id] as const))
-    profile.tag_ids = counselling.academicTags
-      .map((s) => slugToId.get(s))
+    const tagSlugs = [
+      ...(counselling.isProfessionalCounselor ? [COACH_FOR_FRESHERS_GROUP_TAG] : []),
+      ...(counselling.isProfessionalCounselor
+        ? counselling.coachingServices.filter((slug) =>
+            COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug)
+          )
+        : []),
+      ...(counselling.isAcademicCounselor ? counselling.academicTags : []),
+    ]
+    profile.tag_ids = [...new Set(tagSlugs)]
+      .map((slug) => slugToId.get(slug))
       .filter((id): id is string => Boolean(id))
   }
 
   if (
-    counselling.isAcademicCounselor !== snapshot.counselling.isAcademicCounselor ||
+    academicChanged ||
     !arraysEqual(
       [...counselling.subcategoryIds].sort(),
       [...snapshot.counselling.subcategoryIds].sort()
@@ -600,7 +623,7 @@ function buildUpdatePayload(args: {
   }
 
   if (
-    counselling.isProfessionalCounselor !== snapshot.counselling.isProfessionalCounselor ||
+    professionalChanged ||
     !professionalCategoriesEqual(
       counselling.professionalCategories,
       snapshot.counselling.professionalCategories
