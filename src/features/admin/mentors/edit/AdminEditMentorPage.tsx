@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
+  useAdminSetMentorLogo,
   useAdminSetUserAvatar,
   useMentorFromAdminListCache,
   useUpdateAdminUserProfile,
@@ -33,6 +34,7 @@ import {
   type AdminCounsellingForm,
 } from '../create/components/AdminCreateMentorCounsellingCard'
 import { AdminCreateMentorPhotoCard } from '../create/components/AdminCreateMentorPhotoCard'
+import { AdminCreateMentorLogoCard } from '../create/components/AdminCreateMentorLogoCard'
 import {
   AdminCreateMentorBioCard,
   type AdminCreateMentorBioForm,
@@ -87,6 +89,12 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
   const { data: catalogTags = [] } = useTags()
   const { ids: academicIds, isLoading: academicIdsLoading } = useAllAcademicSubcategoryIds()
   const cachedMentor = useMentorFromAdminListCache(userId)
+  // The logo endpoint takes the mentor profile id, not the user id. The hook
+  // is always called (rules of hooks) but `cachedMentor.id` is what we want
+  // once the cache is populated; the trailing `userId` fallback only covers
+  // the brief pre-load window and is never exercised by the upload handler
+  // (the card only renders once `cachedMentor` is loaded).
+  const uploadMentorLogoMutate = useAdminSetMentorLogo(cachedMentor?.id ?? userId)
 
   const [activeTab, setActiveTab] = useState<AdminCreateMentorTab>('general-info')
 
@@ -108,6 +116,12 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
   // changes" handler can distinguish "user uploaded a photo and then clicked
   // save" from "user opened the page and clicked save with no edits".
   const [avatarUploadedInSession, setAvatarUploadedInSession] = useState(false)
+
+  // Same pattern for the company logo — immediate preview refresh from the
+  // upload response, and a session flag so the "Save changes" handler can
+  // distinguish "logo uploaded, save tapped" from "no edits at all".
+  const [companyLogoUrlOverride, setCompanyLogoUrlOverride] = useState<string | null>(null)
+  const [companyLogoUploadedInSession, setCompanyLogoUploadedInSession] = useState(false)
 
   // Split the flat subcategory list into academic IDs (used as
   // `subcategoryIds`) and professional buckets (one entry per parent category).
@@ -240,11 +254,15 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
     })
 
     if (Object.keys(payload).length === 0) {
-      // Avatar (if any) already saved via its own mutation. Skip the
-      // "nothing happened" toast in that case so the user isn't told their
-      // photo upload was ignored.
-      if (avatarUploadedInSession) {
+      // Avatar / logo (if any) already saved via their own mutations. Skip
+      // the "nothing happened" toast in those cases so the user isn't told
+      // their upload was ignored.
+      if (avatarUploadedInSession && companyLogoUploadedInSession) {
+        toast.success('Profile photo and company logo already updated.')
+      } else if (avatarUploadedInSession) {
         toast.success('Profile photo already updated.')
+      } else if (companyLogoUploadedInSession) {
+        toast.success('Company logo already updated.')
       } else {
         toast.info('No changes to save.')
       }
@@ -281,6 +299,18 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
       toast.success(updated.avatar_url ? 'Profile photo updated.' : 'Profile photo removed.')
     } catch (err) {
       toast.error(extractApiError(err) ?? 'Failed to upload photo. Please try again.')
+      throw err
+    }
+  }
+
+  const handleMentorLogoUpload = async (file: File) => {
+    try {
+      const updated = await uploadMentorLogoMutate.mutateAsync(file)
+      setCompanyLogoUrlOverride(updated.company_logo_url ?? null)
+      setCompanyLogoUploadedInSession(true)
+      toast.success(updated.company_logo_url ? 'Company logo updated.' : 'Company logo removed.')
+    } catch (err) {
+      toast.error(extractApiError(err) ?? 'Failed to upload logo. Please try again.')
       throw err
     }
   }
@@ -408,6 +438,11 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                 }}
                 existingAvatarUrl={avatarUrlOverride ?? cachedMentor.user.avatar_url ?? null}
                 onUpload={handleAvatarUpload}
+              />
+              <AdminCreateMentorLogoCard
+                existingLogoUrl={companyLogoUrlOverride ?? cachedMentor.company_logo_url ?? null}
+                onUpload={handleMentorLogoUpload}
+                companyName={general.company}
               />
             </aside>
           </div>
