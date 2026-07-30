@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import {
   Banknote,
+  Building2,
   CalendarClock,
   Check,
   ChevronDown,
@@ -74,6 +76,11 @@ export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
   }
 
   const hourlyRate = Number(mentor.hourly_rate)
+  // Avatar slot always shows the user's avatar — the company logo is
+  // surfaced as a small badge next to the company name in the identity row.
+  const avatarUrl = mentor.user.avatar_url ?? null
+  const companyLogoUrl = mentor.company_logo_url ?? null
+  const hasCompanyLogo = Boolean(companyLogoUrl)
   const hasSpecialties =
     mentor.is_professional_counselor ||
     mentor.is_academic_counselor ||
@@ -90,7 +97,7 @@ export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
       {/* ── Top row: identity + actions ──────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
         <Avatar className="size-12 shrink-0 shadow-sm sm:size-14">
-          <AvatarImage src={mentor.user.avatar_url ?? undefined} alt={mentor.user.full_name} />
+          <AvatarImage src={avatarUrl ?? undefined} alt={mentor.user.full_name} />
           <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-50 text-sm font-extrabold text-blue-700">
             {getInitials(mentor.user.full_name)}
           </AvatarFallback>
@@ -106,12 +113,26 @@ export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
           </div>
 
           {(mentor.title || mentor.company) && (
-            <p className="mt-0.5 truncate text-xs font-semibold text-slate-600 sm:text-sm">
+            <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs font-semibold text-slate-600 sm:text-sm">
               {mentor.title}
               {mentor.company ? (
                 <>
-                  <span className="px-1 text-slate-300">·</span>
-                  <span>{mentor.company}</span>
+                  <span className="text-slate-300">·</span>
+                  {hasCompanyLogo ? (
+                    <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-slate-200 bg-white">
+                      <Image
+                        src={companyLogoUrl as string}
+                        alt={mentor.company ?? 'Company logo'}
+                        width={16}
+                        height={16}
+                        className="size-full object-contain"
+                        unoptimized
+                      />
+                    </span>
+                  ) : (
+                    <Building2 className="size-3.5 shrink-0 text-slate-400" aria-hidden />
+                  )}
+                  <span className="truncate">{mentor.company}</span>
                 </>
               ) : null}
             </p>
