@@ -158,6 +158,29 @@ function removeMentorFromAdminCaches(qc: ReturnType<typeof useQueryClient>, ment
   }
 }
 
+function updateMentorInAdminCaches(
+  qc: ReturnType<typeof useQueryClient>,
+  response: AdminUserProfileResponse
+) {
+  const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
+    queryKey: ADMIN_MENTORS_KEY,
+  })
+  for (const [key, data] of queries) {
+    if (!data) continue
+    let changed = false
+    const items = data.items.map((mentor) => {
+      if (mentor.user_id !== response.user.id) return mentor
+      changed = true
+      return {
+        ...mentor,
+        ...(response.profile ?? {}),
+        user: { ...mentor.user, ...response.user },
+      }
+    })
+    if (changed) qc.setQueryData(key, { ...data, items })
+  }
+}
+
 // ── Admin profile (read + update) ─────────────────────────────────────────
 
 function findMentorInAdminListCache(
@@ -206,7 +229,8 @@ export function useUpdateAdminUserProfile(userId: string) {
   const qc = useQueryClient()
   return useMutation<AdminUserProfileResponse, Error, AdminUserProfileUpdate>({
     mutationFn: (payload) => updateAdminUserProfile(userId, payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      updateMentorInAdminCaches(qc, data)
       void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
     },

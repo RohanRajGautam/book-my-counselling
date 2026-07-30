@@ -280,6 +280,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                 ...cur,
                 fullName: fullName.trim(),
                 general,
+                counselling,
                 bio,
               }
             : cur
