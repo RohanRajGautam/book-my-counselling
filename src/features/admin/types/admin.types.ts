@@ -18,6 +18,7 @@ export interface AdminMentorProfile {
   }
   title: string
   company: string | null
+  company_logo_url: string | null
   bio: string | null
   /** Lightweight industry refs the mentor specializes in. */
   industries: { id: string; name: string; slug: string }[]
@@ -57,6 +58,7 @@ export interface AdminUserUpdate {
 export interface AdminMentorProfileUpdate {
   title?: string | null
   company?: string | null
+  company_logo_url?: string | null
   bio?: string | null
   linkedin_url?: string | null
   website_url?: string | null

@@ -1,5 +1,6 @@
 import apiClient from '@/lib/api/api-client'
 import { PaginatedResponse } from '@/lib/api/api.types'
+import { MentorResponse } from '@/features/mentors/types/mentors.types'
 import { UserResponse } from '@/features/auth/types/auth.types'
 import { AdminMentorCreateResponse } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import {
@@ -47,6 +48,22 @@ export async function adminSetUserAvatar(userId: string, file: File): Promise<Us
   const formData = new FormData()
   formData.append('file', file)
   const res = await apiClient.post<UserResponse>(`/admin/users/${userId}/avatar`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return res.data
+}
+
+/**
+ * Uploads a new company logo for a mentor on their behalf. Returns the full
+ * `MentorResponse` so callers can read the fresh `company_logo_url` immediately.
+ * `mentorId` is the `MentorProfile.id` (not the user id).
+ *
+ * Doc: `POST /api/v1/admin/mentors/{mentor_id}/logo` (multipart, single `file` part).
+ */
+export async function adminSetMentorLogo(mentorId: string, file: File): Promise<MentorResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await apiClient.post<MentorResponse>(`/admin/mentors/${mentorId}/logo`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
   return res.data

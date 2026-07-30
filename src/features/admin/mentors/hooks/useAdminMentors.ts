@@ -3,6 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { toast } from 'sonner'
 
 import {
+  adminSetMentorLogo,
   adminSetUserAvatar,
   createAdminMentor,
   featureMentor,
@@ -16,6 +17,7 @@ import {
   verifyMentor,
 } from '../api/mentors.api'
 import { PaginatedResponse } from '@/lib/api/api.types'
+import { MentorResponse } from '@/features/mentors/types/mentors.types'
 import { UserResponse } from '@/features/auth/types/auth.types'
 import { AdminMentorCreateResponse } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import {
@@ -223,6 +225,26 @@ export function useAdminSetUserAvatar(userId: string) {
   const qc = useQueryClient()
   return useMutation<UserResponse, Error, File>({
     mutationFn: (file) => adminSetUserAvatar(userId, file),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+      void qc.invalidateQueries({ queryKey: ['coach-for-freshers'] })
+      void qc.invalidateQueries({ queryKey: ['academic-counsellors'] })
+      void qc.invalidateQueries({ queryKey: ['mentors'] })
+      void qc.invalidateQueries({ queryKey: ['mentor'] })
+    },
+  })
+}
+
+/**
+ * Uploads a new company logo for a mentor on their behalf via
+ * `POST /admin/mentors/{mentorId}/logo`. Invalidates the same broad cache
+ * set as `useAdminSetUserAvatar` so the new logo propagates everywhere a
+ * mentor's profile appears. Does NOT toast here — the caller decides copy.
+ */
+export function useAdminSetMentorLogo(mentorId: string) {
+  const qc = useQueryClient()
+  return useMutation<MentorResponse, Error, File>({
+    mutationFn: (file) => adminSetMentorLogo(mentorId, file),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
       void qc.invalidateQueries({ queryKey: ['coach-for-freshers'] })

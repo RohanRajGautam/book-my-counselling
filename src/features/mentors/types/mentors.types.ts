@@ -10,6 +10,7 @@ export interface Mentor {
   full_name: string
   title: string
   company: string | null
+  company_logo_url?: string | null
   industries?: string[]
   hourly_rate: number
   average_rating: number
@@ -38,6 +39,7 @@ export interface MentorListResponse {
   user: UserPublic
   title: string
   company: string | null
+  company_logo_url: string | null
   industries: string[]
   hourly_rate: string
   average_rating: number
@@ -55,6 +57,7 @@ export interface MentorResponse {
   user: UserPublic
   title: string
   company: string | null
+  company_logo_url: string | null
   bio: string | null
   industries: IndustryResponse[]
   years_of_experience: number
