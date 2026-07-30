@@ -4,7 +4,9 @@ import {
   getMyMentorProfile,
   createMentorProfile,
   updateMyMentorProfile,
+  uploadMyCompanyLogo,
 } from '../api/mentor-dashboard.api'
+import { MentorResponse } from '@/features/mentors/types/mentors.types'
 import { MentorProfileCreate, MentorProfileUpdate } from '../types/mentor-dashboard.types'
 
 export const MENTOR_PROFILE_KEY = ['mentor', 'profile', 'me']
@@ -24,12 +26,10 @@ export function useMentorProfile() {
     },
   })
 
-  const isProfileMissing =
-    axios.isAxiosError(query.error) && query.error.response?.status === 404
+  const isProfileMissing = axios.isAxiosError(query.error) && query.error.response?.status === 404
 
   // 403 means the user is not a mentor (e.g. admin role) — profile doesn't apply
-  const isWrongRole =
-    axios.isAxiosError(query.error) && query.error.response?.status === 403
+  const isWrongRole = axios.isAxiosError(query.error) && query.error.response?.status === 403
 
   return { ...query, isProfileMissing, isWrongRole }
 }
@@ -53,6 +53,29 @@ export function useUpdateMentorProfile() {
     mutationFn: (data: MentorProfileUpdate) => updateMyMentorProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MENTOR_PROFILE_KEY })
+    },
+  })
+}
+
+/**
+ * Uploads a new company logo for the signed-in mentor via
+ * `POST /api/v1/mentors/profile/logo`. Invalidates the mentor's own profile
+ * cache, the auth/me cache (the logo isn't on the user, but other UI surfaces
+ * read from there), and every public cache that surfaces a mentor's logo —
+ * mirroring the backend's `mentor_detail:{id}` / `mentor_search:*` busting.
+ * Does NOT toast — the caller decides copy.
+ */
+export function useUploadMyCompanyLogo() {
+  const queryClient = useQueryClient()
+  return useMutation<MentorResponse, Error, File>({
+    mutationFn: (file) => uploadMyCompanyLogo(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MENTOR_PROFILE_KEY })
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+      queryClient.invalidateQueries({ queryKey: ['mentors'] })
+      queryClient.invalidateQueries({ queryKey: ['coach-for-freshers'] })
+      queryClient.invalidateQueries({ queryKey: ['academic-counsellors'] })
+      queryClient.invalidateQueries({ queryKey: ['mentor'] })
     },
   })
 }

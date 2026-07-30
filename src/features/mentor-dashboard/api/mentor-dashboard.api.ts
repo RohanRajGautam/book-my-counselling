@@ -51,6 +51,25 @@ export async function uploadAvatar(file: File): Promise<{ avatar_url: string }> 
 }
 
 // ---------------------------------------------------------------------------
+// Company logo upload
+// ---------------------------------------------------------------------------
+
+/**
+ * Uploads a new company logo for the signed-in mentor. Returns the full
+ * `MentorResponse` so callers can read the fresh `company_logo_url` immediately.
+ *
+ * Doc: `POST /api/v1/mentors/profile/logo` (multipart, single `file` part).
+ */
+export async function uploadMyCompanyLogo(file: File): Promise<MentorResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await apiClient.post<MentorResponse>('/mentors/profile/logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return response.data
+}
+
+// ---------------------------------------------------------------------------
 // Bookings
 // ---------------------------------------------------------------------------
 

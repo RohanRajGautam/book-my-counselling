@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 
 import { ProfileGeneralInfoCard, type GeneralInfoForm } from './components/ProfileGeneralInfoCard'
 import { ProfilePhotoCard } from './components/ProfilePhotoCard'
+import { ProfileCompanyCard } from './components/ProfileCompanyCard'
 import {
   ProfileProfessionalBioCard,
   type ProfessionalBioForm,
@@ -24,6 +25,7 @@ import {
 import {
   useMentorProfile,
   useUpdateMentorProfile,
+  useUploadMyCompanyLogo,
 } from '@/features/mentor-dashboard/hooks/useMentorProfile'
 import { MentorProfileUpdate } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import { useCurrentUser } from '@/features/auth/hooks/useCurrentUser'
@@ -31,7 +33,10 @@ import {
   useMyPackages,
   useUpsertMentorPackages,
 } from '@/features/service-packages/hooks/useMentorPackages'
-import { COACH_FOR_FRESHERS_SERVICE_SLUGS, COACH_FOR_FRESHERS_GROUP_TAG } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import {
+  COACH_FOR_FRESHERS_SERVICE_SLUGS,
+  COACH_FOR_FRESHERS_GROUP_TAG,
+} from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 import {
   useAllAcademicSubcategoryIds,
   useProfessionalSubcategoryBuckets,
@@ -76,10 +81,22 @@ export function ProfileSettingsPage() {
   const { data: profile, isLoading: profileLoading } = useMentorProfile()
   const { data: currentUser } = useCurrentUser()
   const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
+  const { mutateAsync: uploadCompanyLogo } = useUploadMyCompanyLogo()
   const { data: myPackages = [] } = useMyPackages()
   const { mutate: upsertPackages, isPending: isSavingPackages } = useUpsertMentorPackages()
 
-  const { ids: academicSubIds, isLoading: academicBucketingLoading } = useAllAcademicSubcategoryIds()
+  // Local override for the company logo preview. Updated immediately from
+  // the upload response so the card refreshes without waiting for the
+  // mentor-profile refetch. The cache invalidation in useUploadMyCompanyLogo
+  // keeps every other page in sync.
+  const [companyLogoUrlOverride, setCompanyLogoUrlOverride] = useState<string | null>(null)
+  // Set true when a logo was uploaded during this session, so the
+  // "Save Changes" handler can distinguish "user uploaded a logo and then
+  // clicked save" from "user opened the page and clicked save with no edits".
+  const [companyLogoUploadedInSession, setCompanyLogoUploadedInSession] = useState(false)
+
+  const { ids: academicSubIds, isLoading: academicBucketingLoading } =
+    useAllAcademicSubcategoryIds()
   const professionalSubIds = (profile?.subcategories ?? []).map((s) => s.id)
   const { buckets: professionalBuckets, isLoading: professionalBucketingLoading } =
     useProfessionalSubcategoryBuckets(professionalSubIds)
@@ -218,12 +235,33 @@ export function ProfileSettingsPage() {
     }
 
     updateProfile(payload, {
-      onSuccess: () => toast.success('Profile updated successfully.'),
+      onSuccess: () => {
+        // Avatar / company logo (if any) already saved via their own mutations.
+        // Tailor the success copy so the user doesn't see a generic "Profile
+        // updated" right after a logo upload that didn't change any field.
+        if (companyLogoUploadedInSession) {
+          toast.success('Profile and company logo are up to date.')
+        } else {
+          toast.success('Profile updated successfully.')
+        }
+      },
       onError: (err: unknown) => {
         const msg = extractApiError(err) ?? 'Failed to save profile. Please try again.'
         toast.error(msg)
       },
     })
+  }
+
+  const handleCompanyLogoUpload = async (file: File) => {
+    try {
+      const updated = await uploadCompanyLogo(file)
+      setCompanyLogoUrlOverride(updated.company_logo_url ?? null)
+      setCompanyLogoUploadedInSession(true)
+      toast.success(updated.company_logo_url ? 'Company logo updated.' : 'Company logo removed.')
+    } catch (err) {
+      toast.error(extractApiError(err) ?? 'Failed to upload logo. Please try again.')
+      throw err
+    }
   }
 
   const handleSavePackages = () => {
@@ -240,7 +278,7 @@ export function ProfileSettingsPage() {
       {
         onSuccess: () => toast.success('Packages saved successfully.'),
         onError: () => toast.error('Failed to save packages. Please try again.'),
-      },
+      }
     )
   }
 
@@ -292,6 +330,11 @@ export function ProfileSettingsPage() {
 
             <aside className="space-y-6 lg:space-y-7">
               <ProfilePhotoCard />
+              <ProfileCompanyCard
+                existingLogoUrl={companyLogoUrlOverride ?? profile?.company_logo_url ?? null}
+                onUpload={handleCompanyLogoUpload}
+                companyName={generalInfo.currentCompany}
+              />
               <ProfileStatusCard />
             </aside>
           </div>

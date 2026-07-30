@@ -45,6 +45,11 @@ interface MentorCardProps {
   price: number
   packageTiers?: PackageTier[]
   imageUrl?: string | null
+  /**
+   * When set, takes precedence over `imageUrl` and is rendered in the avatar
+   * slot. Use this to surface a mentor's company logo on listings and cards.
+   */
+  companyLogoUrl?: string | null
   verified?: boolean
   onClick?: () => void
   /**
@@ -97,11 +102,15 @@ export function MentorCard({
   price,
   packageTiers,
   imageUrl,
+  companyLogoUrl,
   verified = true,
   onClick,
   context,
 }: MentorCardProps) {
+  // Avatar slot always shows the user's avatar — the company logo is
+  // surfaced as a small badge next to the company name below.
   const imageSrc = imageUrl?.trim() || null
+  const hasCompanyLogo = Boolean(companyLogoUrl?.trim())
   const displayName = formatDisplayName(name)
   const initials = getInitials(name)
   const companyDisplay = cleanCompanyName(company)
@@ -166,16 +175,28 @@ export function MentorCard({
           </h3>
           {/* {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>} */}
           <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">{role}</p>
-          {companyDisplay && (
-            <div className="mb-4 flex items-center gap-2">
-              {/* <Building2 className="size-4 shrink-0 text-[#737686]" aria-hidden /> */}
-              <span className="line-clamp-1 text-sm font-bold text-[#5f6472]">
-                {companyDisplay}
-              </span>
-            </div>
-          )}
         </div>
       </div>
+
+      {companyDisplay && (
+        <div className="mb-5 flex items-center gap-2">
+          <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#dfe7f5] bg-white">
+            {hasCompanyLogo ? (
+              <Image
+                src={companyLogoUrl as string}
+                alt={companyDisplay}
+                width={28}
+                height={28}
+                className="size-full object-contain"
+                unoptimized
+              />
+            ) : (
+              <Building2 className="size-4 text-[#737686]" aria-hidden />
+            )}
+          </div>
+          <span className="line-clamp-1 text-sm font-bold text-[#5f6472]">{companyDisplay}</span>
+        </div>
+      )}
 
       <div className="mb-5">
         <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">

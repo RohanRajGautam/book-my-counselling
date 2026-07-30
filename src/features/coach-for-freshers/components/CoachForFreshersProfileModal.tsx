@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Check, ChevronRight, Globe, Link, X, CalendarPlus } from 'lucide-react'
+import { Building2, Check, ChevronRight, Globe, Link, X, CalendarPlus } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
@@ -59,6 +59,10 @@ export function CoachForFreshersProfileModal({
   const selectedPackage = activePackages.find((item) => item.id === selection.packageId) ?? null
   const hasAvailability = availability.length > 0
   const initials = getInitials(mentor?.user?.full_name ?? '')
+  const avatarUrl = mentor?.user?.avatar_url ?? null
+  const companyLogoUrl = mentor?.company_logo_url ?? null
+  const companyName = mentor?.company ?? null
+  const hasCompany = Boolean(companyLogoUrl || companyName)
   const firstName = mentor?.user?.full_name?.split(' ')[0] ?? 'this coach'
   const ratingLabel = Number(mentor?.average_rating || 0)
     .toFixed(1)
@@ -154,9 +158,9 @@ export function CoachForFreshersProfileModal({
                 <div className="relative z-10">
                   <div className="relative mx-auto mb-5 size-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
                     <div className="size-full overflow-hidden rounded-full">
-                      {mentor.user?.avatar_url ? (
+                      {avatarUrl ? (
                         <Image
-                          src={mentor.user.avatar_url}
+                          src={avatarUrl}
                           alt={`${mentor.user.full_name} profile`}
                           width={112}
                           height={112}
@@ -241,6 +245,36 @@ export function CoachForFreshersProfileModal({
                   </div>
                 </div>
               </div>
+
+              {hasCompany ? (
+                <div
+                  className="flex items-center gap-4 rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6"
+                  data-testid="mentor-company-block"
+                >
+                  <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-[#0053db]/15 bg-[#f8f9ff]">
+                    {companyLogoUrl ? (
+                      <Image
+                        src={companyLogoUrl}
+                        alt={companyName ? `${companyName} logo` : 'Company logo'}
+                        width={64}
+                        height={64}
+                        className="size-full object-contain"
+                        unoptimized
+                      />
+                    ) : (
+                      <Building2 className="size-7 text-[#737686]" aria-hidden />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold tracking-[0.14em] text-[#737686] uppercase">
+                      Company
+                    </p>
+                    <p className="mt-1 truncate font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
+                      {companyName || '—'}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="flex h-[220px] flex-col rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:h-[250px] sm:p-6">
                 <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
