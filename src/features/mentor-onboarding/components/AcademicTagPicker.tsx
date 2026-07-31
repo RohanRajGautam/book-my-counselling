@@ -143,7 +143,7 @@ export function AcademicTagPicker({ value, onChange }: AcademicTagPickerProps) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="flex flex-wrap gap-2">
             {orderedTags.map((tag) => (
               <AcademicTagChip
                 key={tag.id}
@@ -233,7 +233,7 @@ function AcademicTagChip({
       >
         <Check className="size-3" strokeWidth={3.5} />
       </span>
-      <span className="truncate">{displayTagName(tag.name)}</span>
+      <span>{displayTagName(tag.name)}</span>
     </button>
   )
 }
