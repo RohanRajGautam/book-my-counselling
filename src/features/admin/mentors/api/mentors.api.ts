@@ -10,15 +10,19 @@ import {
 } from '../../types/admin.types'
 
 export async function getAdminMentors(params: {
+  q?: string
   isVerified?: boolean
   isRejected?: boolean
+  withoutAvailability?: boolean
   page?: number
   pageSize?: number
 }): Promise<PaginatedResponse<AdminMentorProfile>> {
   const res = await apiClient.get<PaginatedResponse<AdminMentorProfile>>('/admin/mentors', {
     params: {
+      q: params.q || undefined,
       is_verified: params.isVerified,
       is_rejected: params.isRejected,
+      without_availability: params.withoutAvailability ? true : undefined,
       page: params.page ?? 1,
       page_size: params.pageSize ?? 20,
     },

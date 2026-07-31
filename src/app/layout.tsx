@@ -121,7 +121,7 @@ export default function RootLayout({
       </head>
 
       <body
-        className="min-h-screen bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased"
+        className="min-h-screen overflow-x-hidden bg-[#f8f9ff] font-[family-name:var(--font-body)] text-[#121c2a] antialiased"
         suppressHydrationWarning
       >
         <noscript>

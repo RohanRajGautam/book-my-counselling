@@ -31,14 +31,15 @@ import {
 export type AdminMentorFilter = {
   isVerified?: boolean
   isRejected?: boolean
+  withoutAvailability?: boolean
 }
 
 export const ADMIN_MENTORS_KEY = ['admin', 'mentors'] as const
 
-export function useAdminMentors(filter: AdminMentorFilter, page = 1) {
+export function useAdminMentors(filter: AdminMentorFilter, page = 1, q?: string) {
   return useQuery({
-    queryKey: [...ADMIN_MENTORS_KEY, filter, page],
-    queryFn: () => getAdminMentors({ ...filter, page }),
+    queryKey: [...ADMIN_MENTORS_KEY, filter, page, q ?? ''],
+    queryFn: () => getAdminMentors({ ...filter, page, q }),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   })

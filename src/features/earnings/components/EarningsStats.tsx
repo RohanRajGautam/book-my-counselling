@@ -21,11 +21,8 @@ export function EarningsStats() {
   const completedBookings = completedData?.items ?? []
   const confirmedBookings = confirmedData?.items ?? []
 
-  const totalEarned = sumEarnings(completedBookings)
-  const pendingEarnings = confirmedBookings.reduce(
-    (sum, b) => sum + parseFloat(b.agreed_price),
-    0
-  )
+  const totalEarned = sumEarnings(completedBookings) / 2
+  const pendingEarnings = confirmedBookings.reduce((sum, b) => sum + parseFloat(b.agreed_price), 0)
 
   return (
     <section aria-label="Earnings statistics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -77,10 +74,10 @@ function EarningsStatCard({
       <div className={`flex size-11 items-center justify-center rounded-xl ${iconClassName}`}>
         {icon}
       </div>
-      <h2 className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:mt-6 sm:tracking-[0.18em]">
+      <h2 className="mt-5 text-xs font-bold tracking-[0.14em] text-slate-500 uppercase sm:mt-6 sm:tracking-[0.18em]">
         {label}
       </h2>
-      <p className="mt-2 break-words text-2xl font-extrabold leading-tight tracking-normal text-slate-950 sm:text-3xl lg:text-4xl">
+      <p className="mt-2 text-2xl leading-tight font-extrabold tracking-normal break-words text-slate-950 sm:text-3xl lg:text-4xl">
         {value}
       </p>
       <p className={`mt-5 text-sm font-extrabold ${helperClassName}`}>{helper}</p>

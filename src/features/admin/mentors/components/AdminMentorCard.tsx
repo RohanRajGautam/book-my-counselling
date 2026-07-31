@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import {
   Banknote,
+  Bell,
   Building2,
   CalendarClock,
   Check,
@@ -12,7 +13,6 @@ import {
   Globe,
   GraduationCap,
   Link2,
-  Mail,
   MessageSquare,
   Pencil,
   RotateCcw,
@@ -37,15 +37,19 @@ import { type AdminMentorTabId } from '../lib/filterConfig'
 export interface AdminMentorCardProps {
   mentor: AdminMentorProfile
   tabId: AdminMentorTabId
+  /** When set, renders a "Remind" button in the action footer that calls back with this mentor's id. */
+  onSendReminder?: (mentorId: string) => void
+  /** Disables the per-card Remind button while a reminder request is in flight. */
+  sendingReminder?: boolean
 }
 
 function joinedLabel(iso: string): string {
   const d = new Date(iso)
   const month = d.toLocaleString('en-US', { month: 'short' })
-  return `joined ${month} ${d.getFullYear()}`
+  return `Joined ${month} ${d.getFullYear()}`
 }
 
-export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
+export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder }: AdminMentorCardProps) {
   const { mutate: verify, isPending: verifying } = useVerifyMentor()
   const { mutate: reject, isPending: rejecting } = useRejectMentor()
   const { mutate: feature } = useFeatureMentor()
@@ -74,13 +78,14 @@ export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
       }
     )
   }
+  const handleRemind = () => {
+    onSendReminder?.(mentor.id)
+  }
 
   const hourlyRate = Number(mentor.hourly_rate)
-  // Avatar slot always shows the user's avatar — the company logo is
-  // surfaced as a small badge next to the company name in the identity row.
   const avatarUrl = mentor.user.avatar_url ?? null
   const companyLogoUrl = mentor.company_logo_url ?? null
-  const hasCompanyLogo = Boolean(companyLogoUrl)
+
   const hasSpecialties =
     mentor.is_professional_counselor ||
     mentor.is_academic_counselor ||
@@ -93,214 +98,230 @@ export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
     !!mentor.calendly_link
 
   return (
-    <article className="max-w-5xl rounded-lg border border-slate-200/80 bg-white p-4">
-      {/* ── Top row: identity + actions ──────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
-        <Avatar className="size-12 shrink-0 shadow-sm sm:size-14">
-          <AvatarImage src={avatarUrl ?? undefined} alt={mentor.user.full_name} />
-          <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-50 text-sm font-extrabold text-blue-700">
-            {getInitials(mentor.user.full_name)}
-          </AvatarFallback>
-        </Avatar>
+    <article className="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-200/60">
+      {/* ── Body: identity, KPIs, chips, bio ─────────────────── */}
+      <div className="p-5 sm:p-6">
+        {/* Identity */}
+        <div className="flex items-start gap-4">
+          <Avatar className="size-14 shrink-0 shadow-sm ring-2 ring-white sm:size-16">
+            <AvatarImage src={avatarUrl ?? undefined} alt={mentor.user.full_name} />
+            <AvatarFallback className="bg-blue-50 text-base font-extrabold text-blue-700 sm:text-lg">
+              {getInitials(mentor.user.full_name)}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-headline min-w-0 text-base font-extrabold text-slate-950 sm:text-lg">
-              {mentor.user.full_name}
-            </h3>
-            <MentorStatusBadge mentor={mentor} />
-            {mentor.is_featured ? <FeaturedBadge /> : null}
-          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-headline text-base font-extrabold text-slate-950 sm:text-lg">
+                {mentor.user.full_name}
+              </h3>
+              <MentorStatusBadge mentor={mentor} />
+              {mentor.is_featured ? <FeaturedBadge /> : null}
+            </div>
 
-          {(mentor.title || mentor.company) && (
-            <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs font-semibold text-slate-600 sm:text-sm">
-              {mentor.title}
-              {mentor.company ? (
+            {(mentor.title || mentor.company) && (
+              <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 sm:text-sm">
+                {mentor.title ? <span className="truncate">{mentor.title}</span> : null}
+                {mentor.title && mentor.company ? (
+                  <span className="text-slate-300" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
+                {mentor.company ? (
+                  <>
+                    {companyLogoUrl ? (
+                      <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-slate-200 bg-white">
+                        <Image
+                          src={companyLogoUrl}
+                          alt={mentor.company ?? 'Company logo'}
+                          width={16}
+                          height={16}
+                          className="size-full object-contain"
+                          unoptimized
+                        />
+                      </span>
+                    ) : (
+                      <Building2 className="size-3.5 shrink-0 text-slate-400" aria-hidden />
+                    )}
+                    <span className="truncate">{mentor.company}</span>
+                  </>
+                ) : null}
+              </p>
+            )}
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-slate-500 sm:text-xs">
+              {mentor.years_of_experience > 0 ? (
                 <>
-                  <span className="text-slate-300">·</span>
-                  {hasCompanyLogo ? (
-                    <span className="flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-slate-200 bg-white">
-                      <Image
-                        src={companyLogoUrl as string}
-                        alt={mentor.company ?? 'Company logo'}
-                        width={16}
-                        height={16}
-                        className="size-full object-contain"
-                        unoptimized
-                      />
-                    </span>
-                  ) : (
-                    <Building2 className="size-3.5 shrink-0 text-slate-400" aria-hidden />
-                  )}
-                  <span className="truncate">{mentor.company}</span>
+                  <span>{mentor.years_of_experience} yrs experience</span>
+                  <span className="text-slate-300" aria-hidden>
+                    ·
+                  </span>
                 </>
               ) : null}
-            </p>
-          )}
-
-          <a
-            href={`mailto:${mentor.user.email}`}
-            className="mt-1 inline-flex min-w-0 items-center gap-1 text-[11px] font-semibold text-slate-500 transition hover:text-blue-700 sm:text-xs"
-            title={`Email ${mentor.user.email}`}
-          >
-            <Mail className="size-3 shrink-0" strokeWidth={2.4} />
-            <span className="truncate">{mentor.user.email}</span>
-          </a>
-
-          <p className="mt-0.5 text-[11px] font-medium text-slate-400">
-            {joinedLabel(mentor.created_at)}
-          </p>
+              <span>{joinedLabel(mentor.created_at)}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Actions — at all widths they sit to the right of identity
-            but stack vertically on sm+ and flow horizontally on mobile.
-            `sm:flex-col sm:items-end` keeps them as a tight column without
-            forcing a fixed cross-axis width that would squeeze identity. */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:flex-col sm:items-end sm:gap-1.5">
+        {/* KPI strip */}
+        <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <KpiTile
+            icon={<Star className="size-3 fill-amber-500 stroke-amber-500" strokeWidth={2.4} />}
+            label="Rating"
+            value={mentor.total_reviews > 0 ? mentor.average_rating.toFixed(1) : '—'}
+          />
+          <KpiTile
+            icon={<MessageSquare className="size-3" strokeWidth={2.4} />}
+            label="Reviews"
+            value={mentor.total_reviews.toLocaleString('en-US')}
+          />
+          <KpiTile
+            icon={<CalendarClock className="size-3" strokeWidth={2.4} />}
+            label="Sessions"
+            value={mentor.total_sessions.toLocaleString('en-US')}
+          />
+          <KpiTile
+            icon={<Banknote className="size-3" strokeWidth={2.4} />}
+            label="Rate"
+            value={`NPR ${hourlyRate.toLocaleString('en-US')}/hr`}
+          />
+        </dl>
+
+        {/* Specialties */}
+        {hasSpecialties ? (
+          <div className="mt-4 flex min-w-0 flex-wrap items-center gap-1.5">
+            {mentor.is_professional_counselor ? (
+              <DataChip icon={Stethoscope} label="Professional" tone="blue" />
+            ) : null}
+            {mentor.is_academic_counselor ? (
+              <DataChip icon={GraduationCap} label="Academic" tone="purple" />
+            ) : null}
+            <BookingModeChip mentor={mentor} />
+            {mentor.is_accepting_bookings ? (
+              <DataChip icon={Zap} label="Accepting" tone="emerald" />
+            ) : (
+              <DataChip icon={ZapOff} label="Paused" tone="slate" />
+            )}
+            {mentor.industries.map((i) => (
+              <DataChip key={`i-${i.id}`} icon={Sparkles} label={i.name} tone="sky" />
+            ))}
+            {mentor.subcategories.map((s) => (
+              <DataChip key={`s-${s.id}`} label={s.name} tone="amber" />
+            ))}
+          </div>
+        ) : null}
+
+        {/* Tags + external links */}
+        {hasTagsOrLinks ? (
+          <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
+            {mentor.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600"
+              >
+                #{tag.name}
+              </span>
+            ))}
+            {mentor.linkedin_url ? (
+              <ExternalChip href={mentor.linkedin_url} icon={Link2} label="LinkedIn" />
+            ) : null}
+            {mentor.website_url ? (
+              <ExternalChip href={mentor.website_url} icon={Globe} label="Website" />
+            ) : null}
+            {mentor.calendly_link ? (
+              <ExternalChip href={mentor.calendly_link} icon={CalendarClock} label="Calendly" />
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Bio */}
+        {mentor.bio ? <BioBlock bio={mentor.bio} /> : null}
+      </div>
+
+      {/* ── Actions footer ────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3 sm:px-6">
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+          nativeButton={false}
+          render={<Link href={`/admin/mentors/${mentor.user_id}/edit`} />}
+          aria-label={`Edit ${mentor.user.full_name}`}
+        >
+          <Pencil className="size-3.5" strokeWidth={2.4} />
+          Edit
+        </Button>
+        {!mentor.is_verified && !mentor.is_rejected ? (
+          <Button
+            size="sm"
+            className="gap-1.5 rounded-lg bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
+            disabled={isActing}
+            onClick={handleVerify}
+          >
+            <Check className="size-3.5" strokeWidth={2.4} />
+            Approve
+          </Button>
+        ) : null}
+        {!mentor.is_rejected ? (
           <Button
             size="sm"
             variant="outline"
-            className="gap-1.5 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50"
-            nativeButton={false}
-            render={<Link href={`/admin/mentors/${mentor.user_id}/edit`} />}
-            aria-label={`Edit ${mentor.user.full_name}`}
+            className="gap-1.5 rounded-lg border-red-300 bg-white text-red-700 hover:border-red-400 hover:bg-red-50 hover:text-red-800"
+            disabled={isActing}
+            onClick={handleReject}
           >
-            <Pencil className="size-3.5" strokeWidth={2.4} />
-            Edit
+            <X className="size-3.5" strokeWidth={2.4} />
+            {mentor.is_verified ? 'Revoke' : 'Reject'}
           </Button>
-          {!mentor.is_verified && !mentor.is_rejected ? (
-            <Button
-              size="sm"
-              className="gap-1.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
-              disabled={isActing}
-              onClick={handleVerify}
-            >
-              <Check className="size-3.5" strokeWidth={2.4} />
-              Approve
-            </Button>
-          ) : null}
-          {!mentor.is_rejected ? (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5 rounded-xl border-red-300 bg-white text-red-700 hover:border-red-400 hover:bg-red-50 hover:text-red-800"
-              disabled={isActing}
-              onClick={handleReject}
-            >
-              <X className="size-3.5" strokeWidth={2.4} />
-              {mentor.is_verified ? 'Revoke' : 'Reject'}
-            </Button>
-          ) : null}
-          {tabId === 'rejected' && mentor.is_rejected ? (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50"
-              disabled={isActing}
-              onClick={handleVerify}
-            >
-              <RotateCcw className="size-3.5" strokeWidth={2.4} />
-              Re-approve
-            </Button>
-          ) : null}
-          {mentor.is_verified ? (
-            <Button
-              size="sm"
-              variant="outline"
+        ) : null}
+        {tabId === 'rejected' && mentor.is_rejected ? (
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            disabled={isActing}
+            onClick={handleVerify}
+          >
+            <RotateCcw className="size-3.5" strokeWidth={2.4} />
+            Re-approve
+          </Button>
+        ) : null}
+        {mentor.is_verified ? (
+          <Button
+            size="sm"
+            variant="outline"
+            className={cn(
+              'gap-1.5 rounded-lg bg-white',
+              mentor.is_featured
+                ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'
+                : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+            )}
+            onClick={handleFeature}
+          >
+            <Star
               className={cn(
-                'gap-1.5 rounded-xl',
-                mentor.is_featured
-                  ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'
-                  : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                'size-3.5',
+                mentor.is_featured ? 'fill-amber-500 stroke-amber-500' : ''
               )}
-              onClick={handleFeature}
-            >
-              <Star
-                className={cn(
-                  'size-3.5',
-                  mentor.is_featured ? 'fill-amber-500 stroke-amber-500' : ''
-                )}
-                strokeWidth={2.4}
-              />
-              {mentor.is_featured ? 'Featured' : 'Feature'}
-            </Button>
-          ) : null}
-        </div>
+              strokeWidth={2.4}
+            />
+            {mentor.is_featured ? 'Featured' : 'Feature'}
+          </Button>
+        ) : null}
+        {onSendReminder ? (
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+            disabled={sendingReminder}
+            onClick={handleRemind}
+            aria-label={`Send availability reminder to ${mentor.user.full_name}`}
+          >
+            <Bell className="size-3.5" strokeWidth={2.4} />
+            Remind
+          </Button>
+        ) : null}
       </div>
-
-      {/* ── KPI strip ─────────────────────────────────────────── */}
-      <div className="mt-4 grid grid-cols-2 gap-1.5 sm:mt-5 sm:grid-cols-4 sm:gap-2">
-        <KpiTile
-          icon={<Star className="size-3 fill-amber-500 stroke-amber-500" strokeWidth={2.4} />}
-          label="Rating"
-          value={mentor.total_reviews > 0 ? mentor.average_rating.toFixed(1) : '—'}
-        />
-        <KpiTile
-          icon={<MessageSquare className="size-3" strokeWidth={2.4} />}
-          label="Reviews"
-          value={mentor.total_reviews.toLocaleString('en-US')}
-        />
-        <KpiTile
-          icon={<CalendarClock className="size-3" strokeWidth={2.4} />}
-          label="Sessions"
-          value={mentor.total_sessions.toLocaleString('en-US')}
-        />
-        <KpiTile
-          icon={<Banknote className="size-3" strokeWidth={2.4} />}
-          label="Rate"
-          value={`NPR ${hourlyRate.toLocaleString('en-US')}/hr`}
-        />
-      </div>
-
-      {/* ── Chip cluster ─────────────────────────────────────── */}
-      {hasSpecialties ? (
-        <div className="mt-3 flex min-w-0 flex-wrap items-center gap-1.5 sm:mt-4">
-          {mentor.is_professional_counselor ? (
-            <DataChip icon={Stethoscope} label="Professional" tone="blue" />
-          ) : null}
-          {mentor.is_academic_counselor ? (
-            <DataChip icon={GraduationCap} label="Academic" tone="purple" />
-          ) : null}
-          <BookingModeChip mentor={mentor} />
-          {mentor.is_accepting_bookings ? (
-            <DataChip icon={Zap} label="Accepting" tone="emerald" />
-          ) : (
-            <DataChip icon={ZapOff} label="Paused" tone="slate" />
-          )}
-          {mentor.industries.map((i) => (
-            <DataChip key={`i-${i.id}`} icon={Sparkles} label={i.name} tone="sky" />
-          ))}
-          {mentor.subcategories.map((s) => (
-            <DataChip key={`s-${s.id}`} label={s.name} tone="amber" />
-          ))}
-        </div>
-      ) : null}
-
-      {/* ── Tags + external links ─────────────────────────────── */}
-      {hasTagsOrLinks ? (
-        <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
-          {mentor.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600"
-            >
-              #{tag.name}
-            </span>
-          ))}
-          {mentor.linkedin_url ? (
-            <ExternalChip href={mentor.linkedin_url} icon={Link2} label="LinkedIn" />
-          ) : null}
-          {mentor.website_url ? (
-            <ExternalChip href={mentor.website_url} icon={Globe} label="Website" />
-          ) : null}
-          {mentor.calendly_link ? (
-            <ExternalChip href={mentor.calendly_link} icon={CalendarClock} label="Calendly" />
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* ── Bio (collapsible) ─────────────────────────────────── */}
-      {mentor.bio ? <BioBlock bio={mentor.bio} /> : null}
     </article>
   )
 }
@@ -309,14 +330,12 @@ export function AdminMentorCard({ mentor, tabId }: AdminMentorCardProps) {
 
 function KpiTile({ icon, label, value }: { icon?: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-0.5 rounded-lg bg-slate-50 px-2.5 py-1.5 sm:px-3 sm:py-2">
-      <span className="inline-flex items-center gap-1 truncate text-[9px] font-extrabold tracking-[0.1em] text-slate-500 uppercase sm:text-[10px]">
+    <div className="flex min-w-0 flex-col gap-1 rounded-lg bg-slate-50 px-3 py-2.5 ring-1 ring-slate-200/60">
+      <dt className="inline-flex items-center gap-1 text-[10px] font-bold tracking-[0.12em] text-slate-500 uppercase">
         {icon}
         {label}
-      </span>
-      <span className="truncate text-[12px] font-extrabold text-slate-950 sm:text-[13px]">
-        {value}
-      </span>
+      </dt>
+      <dd className="text-sm font-extrabold text-slate-950">{value}</dd>
     </div>
   )
 }
@@ -342,14 +361,12 @@ function DataChip({
   return (
     <span
       className={cn(
-        // max-w-full + truncation on long names so a single chip never
-        // overflows the row when its label is unusually long.
-        'inline-flex max-w-full items-center gap-1 truncate rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ring-1 ring-inset',
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ring-1 ring-inset',
         tones
       )}
     >
       {Icon ? <Icon className="size-3 shrink-0" strokeWidth={2.4} /> : null}
-      <span className="truncate">{label}</span>
+      {label}
     </span>
   )
 }
@@ -359,7 +376,7 @@ function BookingModeChip({ mentor }: { mentor: AdminMentorProfile }) {
     return (
       <DataChip
         icon={Zap}
-        label={mentor.requires_24h_approval ? 'Instant · 24h' : 'Instant booking'}
+        label={mentor.requires_24h_approval ? 'Instant · 24h review' : 'Instant booking'}
         tone="emerald"
       />
     )
@@ -391,7 +408,8 @@ function MentorStatusBadge({ mentor }: { mentor: AdminMentorProfile }) {
 
 function FeaturedBadge() {
   return (
-    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-700 uppercase">
+    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-700 uppercase">
+      <Star className="size-3 fill-amber-500 stroke-amber-500" strokeWidth={2.4} />
       Featured
     </span>
   )
@@ -411,10 +429,10 @@ function ExternalChip({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-slate-50 px-2.5 py-0.5 text-[11px] font-extrabold text-slate-600 transition hover:bg-slate-100"
+      className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-0.5 text-[11px] font-extrabold text-slate-600 ring-1 ring-slate-200/60 transition hover:bg-slate-100"
     >
       <Icon className="size-3 shrink-0" strokeWidth={2.4} />
-      <span className="truncate">{label}</span>
+      {label}
     </Link>
   )
 }
@@ -426,10 +444,10 @@ function BioBlock({ bio }: { bio: string }) {
   const showToggle = bio.length > 100
 
   return (
-    <div className="mt-3 sm:mt-4">
+    <div className="mt-4 border-t border-slate-100 pt-4">
       <p
         className={cn(
-          'text-[12px] leading-5 break-words text-slate-600 sm:text-[13px] sm:leading-6',
+          'text-xs leading-5 break-words text-slate-600 sm:text-sm sm:leading-6',
           !expanded && showToggle && 'line-clamp-2'
         )}
       >
@@ -440,7 +458,7 @@ function BioBlock({ bio }: { bio: string }) {
           type="button"
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
-          className="mt-1 inline-flex items-center gap-1 text-[11px] font-extrabold tracking-wide text-blue-700 uppercase hover:text-blue-800"
+          className="mt-2 inline-flex items-center gap-1 text-[11px] font-extrabold tracking-wide text-blue-700 uppercase hover:text-blue-800"
         >
           {expanded ? 'See less' : 'See more'}
           <ChevronDown
