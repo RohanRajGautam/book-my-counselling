@@ -101,7 +101,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
 
   const [activeTab, setActiveTab] = useState<AdminCreateMentorTab>('general-info')
 
-  const [email, setEmail] = useState('')
+  const [email] = useState('')
   const [fullName, setFullName] = useState('')
   const [general, setGeneral] = useState<AdminCreateMentorGeneralInfoForm>(EMPTY_GENERAL)
   const [counselling, setCounselling] = useState<AdminCounsellingForm>(EMPTY_COUNSELLING)
@@ -158,7 +158,6 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
       (s) => !COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(s) && s !== COACH_FOR_FRESHERS_GROUP_TAG
     )
 
-    setEmail(cachedMentor.user.email)
     setFullName(cachedMentor.user.full_name)
     setGeneral({
       title: cachedMentor.title,

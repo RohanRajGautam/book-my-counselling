@@ -9,11 +9,15 @@ export type AdminMentorBookingMode = 'instant' | 'approval_required'
 export interface AdminMentorProfile {
   id: string
   user_id: string
+  /**
+   * Mentor user summary. Matches the backend's `UserPublic` schema — `email`
+   * is intentionally NOT included even though search matches on it, so the
+   * admin list renders name/avatar/role only.
+   */
   user: {
     id: string
     full_name: string
     avatar_url: string | null
-    email: string
     role: string
   }
   title: string

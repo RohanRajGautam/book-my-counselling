@@ -1,4 +1,4 @@
-import { BarChart3, Bell, Banknote, CalendarSearch, Database, Inbox, UserCheck } from 'lucide-react'
+import { BarChart3, Banknote, CalendarSearch, Database, Inbox, UserCheck } from 'lucide-react'
 
 export type AdminNavItem = {
   icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
@@ -14,7 +14,6 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { icon: CalendarSearch, href: '/admin/bookings', label: 'Bookings' },
   { icon: Inbox, href: '/admin/availability-requests', label: 'Availability Requests' },
   { icon: Banknote, href: '/admin/refunds', label: 'Refunds' },
-  { icon: Bell, href: '/admin/reminders', label: 'Reminders' },
   { icon: Database, href: '/admin/maintenance', label: 'Maintenance', section: 'Maintenance' },
 ] as const
 
