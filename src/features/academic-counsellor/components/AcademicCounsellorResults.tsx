@@ -60,10 +60,14 @@ export function AcademicCounsellorResults() {
 
   if (isError) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
+      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
         <div>
-          <p className="mb-2 text-xl font-extrabold text-[#121c2a]">Unable to load mentors</p>
-          <p className="font-medium text-[#5f6472]">Please try again in a moment.</p>
+          <p className="mb-2 font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
+            Unable to load mentors
+          </p>
+          <p className="font-medium text-[var(--color-on-surface-variant)]">
+            Please try again in a moment.
+          </p>
         </div>
       </div>
     )
@@ -84,9 +88,14 @@ export function AcademicCounsellorResults() {
 
   if (currentMentors.length === 0) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
+      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
         <div>
-          <p className="text-xl font-extrabold text-[#121c2a]">No mentors found</p>
+          <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
+            No mentors found
+          </p>
+          <p className="mt-2 font-medium text-[var(--color-on-surface-variant)]">
+            Try a different category or search term.
+          </p>
         </div>
       </div>
     )
@@ -130,7 +139,7 @@ export function AcademicCounsellorResults() {
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1 || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[#f7faff] disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
             aria-label="Previous page"
           >
             <ChevronLeft className="size-5" />
@@ -144,8 +153,8 @@ export function AcademicCounsellorResults() {
               disabled={page === '...' || isFetching}
               className={`flex size-11 items-center justify-center rounded-full text-sm font-extrabold transition ${
                 page === currentPage
-                  ? 'bg-[#0053db] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
-                  : 'bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[#f7faff]'
+                  ? 'bg-[var(--brand-blue)] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
+                  : 'bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)]'
               } disabled:cursor-default disabled:opacity-60`}
             >
               {page}
@@ -156,7 +165,7 @@ export function AcademicCounsellorResults() {
             type="button"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[#f7faff] disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
             aria-label="Next page"
           >
             <ChevronRight className="size-5" />

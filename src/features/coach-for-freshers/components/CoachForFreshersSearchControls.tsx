@@ -49,15 +49,15 @@ export function CoachForFreshersSearchControls({
 
   return (
     <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
-      <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl border border-gray-100 bg-white px-4 ring-1 ring-[#eff4ff] ring-inset">
-        <Search className="mr-3 size-6 text-[#0053db]" />
+      <div className="flex h-16 min-w-0 flex-1 items-center rounded-2xl border border-[var(--color-surface-container-high)] bg-white px-4 ring-1 ring-[var(--brand-blue-surface)] ring-inset transition focus-within:ring-[var(--brand-blue)]/40">
+        <Search className="mr-3 size-6 shrink-0 text-[var(--brand-blue)]" />
         <input
           type="search"
           value={searchInputValue}
           onChange={(event) => handleSearchChange(event.target.value)}
           placeholder="Search by name, role, or company..."
           aria-label="Search coaches by name, role, or company"
-          className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[#121c2a] outline-none placeholder:text-[#b5bbc8]"
+          className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--color-outline)] placeholder:font-medium"
         />
         <button
           type="button"
@@ -67,23 +67,23 @@ export function CoachForFreshersSearchControls({
             }
             updateFilter('jobTitle', searchInputValue)
           }}
-          className="ml-2 h-10 rounded-xl bg-[#0053db] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+          className="ml-2 h-10 rounded-xl bg-[var(--brand-blue)] px-7 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)] transition hover:bg-[var(--brand-blue-hover)]"
         >
           Search
         </button>
       </div>
 
       <div className="flex items-center gap-3">
-        <label className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-gray-100 bg-white px-4 ring-1 ring-[#eff4ff] ring-inset xl:flex-none">
-          <ArrowUpDown className="size-5 shrink-0 text-[#0053db]" />
-          <span className="text-sm font-extrabold text-[#434655]">Sort</span>
+        <label className="flex h-14 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-[var(--color-surface-container-high)] bg-white px-4 ring-1 ring-[var(--brand-blue-surface)] ring-inset transition focus-within:ring-[var(--brand-blue)]/40 xl:flex-none">
+          <ArrowUpDown className="size-5 shrink-0 text-[var(--brand-blue)]" />
+          <span className="text-sm font-extrabold text-[var(--color-on-surface-variant)]">Sort</span>
           <span className="relative min-w-0 flex-1 xl:flex-none">
             <select
               value={filters.sortBy}
               onChange={(event) =>
                 updateFilter('sortBy', event.target.value as (typeof SORT_OPTIONS)[number]['value'])
               }
-              className="h-10 w-full min-w-0 appearance-none rounded-xl bg-[#f8f9ff] px-3 pr-9 text-sm font-extrabold text-[#121c2a] ring-1 ring-[#eff4ff] transition outline-none ring-inset focus:ring-2 focus:ring-[#0053db]/30 xl:min-w-[180px]"
+              className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-xl bg-[var(--brand-blue-surface)] px-3 pr-9 text-sm font-extrabold text-[var(--foreground)] ring-1 ring-[var(--color-surface-container-high)] transition outline-none ring-inset focus:ring-2 focus:ring-[var(--brand-blue)]/30 xl:min-w-[180px]"
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -91,7 +91,7 @@ export function CoachForFreshersSearchControls({
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#0053db]" />
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[var(--brand-blue)]" />
           </span>
         </label>
 
@@ -99,7 +99,7 @@ export function CoachForFreshersSearchControls({
           <button
             type="button"
             onClick={onOpenMobileFilters}
-            className="inline-flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-extrabold text-[#0053db] shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset lg:hidden"
+            className="inline-flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-extrabold text-[var(--brand-blue)] shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[var(--brand-blue-surface)] ring-inset transition hover:bg-[var(--brand-blue-surface)] lg:hidden"
           >
             <SlidersHorizontal className="size-4" />
             Filters
