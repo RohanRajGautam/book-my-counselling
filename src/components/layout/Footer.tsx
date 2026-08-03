@@ -1,69 +1,125 @@
 'use client'
 
 import Link from 'next/link'
-import { Globe, MessageCircle, Mail } from 'lucide-react'
+import Image from 'next/image'
+import { Globe, MessageCircle, Mail, ArrowUpRight } from 'lucide-react'
+
+const PLATFORM_LINKS = [
+  { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/how-it-works', label: 'How It Works' },
+  { href: '/mentor', label: 'Mentor Sign In' },
+]
+
+const SUPPORT_LINKS = [
+  { href: '/#about', label: 'About us' },
+  { href: '/#faq', label: 'Mentorship FAQ' },
+]
 
 export function Footer() {
   return (
-    <footer className="pt-20 w-full bg-slate-100 font-[family-name:var(--font-body)] text-sm dark:bg-slate-900">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-8 py-16 md:grid-cols-4">
-        {/* Brand */}
-        <div className="space-y-4">
-          <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            Book Your Counselling
+    <footer className="relative w-full overflow-hidden border-t border-[#c3c6d7]/20 bg-white/28 font-[family-name:var(--font-body)] text-sm text-[var(--color-on-surface-variant)]">
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-40" />
+      <div className="relative mx-auto max-w-7xl pt-16 pb-10 lg:pt-20">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
+          <div>
+            <Link href="/" aria-label="Book Your Counselling home" className="inline-flex">
+              <Image
+                src="/home/byc-logo.svg"
+                alt="Book Your Counselling"
+                width={190}
+                height={88}
+                className="h-12 w-auto"
+              />
+            </Link>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-[var(--color-on-surface-variant)]">
+              Connect with mentors who can guide your academic choices, study path, and next steps —
+              one conversation at a time.
+            </p>
           </div>
-          <p className="text-slate-500 dark:text-slate-400">
-            © 2026 Book Your Counselling. Guided Fluidity in Career Growth.
-          </p>
+
+          <div>
+            <h4 className="font-[family-name:var(--font-headline)] text-[11px] font-extrabold tracking-[0.18em] text-[var(--color-outline)] uppercase">
+              Platform
+            </h4>
+            <ul className="mt-5 space-y-3">
+              {PLATFORM_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm font-medium text-[var(--color-on-surface-variant)] transition-colors hover:text-[var(--foreground)]"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-[family-name:var(--font-headline)] text-[11px] font-extrabold tracking-[0.18em] text-[var(--color-outline)] uppercase">
+              Support
+            </h4>
+            <ul className="mt-5 space-y-3">
+              {SUPPORT_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm font-medium text-[var(--color-on-surface-variant)] transition-colors hover:text-[var(--foreground)]"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-[family-name:var(--font-headline)] text-[11px] font-extrabold tracking-[0.18em] text-[var(--color-outline)] uppercase">
+              Connect
+            </h4>
+            <p className="mt-5 text-sm text-[var(--color-on-surface-variant)]">
+              Reach us, anytime.
+            </p>
+            <div className="mt-4 flex items-center gap-2.5">
+              <Link
+                href="#"
+                aria-label="Website"
+                className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
+              >
+                <Globe className="size-4" />
+              </Link>
+              <Link
+                href="#"
+                aria-label="Chat"
+                className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
+              >
+                <MessageCircle className="size-4" />
+              </Link>
+              <Link
+                href="mailto:hello@bookyourcounselling.com"
+                aria-label="Email"
+                className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
+              >
+                <Mail className="size-4" />
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Platform */}
-        <div className="flex flex-col space-y-4">
-          <h4 className="font-bold text-slate-900 dark:text-slate-100">Platform</h4>
-          <Link
-            href="/privacy"
-            className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            href="/how-it-works"
-            className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
-          >
-            How It Works
-          </Link>
-          <Link
-            href="/mentor"
-            className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
-          >
-            Mentor Sign In
-          </Link>
-        </div>
+        <div className="mt-14 h-px w-full bg-[var(--color-surface-container-high)]" />
 
-        {/* Support */}
-        <div className="flex flex-col space-y-4">
-          <h4 className="font-bold text-slate-900 dark:text-slate-100">Support</h4>
-          <Link
-            href="/#"
-            className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
-          >
-            About us
-          </Link>
-          <Link
-            href="/#"
-            className="text-slate-500 underline-offset-4 transition-all hover:underline hover:decoration-emerald-500 dark:text-slate-400"
-          >
-            Mentorship FAQ
-          </Link>
-        </div>
-
-        {/* Connect */}
-        <div className="flex flex-col space-y-4">
-          <h4 className="font-bold text-slate-900 dark:text-slate-100">Connect</h4>
-          <div className="flex gap-4">
-            <Globe className="h-6 w-6 cursor-pointer text-slate-500 transition-colors hover:text-[#004ac6]" />
-            <MessageCircle className="h-6 w-6 cursor-pointer text-slate-500 transition-colors hover:text-[#004ac6]" />
-            <Mail className="h-6 w-6 cursor-pointer text-slate-500 transition-colors hover:text-[#004ac6]" />
+        <div className="mt-6 flex flex-col items-start justify-between gap-4 text-xs text-[var(--color-outline)] md:flex-row md:items-center">
+          <p>© 2026 Book Your Counselling. Guided fluidity in career growth.</p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href="/privacy" className="transition-colors hover:text-[var(--foreground)]">
+              Privacy
+            </Link>
+            <Link href="#" className="transition-colors hover:text-[var(--foreground)]">
+              Terms
+            </Link>
+            <Link href="#" className="transition-colors hover:text-[var(--foreground)]">
+              Contact
+            </Link>
           </div>
         </div>
       </div>

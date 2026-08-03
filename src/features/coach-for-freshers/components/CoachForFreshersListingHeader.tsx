@@ -7,15 +7,15 @@ export function CoachForFreshersListingHeader({ variety }: { variety: CoachForFr
 
   return (
     <section className="px-5 pt-6 sm:px-6 lg:px-8 xl:px-10">
-      <div className="rounded-[24px] py-5">
-        <div>
-          <h1 className="font-[family-name:var(--font-headline)] text-[clamp(2.4rem,5.5vw,3rem)] leading-tight font-extrabold text-[#121c2a]">
-            {firstWords}
-            {firstWords && ' '}
-            <span className="text-[#0053db]">{lastWord}</span>
-          </h1>
-          <p className="mt-4 text-base leading-8 font-medium text-[#5f6472]">{variety.subtitle}</p>
-        </div>
+      <div className="py-5">
+        <h1 className="font-[family-name:var(--font-headline)] text-[clamp(2.25rem,5vw,3rem)] leading-[1.05] font-extrabold text-[var(--foreground)]">
+          {firstWords}
+          {firstWords && ' '}
+          <span className="text-[var(--brand-blue)]">{lastWord}</span>
+        </h1>
+        <p className="mt-3 text-base leading-7 font-medium text-[var(--color-on-surface-variant)] sm:leading-8">
+          {variety.subtitle}
+        </p>
       </div>
     </section>
   )
