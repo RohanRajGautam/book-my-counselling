@@ -6,7 +6,7 @@ import { normalizeSearchMentor } from '@/features/mentors/utils/mentors.utils'
 import type { CoachForFreshersVariety } from '../types/coach-for-freshers.types'
 import type { SortBy } from '../types/filters.types'
 
-export const COACH_FOR_FRESHERS_PER_PAGE = 20
+export const COACH_FOR_FRESHERS_PER_PAGE = 12
 
 function toBackendSort(sortBy: SortBy) {
   switch (sortBy) {

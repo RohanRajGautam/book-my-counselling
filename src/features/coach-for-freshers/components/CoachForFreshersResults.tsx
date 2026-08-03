@@ -1,36 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
+import { getMentorProfileSlug } from '@/features/mentors/utils/mentors.utils'
 
 import { COACH_FOR_FRESHERS_PER_PAGE } from '../api/coach-for-freshers.api'
 import { useCoachForFreshersFilters } from '../context/CoachForFreshersFiltersContext'
 import { useCoachForFreshers } from '../hooks/useCoachForFreshers'
+import { buildCoachForFreshersSearchParams } from '../lib/url-state'
 import {
   COACH_FOR_FRESHERS_GROUP_TAG,
   COACH_FOR_FRESHERS_TAG_LABELS,
   type CoachForFreshersVariety,
 } from '../types/coach-for-freshers.types'
 
-import { CoachForFreshersProfileModal } from './CoachForFreshersProfileModal'
-
 interface CoachForFreshersResultsProps {
   variety: CoachForFreshersVariety
 }
 
 export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProps) {
+  const router = useRouter()
   const { filters, currentPage, setCurrentPage } = useCoachForFreshersFilters()
   const { data, isLoading, isFetching, isError } = useCoachForFreshers(
     variety,
     filters,
     currentPage
   )
-  const [activeMentorId, setActiveMentorId] = useState<string | null>(null)
 
   const totalPages = data?.total_pages ?? 1
   const currentMentors = data?.items ?? []
+
+  const getMentorHref = (mentor: (typeof currentMentors)[number]) => {
+    const params = buildCoachForFreshersSearchParams(filters, currentPage)
+    const queryString = params.toString()
+
+    return `/coach-for-freshers/${getMentorProfileSlug(mentor)}${queryString ? `?${queryString}` : ''}`
+  }
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -66,10 +73,14 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
 
   if (isError) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
+      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
         <div>
-          <p className="mb-2 text-xl font-extrabold text-[#121c2a]">Unable to load coaches</p>
-          <p className="font-medium text-[#5f6472]">Please try again in a moment.</p>
+          <p className="mb-2 font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
+            Unable to load coaches
+          </p>
+          <p className="font-medium text-[var(--color-on-surface-variant)]">
+            Please try again in a moment.
+          </p>
         </div>
       </div>
     )
@@ -90,10 +101,12 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
 
   if (currentMentors.length === 0) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[#eff4ff] ring-inset">
+      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
         <div>
-          <p className="text-xl font-extrabold text-[#121c2a]">No coaches found</p>
-          <p className="mt-2 font-medium text-[#5f6472]">
+          <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
+            No coaches found
+          </p>
+          <p className="mt-2 font-medium text-[var(--color-on-surface-variant)]">
             Try a different category or search term.
           </p>
         </div>
@@ -132,7 +145,7 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
             companyLogoUrl={mentor.company_logo_url ?? null}
             verified={mentor.is_verified}
             context="coach-for-freshers"
-            onClick={() => setActiveMentorId(mentor.id)}
+            onClick={() => router.push(getMentorHref(mentor))}
           />
         ))}
       </div>
@@ -143,7 +156,7 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1 || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[#f7faff] disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
             aria-label="Previous page"
           >
             <ChevronLeft className="size-5" />
@@ -157,8 +170,8 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
               disabled={page === '...' || isFetching}
               className={`flex size-11 items-center justify-center rounded-full text-sm font-extrabold transition ${
                 page === currentPage
-                  ? 'bg-[#0053db] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
-                  : 'bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[#f7faff]'
+                  ? 'bg-[var(--brand-blue)] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
+                  : 'bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)]'
               } disabled:cursor-default disabled:opacity-60`}
             >
               {page}
@@ -169,19 +182,13 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
             type="button"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[#f7faff] disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
             aria-label="Next page"
           >
             <ChevronRight className="size-5" />
           </button>
         </div>
       )}
-
-      <CoachForFreshersProfileModal
-        key={activeMentorId ?? 'closed'}
-        mentorId={activeMentorId}
-        onClose={() => setActiveMentorId(null)}
-      />
     </>
   )
 }

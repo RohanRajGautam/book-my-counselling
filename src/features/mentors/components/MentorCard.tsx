@@ -139,12 +139,12 @@ export function MentorCard({
 
   return (
     <article
-      className="group flex min-h-[320px] cursor-pointer flex-col rounded-[18px] bg-white p-5 shadow-[0_16px_40px_rgba(18,28,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(18,28,42,0.08)]"
+      className="group flex h-full cursor-pointer flex-col rounded-2xl bg-white p-5 shadow-[0_16px_40px_rgba(18,28,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(18,28,42,0.08)]"
       onClick={onClick}
     >
-      <div className="mb-5 flex items-center gap-4">
-        <div className="relative">
-          <div className="size-[78px] rounded-full border-[3px] border-[#0053db] bg-white p-1 shadow-[0_0_0_6px_#f3f7ff]">
+      <div className="mb-4 flex h-[80px] items-center gap-4">
+        <div className="relative shrink-0">
+          <div className="size-[78px] rounded-full border-[3px] border-[var(--color-surface-tint)] bg-white p-1 shadow-[0_0_0_6px_#f3f7ff]">
             {imageSrc ? (
               <Image
                 src={imageSrc}
@@ -156,31 +156,32 @@ export function MentorCard({
             ) : (
               <div
                 aria-label={`${displayName} profile initials`}
-                className="flex size-full items-center justify-center rounded-full bg-[#e6eeff] text-xl font-extrabold text-[#004ac6]"
+                className="flex size-full items-center justify-center rounded-full bg-[var(--brand-blue-soft)] text-xl font-extrabold text-[var(--brand-blue)]"
               >
                 {initials}
               </div>
             )}
           </div>
           {verified && (
-            <div className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#00714d]">
+            <div className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-2 border-white bg-[var(--color-secondary)]">
               <Check className="size-4 text-white" strokeWidth={4} />
             </div>
           )}
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 font-[family-name:var(--font-headline)] text-lg font-extrabold tracking-tight text-[#121c2a] transition group-hover:text-[#004ac6]">
+          <h3 className="line-clamp-2 font-[family-name:var(--font-headline)] text-lg leading-6 font-extrabold tracking-tight text-[var(--foreground)] transition group-hover:text-[var(--brand-blue)]">
             {displayName}
           </h3>
-          {/* {verified && <p className="mt-1 text-sm font-bold text-[#00714d]">Verified Mentor</p>} */}
-          <p className="mt-1 line-clamp-2 text-base leading-6 font-medium text-[#434655]">{role}</p>
+          <p className="mt-1 line-clamp-2 text-sm leading-5 font-medium text-[var(--color-on-surface-variant)]">
+            {role}
+          </p>
         </div>
       </div>
 
       {companyDisplay && (
-        <div className="mb-5 flex items-center gap-2">
-          <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#dfe7f5] bg-white">
+        <div className="mb-4 flex h-[28px] items-center gap-2">
+          <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[var(--color-surface-container-high)] bg-white">
             {hasCompanyLogo ? (
               <Image
                 src={companyLogoUrl as string}
@@ -191,15 +192,17 @@ export function MentorCard({
                 unoptimized
               />
             ) : (
-              <Building2 className="size-4 text-[#737686]" aria-hidden />
+              <Building2 className="size-4 text-[var(--color-outline)]" aria-hidden />
             )}
           </div>
-          <span className="line-clamp-1 text-sm font-bold text-[#5f6472]">{companyDisplay}</span>
+          <span className="line-clamp-1 text-sm font-bold text-[var(--color-on-surface-variant)]">
+            {companyDisplay}
+          </span>
         </div>
       )}
 
-      <div className="mb-5">
-        <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
+      <div className="mb-4">
+        <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[var(--color-outline)] uppercase">
           Services offered
         </p>
         <div className="flex min-h-[30px] flex-wrap gap-2">
@@ -208,90 +211,92 @@ export function MentorCard({
               {services.slice(0, 3).map((service) => (
                 <span
                   key={service}
-                  className="max-w-full truncate rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]"
+                  className="max-w-full truncate rounded-full bg-[var(--brand-blue-soft)] px-3 py-1.5 text-xs font-extrabold text-[var(--brand-blue)]"
                 >
                   {service}
                 </span>
               ))}
 
               {services.length > 3 && (
-                <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+                <span className="rounded-full bg-[var(--brand-blue-soft)] px-3 py-1.5 text-xs font-extrabold text-[var(--brand-blue)]">
                   +{services.length - 3} more
                 </span>
               )}
             </>
           ) : (
-            <span className="rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+            <span className="rounded-full bg-[var(--brand-blue-soft)] px-3 py-1.5 text-xs font-extrabold text-[var(--brand-blue)]">
               Mentorship
             </span>
           )}
         </div>
       </div>
 
-      <div className="mt-auto mb-5 flex items-center gap-2">
-        {Number(rating || 0) > 0 && (
+      <div className="flex-1" />
+
+      <div className="mb-4 flex h-[24px] items-center gap-2">
+        {Number(rating || 0) > 0 ? (
           <>
             <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
-            <span className="font-[family-name:var(--font-headline)] font-extrabold text-[#121c2a]">
+            <span className="font-[family-name:var(--font-headline)] font-extrabold text-[var(--foreground)]">
               {Number(rating || 0)
                 .toFixed(1)
                 .replace('.0', '')}
             </span>
           </>
+        ) : (
+          <Star className="size-5 text-transparent" aria-hidden />
         )}
-        <span className="flex w-full items-center justify-between">
-          {/* <span className="text-sm font-medium text-[#737686]">
-            ({reviews} {reviews === 1 ? 'review' : 'reviews'})
-          </span> */}
-
-          {typeof totalSessions === 'number' && (
-            <span className="ml-2 text-sm font-medium text-[#737686]">
-              {totalSessions} total sessions
-            </span>
-          )}
+        <span
+          className={`text-sm font-medium text-[var(--color-outline)] ${
+            typeof totalSessions === 'number' ? '' : 'invisible'
+          }`}
+        >
+          {typeof totalSessions === 'number' ? `${totalSessions} total sessions` : '0 total sessions'}
         </span>
       </div>
 
-      <div className="border-t border-[#dfe7f5] pt-5">
-        {sortedTiers ? (
-          <>
-            <p className="mb-2.5 text-[11px] font-extrabold tracking-wider text-[#737686] uppercase">
-              Session packages
-            </p>
-            <div className="mb-4 flex gap-2">
-              {sortedTiers.map((tier, index) => (
-                <div
-                  key={`${tier.duration_minutes}-${tier.price}-${index}`}
-                  className="flex flex-1 flex-col rounded-xl bg-[#f3f7ff] px-2 py-2.5"
-                >
-                  <span className="flex items-center gap-1 text-[10px] font-extrabold text-[#737686]">
-                    <Clock className="size-3" />
-                    {tier.duration_minutes}m
-                  </span>
-                  <span className="mt-1 font-[family-name:var(--font-headline)] text-xs font-extrabold text-[#121c2a]">
-                    NPR {Math.round(tier.price).toLocaleString()}
-                  </span>
-                </div>
-              ))}
+      <div className="border-t border-[var(--color-surface-container-high)] pt-4">
+        <div className="min-h-[88px]">
+          {sortedTiers ? (
+            <>
+              <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[var(--color-outline)] uppercase">
+                Session packages
+              </p>
+              <div className="mb-4 flex gap-2">
+                {sortedTiers.map((tier, index) => (
+                  <div
+                    key={`${tier.duration_minutes}-${tier.price}-${index}`}
+                    className="flex flex-1 flex-col rounded-xl bg-[var(--brand-blue-surface)] px-2 py-2.5"
+                  >
+                    <span className="flex items-center gap-1 text-[10px] font-extrabold text-[var(--color-outline)]">
+                      <Clock className="size-3" />
+                      {tier.duration_minutes}m
+                    </span>
+                    <span className="mt-1 font-[family-name:var(--font-headline)] text-xs font-extrabold text-[var(--foreground)]">
+                      NPR {Math.round(tier.price).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="mb-4">
+              <p className="text-xs font-extrabold tracking-widest text-[var(--color-outline)] uppercase">
+                Starting at
+              </p>
+              <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
+                NPR {Math.round(price).toLocaleString()}
+              </p>
             </div>
-          </>
-        ) : (
-          <div className="mb-4">
-            <p className="text-xs font-extrabold tracking-widest text-[#737686] uppercase">
-              Starting at
-            </p>
-            <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[#121c2a]">
-              NPR {Math.round(price).toLocaleString()}
-            </p>
-          </div>
-        )}
+          )}
+        </div>
         <button
           type="button"
           onClick={(event) => {
             event.stopPropagation()
             onClick?.()
           }}
-          className="h-11 w-full shrink-0 rounded-xl bg-[#1f5bdc] px-5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(0,83,219,0.22)] transition hover:bg-[#003fa8]"
+          className="h-11 w-full shrink-0 rounded-xl bg-[var(--brand-blue)] px-5 text-sm font-extrabold text-white shadow-[0_10px_20px_rgba(0,83,219,0.22)] transition hover:bg-[var(--brand-blue-hover)]"
         >
           Book Session
         </button>
