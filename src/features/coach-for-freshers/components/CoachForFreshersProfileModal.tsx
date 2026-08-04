@@ -11,6 +11,7 @@ import { useMentorAvailability } from '@/features/availability/hooks/useMentorAv
 import { getInitials } from '@/features/mentors/components/MentorCard'
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { displayTagName } from '@/features/mentors/utils/mentors.utils'
+import { MentorReviewsSection } from '@/features/reviews/components/MentorReviewsSection'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 
 type BookingSelection = {
@@ -64,10 +65,6 @@ export function CoachForFreshersProfileModal({
   const companyName = mentor?.company ?? null
   const hasCompany = Boolean(companyLogoUrl || companyName)
   const firstName = mentor?.user?.full_name?.split(' ')[0] ?? 'this coach'
-  const ratingLabel = Number(mentor?.average_rating || 0)
-    .toFixed(1)
-    .replace('.0', '')
-  const hasRating = Number(mentor?.average_rating || 0) > 0
   const bioText = (mentor?.bio ?? '').replace(/\n+/g, '\n')
   const bioFallback =
     'Choose a package and time for focused guidance on CVs, interviews, and first-job readiness.'
@@ -191,27 +188,6 @@ export function CoachForFreshersProfileModal({
                   <p className="mx-auto mb-4 max-w-[320px] text-base leading-7 font-medium text-[#434655]">
                     {mentor.title} {mentor.company && `at ${mentor.company}`}
                   </p>
-
-                  <div
-                    className={`mb-5 grid ${
-                      hasRating ? 'grid-cols-2' : 'grid-cols-1'
-                    } overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-1 ring-[#eff4ff]`}
-                  >
-                    {hasRating && (
-                      <div className="px-3 py-3">
-                        <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                          {ratingLabel}
-                        </p>
-                        <p className="text-[11px] font-bold text-[#737686]">Rating</p>
-                      </div>
-                    )}
-                    <div className={`${hasRating ? 'border-l border-[#eff4ff]' : ''} px-3 py-3`}>
-                      <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                        {mentor.total_reviews}
-                      </p>
-                      <p className="text-[11px] font-bold text-[#737686]">Reviews</p>
-                    </div>
-                  </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <a
@@ -484,6 +460,8 @@ export function CoachForFreshersProfileModal({
                   </button>
                 ) : null}
               </div>
+
+              <MentorReviewsSection mentorId={resolvedMentorId} />
             </section>
           </>
         )}
