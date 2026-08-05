@@ -116,8 +116,6 @@ export function AcademicCounsellorResults() {
             role={mentor.title}
             company={mentor.company ?? ''}
             tags={mentor.tags?.length ? mentor.tags : (mentor.industries ?? [])}
-            rating={mentor.average_rating}
-            reviews={mentor.total_reviews}
             description={
               mentor.industries?.length
                 ? `Mentor in ${mentor.industries.slice(0, 2).join(' and ')} with ${mentor.total_sessions} sessions`

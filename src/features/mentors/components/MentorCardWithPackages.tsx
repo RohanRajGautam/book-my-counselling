@@ -9,8 +9,6 @@ interface MentorCardWithPackagesProps {
   role: string
   company: string
   tags: string[]
-  rating: number
-  reviews: number
   description: string
   fallbackPrice: number
   imageUrl?: string | null

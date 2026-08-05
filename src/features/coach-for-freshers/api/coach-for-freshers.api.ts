@@ -25,7 +25,12 @@ function toBackendSort(sortBy: SortBy) {
 
 export async function getCoachForFreshers(
   variety: CoachForFreshersVariety,
-  filters: { jobTitle: string; category: string | null; availableThisWeek: boolean; sortBy: SortBy },
+  filters: {
+    jobTitle: string
+    category: string | null
+    availableThisWeek: boolean
+    sortBy: SortBy
+  },
   page = 1
 ): Promise<PaginatedResponse<Mentor>> {
   const requestedPage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
