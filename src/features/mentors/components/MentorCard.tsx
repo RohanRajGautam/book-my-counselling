@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Building2, Check, Clock, Star } from 'lucide-react'
+import { Building2, Check, Clock } from 'lucide-react'
 
 import {
   COACH_FOR_FRESHERS_GROUP_TAG,
@@ -38,8 +38,6 @@ interface MentorCardProps {
   role: string
   company: string
   tags: string[]
-  rating: number
-  reviews: number
   description?: string
   totalSessions?: number
   price: number
@@ -96,8 +94,6 @@ export function MentorCard({
   role,
   company,
   tags,
-  rating,
-  reviews,
   totalSessions,
   price,
   packageTiers,
@@ -234,18 +230,6 @@ export function MentorCard({
       <div className="flex-1" />
 
       <div className="mb-4 flex h-[24px] items-center gap-2">
-        {Number(rating || 0) > 0 ? (
-          <>
-            <Star className="size-5 fill-[#f2b200] text-[#f2b200]" />
-            <span className="font-[family-name:var(--font-headline)] font-extrabold text-[var(--foreground)]">
-              {Number(rating || 0)
-                .toFixed(1)
-                .replace('.0', '')}
-            </span>
-          </>
-        ) : (
-          <Star className="size-5 text-transparent" aria-hidden />
-        )}
         <span
           className={`text-sm font-medium text-[var(--color-outline)] ${
             typeof totalSessions === 'number' ? '' : 'invisible'

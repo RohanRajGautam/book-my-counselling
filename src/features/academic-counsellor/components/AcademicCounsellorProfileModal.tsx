@@ -2,22 +2,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import {
-  X,
-  Check,
-  Link,
-  Globe,
-  Star,
-  ChevronRight,
-  ChevronLeft,
-  CalendarPlus,
-  Building2,
-} from 'lucide-react'
+import { X, Check, Link, Globe, ChevronRight, CalendarPlus, Building2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMentorProfile } from '@/features/mentors/hooks/useMentorProfile'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
-import { useMentorReviews } from '@/features/reviews/hooks/useMentorReviews'
+import { MentorReviewsSection } from '@/features/reviews/components/MentorReviewsSection'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
@@ -31,7 +21,6 @@ interface Props {
 
 export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Props) {
   const router = useRouter()
-  const [reviewPage, setReviewPage] = useState(1)
   const [selection, setSelection] = useState<{
     mentorId: string | null
     slicedSlotId: string | null
@@ -105,21 +94,12 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
     isOpen ? resolvedMentorId : null
   )
 
-  const { data: reviewsData, isPending: isReviewsLoading } = useMentorReviews(
-    isOpen ? resolvedMentorId : null,
-    reviewPage
-  )
-
   const initials = getInitials(mentor?.user?.full_name || '')
   const avatarUrl = mentor?.user?.avatar_url ?? null
   const companyLogoUrl = mentor?.company_logo_url ?? null
   const companyName = mentor?.company ?? null
   const hasCompany = Boolean(companyLogoUrl || companyName)
 
-  const reviews = reviewsData?.items ?? []
-  const totalReviews = reviewsData?.total ?? 0
-  const totalPages = reviewsData?.total_pages ?? 1
-  const hasNextPage = reviewsData?.has_next ?? false
   // Coach for Freshers service tags (Career Clarity Roadmap, First-Job CV
   // Builder, Mock Interview Lab) belong to the CFF page only — hide them
   // here so the academic modal doesn't show a tag the mentor never opted
@@ -145,10 +125,6 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
   const canBook = Boolean(
     resolvedMentorId && selectedSlotId && selectedPackageId && hasAvailability
   )
-  const ratingLabel = Number(mentor?.average_rating || 0)
-    .toFixed(1)
-    .replace('.0', '')
-  const hasRating = Number(mentor?.average_rating || 0) > 0
   const bioText = (mentor?.bio ?? '').replace(/\n+/g, '\n')
   const bioFallback = `${mentor?.user?.full_name ?? 'This mentor'} is an experienced ${mentor?.title ?? 'mentor'} passionate about mentoring professionals.`
 
@@ -238,37 +214,6 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
               <p className="mx-auto mb-4 max-w-[320px] text-base leading-7 font-medium text-[#434655]">
                 {mentor.title} {mentor.company && `at ${mentor.company}`}
               </p>
-
-              <div
-                className={`mb-5 grid ${
-                  hasRating ? 'grid-cols-2' : 'grid-cols-1'
-                } overflow-hidden rounded-[18px] bg-[#f8f9ff] ring-[#eff4ff]`}
-              >
-                {hasRating && (
-                  <div className="px-3 py-3">
-                    <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                      {ratingLabel}
-                    </p>
-                    <p className="text-[11px] font-bold text-[#737686]">Rating</p>
-                  </div>
-                )}
-                {/* <div
-                  className={`${
-                    hasRating ? 'border-x border-[#eff4ff]' : ''
-                  } px-3 py-3`}
-                >
-                  <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                    {mentor.total_reviews}
-                  </p>
-                  <p className="text-[11px] font-bold text-[#737686]">Reviews</p>
-                </div> */}
-                {/* <div className="px-3 py-3">
-                  <p className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
-                    {mentor.total_sessions}
-                  </p>
-                  <p className="text-[11px] font-bold text-[#737686]">Sessions</p>
-                </div> */}
-              </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <a
@@ -584,98 +529,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:gap-6">
-            <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
-              {totalReviews > 0 || isReviewsLoading ? (
-                <div className="flex flex-col gap-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
-                      Customer Reviews
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      {isReviewsLoading && (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#004ac6] border-t-transparent" />
-                      )}
-                      <span className="text-xs font-medium text-[#737686]">
-                        {totalReviews} total
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`custom-scrollbar flex max-h-[500px] flex-col gap-4 overflow-y-auto pr-2 transition-opacity duration-200 ${isReviewsLoading ? 'opacity-50' : 'opacity-100'}`}
-                  >
-                    {reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="rounded-[20px] border border-[#eff4ff] bg-[#f8f9ff] p-5 transition-colors hover:border-[#dee9fc]"
-                      >
-                        <div className="mb-3 flex items-center gap-1 text-[#f9bd22]">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-current" />
-                          ))}
-                          {[...Array(5 - review.rating)].map((_, i) => (
-                            <Star key={`empty-${i}`} className="h-4 w-4 text-[#d7dce5]" />
-                          ))}
-                        </div>
-
-                        <blockquote className="mb-5 text-[15px] leading-relaxed text-[#434655] italic">
-                          &ldquo;{review.comment}&rdquo;
-                        </blockquote>
-
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#dee9fc] text-sm font-bold text-[#004ac6]">
-                            {review.reviewer?.full_name?.charAt(0) || 'U'}
-                          </div>
-
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-[#121c2a]">
-                              {review.reviewer?.full_name}
-                            </span>
-                            <span className="text-xs text-[#737686]">
-                              {new Date(review.created_at).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between border-t border-[#eff4ff] pt-6">
-                    <button
-                      disabled={reviewPage === 1 || isReviewsLoading}
-                      onClick={() => setReviewPage((p) => Math.max(1, p - 1))}
-                      className="flex items-center gap-2 rounded-xl border border-[#dee9fc] px-4 py-2 text-sm font-medium text-[#004ac6] transition-all hover:bg-[#f0f5ff] disabled:pointer-events-none disabled:opacity-40"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      Previous
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-[#737686]">
-                        Page <span className="text-[#121c2a]">{reviewPage}</span> of {totalPages}
-                      </span>
-                    </div>
-
-                    <button
-                      disabled={!hasNextPage || isReviewsLoading}
-                      onClick={() => setReviewPage((p) => p + 1)}
-                      className="flex items-center gap-2 rounded-xl border border-[#dee9fc] px-4 py-2 text-sm font-medium text-[#004ac6] transition-all hover:bg-[#f0f5ff] disabled:pointer-events-none disabled:opacity-40"
-                    >
-                      Next
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex h-full items-center justify-center py-12 text-center text-[#737686]">
-                  No reviews yet
-                </div>
-              )}
-            </div>
+            <MentorReviewsSection mentorId={resolvedMentorId} />
           </div>
         </div>
       </div>

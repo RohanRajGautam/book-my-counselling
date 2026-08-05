@@ -47,8 +47,6 @@ export function FeaturedMentorsGrid() {
                 role={mentor.title}
                 company={mentor.company ?? ''}
                 tags={mentor.tags?.slice(0, 4).map((t) => (t.startsWith('#') ? t : `#${t}`)) || []}
-                rating={mentor.average_rating}
-                reviews={mentor.total_reviews}
                 description={`Mentor in ${mentor.industries?.join(', ') || 'various fields'} with ${mentor.total_sessions} sessions`}
                 fallbackPrice={Number(mentor.hourly_rate)}
                 imageUrl={mentor.avatar_url}

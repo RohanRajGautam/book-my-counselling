@@ -137,8 +137,6 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
                   ? mentor.professional_categories
                   : (mentor.industries ?? [])
             }
-            rating={mentor.average_rating}
-            reviews={mentor.total_reviews}
             description={`${mentor.title} with ${mentor.total_sessions} sessions`}
             fallbackPrice={Number(mentor.hourly_rate)}
             imageUrl={mentor.avatar_url}
