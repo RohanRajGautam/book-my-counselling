@@ -11,20 +11,12 @@ import {
   Loader2,
   MessageSquareQuote,
   ShieldAlert,
-  Sparkles,
 } from 'lucide-react'
+import { getInitials } from '@/features/mentors/components/MentorCard'
 import { useReviewInvitation } from '../hooks/useReviewInvitation'
 import { useSubmitReviewInvitation } from '../hooks/useSubmitReviewInvitation'
-import {
-  REVIEW_COMMENT_MAX,
-  normalizeReviewComment,
-  validateReviewForm,
-} from '../lib/validation'
-import {
-  mapFetchError,
-  mapSubmitError,
-  type FetchError,
-} from '../lib/reviewInvitation.errors'
+import { REVIEW_COMMENT_MAX, normalizeReviewComment, validateReviewForm } from '../lib/validation'
+import { mapFetchError, mapSubmitError, type FetchError } from '../lib/reviewInvitation.errors'
 import type { ReviewInvitation, ReviewSubmitRequest } from '../types/reviews.types'
 import type { ValidationError } from '@/features/booking/lib/validation'
 import { StarRatingInput } from './StarRatingInput'
@@ -177,7 +169,7 @@ export function ReviewInvitationPage({ token }: Props) {
         action={
           <Link
             href="/"
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-white px-6 text-sm font-extrabold text-emerald-700 shadow-sm ring-1 ring-emerald-200 transition-colors hover:bg-emerald-50"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[#0053db] px-6 text-sm font-extrabold text-white transition-colors hover:bg-[#004ac6]"
           >
             Back to home
           </Link>
@@ -249,9 +241,7 @@ function computeView({ query, submitted, submitError, mutationPending }: Compute
   if (query.isPending) return { kind: 'loading' }
 
   if (query.isError) {
-    const status = axios.isAxiosError(query.error)
-      ? query.error.response?.status ?? null
-      : null
+    const status = axios.isAxiosError(query.error) ? (query.error.response?.status ?? null) : null
     const body = axios.isAxiosError(query.error) ? query.error.response?.data : undefined
     return fetchErrorToView(mapFetchError(status, body))
   }
@@ -266,25 +256,33 @@ function computeView({ query, submitted, submitError, mutationPending }: Compute
 
 // ── Sub-views ─────────────────────────────────────────────────────────────
 
-function PageShell({ children }: { children: React.ReactNode }) {
+function PageShell({
+  children,
+  showHeader = true,
+}: {
+  children: React.ReactNode
+  showHeader?: boolean
+}) {
   return (
-    <div className="flex min-h-svh items-center justify-center bg-[#f0f4ff] px-4 py-12 text-[#121c2a]">
-      <div className="w-full max-w-md">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-200">
-            <MessageSquareQuote className="size-6 text-white" />
+    <div className="flex min-h-svh items-center justify-center bg-[#f8f9ff] px-4 py-12 text-[#121c2a]">
+      <div className="w-full max-w-[460px]">
+        {showHeader && (
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-2xl bg-[#e6eeff]">
+              <MessageSquareQuote className="size-5 text-[#0053db]" />
+            </div>
+            <h1 className="font-headline text-2xl font-extrabold tracking-tight text-[#121c2a]">
+              Share your session feedback
+            </h1>
+            <p className="mt-1.5 text-sm font-medium text-[#737686]">
+              Your review helps other mentees find the right mentor.
+            </p>
           </div>
-          <h1 className="font-headline text-2xl font-extrabold text-slate-950">
-            Share your session feedback
-          </h1>
-          <p className="mt-1 text-sm font-medium text-slate-500">
-            Your review helps other mentees find the right mentor.
-          </p>
-        </div>
-        <div className="overflow-hidden rounded-3xl bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        )}
+        <div className="overflow-hidden rounded-[24px] bg-white p-6 ring-1 ring-[#eff4ff] sm:p-8">
           {children}
         </div>
-        <p className="mt-6 text-center text-xs font-medium text-slate-400">
+        <p className="mt-6 text-center text-[11px] font-semibold tracking-wide text-[#9aa0b0]">
           Book Your Counselling
         </p>
       </div>
@@ -295,8 +293,8 @@ function PageShell({ children }: { children: React.ReactNode }) {
 function LoadingState() {
   return (
     <PageShell>
-      <div className="flex flex-col items-center gap-3 py-10 text-slate-500">
-        <Loader2 className="size-7 animate-spin text-blue-600" aria-hidden />
+      <div className="flex flex-col items-center gap-3 py-10 text-[#737686]">
+        <Loader2 className="size-6 animate-spin text-[#0053db]" aria-hidden />
         <p className="text-sm font-medium">Loading your review…</p>
       </div>
     </PageShell>
@@ -305,33 +303,29 @@ function LoadingState() {
 
 const STATUS_VARIANTS = {
   invalid: {
-    card: 'border-rose-200 bg-rose-50/70',
-    iconWrap: 'bg-rose-100 shadow-rose-100',
-    iconClass: 'text-rose-600',
+    iconWrap: 'bg-[#ffdad6]',
+    iconClass: 'text-[#ba1a1a]',
     Icon: ShieldAlert,
     title: 'This review link is invalid',
     body: "We couldn't find a session matching this link. It may have been removed or never existed.",
   },
   expired: {
-    card: 'border-amber-200 bg-amber-50/70',
-    iconWrap: 'bg-amber-100 shadow-amber-100',
-    iconClass: 'text-amber-700',
+    iconWrap: 'bg-amber-50',
+    iconClass: 'text-amber-600',
     Icon: CalendarClock,
     title: 'This review link has expired',
     body: 'Review links are valid for 14 days. Reach out to your mentor if you’d still like to share feedback.',
   },
   already: {
-    card: 'border-emerald-200 bg-emerald-50/70',
-    iconWrap: 'bg-emerald-100 shadow-emerald-100',
-    iconClass: 'text-emerald-600',
+    iconWrap: 'bg-[#e6eeff]',
+    iconClass: 'text-[#0053db]',
     Icon: CheckCircle2,
     title: 'You’ve already reviewed this session',
     body: 'Thanks for sharing your feedback — it helps other mentees find the right mentor.',
   },
   success: {
-    card: 'border-emerald-200 bg-emerald-50/70',
-    iconWrap: 'bg-emerald-100 shadow-emerald-100',
-    iconClass: 'text-emerald-600',
+    iconWrap: 'bg-[#e6eeff]',
+    iconClass: 'text-[#0053db]',
     Icon: CheckCircle2,
     title: 'Thanks for your feedback!',
     body: 'Your review has been submitted. It may take a moment to appear on your mentor’s profile.',
@@ -343,15 +337,15 @@ type StatusTone = keyof typeof STATUS_VARIANTS
 function StatusCard({ tone, action }: { tone: StatusTone; action?: React.ReactNode }) {
   const v = STATUS_VARIANTS[tone]
   return (
-    <PageShell>
-      <div className={`rounded-2xl border p-6 text-center ${v.card}`}>
+    <PageShell showHeader={false}>
+      <div className="px-2 py-4 text-center">
         <div
-          className={`mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl shadow-sm ${v.iconWrap}`}
+          className={`mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl ${v.iconWrap}`}
         >
           <v.Icon className={`size-6 ${v.iconClass}`} aria-hidden />
         </div>
-        <h2 className="font-headline text-lg font-extrabold text-slate-950">{v.title}</h2>
-        <p className="mt-2 text-sm font-medium leading-6 text-slate-600">{v.body}</p>
+        <h2 className="font-headline text-lg font-extrabold text-[#121c2a]">{v.title}</h2>
+        <p className="mt-2 text-sm leading-6 font-medium text-[#434655]">{v.body}</p>
         {action && <div className="mt-6">{action}</div>}
       </div>
     </PageShell>
@@ -360,21 +354,21 @@ function StatusCard({ tone, action }: { tone: StatusTone; action?: React.ReactNo
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <PageShell>
-      <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-6 text-center">
-        <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-rose-100 shadow-sm shadow-rose-100">
-          <AlertCircle className="size-6 text-rose-600" aria-hidden />
+    <PageShell showHeader={false}>
+      <div className="px-2 py-4 text-center">
+        <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-[#ffdad6]">
+          <AlertCircle className="size-6 text-[#ba1a1a]" aria-hidden />
         </div>
-        <h2 className="font-headline text-lg font-extrabold text-slate-950">
+        <h2 className="font-headline text-lg font-extrabold text-[#121c2a]">
           Something went wrong
         </h2>
-        <p className="mt-2 text-sm font-medium leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 font-medium text-[#434655]">
           We couldn’t submit your review just now. Please try again in a moment.
         </p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-extrabold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#0053db] px-6 text-sm font-extrabold text-white transition-colors hover:bg-[#004ac6]"
         >
           Try again
         </button>
@@ -390,66 +384,58 @@ function MentorCard({
   invitation: ReviewInvitation
   sessionLabel: string
 }) {
-  const initials = (invitation.mentor_name || 'M')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('')
   const showTopic = Boolean(invitation.topic)
 
   return (
-    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-[#eef4ff] to-white p-5">
+    <div className="rounded-2xl border border-[#eaf0fa] bg-[#fafbff] p-5">
       <div className="flex items-center gap-4">
-        <div className="relative size-14 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
+        <div className="relative size-12 shrink-0 overflow-hidden rounded-full">
           {invitation.mentor_avatar_url ? (
             <Image
               src={invitation.mentor_avatar_url}
               alt={`${invitation.mentor_name} profile`}
-              width={56}
-              height={56}
+              width={48}
+              height={48}
               className="h-full w-full object-cover"
               unoptimized
             />
           ) : (
             <div
               aria-label={`${invitation.mentor_name} profile initials`}
-              className="flex h-full w-full items-center justify-center bg-[#0053db] text-lg font-extrabold text-white"
+              className="flex h-full w-full items-center justify-center bg-[#e6eeff] text-sm font-extrabold text-[#004ac6]"
             >
-              {initials || 'M'}
+              {getInitials(invitation.mentor_name)}
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-base font-extrabold text-slate-950">
+          <p className="truncate text-base font-extrabold text-[#121c2a]">
             {invitation.mentor_name}
           </p>
-          <p className="truncate text-sm font-medium text-slate-500">{invitation.mentor_title}</p>
+          <p className="truncate text-sm font-medium text-[#737686]">{invitation.mentor_title}</p>
         </div>
       </div>
 
       {(showTopic || sessionLabel) && (
-        <dl className="mt-4 grid gap-2 text-xs font-medium text-slate-600">
+        <dl className="mt-4 flex flex-col gap-2.5 border-t border-[#eaf0fa] pt-4">
           {showTopic && (
-            <div className="flex items-start gap-2">
-              <Sparkles className="mt-0.5 size-3.5 shrink-0 text-blue-500" aria-hidden />
-              <div className="min-w-0">
-                <dt className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">
-                  Topic
-                </dt>
-                <dd className="mt-0.5 text-sm font-semibold text-slate-700">{invitation.topic}</dd>
-              </div>
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="shrink-0 text-[11px] font-bold tracking-[0.1em] text-[#9aa0b0] uppercase">
+                Topic
+              </dt>
+              <dd className="min-w-0 truncate text-sm font-semibold text-[#434655]">
+                {invitation.topic}
+              </dd>
             </div>
           )}
           {sessionLabel && (
-            <div className="flex items-start gap-2">
-              <CalendarClock className="mt-0.5 size-3.5 shrink-0 text-blue-500" aria-hidden />
-              <div className="min-w-0">
-                <dt className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">
-                  Session
-                </dt>
-                <dd className="mt-0.5 text-sm font-semibold text-slate-700">{sessionLabel}</dd>
-              </div>
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="shrink-0 text-[11px] font-bold tracking-[0.1em] text-[#9aa0b0] uppercase">
+                Session
+              </dt>
+              <dd className="min-w-0 truncate text-sm font-semibold text-[#434655]">
+                {sessionLabel}
+              </dd>
             </div>
           )}
         </dl>
@@ -486,7 +472,9 @@ function ReviewForm({
   onSubmit,
 }: ReviewFormProps) {
   const commentLength = comment.length
-  const ratingError = touched.rating ? fieldErrors.find((e) => e.field === 'rating')?.message : undefined
+  const ratingError = touched.rating
+    ? fieldErrors.find((e) => e.field === 'rating')?.message
+    : undefined
   const commentError = touched.comment
     ? fieldErrors.find((e) => e.field === 'comment')?.message
     : undefined
@@ -496,9 +484,9 @@ function ReviewForm({
       <form onSubmit={onSubmit} noValidate className="space-y-6">
         <MentorCard invitation={invitation} sessionLabel={sessionLabel} />
 
-        <p className="text-center text-sm font-medium leading-6 text-slate-600">
+        <p className="text-center text-sm leading-6 font-medium text-[#434655]">
           How was your session with{' '}
-          <span className="font-extrabold text-slate-800">{invitation.mentor_name}</span>?
+          <span className="font-extrabold text-[#121c2a]">{invitation.mentor_name}</span>?
         </p>
 
         <div className="flex flex-col items-center gap-2">
@@ -509,7 +497,7 @@ function ReviewForm({
             invalid={!!ratingError}
           />
           {ratingError && (
-            <p className="text-xs font-extrabold text-rose-500" role="alert">
+            <p className="text-xs font-extrabold text-[#ba1a1a]" role="alert">
               {ratingError}
             </p>
           )}
@@ -519,17 +507,17 @@ function ReviewForm({
           <div className="mb-2 flex items-baseline justify-between">
             <label
               htmlFor="review-comment"
-              className="text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500"
+              className="text-[11px] font-bold tracking-[0.1em] text-[#737686] uppercase"
             >
               Comment (optional)
             </label>
             <span
               className={`text-xs font-medium tabular-nums ${
                 commentLength > REVIEW_COMMENT_MAX
-                  ? 'text-rose-500'
+                  ? 'text-[#ba1a1a]'
                   : commentLength > REVIEW_COMMENT_MAX * 0.9
                     ? 'text-amber-600'
-                    : 'text-slate-400'
+                    : 'text-[#9aa0b0]'
               }`}
               aria-live="polite"
             >
@@ -546,12 +534,12 @@ function ReviewForm({
             placeholder="What did you find most helpful about the session?"
             aria-invalid={commentError ? true : undefined}
             aria-describedby={commentError ? 'review-comment-error' : undefined}
-            className="w-full resize-none rounded-2xl bg-[#f0f4ff] px-4 py-3 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full resize-none rounded-2xl bg-white px-4 py-3 text-sm font-medium text-[#121c2a] ring-1 ring-[#e2ebfb] transition outline-none placeholder:text-[#9aa0b0] focus:ring-2 focus:ring-[#0053db] disabled:cursor-not-allowed disabled:opacity-60"
           />
           {commentError && (
             <p
               id="review-comment-error"
-              className="mt-1.5 text-xs font-extrabold text-rose-500"
+              className="mt-1.5 text-xs font-extrabold text-[#ba1a1a]"
               role="alert"
             >
               {commentError}
@@ -560,7 +548,7 @@ function ReviewForm({
         </div>
 
         {submitMessage && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50/70 px-4 py-3 text-sm font-medium text-rose-700">
+          <div className="rounded-xl border border-[#f4d7d4] bg-[#fdf6f5] px-4 py-3 text-sm font-medium text-[#ba1a1a]">
             {submitMessage}
           </div>
         )}
@@ -568,7 +556,7 @@ function ReviewForm({
         <button
           type="submit"
           disabled={submitting || rating < 1}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 text-sm font-extrabold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0053db] text-sm font-extrabold text-white transition-colors hover:bg-[#004ac6] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? (
             <>

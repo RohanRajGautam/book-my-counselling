@@ -13,7 +13,7 @@ interface Props {
 
 const STAR_VALUES = [1, 2, 3, 4, 5] as const
 const FILLED = 'fill-amber-400 text-amber-400'
-const EMPTY = 'text-slate-300'
+const EMPTY = 'text-[#c3c6d7]'
 
 export function StarRatingInput({ value, onChange, disabled, invalid }: Props) {
   const [hover, setHover] = useState<number | null>(null)
@@ -57,14 +57,12 @@ export function StarRatingInput({ value, onChange, disabled, invalid }: Props) {
             }}
             className={cn(
               'flex size-10 items-center justify-center rounded-xl transition-transform',
-              !disabled && 'hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200'
+              !disabled &&
+                'hover:scale-110 focus-visible:ring-2 focus-visible:ring-[#c9dcfb] focus-visible:outline-none'
             )}
           >
             <Star
-              className={cn(
-                'size-7 transition-colors',
-                filled ? FILLED : EMPTY
-              )}
+              className={cn('size-7 transition-colors', filled ? FILLED : EMPTY)}
               strokeWidth={1.5}
             />
           </button>
