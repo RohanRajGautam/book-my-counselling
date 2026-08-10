@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { CalendarDays, Check, Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   useMyAvailabilitySlots,
   useCreateSlotsBulk,
@@ -418,9 +419,17 @@ export function ProfileSessionAvailabilityCard() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
-              <Loader2 className="size-4 animate-spin" />
-              Loading…
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="animate-pulse rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8"
+                >
+                  <Skeleton className="h-5 w-40 rounded bg-slate-100" />
+                  <Skeleton className="mt-3 h-4 w-64 rounded bg-slate-100" />
+                  <Skeleton className="mt-3 h-4 w-48 rounded bg-slate-100" />
+                </div>
+              ))}
             </div>
           ) : sortedDateKeys.length === 0 ? (
             <div className="rounded-2xl bg-[#f8f9ff] p-6 text-center">

@@ -76,7 +76,24 @@ export function MentorAvailabilityRequestsPage() {
           {showSkeleton ? (
             <div className="space-y-3" aria-busy="true" aria-live="polite">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 animate-pulse rounded-2xl bg-white" />
+                <div
+                  key={i}
+                  className="animate-pulse rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:p-6"
+                >
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="h-5 w-48 rounded-md bg-slate-100" />
+                      <div className="h-4 w-16 rounded-full bg-slate-100" />
+                    </div>
+                    <div className="h-3 w-full rounded bg-slate-100" />
+                    <div className="h-3 w-5/6 rounded bg-slate-100" />
+                    <div className="h-3 w-3/6 rounded bg-slate-100" />
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <div className="h-9 w-24 rounded-xl bg-slate-100" />
+                    <div className="h-9 w-24 rounded-xl bg-slate-100" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : rows.length === 0 ? (
