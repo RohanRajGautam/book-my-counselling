@@ -18,11 +18,20 @@ export interface GuestBookingPayload {
   preparation_notes?: string
   mentee_timezone?: string
   topic?: string
+  // Optional promo code — upper-cased or lower-cased, both accepted.
+  promo_code?: string
 }
 
 export interface GuestBookingResult {
   booking_id: string
+  /** Net amount the mentee will pay to Fonepay (post-discount). */
   agreed_price: string
+  /** Gross price before any promo discount. */
+  original_price: string
+  /** Promo discount applied. `0` when no code was used. */
+  discount_amount: string
+  /** The promo code applied, or `null` when none. */
+  promo_code: string | null
   session_start: string
   session_end: string
   mentor_name: string

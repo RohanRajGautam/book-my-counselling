@@ -1,8 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { AlertCircle, ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
 
+import { MentorCardSkeleton } from '@/components/ui/skeleton'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 import { getMentorProfileHref } from '@/features/mentors/utils/mentors.utils'
 
@@ -60,8 +61,9 @@ export function AcademicCounsellorResults() {
 
   if (isError) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
-        <div>
+      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
+        <div className="flex flex-col items-center">
+          <AlertCircle className="mb-4 size-10 text-[var(--brand-blue)]" aria-hidden="true" />
           <p className="mb-2 font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
             Unable to load mentors
           </p>
@@ -77,10 +79,7 @@ export function AcademicCounsellorResults() {
     return (
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: ACADEMIC_COUNSELLORS_PER_PAGE }).map((_, index) => (
-          <div
-            key={index}
-            className="h-[390px] animate-pulse rounded-[20px] bg-white shadow-[0_16px_40px_rgba(18,28,42,0.04)]"
-          />
+          <MentorCardSkeleton key={index} />
         ))}
       </div>
     )
@@ -88,8 +87,9 @@ export function AcademicCounsellorResults() {
 
   if (currentMentors.length === 0) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-[24px] bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
-        <div>
+      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
+        <div className="flex flex-col items-center">
+          <SearchX className="mb-4 size-10 text-[var(--brand-blue)]" aria-hidden="true" />
           <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
             No mentors found
           </p>
@@ -137,7 +137,7 @@ export function AcademicCounsellorResults() {
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1 || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
+            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] focus-visible:ring-3 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
             aria-label="Previous page"
           >
             <ChevronLeft className="size-5" />
@@ -153,7 +153,7 @@ export function AcademicCounsellorResults() {
                 page === currentPage
                   ? 'bg-[var(--brand-blue)] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
                   : 'bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)]'
-              } disabled:cursor-default disabled:opacity-60`}
+              } focus-visible:ring-3 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-default disabled:opacity-60`}
             >
               {page}
             </button>
@@ -163,7 +163,7 @@ export function AcademicCounsellorResults() {
             type="button"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
+            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] focus-visible:ring-3 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
             aria-label="Next page"
           >
             <ChevronRight className="size-5" />

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Loader2, ShieldAlert } from 'lucide-react'
+import { ShieldAlert } from 'lucide-react'
+import { AdminDashboardSkeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { AuthModal } from '@/features/auth/components/AuthModal'
 
@@ -26,11 +27,7 @@ function AdminGateInner({ children }: { children: React.ReactNode }) {
 }
 
 function FullScreenSpinner() {
-  return (
-    <div className="flex min-h-svh items-center justify-center bg-[#f0f4ff]">
-      <Loader2 className="size-8 animate-spin text-blue-600" />
-    </div>
-  )
+  return <AdminDashboardSkeleton />
 }
 
 function AccessDenied() {

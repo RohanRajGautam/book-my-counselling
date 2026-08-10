@@ -289,15 +289,15 @@ export function ProfileSettingsPage() {
     return (
       <div className="min-h-svh bg-[#f8f9ff]">
         <div className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-          <div className="h-12 w-64 animate-pulse rounded-2xl bg-slate-200" />
+          <div className="h-12 w-64 animate-pulse rounded-2xl bg-white shadow-[0_18px_45px_rgba(15,23,42,0.04)]" />
           <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="space-y-7">
-              <div className="h-80 animate-pulse rounded-[28px] bg-slate-200" />
-              <div className="h-40 animate-pulse rounded-[28px] bg-slate-200" />
+              <div className="h-80 animate-pulse rounded-[28px] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.04)]" />
+              <div className="h-40 animate-pulse rounded-[28px] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.04)]" />
             </div>
             <div className="space-y-6">
-              <div className="h-64 animate-pulse rounded-[28px] bg-slate-200" />
-              <div className="h-48 animate-pulse rounded-[28px] bg-slate-200" />
+              <div className="h-64 animate-pulse rounded-[28px] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.04)]" />
+              <div className="h-48 animate-pulse rounded-[28px] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.04)]" />
             </div>
           </div>
         </div>

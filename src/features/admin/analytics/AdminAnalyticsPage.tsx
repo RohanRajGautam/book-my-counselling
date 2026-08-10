@@ -143,30 +143,34 @@ export function AdminAnalyticsPage() {
           <AdminStatCard
             icon={<Banknote size={20} strokeWidth={2.2} />}
             label="Total Revenue"
-            value={statsLoading ? '—' : formatNPRCompact(totalRevenue)}
+            value={formatNPRCompact(totalRevenue)}
             tone="blue"
             helper={isFreshData ? 'Lifetime, NPR' : 'Loading…'}
+            loading={statsLoading}
           />
           <AdminStatCard
             icon={<UserCheck size={20} strokeWidth={2.2} />}
             label="Total Mentors"
-            value={statsLoading ? '—' : (stats?.total_mentors ?? 0).toLocaleString('en-US')}
+            value={(stats?.total_mentors ?? 0).toLocaleString('en-US')}
             tone="emerald"
             helper="Lifetime active"
+            loading={statsLoading}
           />
           <AdminStatCard
             icon={<CalendarSearch size={20} strokeWidth={2.2} />}
             label="Total Bookings"
-            value={statsLoading ? '—' : (stats?.total_bookings ?? 0).toLocaleString('en-US')}
+            value={(stats?.total_bookings ?? 0).toLocaleString('en-US')}
             tone="amber"
             helper="Lifetime"
+            loading={statsLoading}
           />
           <AdminStatCard
             icon={<Users size={20} strokeWidth={2.2} />}
             label="Total Users"
-            value={statsLoading ? '—' : (stats?.total_users ?? 0).toLocaleString('en-US')}
+            value={(stats?.total_users ?? 0).toLocaleString('en-US')}
             tone="slate"
             helper="Lifetime registrations"
+            loading={statsLoading}
           />
         </section>
 

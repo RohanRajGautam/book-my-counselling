@@ -48,6 +48,8 @@ export interface MentorListResponse {
   is_accepting_bookings: boolean
   is_verified: boolean
   booking_mode: string
+  /** Numeric 0-100. Backend serializes Decimal as a JSON string. */
+  mentor_share_pct: string
   tags: TagResponse[]
 }
 
@@ -73,6 +75,8 @@ export interface MentorResponse {
   linkedin_url: string | null
   website_url: string | null
   calendly_link: string | null
+  /** Numeric 0-100. Backend serializes Decimal as a JSON string. */
+  mentor_share_pct: string
   tags: TagResponse[]
   subcategories: Subcategory[]
   created_at: string

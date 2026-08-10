@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CheckCircle2, Clock, Loader2, LogOut, Mail, ShieldCheck, XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { MentorDashboardSkeleton } from '@/components/ui/skeleton'
 import { useAuth } from '../hooks/useAuth'
 import { AuthModal } from './AuthModal'
 import { MentorProfileSetup } from './MentorProfileSetup'
@@ -172,11 +173,7 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
 }
 
 function FullScreenSpinner() {
-  return (
-    <div className="flex min-h-svh items-center justify-center bg-[#f0f4ff]">
-      <Loader2 className="size-8 animate-spin text-blue-600" />
-    </div>
-  )
+  return <MentorDashboardSkeleton />
 }
 
 function ChecklistRow({

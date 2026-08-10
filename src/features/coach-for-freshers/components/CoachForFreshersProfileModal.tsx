@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Building2, Check, ChevronRight, Globe, Link, X, CalendarPlus } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { ProfileModalSkeleton } from '@/components/ui/skeleton'
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
 import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { getInitials } from '@/features/mentors/components/MentorCard'
@@ -133,7 +134,7 @@ export function CoachForFreshersProfileModal({
       onClick={onClose}
     >
       <div
-        className="relative grid max-h-[calc(100dvh-1.5rem)] w-full max-w-7xl grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-[24px] bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:max-h-[calc(100dvh-2rem)] sm:gap-5 sm:rounded-[32px] sm:p-6 lg:grid-cols-12 lg:gap-6 lg:p-8"
+        className="relative grid max-h-[calc(100dvh-1.5rem)] w-full max-w-7xl grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-3xl bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:max-h-[calc(100dvh-2rem)] sm:gap-5 sm:rounded-3xl sm:p-6 lg:grid-cols-12 lg:gap-6 lg:p-8"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -146,12 +147,12 @@ export function CoachForFreshersProfileModal({
         </button>
 
         {isLoading || !mentor ? (
-          <div className="h-[90vh] animate-pulse rounded-[32px] bg-white lg:col-span-12" />
+          <ProfileModalSkeleton />
         ) : (
           <>
             <div className="flex flex-col gap-4 sm:gap-5 lg:col-span-4">
-              <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-white p-5 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6 lg:p-7">
-                <div className="absolute top-0 left-0 -z-0 h-28 w-full rounded-t-[24px] bg-[#eff4ff]" />
+              <div className="relative flex flex-col items-center overflow-hidden rounded-3xl bg-white p-5 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6 lg:p-7">
+                <div className="absolute top-0 left-0 -z-0 h-28 w-full rounded-t-3xl bg-[#eff4ff]" />
                 <div className="relative z-10">
                   <div className="relative mx-auto mb-5 size-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10">
                     <div className="size-full overflow-hidden rounded-full">
@@ -182,7 +183,7 @@ export function CoachForFreshersProfileModal({
                       </div>
                     )}
                   </div>
-                  <h2 className="mb-2 font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-3xl">
+                  <h2 className="mb-2 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-[var(--foreground)] sm:text-4xl">
                     {mentor.user?.full_name}
                   </h2>
                   <p className="mx-auto mb-4 max-w-[320px] text-base leading-7 font-medium text-[#434655]">
@@ -197,7 +198,7 @@ export function CoachForFreshersProfileModal({
                       onClick={(event) => {
                         if (!mentor.linkedin_url) event.preventDefault()
                       }}
-                      className={`flex items-center justify-center gap-2 rounded-[16px] bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
+                      className={`flex items-center justify-center gap-2 rounded-2xl bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
                         !mentor.linkedin_url ? 'cursor-not-allowed opacity-55' : ''
                       }`}
                     >
@@ -211,7 +212,7 @@ export function CoachForFreshersProfileModal({
                       onClick={(event) => {
                         if (!mentor.website_url) event.preventDefault()
                       }}
-                      className={`flex items-center justify-center gap-2 rounded-[16px] bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
+                      className={`flex items-center justify-center gap-2 rounded-2xl bg-[#eff4ff] px-4 py-3 text-sm font-bold text-[#434655] transition-colors hover:bg-[#dee9fc] ${
                         !mentor.website_url ? 'cursor-not-allowed opacity-55' : ''
                       }`}
                     >
@@ -224,7 +225,7 @@ export function CoachForFreshersProfileModal({
 
               {hasCompany ? (
                 <div
-                  className="flex items-center gap-4 rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6"
+                  className="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6"
                   data-testid="mentor-company-block"
                 >
                   <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-[#0053db]/15 bg-[#f8f9ff]">
@@ -252,7 +253,7 @@ export function CoachForFreshersProfileModal({
                 </div>
               ) : null}
 
-              <div className="flex h-[220px] flex-col rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:h-[250px] sm:p-6">
+              <div className="flex h-[220px] flex-col rounded-3xl bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:h-[250px] sm:p-6">
                 <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
                   <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
                     Services offered
@@ -280,12 +281,12 @@ export function CoachForFreshersProfileModal({
               </div>
 
               {hasAvailability ? (
-                <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur-[8px] sm:inset-x-4 sm:rounded-b-[32px] lg:sticky lg:inset-auto lg:right-auto lg:bottom-4 lg:left-auto lg:z-30 lg:mx-0 lg:max-w-none lg:rounded-[24px] lg:bg-[#f8f9ff]/90 lg:p-3 lg:pt-3 lg:shadow-none lg:backdrop-blur-md">
+                <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_rgba(18,28,42,0.12)] backdrop-blur-[8px] sm:inset-x-4 sm:rounded-b-[32px] lg:sticky lg:inset-auto lg:right-auto lg:bottom-4 lg:left-auto lg:z-30 lg:mx-0 lg:max-w-none lg:rounded-3xl lg:bg-[#f8f9ff]/90 lg:p-3 lg:pt-3 lg:shadow-none lg:backdrop-blur-md">
                   <button
                     type="button"
                     disabled={!canBook}
                     onClick={handleBook}
-                    className="block w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
+                    className="block w-full rounded-full bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
                   >
                     {ctaLabel}
                   </button>
@@ -294,7 +295,7 @@ export function CoachForFreshersProfileModal({
             </div>
 
             <section className="flex flex-col gap-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:gap-5 sm:pb-[calc(6rem+env(safe-area-inset-bottom))] lg:col-span-8 lg:gap-6 lg:pb-0">
-              <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6 lg:p-8">
+              <div className="rounded-3xl bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6 lg:p-8">
                 <h3 className="mb-3 font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a] sm:text-2xl">
                   About {firstName}
                 </h3>
@@ -303,7 +304,7 @@ export function CoachForFreshersProfileModal({
                 </p>
               </div>
 
-              <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
+              <div className="rounded-3xl bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
                 <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
                   <div>
                     <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] sm:text-xl">
@@ -335,7 +336,7 @@ export function CoachForFreshersProfileModal({
                               sessionEnd: null,
                             })
                           }
-                          className={`group relative cursor-pointer overflow-hidden rounded-[24px] p-5 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset ${
+                          className={`group relative cursor-pointer overflow-hidden rounded-3xl p-5 text-left shadow-[0_8px_24px_rgba(18,28,42,0.04)] ring-1 transition-all ring-inset ${
                             isSelected
                               ? 'bg-[#004ac6] text-white ring-[#004ac6]'
                               : 'bg-[#f8f9ff] ring-[#eff4ff] hover:bg-[#eff4ff]/70'
@@ -343,7 +344,7 @@ export function CoachForFreshersProfileModal({
                         >
                           {index === 1 && (
                             <div
-                              className={`absolute top-0 right-0 rounded-tr-[24px] rounded-bl-[12px] px-3 py-1 text-[10px] font-bold ${
+                              className={`absolute top-0 right-0 rounded-tr-3xl rounded-bl-xl px-3 py-1 text-[10px] font-bold ${
                                 isSelected
                                   ? 'bg-white/20 text-white'
                                   : 'bg-[#6cf8bb] text-[#00714d]'
@@ -377,14 +378,14 @@ export function CoachForFreshersProfileModal({
                       )
                     })
                   ) : (
-                    <div className="col-span-full rounded-[16px] bg-[#f8f9ff] p-5 text-center text-sm font-semibold text-[#737686]">
+                    <div className="col-span-full rounded-2xl bg-[#f8f9ff] p-5 text-center text-sm font-semibold text-[#737686]">
                       No active packages are available for this coach yet.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
+              <div className="rounded-3xl bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.04)] sm:p-6">
                 <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6 sm:gap-4">
                   <div>
                     <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] sm:text-xl">
@@ -424,7 +425,7 @@ export function CoachForFreshersProfileModal({
                       type="button"
                       aria-label="Choose a package before selecting availability"
                       onClick={() => toast.info('Please choose a package first.')}
-                      className="absolute inset-0 z-10 cursor-not-allowed rounded-[16px] bg-transparent"
+                      className="absolute inset-0 z-10 cursor-not-allowed rounded-2xl bg-transparent"
                     />
                   )}
                 </div>
@@ -438,10 +439,10 @@ export function CoachForFreshersProfileModal({
                         `/request-availability?mentorId=${resolvedMentorId}&source=coach-for-freshers`
                       )
                     }}
-                    className="animated-border-card group mt-4 flex h-[144px] w-full items-center justify-between gap-3 rounded-2xl px-8 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
+                    className="animated-border-card group mt-4 flex h-[144px] w-full items-center justify-between gap-3 rounded-full px-8 text-left shadow-[0_8px_24px_rgba(0,74,198,0.28)]"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-sm">
                         <CalendarPlus className="size-5" strokeWidth={2.4} />
                       </span>
                       <div className="min-w-0">

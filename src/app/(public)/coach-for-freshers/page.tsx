@@ -13,7 +13,7 @@ export default async function CoachForFreshersPage({ searchParams }: CoachForFre
   const { filters, page } = await loadCoachForFreshersState(searchParams)
 
   return (
-    <main className="min-h-screen bg-[#f8f9ff] pt-[73px]">
+    <main className="min-h-screen bg-[#f8f9ff] pt-20">
       <CoachForFreshersPageContent
         variety={COACH_FOR_FRESHERS_ROOT_VARIETY}
         initialFilters={filters}

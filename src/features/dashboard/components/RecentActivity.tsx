@@ -1,6 +1,7 @@
 'use client'
 
 import { Check, FileClock, XCircle } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 import { MentorBooking } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 
@@ -33,7 +34,7 @@ function ActivityItem({ booking }: { booking: MentorBooking }) {
             ? 'bg-emerald-300 text-emerald-800'
             : isCancelled
               ? 'bg-red-100 text-red-600'
-              : 'bg-blue-100 text-slate-500'
+              : 'bg-blue-100 text-blue-700'
         }`}
       >
         {isCompleted ? (
@@ -86,8 +87,15 @@ export function RecentActivity() {
       <div className="space-y-6 rounded-2xl bg-[#eef4ff] p-5 shadow-sm sm:rounded-3xl sm:p-8">
         {isLoading ? (
           <div className="space-y-4">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-slate-200" />
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex animate-pulse gap-4">
+                <Skeleton className="mt-1 size-8 shrink-0 rounded-full bg-white/70" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-3/4 rounded bg-white/70" />
+                  <Skeleton className="h-3 w-1/2 rounded bg-white/70" />
+                  <Skeleton className="h-3 w-24 rounded bg-white/70" />
+                </div>
+              </div>
             ))}
           </div>
         ) : allActivity.length === 0 ? (

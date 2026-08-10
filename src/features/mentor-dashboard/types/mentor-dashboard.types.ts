@@ -20,7 +20,18 @@ export interface MentorBooking {
   current_school: string | null
   preparation_notes: string | null
   mentee_timezone: string | null
+  /** Net price the mentee paid to Fonepay (post-discount). */
   agreed_price: string
+  /** Gross price before any promo discount. */
+  original_price: string
+  /** Promo discount applied. `0` when no code was used. */
+  discount_amount: string
+  /** Mentor's cut, snapshotted at booking time. Computed off `original_price`. */
+  mentor_earning: string
+  /** Platform's cut; can be `0` or negative when a discount exceeds the platform share. */
+  platform_earning: string
+  /** Promo code applied, or `null` when none. */
+  promo_code: string | null
   session_start: string
   session_end: string
   cancellation_reason: string | null
@@ -32,6 +43,30 @@ export interface MentorBooking {
   cancelled_at: string | null
   mentee: MenteePublic
   has_review: boolean
+}
+
+/**
+ * Server-aggregated mentor dashboard stats. Returned by `GET /mentors/me/stats`.
+ * Money fields are pre-formatted strings (e.g. "10.00") — render verbatim,
+ * do not parseFloat and re-round.
+ */
+export interface MentorStatsResponse {
+  /** SUM(mentor_earning) for paid, non-cancelled bookings. */
+  total_earnings: string
+  /** total_earnings narrowed to status = 'completed'. */
+  completed_earnings: string
+  /** total_earnings - completed_earnings (paid but not yet delivered). */
+  pending_earnings: string
+  /** Count of paid, non-cancelled bookings. */
+  total_sessions: number
+  /** Count of paid, status = 'completed' bookings. */
+  completed_sessions: number
+  /** Paid bookings with status in (pending, confirmed) and session_start > now(). */
+  upcoming_sessions: number
+  /** Distinct mentees over paid, non-cancelled bookings. */
+  total_mentees: number
+  /** This mentor's configured split, as a string like "50.00". */
+  mentor_share_pct: string
 }
 
 export interface MentorProfileCreate {

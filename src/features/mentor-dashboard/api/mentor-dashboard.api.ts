@@ -5,6 +5,7 @@ import {
   MentorBooking,
   MentorProfileCreate,
   MentorProfileUpdate,
+  MentorStatsResponse,
   ServicePackage,
   ServicePackageCreate,
   ServicePackageUpdate,
@@ -31,6 +32,11 @@ export async function createMentorProfile(data: MentorProfileCreate): Promise<Me
 
 export async function updateMyMentorProfile(data: MentorProfileUpdate): Promise<MentorResponse> {
   const response = await apiClient.put<MentorResponse>('/mentors/profile/me', data)
+  return response.data
+}
+
+export async function getMyStats(): Promise<MentorStatsResponse> {
+  const response = await apiClient.get<MentorStatsResponse>('/mentors/me/stats')
   return response.data
 }
 

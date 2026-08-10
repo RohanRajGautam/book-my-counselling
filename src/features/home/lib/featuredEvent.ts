@@ -1,12 +1,3 @@
-import {
-  getFeaturedThirtyMaThirtyEvent,
-  type FeaturedThirtyMaThirtyEvent,
-} from '@/features/events/lib/thirty-ma-thirty-events'
-
-export type FeaturedEvent = FeaturedThirtyMaThirtyEvent
+import { getFeaturedThirtyMaThirtyEvent } from '@/features/events/lib/thirty-ma-thirty-events'
 
 export const FEATURED_EVENT = getFeaturedThirtyMaThirtyEvent()
-
-export function getFeaturedEvent() {
-  return getFeaturedThirtyMaThirtyEvent()
-}

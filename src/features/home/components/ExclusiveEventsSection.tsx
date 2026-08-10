@@ -71,11 +71,11 @@ export function ExclusiveEventsSection() {
 
   return (
     <>
-      <section className="px-4 pb-20 sm:px-8 lg:pb-28">
-        <div className="mx-auto my-4 max-w-[1280px]">
-          <div className="flex flex-col gap-3 pt-6 pb-2 sm:flex-row sm:items-end sm:justify-between">
+      <section className="px-6 pt-16 pb-20 sm:px-8 lg:pt-24 lg:pb-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="mt-3 font-[family-name:var(--font-headline)] text-4xl leading-[1.05] font-extrabold text-[var(--foreground)] sm:text-5xl">
+              <h2 className="font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-[var(--foreground)] sm:text-4xl lg:text-5xl">
                 Exclusive <span className="text-[var(--brand-blue)]">Events</span>
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-[var(--color-on-surface-variant)] sm:text-base">
@@ -89,7 +89,7 @@ export function ExclusiveEventsSection() {
             {exclusiveEvents.map((event) => (
               <article
                 key={event.name}
-                className="group flex h-full min-h-[440px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 ring-[var(--color-surface-container-high)] transition hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(18,28,42,0.14)]"
+                className="group flex h-full min-h-[440px] flex-col overflow-hidden rounded-3xl bg-white shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 ring-[var(--color-surface-container-high)] transition hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(18,28,42,0.14)]"
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[var(--brand-blue-surface)] to-[var(--brand-blue-soft)]">
                   <Image

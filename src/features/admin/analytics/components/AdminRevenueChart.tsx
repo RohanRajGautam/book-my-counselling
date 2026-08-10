@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { BarChart3, Loader2, TrendingUp } from 'lucide-react'
+import { BarChart3, TrendingUp } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { FilledRevenuePoint } from '../lib/dateRanges'
 import { formatNPRCompact } from '../../lib/format'
 
@@ -25,8 +26,27 @@ export function AdminRevenueChart({
 
   if (isLoading) {
     return (
-      <div className={`flex ${CHART_HEIGHT} items-center justify-center`}>
-        <Loader2 className="size-7 animate-spin text-blue-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+          {[0, 1, 2].map((index) => (
+            <div
+              key={index}
+              className="flex min-w-0 flex-col gap-1 rounded-lg border border-slate-100 bg-slate-50 px-2 py-2 sm:rounded-xl sm:px-3.5 sm:py-2.5"
+            >
+              <Skeleton className="h-3 w-20 rounded bg-white/70" />
+              <Skeleton className="h-4 w-16 rounded bg-white/70 sm:h-5 sm:w-20" />
+            </div>
+          ))}
+        </div>
+        <div className={`relative flex ${CHART_HEIGHT} items-end gap-1 pb-1 sm:gap-1.5`}>
+          {[40, 70, 55, 90, 60, 75, 50, 80, 65, 85, 45, 70].map((height, index) => (
+            <Skeleton
+              key={index}
+              className="min-w-0 flex-1 rounded-t-md bg-slate-100"
+              style={{ height: `${height}%` }}
+            />
+          ))}
+        </div>
       </div>
     )
   }

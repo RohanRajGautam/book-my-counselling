@@ -1,6 +1,7 @@
 'use client'
 
 import { CalendarClock, Star, UsersRound } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 import { useMentorProfile } from '@/features/mentor-dashboard/hooks/useMentorProfile'
 
@@ -26,9 +27,9 @@ function getNextSessionLabel(sessionStart: string): string {
 }
 
 export function DashboardStats() {
-  const { data: completedData } = useMentorBookings('completed', 1, 1)
-  const { data: confirmedData } = useMentorBookings('confirmed', 1, 100)
-  const { data: profileData } = useMentorProfile()
+  const { data: completedData, isPending: completedPending } = useMentorBookings('completed', 1, 1)
+  const { data: confirmedData, isPending: confirmedPending } = useMentorBookings('confirmed', 1, 100)
+  const { data: profileData, isPending: profilePending } = useMentorProfile()
 
   const totalSessions = profileData?.total_sessions ?? completedData?.total ?? 0
   const averageRating = profileData?.average_rating ?? 0
@@ -45,6 +46,10 @@ export function DashboardStats() {
     ? getNextSessionLabel(nextSession.session_start)
     : 'No upcoming sessions'
 
+  const sessionsLoading = profilePending && completedPending
+  const upcomingLoading = confirmedPending
+  const ratingLoading = profilePending
+
   return (
     <section
       aria-label="Dashboard statistics"
@@ -57,9 +62,13 @@ export function DashboardStats() {
             Total Sessions
           </h2>
         </div>
-        <p className="mt-5 text-3xl font-extrabold leading-none tracking-normal text-slate-950 sm:mt-6 sm:text-4xl lg:text-5xl">
-          {totalSessions}
-        </p>
+        {sessionsLoading ? (
+          <Skeleton className="mt-5 h-10 w-24 rounded-md bg-white/60 sm:mt-6 lg:h-12" />
+        ) : (
+          <p className="mt-5 text-3xl font-extrabold leading-none tracking-normal text-slate-950 sm:mt-6 sm:text-4xl lg:text-5xl">
+            {totalSessions}
+          </p>
+        )}
         <p className="mt-4 text-sm font-semibold text-emerald-700">All time</p>
       </article>
 
@@ -70,9 +79,13 @@ export function DashboardStats() {
             Upcoming This Week
           </h2>
         </div>
-        <p className="mt-5 text-3xl font-extrabold leading-none tracking-normal sm:mt-6 sm:text-4xl lg:text-5xl">
-          {upcomingThisWeek.length}
-        </p>
+        {upcomingLoading ? (
+          <Skeleton className="mt-5 h-10 w-20 rounded-md bg-white/20 sm:mt-6 lg:h-12" />
+        ) : (
+          <p className="mt-5 text-3xl font-extrabold leading-none tracking-normal sm:mt-6 sm:text-4xl lg:text-5xl">
+            {upcomingThisWeek.length}
+          </p>
+        )}
         <p className="mt-4 text-sm font-semibold text-blue-100">{nextSessionLabel}</p>
       </article>
 
@@ -87,9 +100,13 @@ export function DashboardStats() {
             Average Rating
           </h2>
         </div>
-        <p className="relative mt-5 text-3xl font-extrabold leading-none tracking-normal text-slate-950 sm:mt-6 sm:text-4xl lg:text-5xl">
-          {averageRating > 0 ? averageRating.toFixed(1) : '—'}
-        </p>
+        {ratingLoading ? (
+          <Skeleton className="relative mt-5 h-10 w-24 rounded-md bg-slate-100 sm:mt-6 lg:h-12" />
+        ) : (
+          <p className="relative mt-5 text-3xl font-extrabold leading-none tracking-normal text-slate-950 sm:mt-6 sm:text-4xl lg:text-5xl">
+            {averageRating > 0 ? averageRating.toFixed(1) : '—'}
+          </p>
+        )}
         <p className="relative mt-4 text-sm font-semibold text-slate-500">
           {totalReviews > 0 ? `From ${totalReviews} student review${totalReviews !== 1 ? 's' : ''}` : 'No reviews yet'}
         </p>

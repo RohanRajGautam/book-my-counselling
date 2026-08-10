@@ -48,6 +48,10 @@ export function AdminRefundCard({ refund }: { refund: RefundRequest }) {
 
   const badge = REFUND_STATUS_BADGE[refund.status]
   const isSlotConflict = refund.reason === 'slot_conflict'
+  const refundAmount = parseFloat(refund.amount)
+  const bookingOriginal = refund.booking ? parseFloat(refund.booking.original_price) : NaN
+  const showOriginalContext =
+    refund.booking && Number.isFinite(bookingOriginal) && bookingOriginal > refundAmount
 
   return (
     <>
@@ -58,6 +62,11 @@ export function AdminRefundCard({ refund }: { refund: RefundRequest }) {
               <span className="font-headline text-lg font-extrabold text-slate-950">
                 NPR {refund.amount}
               </span>
+              {showOriginalContext ? (
+                <span className="text-xs font-semibold text-slate-500">
+                  of original NPR {refund.booking!.original_price}
+                </span>
+              ) : null}
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${badge.cls}`}
               >

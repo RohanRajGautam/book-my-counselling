@@ -55,6 +55,7 @@ const EMPTY_GENERAL: AdminCreateMentorGeneralInfoForm = {
   company: '',
   yearsOfExperience: '',
   hourlyRate: '',
+  mentorSharePct: '50',
 }
 
 const EMPTY_COUNSELLING: AdminCounsellingForm = {
@@ -164,6 +165,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
       company: cachedMentor.company ?? '',
       yearsOfExperience: String(cachedMentor.years_of_experience ?? 0),
       hourlyRate: cachedMentor.hourly_rate,
+      mentorSharePct: String(parseFloat(cachedMentor.mentor_share_pct || '50')),
     })
     setCounselling({
       isProfessionalCounselor: cachedMentor.is_professional_counselor,
@@ -187,6 +189,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
         company: cachedMentor.company ?? '',
         yearsOfExperience: String(cachedMentor.years_of_experience ?? 0),
         hourlyRate: cachedMentor.hourly_rate,
+        mentorSharePct: String(parseFloat(cachedMentor.mentor_share_pct || '50')),
       },
       counselling: {
         isProfessionalCounselor: cachedMentor.is_professional_counselor,
@@ -219,6 +222,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
       company: general.company,
       yearsOfExperience: general.yearsOfExperience,
       hourlyRate: general.hourlyRate,
+      mentorSharePct: general.mentorSharePct,
       bio: bio.bio,
       linkedinUrl: bio.linkedinUrl,
       websiteUrl: bio.websiteUrl,
@@ -415,6 +419,9 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                   hourlyRate: showError('hourlyRate')
                     ? 'Hourly rate must be between 0 and 10000 NPR.'
                     : undefined,
+                  mentorSharePct: showError('mentorSharePct')
+                    ? 'Mentor share must be between 0 and 100.'
+                    : undefined,
                 }}
               />
               <AdminCreateMentorCounsellingCard
@@ -559,6 +566,13 @@ function buildUpdatePayload(args: {
   const snapRate = snapshot.general.hourlyRate.trim()
   if (rateTrim !== snapRate) {
     profile.hourly_rate = rateTrim
+  }
+
+  const shareTrim = general.mentorSharePct.trim()
+  const snapShare = snapshot.general.mentorSharePct.trim()
+  if (shareTrim !== snapShare) {
+    const shareNum = Number(shareTrim)
+    profile.mentor_share_pct = Number.isFinite(shareNum) ? shareNum : null
   }
 
   const professionalChanged =

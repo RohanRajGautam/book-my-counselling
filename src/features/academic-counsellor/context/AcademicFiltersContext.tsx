@@ -149,5 +149,3 @@ export function useAcademicFilters() {
   }
   return context
 }
-
-export type { AcademicFilters, SortBy }

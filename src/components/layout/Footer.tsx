@@ -19,7 +19,7 @@ export function Footer() {
   return (
     <footer className="relative w-full overflow-hidden border-t border-[#c3c6d7]/20 bg-white/28 font-[family-name:var(--font-body)] text-sm text-[var(--color-on-surface-variant)]">
       <div aria-hidden className="pointer-events-none absolute inset-0 opacity-40" />
-      <div className="relative mx-auto max-w-7xl pt-16 pb-10 lg:pt-20">
+      <div className="relative mx-auto max-w-7xl px-6 pt-16 pb-10 sm:px-8 lg:px-4 lg:pt-20">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
           <div>
             <Link href="/" aria-label="Book Your Counselling home" className="inline-flex">

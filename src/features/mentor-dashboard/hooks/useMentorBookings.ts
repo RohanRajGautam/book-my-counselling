@@ -28,8 +28,10 @@ export function useUpdateBookingStatus() {
       cancellationReason?: string
     }) => updateBookingStatus(bookingId, status, cancellationReason),
     onSuccess: () => {
-      // Invalidate all booking queries so lists refresh
+      // Invalidate booking lists and the aggregated stats so confirmed→completed
+      // and other transitions are reflected on the dashboard cards.
       queryClient.invalidateQueries({ queryKey: ['mentor', 'bookings'] })
+      queryClient.invalidateQueries({ queryKey: ['mentor', 'stats'] })
     },
   })
 }
