@@ -1,58 +1,65 @@
 'use client'
 
-import { Banknote, Landmark, WalletCards } from 'lucide-react'
+import { Banknote, CalendarClock, WalletCards } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
+import { useMentorStats } from '@/features/mentor-dashboard/hooks/useMentorStats'
 
-function sumEarnings(items: { mentor_earning: string; payment_status: string }[]): number {
-  return items
-    .filter((b) => b.payment_status === 'paid')
-    .reduce((sum, b) => sum + parseFloat(b.mentor_earning), 0)
+function formatMoney(value: string): string {
+  return `NPR ${value}`
 }
 
-function formatCurrency(amount: number): string {
-  return `NPR ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+function pluralize(count: number, singular: string, plural?: string): string {
+  return count === 1 ? `${count} ${singular}` : `${count} ${plural ?? `${singular}s`}`
 }
 
 export function EarningsStats() {
-  // Fetch all completed bookings (up to 100 for stats)
-  const { data: completedData, isLoading } = useMentorBookings('completed', 1, 100)
-  const { data: confirmedData } = useMentorBookings('confirmed', 1, 100)
+  const { data, isLoading } = useMentorStats()
 
-  const completedBookings = completedData?.items ?? []
-  const confirmedBookings = confirmedData?.items ?? []
-
-  const totalEarned = sumEarnings(completedBookings)
-  const pendingEarnings = confirmedBookings.reduce(
-    (sum, b) => sum + parseFloat(b.mentor_earning),
-    0,
-  )
+  const totalEarnings = data?.total_earnings ?? '0.00'
+  const pendingEarnings = data?.pending_earnings ?? '0.00'
+  const upcomingSessions = data?.upcoming_sessions ?? 0
+  const totalSessions = data?.total_sessions ?? 0
+  const totalMentees = data?.total_mentees ?? 0
+  const sharePct = data?.mentor_share_pct ?? '50.00'
 
   return (
     <section aria-label="Earnings statistics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <EarningsStatCard
         icon={<WalletCards className="size-5 text-blue-700" />}
-        label="Total Earned"
-        value={formatCurrency(totalEarned)}
-        helper={`From ${completedData?.total ?? 0} completed session${completedData?.total !== 1 ? 's' : ''}`}
-        helperClassName="text-emerald-700"
+        label="Total earnings"
+        value={formatMoney(totalEarnings)}
+        helper={
+          parseFloat(pendingEarnings) > 0
+            ? `${formatMoney(pendingEarnings)} pending`
+            : 'No pending earnings'
+        }
+        helperClassName={
+          parseFloat(pendingEarnings) > 0 ? 'text-emerald-700' : 'text-slate-500'
+        }
         iconClassName="bg-blue-100"
+        title={`You earn ${sharePct}% of each session.`}
         loading={isLoading}
       />
       <EarningsStatCard
-        icon={<Landmark className="size-5 text-amber-800" />}
-        label="Pending (Confirmed)"
-        value={formatCurrency(pendingEarnings)}
-        helper={`${confirmedData?.total ?? 0} upcoming session${confirmedData?.total !== 1 ? 's' : ''}`}
+        icon={<CalendarClock className="size-5 text-amber-800" />}
+        label="Upcoming"
+        value={pluralize(upcomingSessions, 'session')}
+        helper={
+          upcomingSessions === 0 ? 'Nothing on the books yet.' : 'Confirmed or pending.'
+        }
         helperClassName="text-slate-500"
         iconClassName="bg-amber-100"
         loading={isLoading}
       />
       <EarningsStatCard
         icon={<Banknote className="size-5 text-emerald-800" />}
-        label="Total Sessions"
-        value={String(completedData?.total ?? 0)}
-        helper="Lifetime completed"
+        label="Total sessions"
+        value={String(totalSessions)}
+        helper={
+          totalSessions === 0
+            ? 'Lifetime'
+            : `${pluralize(totalMentees, 'mentee')} lifetime`
+        }
         helperClassName="text-slate-500"
         iconClassName="bg-emerald-100"
         loading={isLoading}
@@ -68,6 +75,7 @@ function EarningsStatCard({
   helper,
   helperClassName,
   iconClassName,
+  title,
   loading,
 }: {
   icon: React.ReactNode
@@ -76,10 +84,14 @@ function EarningsStatCard({
   helper: string
   helperClassName: string
   iconClassName: string
+  title?: string
   loading?: boolean
 }) {
   return (
-    <article className="min-h-[152px] rounded-2xl bg-white p-5 shadow-sm sm:min-h-[176px] sm:rounded-3xl sm:p-6 lg:min-h-[200px] lg:p-8">
+    <article
+      className="min-h-[152px] rounded-2xl bg-white p-5 shadow-sm sm:min-h-[176px] sm:rounded-3xl sm:p-6 lg:min-h-[200px] lg:p-8"
+      title={title}
+    >
       <div className={`flex size-11 items-center justify-center rounded-xl ${iconClassName}`}>
         {icon}
       </div>
