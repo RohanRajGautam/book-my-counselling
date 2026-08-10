@@ -4,10 +4,10 @@ import { Banknote, Landmark, WalletCards } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 
-function sumEarnings(items: { agreed_price: string; payment_status: string }[]): number {
+function sumEarnings(items: { mentor_earning: string; payment_status: string }[]): number {
   return items
     .filter((b) => b.payment_status === 'paid')
-    .reduce((sum, b) => sum + parseFloat(b.agreed_price), 0)
+    .reduce((sum, b) => sum + parseFloat(b.mentor_earning), 0)
 }
 
 function formatCurrency(amount: number): string {
@@ -22,8 +22,11 @@ export function EarningsStats() {
   const completedBookings = completedData?.items ?? []
   const confirmedBookings = confirmedData?.items ?? []
 
-  const totalEarned = sumEarnings(completedBookings) / 2
-  const pendingEarnings = confirmedBookings.reduce((sum, b) => sum + parseFloat(b.agreed_price), 0)
+  const totalEarned = sumEarnings(completedBookings)
+  const pendingEarnings = confirmedBookings.reduce(
+    (sum, b) => sum + parseFloat(b.mentor_earning),
+    0,
+  )
 
   return (
     <section aria-label="Earnings statistics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

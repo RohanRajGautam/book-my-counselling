@@ -96,7 +96,7 @@ function SessionCard({
           {formatDuration(booking.session_start, booking.session_end)}
         </p>
         <p className="mt-1 text-xs font-semibold text-slate-400">
-          NPR {booking.agreed_price} • {booking.payment_status}
+          NPR {booking.mentor_earning} • {booking.payment_status}
         </p>
       </div>
 
