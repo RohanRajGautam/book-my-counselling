@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { searchAdminBookings } from '../../bookings/api/bookings.api'
 import {
   AdminBookingRow,
@@ -115,9 +115,34 @@ function renderRowsMobile(rows: AdminBookingRow[], isLoading: boolean) {
 function renderRowsDesktop(rows: AdminBookingRow[], isLoading: boolean) {
   if (isLoading) {
     return (
-      <div className="flex h-32 items-center justify-center">
-        <Loader2 className="size-5 animate-spin text-blue-600" />
-      </div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-slate-200 text-left text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">
+            <th className="py-2 pl-2 pr-3">Student</th>
+            <th className="px-3 py-2">Mentor</th>
+            <th className="px-3 py-2">When</th>
+            <th className="py-2 pr-2 pl-3 text-right">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <tr key={i} className="border-b border-slate-100 last:border-0">
+              <td className="py-3 pl-2 pr-3">
+                <Skeleton className="h-4 w-32 rounded-md bg-slate-100" />
+              </td>
+              <td className="px-3 py-3">
+                <Skeleton className="h-4 w-32 rounded-md bg-slate-100" />
+              </td>
+              <td className="px-3 py-3">
+                <Skeleton className="h-4 w-28 rounded-md bg-slate-100" />
+              </td>
+              <td className="py-3 pr-2 pl-3 text-right">
+                <Skeleton className="ml-auto h-5 w-16 rounded-full bg-slate-100" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     )
   }
   if (rows.length === 0) {

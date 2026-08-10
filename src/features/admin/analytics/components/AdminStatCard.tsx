@@ -20,6 +20,7 @@ export interface AdminStatCardProps {
   value: string | number
   tone?: AdminStatTone
   helper?: string
+  loading?: boolean
 }
 
 /**
@@ -33,6 +34,7 @@ export function AdminStatCard({
   value,
   tone = 'blue',
   helper,
+  loading,
 }: AdminStatCardProps) {
   return (
     <article className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
@@ -42,9 +44,13 @@ export function AdminStatCard({
       <h2 className="mt-4 text-[11px] font-bold tracking-[0.14em] text-slate-500 uppercase sm:tracking-[0.18em]">
         {label}
       </h2>
-      <p className="mt-2 text-2xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-3xl">
-        {value}
-      </p>
+      {loading ? (
+        <div className="mt-3 h-7 w-32 animate-pulse rounded-md bg-slate-100 sm:h-8 sm:w-40" />
+      ) : (
+        <p className="mt-2 text-2xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-3xl">
+          {value}
+        </p>
+      )}
       {helper ? (
         <p className="mt-2 text-xs font-bold text-slate-500">{helper}</p>
       ) : null}
