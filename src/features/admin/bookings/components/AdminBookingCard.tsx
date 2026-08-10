@@ -6,9 +6,58 @@ import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AdminBookingRow } from '../../types/admin.types'
 import { PAYMENT_BADGE, STATUS_BADGE } from '../lib/bookingBadges'
-import { formatDateTime } from '../../lib/format'
+import { formatDateTime, formatNPR } from '../../lib/format'
 import { cn } from '@/lib/utils'
 import { AdminCancelBookingModal } from './AdminCancelBookingModal'
+
+function parseAmount(raw: string): number {
+  const n = parseFloat(raw)
+  return Number.isFinite(n) ? n : 0
+}
+
+function PriceBreakdown({ booking }: { booking: AdminBookingRow }) {
+  const original = parseAmount(booking.original_price)
+  const discount = parseAmount(booking.discount_amount)
+  const mentorEarning = parseAmount(booking.mentor_earning)
+  const platformEarning = parseAmount(booking.platform_earning)
+
+  return (
+    <dl className="mt-3 grid gap-1 rounded-xl bg-slate-50 p-3 text-xs">
+      <div className="flex items-center justify-between gap-2">
+        <dt className="text-slate-500">Original price</dt>
+        <dd className="font-extrabold text-slate-800">{formatNPR(original, { cents: true })}</dd>
+      </div>
+      {discount > 0 ? (
+        <div className="flex items-center justify-between gap-2">
+          <dt className="text-slate-500">
+            Discount
+            {booking.promo_code ? (
+              <span className="ml-1 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-extrabold text-blue-700">
+                {booking.promo_code}
+              </span>
+            ) : null}
+          </dt>
+          <dd className="font-extrabold text-emerald-700">−{formatNPR(discount, { cents: true })}</dd>
+        </div>
+      ) : null}
+      <div className="my-1 h-px bg-slate-200" />
+      <div className="flex items-center justify-between gap-2">
+        <dt className="font-bold text-slate-600">Amount paid</dt>
+        <dd className="font-extrabold text-slate-950">
+          {formatNPR(parseAmount(booking.agreed_price), { cents: true })}
+        </dd>
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <dt className="text-slate-500">Mentor&apos;s cut</dt>
+        <dd className="font-bold text-slate-700">{formatNPR(mentorEarning, { cents: true })}</dd>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <dt className="text-slate-500">Platform</dt>
+        <dd className="font-bold text-slate-700">{formatNPR(platformEarning, { cents: true })}</dd>
+      </div>
+    </dl>
+  )
+}
 
 export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
   const [cancelOpen, setCancelOpen] = useState(false)
@@ -59,10 +108,9 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
               <span className="text-slate-400"> with </span>
               <span className="font-bold">{booking.mentor.full_name}</span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">
-              {formatDateTime(booking.session_start)} · NPR {booking.agreed_price}
-            </p>
-            <p className="mt-1 font-mono text-[10px] uppercase text-slate-300">
+            <p className="mt-1 text-xs text-slate-500">{formatDateTime(booking.session_start)}</p>
+            <PriceBreakdown booking={booking} />
+            <p className="mt-2 font-mono text-[10px] uppercase text-slate-300">
               ID {booking.id}
             </p>
             {booking.cancellation_reason ? (
