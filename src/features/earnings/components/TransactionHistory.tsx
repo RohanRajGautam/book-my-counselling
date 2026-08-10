@@ -50,7 +50,7 @@ function TransactionRow({ booking, index }: { booking: MentorBooking; index: num
           {booking.mentee.full_name}
         </p>
       </div>
-      <span className="w-fit rounded-full bg-blue-100 px-4 py-2 text-center text-xs font-bold leading-4 text-slate-700">
+      <span className="w-fit rounded-full bg-blue-100 px-4 py-2 text-center text-xs font-bold leading-4 text-blue-900">
         {sessionType.length > 18 ? sessionType.slice(0, 18) + '…' : sessionType}
       </span>
       <p className="text-left text-base font-extrabold text-slate-950 md:text-right">{amount}</p>
@@ -84,9 +84,20 @@ export function TransactionHistory() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-1 p-5">
+        <div>
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-slate-100" />
+            <div
+              key={i}
+              className="grid animate-pulse gap-3 border-b border-slate-100 px-4 py-5 last:border-b-0 sm:px-5 md:min-h-20 md:grid-cols-[92px_minmax(0,1fr)_126px_120px] md:items-center md:gap-4 md:px-7"
+            >
+              <div className="h-4 w-16 rounded-md bg-slate-100 md:max-w-20" />
+              <div className="flex items-center gap-4">
+                <div className="size-7 shrink-0 rounded-full bg-slate-100" />
+                <div className="h-4 w-40 rounded-md bg-slate-100" />
+              </div>
+              <div className="h-6 w-24 rounded-full bg-slate-100" />
+              <div className="ml-auto h-4 w-20 rounded-md bg-slate-100 md:ml-0" />
+            </div>
           ))}
         </div>
       ) : bookings.length === 0 ? (
