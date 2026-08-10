@@ -1,9 +1,10 @@
 'use client'
 
 import { useQueries } from '@tanstack/react-query'
-import { Check, ChevronDown, Loader2, Search, X } from 'lucide-react'
+import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { useCounselingCategories } from '@/features/categories/hooks/useCounselingCategories'
 import { getSubcategories } from '@/features/categories/api/categories.api'
 import { CategoryListItem, Subcategory } from '@/features/categories/types/categories.types'
@@ -70,9 +71,17 @@ export function AcademicSubcategoryPicker({ value, onChange }: AcademicSubcatego
 
   if (categoriesLoading || subsLoading) {
     return (
-      <div className="flex items-center gap-2 rounded-2xl bg-[#f0f4ff] px-4 py-3 text-xs font-medium text-slate-500">
-        <Loader2 className="size-3.5 animate-spin" />
-        Loading academic fields…
+      <div className="space-y-4">
+        {[1, 2, 3].map((groupIndex) => (
+          <div key={groupIndex} className="space-y-2">
+            <Skeleton className="h-5 w-40 rounded-md bg-slate-100" />
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {Array.from({ length: 4 }).map((_, tileIndex) => (
+                <Skeleton key={tileIndex} className="h-20 w-full rounded-2xl bg-slate-100" />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     )
   }

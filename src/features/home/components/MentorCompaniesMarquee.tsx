@@ -12,10 +12,10 @@ export function MentorCompaniesMarquee() {
   return (
     <section
       id="mentor-companies"
-      className="scroll-mt-32 overflow-hidden bg-gradient-to-br from-[#024fd5] to-[#2f6aea] px-4 py-12 sm:px-8"
+      className="scroll-mt-32 overflow-hidden bg-gradient-to-br from-[#024fd5] to-[#2f6aea] px-6 py-14 sm:px-8"
       aria-label="Mentor companies"
     >
-      <div className="mx-auto max-w-[1380px]">
+      <div className="mx-auto max-w-7xl">
         <p className="text-center text-xs font-extrabold tracking-[0.28em] text-[#ffffff] uppercase">
           Our mentors work at
         </p>

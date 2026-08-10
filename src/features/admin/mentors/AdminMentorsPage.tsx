@@ -170,7 +170,27 @@ export function AdminMentorsPage() {
           {showSkeleton ? (
             <div className="space-y-3" aria-busy="true" aria-live="polite">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-40 animate-pulse rounded-xl bg-white" />
+                <div
+                  key={i}
+                  className="animate-pulse overflow-hidden rounded-lg bg-white p-5 shadow-sm ring-1 ring-slate-200/60 sm:p-6"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="size-14 shrink-0 rounded-full bg-slate-100 sm:size-16" />
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="h-5 w-40 rounded-md bg-slate-100" />
+                        <div className="h-4 w-16 rounded-full bg-slate-100" />
+                      </div>
+                      <div className="h-3 w-56 rounded-md bg-slate-100" />
+                      <div className="h-3 w-32 rounded-md bg-slate-100" />
+                    </div>
+                  </div>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    <div className="h-16 rounded-lg bg-slate-100" />
+                    <div className="h-16 rounded-lg bg-slate-100" />
+                    <div className="h-16 rounded-lg bg-slate-100" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : !data?.items.length ? (

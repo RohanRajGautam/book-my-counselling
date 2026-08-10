@@ -6,6 +6,65 @@ import Image from 'next/image'
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react'
 import { HOME_TESTIMONIALS } from '../lib/home.constants'
 
+function CarouselDot({
+  isActive,
+  isAnimating,
+  onSelect,
+  name,
+}: {
+  isActive: boolean
+  isAnimating: boolean
+  onSelect: () => void
+  name: string
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`Show testimonial from ${name}`}
+      aria-current={isActive}
+      disabled={isAnimating}
+      onClick={onSelect}
+      className="h-2.5 w-2.5 rounded-full bg-[#b4c5ff] transition-all focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-8 aria-current:bg-[#004ac6]"
+    />
+  )
+}
+
+function CarouselArrow({
+  direction,
+  onClick,
+  isAnimating,
+  size,
+  className,
+}: {
+  direction: 'prev' | 'next'
+  onClick: () => void
+  isAnimating: boolean
+  size: 11 | 12
+  className?: string
+}) {
+  const isLarge = size === 12
+  const Icon = direction === 'prev' ? ChevronLeft : ChevronRight
+  const hoverTranslate = isLarge
+    ? direction === 'prev'
+      ? 'hover:-translate-x-0.5'
+      : 'hover:translate-x-0.5'
+    : ''
+
+  return (
+    <button
+      type="button"
+      aria-label={direction === 'prev' ? 'Show previous testimonial' : 'Show next testimonial'}
+      disabled={isAnimating}
+      onClick={onClick}
+      className={`flex ${
+        isLarge ? 'size-12 backdrop-blur' : 'size-11'
+      } items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition ${hoverTranslate} hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${className ?? ''}`}
+    >
+      <Icon className={isLarge ? 'size-6' : 'size-5'} />
+    </button>
+  )
+}
+
 export function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [slideIndex, setSlideIndex] = useState(1)
@@ -20,37 +79,31 @@ export function TestimonialsSection() {
       ? [lastTestimonial, ...HOME_TESTIMONIALS, firstTestimonial]
       : HOME_TESTIMONIALS
 
-  const showPrevious = useCallback(
-    () => {
-      if (isAnimating) {
-        return
-      }
+  const showPrevious = useCallback(() => {
+    if (isAnimating) {
+      return
+    }
 
-      setIsAnimating(true)
-      setIsTransitioning(true)
-      setSlideIndex((currentIndex) => currentIndex - 1)
-      setActiveIndex((currentIndex) =>
-        currentIndex === 0 ? HOME_TESTIMONIALS.length - 1 : currentIndex - 1
-      )
-    },
-    [isAnimating]
-  )
+    setIsAnimating(true)
+    setIsTransitioning(true)
+    setSlideIndex((currentIndex) => currentIndex - 1)
+    setActiveIndex((currentIndex) =>
+      currentIndex === 0 ? HOME_TESTIMONIALS.length - 1 : currentIndex - 1
+    )
+  }, [isAnimating])
 
-  const showNext = useCallback(
-    () => {
-      if (isAnimating) {
-        return
-      }
+  const showNext = useCallback(() => {
+    if (isAnimating) {
+      return
+    }
 
-      setIsAnimating(true)
-      setIsTransitioning(true)
-      setSlideIndex((currentIndex) => currentIndex + 1)
-      setActiveIndex((currentIndex) =>
-        currentIndex === HOME_TESTIMONIALS.length - 1 ? 0 : currentIndex + 1
-      )
-    },
-    [isAnimating]
-  )
+    setIsAnimating(true)
+    setIsTransitioning(true)
+    setSlideIndex((currentIndex) => currentIndex + 1)
+    setActiveIndex((currentIndex) =>
+      currentIndex === HOME_TESTIMONIALS.length - 1 ? 0 : currentIndex + 1
+    )
+  }, [isAnimating])
 
   useEffect(() => {
     const intervalId = window.setInterval(showNext, 5500)
@@ -103,7 +156,7 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="relative isolate overflow-hidden px-5 py-14 sm:px-8 sm:py-20 lg:py-24">
+    <section className="relative isolate overflow-hidden px-6 py-14 sm:px-8 sm:py-20 lg:py-24">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.92),transparent_34%),linear-gradient(180deg,#eef4ff_0%,#f8f9ff_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]" />
 
@@ -159,59 +212,36 @@ export function TestimonialsSection() {
             aria-label="Choose testimonial"
           >
             {HOME_TESTIMONIALS.map((testimonial, index) => (
-              <button
+              <CarouselDot
                 key={testimonial.name}
-                type="button"
-                aria-label={`Show testimonial from ${testimonial.name}`}
-                aria-current={activeIndex === index}
-                disabled={isAnimating}
-                onClick={() => showTestimonial(index)}
-                className="h-2.5 w-2.5 rounded-full bg-[#b4c5ff] transition-all focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-8 aria-current:bg-[#004ac6]"
+                name={testimonial.name}
+                isActive={activeIndex === index}
+                isAnimating={isAnimating}
+                onSelect={() => showTestimonial(index)}
               />
             ))}
           </div>
 
           <div className="mt-8 flex justify-center gap-3 lg:hidden">
-            <button
-              type="button"
-              aria-label="Show previous testimonial"
-              disabled={isAnimating}
-              onClick={showPrevious}
-              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <ChevronLeft className="size-5" />
-            </button>
-            <button
-              type="button"
-              aria-label="Show next testimonial"
-              disabled={isAnimating}
-              onClick={showNext}
-              className="flex size-11 items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <ChevronRight className="size-5" />
-            </button>
+            <CarouselArrow direction="prev" onClick={showPrevious} isAnimating={isAnimating} size={11} />
+            <CarouselArrow direction="next" onClick={showNext} isAnimating={isAnimating} size={11} />
           </div>
         </div>
 
-        <button
-          type="button"
-          aria-label="Show previous testimonial"
-          disabled={isAnimating}
+        <CarouselArrow
+          direction="prev"
           onClick={showPrevious}
-          className="absolute top-1/2 left-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:-translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
-        >
-          <ChevronLeft className="size-6" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="Show next testimonial"
-          disabled={isAnimating}
+          isAnimating={isAnimating}
+          size={12}
+          className="absolute top-1/2 left-6 hidden -translate-y-1/2 lg:flex"
+        />
+        <CarouselArrow
+          direction="next"
           onClick={showNext}
-          className="absolute top-1/2 right-6 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#d9e3f6] bg-white/90 text-[#434655] shadow-[0_14px_34px_rgba(18,28,42,0.1)] backdrop-blur transition hover:translate-x-0.5 hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 lg:flex"
-        >
-          <ChevronRight className="size-6" />
-        </button>
+          isAnimating={isAnimating}
+          size={12}
+          className="absolute top-1/2 right-6 hidden -translate-y-1/2 lg:flex"
+        />
       </div>
     </section>
   )

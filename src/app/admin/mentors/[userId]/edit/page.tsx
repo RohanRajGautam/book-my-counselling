@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 
+import { AdminEditMentorFallback } from '@/features/admin/mentors/edit/components/AdminEditMentorFallback'
 import { AdminEditMentorPage } from '@/features/admin/mentors/edit/AdminEditMentorPage'
 
 type AdminEditMentorRoutePageProps = {
@@ -10,7 +11,7 @@ export default async function AdminEditMentorRoutePage({ params }: AdminEditMent
   const { userId } = await params
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<AdminEditMentorFallback />}>
       <AdminEditMentorPage userId={userId} />
     </Suspense>
   )

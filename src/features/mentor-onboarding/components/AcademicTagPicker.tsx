@@ -1,8 +1,9 @@
 'use client'
 
-import { Check, Loader2, Search, X } from 'lucide-react'
+import { Check, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   COACH_FOR_FRESHERS_GROUP_TAG,
   COACH_FOR_FRESHERS_SERVICE_SLUGS,
@@ -93,9 +94,10 @@ export function AcademicTagPicker({ value, onChange }: AcademicTagPickerProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 rounded-2xl bg-[#f0f4ff] px-4 py-3 text-xs font-medium text-slate-500">
-        <Loader2 className="size-3.5 animate-spin" />
-        Loading tags…
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <Skeleton key={index} className="h-9 w-full rounded-full bg-slate-100" />
+        ))}
       </div>
     )
   }

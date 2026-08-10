@@ -7,6 +7,7 @@ export type AdminCreateMentorGeneralInfoForm = {
   company: string
   yearsOfExperience: string
   hourlyRate: string
+  mentorSharePct: string
 }
 
 type Props = {
@@ -71,6 +72,17 @@ export function AdminCreateMentorGeneralInfoCard({ value, onChange, errors = {} 
           onChange={(v) => updateField('hourlyRate', v)}
           error={errors.hourlyRate}
         />
+        <Field
+          label="Mentor Share (%)"
+          value={value.mentorSharePct}
+          placeholder="e.g. 50"
+          helper="Default 50. Mentor earns this percent of the gross booking price."
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          onChange={(v) => updateField('mentorSharePct', v)}
+          error={errors.mentorSharePct}
+        />
       </div>
     </section>
   )
@@ -84,6 +96,7 @@ function Field({
   type = 'text',
   inputMode,
   pattern,
+  helper,
   error,
 }: {
   label: string
@@ -93,6 +106,7 @@ function Field({
   type?: React.HTMLInputTypeAttribute
   inputMode?: 'numeric' | 'decimal' | 'text'
   pattern?: string
+  helper?: string
   error?: string
 }) {
   return (
@@ -110,7 +124,11 @@ function Field({
           (error ? ' ring-2 ring-red-200' : '')
         }
       />
-      {error ? <p className="mt-1.5 text-xs font-bold text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mt-1.5 text-xs font-bold text-red-600">{error}</p>
+      ) : helper ? (
+        <p className="mt-1.5 text-xs font-medium text-slate-500">{helper}</p>
+      ) : null}
     </label>
   )
 }

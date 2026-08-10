@@ -41,6 +41,7 @@ const EMPTY_GENERAL: AdminCreateMentorGeneralInfoForm = {
   company: '',
   yearsOfExperience: '',
   hourlyRate: '',
+  mentorSharePct: '50',
 }
 
 const EMPTY_COUNSELLING: AdminCounsellingForm = {

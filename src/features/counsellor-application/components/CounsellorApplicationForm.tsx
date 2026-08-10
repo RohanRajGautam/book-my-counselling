@@ -8,11 +8,11 @@ import {
   ChevronDown,
   GraduationCap,
   Link2,
-  Loader2,
   Search,
   Sparkles,
 } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   useCategorySubcategories,
   useCounselingCategories,
@@ -147,9 +147,10 @@ function CategoryOption({
       {isOpen && (
         <div className="border-t border-[#eff4ff] px-3 pt-3 pb-4">
           {isFetching ? (
-            <div className="flex items-center gap-2 rounded-xl bg-[#f8f9ff] px-3 py-3 text-sm font-semibold text-[#737686]">
-              <Loader2 className="size-4 animate-spin text-[#004ac6]" />
-              Loading subcategories
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton key={index} className="h-10 w-full rounded-xl bg-slate-100" />
+              ))}
             </div>
           ) : subcategories.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -487,9 +488,10 @@ export default function CounsellorApplicationForm() {
 
             <div className="max-h-[430px] space-y-3 overflow-y-auto rounded-2xl border border-[#d9e3f6] bg-[#f8f9ff]/70 p-3">
               {isLoadingCategories ? (
-                <div className="flex min-h-36 items-center justify-center gap-2 rounded-2xl bg-white text-sm font-bold text-[#737686]">
-                  <Loader2 className="size-4 animate-spin text-[#004ac6]" />
-                  Loading categories
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Skeleton key={index} className="h-12 w-full rounded-xl bg-slate-100" />
+                  ))}
                 </div>
               ) : filteredCategories.length > 0 ? (
                 filteredCategories.map((category) => (

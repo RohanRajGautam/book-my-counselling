@@ -12,6 +12,7 @@ import {
   MessageSquareQuote,
   ShieldAlert,
 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 import { useReviewInvitation } from '../hooks/useReviewInvitation'
 import { useSubmitReviewInvitation } from '../hooks/useSubmitReviewInvitation'
@@ -293,9 +294,29 @@ function PageShell({
 function LoadingState() {
   return (
     <PageShell>
-      <div className="flex flex-col items-center gap-3 py-10 text-[#737686]">
-        <Loader2 className="size-6 animate-spin text-[#0053db]" aria-hidden />
-        <p className="text-sm font-medium">Loading your review…</p>
+      <div className="mx-auto w-full max-w-2xl space-y-6">
+        <div className="rounded-2xl border border-[#eaf0fa] bg-[#fafbff] p-5">
+          <div className="flex items-start gap-4">
+            <Skeleton className="size-12 shrink-0 rounded-full bg-slate-200" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-40 rounded bg-slate-200" />
+              <Skeleton className="h-3 w-32 rounded bg-slate-200" />
+              <Skeleton className="h-3 w-48 rounded bg-slate-200" />
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-3 py-4">
+          <Skeleton className="h-4 w-56 rounded bg-slate-200" />
+          <Skeleton className="h-10 w-48 rounded-full bg-slate-200" />
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <Skeleton className="h-3 w-28 rounded bg-slate-200" />
+            <Skeleton className="h-3 w-16 rounded bg-slate-200" />
+          </div>
+          <Skeleton className="h-32 w-full rounded-2xl bg-slate-200" />
+        </div>
+        <Skeleton className="h-12 w-full rounded-2xl bg-slate-200" />
       </div>
     </PageShell>
   )

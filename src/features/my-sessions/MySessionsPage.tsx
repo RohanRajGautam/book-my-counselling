@@ -96,7 +96,7 @@ function SessionCard({
           {formatDuration(booking.session_start, booking.session_end)}
         </p>
         <p className="mt-1 text-xs font-semibold text-slate-400">
-          NPR {booking.agreed_price} • {booking.payment_status}
+          NPR {booking.mentor_earning} • {booking.payment_status}
         </p>
       </div>
 
@@ -224,7 +224,27 @@ export function MySessionsPage() {
           {isLoading ? (
             <div className="space-y-5">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 animate-pulse rounded-[24px] bg-slate-100" />
+                <div
+                  key={i}
+                  className="grid min-h-[132px] animate-pulse gap-5 rounded-[24px] bg-white px-4 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:px-7 sm:py-6 md:grid-cols-[minmax(0,1fr)_175px_auto] md:items-center"
+                >
+                  <div className="flex items-center gap-4 sm:gap-5">
+                    <div className="size-12 shrink-0 rounded-full bg-slate-100 sm:size-[54px]" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="h-5 w-40 rounded-md bg-slate-100" />
+                      <div className="h-4 w-56 rounded-md bg-slate-100" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 md:text-center">
+                    <div className="mx-auto h-4 w-32 rounded-md bg-slate-100 md:mx-0" />
+                    <div className="mx-auto h-3 w-24 rounded-md bg-slate-100 md:mx-0" />
+                    <div className="mx-auto h-3 w-28 rounded-md bg-slate-100 md:mx-0" />
+                  </div>
+                  <div className="flex flex-wrap gap-2 max-sm:[&>button]:flex-1">
+                    <div className="h-9 w-24 rounded-2xl bg-slate-100" />
+                    <div className="h-9 w-20 rounded-2xl bg-slate-100" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : bookings.length === 0 ? (

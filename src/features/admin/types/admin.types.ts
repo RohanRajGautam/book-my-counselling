@@ -29,6 +29,8 @@ export interface AdminMentorProfile {
   /** Subcategories within those industries — the specific topics the mentor covers. */
   subcategories: { id: string; name: string; slug: string }[]
   hourly_rate: string
+  /** Numeric 0-100. Backend serializes Decimal as a JSON string. */
+  mentor_share_pct: string
   years_of_experience: number
   average_rating: number
   total_reviews: number
@@ -69,6 +71,8 @@ export interface AdminMentorProfileUpdate {
   calendly_link?: string | null
   years_of_experience?: number | null
   hourly_rate?: string | null
+  /** Numeric 0-100. Sets the mentor's share of `original_price` per booking. Default 50. */
+  mentor_share_pct?: number | null
   booking_mode?: AdminMentorBookingMode | null
   requires_24h_approval?: boolean | null
   is_accepting_bookings?: boolean | null
@@ -125,7 +129,18 @@ export interface AdminBookingRow {
   status: AdminBookingStatus
   payment_status: AdminPaymentStatus
   topic: string | null
+  /** Net price the mentee paid (post-discount). */
   agreed_price: string
+  /** Gross price before any promo discount. */
+  original_price: string
+  /** Promo discount applied. `0` when no code was used. */
+  discount_amount: string
+  /** Mentor's cut, snapshotted at booking time. Computed off `original_price`. */
+  mentor_earning: string
+  /** Platform's cut; can be `0` or negative when a discount exceeds the platform share. */
+  platform_earning: string
+  /** Promo code applied, or `null` when none. */
+  promo_code: string | null
   session_start: string
   session_end: string
   created_at: string
@@ -158,7 +173,10 @@ export interface RefundBookingSummary {
   topic: string | null
   session_start: string
   session_end: string
+  /** Net price the mentee paid. */
   agreed_price: string
+  /** Gross price before any promo discount. Required so refunds can show "of original NPR X". */
+  original_price: string
 }
 
 export interface RefundRequest {

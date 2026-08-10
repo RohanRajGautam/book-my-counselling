@@ -159,6 +159,7 @@ export type UpdateMentorForm = {
   company: string
   yearsOfExperience: string
   hourlyRate: string
+  mentorSharePct: string
   bio: string
   linkedinUrl: string
   websiteUrl: string
@@ -219,6 +220,19 @@ export function validateUpdateMentorForm(form: UpdateMentorForm): ValidationErro
       errors.push({
         field: 'hourlyRate',
         message: `Hourly rate must be between 0 and ${MAX_HOURLY_RATE} NPR.`,
+      })
+    }
+  }
+
+  const shareTrim = form.mentorSharePct.trim()
+  if (!shareTrim) {
+    errors.push({ field: 'mentorSharePct', message: 'Mentor share is required.' })
+  } else {
+    const share = Number(shareTrim)
+    if (!Number.isFinite(share) || share < 0 || share > 100) {
+      errors.push({
+        field: 'mentorSharePct',
+        message: 'Mentor share must be between 0 and 100.',
       })
     }
   }

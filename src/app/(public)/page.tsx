@@ -9,21 +9,16 @@ import { MentorCompaniesMarquee } from '@/features/home/components/MentorCompani
 
 export default function Home() {
   return (
-    <>
-      <main className="sm:pt min-h-screen pt-28">
-        <FilterProvider>
-          <HeroSection />
-          <MentorCompaniesMarquee />
-
-          <ExclusiveEventsSection />
-
-          <Statistics />
-          {/* <QuotesMarquee /> */}
-          <TestimonialsSection />
-          <BecomeCounsellorSection />
-          <HowItWorksFaq />
-        </FilterProvider>
-      </main>
-    </>
+    <main className="min-h-screen pt-28 sm:pt-32">
+      <FilterProvider>
+        <HeroSection />
+        <MentorCompaniesMarquee />
+        <ExclusiveEventsSection />
+        <Statistics />
+        <TestimonialsSection />
+        <BecomeCounsellorSection />
+        <HowItWorksFaq />
+      </FilterProvider>
+    </main>
   )
 }
