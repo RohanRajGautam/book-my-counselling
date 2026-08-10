@@ -38,7 +38,7 @@ export function CoachForFreshersProfile({
   initialPage = 1,
 }: CoachForFreshersProfileProps) {
   return (
-    <main className="min-h-screen bg-[#f8f9ff] pt-[73px]">
+    <main className="min-h-screen bg-[#f8f9ff] pt-20">
       <CoachForFreshersFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
         <ProfileRouteModal mentorSlugOrId={mentorSlugOrId} />
       </CoachForFreshersFiltersProvider>

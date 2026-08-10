@@ -33,7 +33,7 @@ export function AcademicCounsellorProfile({
   initialPage = 1,
 }: AcademicCounsellorProfileProps) {
   return (
-    <main className="min-h-screen bg-[#f8f9ff] pt-[73px]">
+    <main className="min-h-screen bg-[#f8f9ff] pt-20">
       <AcademicFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
         <ProfileRouteModal mentorSlugOrId={mentorSlugOrId} />
       </AcademicFiltersProvider>

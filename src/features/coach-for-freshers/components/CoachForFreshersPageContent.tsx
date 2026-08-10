@@ -44,7 +44,7 @@ export function CoachForFreshersPageContent({
         <div>
           <CoachForFreshersListingHeader variety={variety} />
 
-          <section id="coach-for-freshers-results" className="px-5 py-4 sm:px-6 sm:py-0 lg:px-8 xl:px-10">
+          <section id="coach-for-freshers-results" className="px-6 sm:px-8">
             {showAcademicBanner && crossLink && (
               <div className="pt-4 pb-1 sm:pt-0">
                 <SearchCrossLinkBanner
