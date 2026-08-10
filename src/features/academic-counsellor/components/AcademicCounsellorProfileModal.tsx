@@ -153,7 +153,16 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
   if (isInitialLoading || !mentor) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-3 backdrop-blur-[12px] sm:p-4">
-        <ProfileModalSkeleton />
+        <div className="relative grid max-h-[calc(100dvh-1.5rem)] w-full max-w-7xl grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-3xl bg-[#f8f9ff] p-4 shadow-[0_16px_48px_rgba(18,28,42,0.12)] sm:max-h-[calc(100dvh-2rem)] sm:gap-5 sm:rounded-3xl sm:p-6 lg:grid-cols-12 lg:gap-6 lg:p-8">
+          <button
+            onClick={onClose}
+            className="fixed top-3 right-3 z-[60] flex size-11 items-center justify-center rounded-full bg-white/95 text-[#434655] shadow-[0_8px_20px_rgba(18,28,42,0.14)] transition-colors hover:bg-[#dee9fc] sm:top-5 sm:right-5"
+            aria-label="Close modal"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <ProfileModalSkeleton />
+        </div>
       </div>
     )
   }
