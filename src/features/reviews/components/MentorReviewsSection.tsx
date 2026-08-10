@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useMentorReviews } from '../hooks/useMentorReviews'
 import type { ReviewResponse } from '../types/reviews.types'
 
@@ -11,7 +12,7 @@ interface MentorReviewsSectionProps {
 
 export function MentorReviewsSection({ mentorId }: MentorReviewsSectionProps) {
   const [reviewPage, setReviewPage] = useState(1)
-  const { data: reviewsData, isPending: isReviewsLoading } = useMentorReviews(mentorId, reviewPage)
+  const { data: reviewsData, isPending: isReviewsLoading, isFetching } = useMentorReviews(mentorId, reviewPage)
 
   const reviews = useMemo(() => reviewsData?.items ?? [], [reviewsData?.items])
   const totalReviews = reviewsData?.total ?? 0
@@ -27,7 +28,37 @@ export function MentorReviewsSection({ mentorId }: MentorReviewsSectionProps) {
     [reviews]
   )
 
-  if (totalReviews === 0 && !isReviewsLoading) {
+  if (isReviewsLoading) {
+    return (
+      <div className="overflow-hidden rounded-[24px] bg-white shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+        <div className="flex items-center justify-between gap-6 border-b border-[#eff4ff] px-5 py-5 sm:px-6">
+          <div className="flex items-baseline gap-3">
+            <Skeleton className="h-7 w-12 rounded bg-slate-100" />
+            <Skeleton className="h-4 w-24 rounded bg-slate-100" />
+          </div>
+          <div className="flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="size-4 rounded-full bg-slate-100" />
+            ))}
+          </div>
+        </div>
+        <ol className="flex flex-col divide-y divide-[#eff4ff]">
+          {[1, 2, 3].map((i) => (
+            <li key={i} className="flex gap-3 p-5 sm:p-6">
+              <Skeleton className="size-12 shrink-0 rounded-full bg-slate-100" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-40 rounded bg-slate-100" />
+                <Skeleton className="h-3 w-full rounded bg-slate-100" />
+                <Skeleton className="h-3 w-3/4 rounded bg-slate-100" />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+
+  if (totalReviews === 0) {
     return (
       <div className="rounded-[24px] bg-white p-8 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
         <p className="text-sm font-medium text-[#737686]">No reviews yet.</p>
@@ -60,7 +91,7 @@ export function MentorReviewsSection({ mentorId }: MentorReviewsSectionProps) {
       {/* Reviews list */}
       <ol
         className={`flex max-h-[480px] flex-col divide-y divide-[#eff4ff] overflow-y-auto transition-opacity duration-200 ${
-          isReviewsLoading ? 'opacity-50' : 'opacity-100'
+          isFetching ? 'opacity-50' : 'opacity-100'
         }`}
       >
         {visibleReviews.map((review) => (
@@ -71,7 +102,7 @@ export function MentorReviewsSection({ mentorId }: MentorReviewsSectionProps) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-[#eff4ff] px-5 py-4 sm:px-6">
           <button
-            disabled={reviewPage === 1 || isReviewsLoading}
+            disabled={reviewPage === 1 || isFetching}
             onClick={() => setReviewPage((p) => Math.max(1, p - 1))}
             className="flex items-center gap-1 text-sm font-medium text-[#004ac6] disabled:opacity-40"
           >
@@ -82,7 +113,7 @@ export function MentorReviewsSection({ mentorId }: MentorReviewsSectionProps) {
             {reviewPage} / {totalPages}
           </span>
           <button
-            disabled={!hasNextPage || isReviewsLoading}
+            disabled={!hasNextPage || isFetching}
             onClick={() => setReviewPage((p) => p + 1)}
             className="flex items-center gap-1 text-sm font-medium text-[#004ac6] disabled:opacity-40"
           >
