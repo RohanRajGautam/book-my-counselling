@@ -364,24 +364,6 @@ export function BookingPageContent() {
               error={touched.message ? errors.message : undefined}
             />
           </section>
-
-          {/* Promo code */}
-          {!isEvent ? (
-            <section className="rounded-[24px] bg-[#eff4ff] p-8">
-              <h2 className="mb-6 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
-                Promo code
-              </h2>
-              <PromoCodeInput
-                value={promoInput}
-                onChange={setPromoInput}
-                onApply={handlePromoApply}
-                onRemove={handlePromoRemove}
-                applied={appliedPromo}
-                isValidating={isValidatingPromo}
-                errorMessage={promoError}
-              />
-            </section>
-          ) : null}
         </div>
 
         {/* Right Column: Summary & Payment */}
@@ -433,6 +415,19 @@ export function BookingPageContent() {
               </>
             ) : (
               <div className="space-y-3">
+                {!isEvent ? (
+                  <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
+                    <PromoCodeInput
+                      value={promoInput}
+                      onChange={setPromoInput}
+                      onApply={handlePromoApply}
+                      onRemove={handlePromoRemove}
+                      applied={appliedPromo}
+                      isValidating={isValidatingPromo}
+                      errorMessage={promoError}
+                    />
+                  </div>
+                ) : null}
                 {submitError && (
                   <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-[#ba1a1a]">
                     {submitError}
