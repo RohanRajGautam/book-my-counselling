@@ -16,7 +16,6 @@ export function EarningsStats() {
   const { data, isLoading } = useMentorStats()
 
   const totalEarnings = data?.total_earnings ?? '0.00'
-  const pendingEarnings = data?.pending_earnings ?? '0.00'
   const upcomingSessions = data?.upcoming_sessions ?? 0
   const totalSessions = data?.total_sessions ?? 0
   const totalMentees = data?.total_mentees ?? 0
@@ -28,14 +27,6 @@ export function EarningsStats() {
         icon={<WalletCards className="size-5 text-blue-700" />}
         label="Total earnings"
         value={formatMoney(totalEarnings)}
-        helper={
-          parseFloat(pendingEarnings) > 0
-            ? `${formatMoney(pendingEarnings)} pending`
-            : 'No pending earnings'
-        }
-        helperClassName={
-          parseFloat(pendingEarnings) > 0 ? 'text-emerald-700' : 'text-slate-500'
-        }
         iconClassName="bg-blue-100"
         title={`You earn ${sharePct}% of each session.`}
         loading={isLoading}
@@ -44,10 +35,6 @@ export function EarningsStats() {
         icon={<CalendarClock className="size-5 text-amber-800" />}
         label="Upcoming"
         value={pluralize(upcomingSessions, 'session')}
-        helper={
-          upcomingSessions === 0 ? 'Nothing on the books yet.' : 'Confirmed or pending.'
-        }
-        helperClassName="text-slate-500"
         iconClassName="bg-amber-100"
         loading={isLoading}
       />
@@ -81,8 +68,8 @@ function EarningsStatCard({
   icon: React.ReactNode
   label: string
   value: string
-  helper: string
-  helperClassName: string
+  helper?: string
+  helperClassName?: string
   iconClassName: string
   title?: string
   loading?: boolean
@@ -105,7 +92,11 @@ function EarningsStatCard({
           {value}
         </p>
       )}
-      <p className={`mt-5 text-sm font-extrabold ${helperClassName}`}>{helper}</p>
+      {helper ? (
+        <p className={`mt-5 text-sm font-extrabold ${helperClassName ?? 'text-slate-500'}`}>
+          {helper}
+        </p>
+      ) : null}
     </article>
   )
 }
