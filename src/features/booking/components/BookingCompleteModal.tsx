@@ -29,6 +29,12 @@ interface BookingCompleteModalProps {
   session: Session | null
   price: number
   priceLabel?: string
+  breakdown?: {
+    original: string
+    discount: string
+    final: string
+    code: string
+  }
 }
 
 const PALETTE = ['#004ac6', '#2563eb', '#60a5fa', '#22d3ee', '#6cf8bb', '#fde68a', '#fca5a5']
@@ -176,6 +182,7 @@ export function BookingCompleteModal({
   session,
   price,
   priceLabel,
+  breakdown,
 }: BookingCompleteModalProps) {
   const router = useRouter()
 
@@ -402,12 +409,42 @@ export function BookingCompleteModal({
                 variants={rowVariants}
                 initial="hidden"
                 animate="visible"
-                className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-[#eff4ff] to-[#f8f9ff] px-4 py-3 ring-1 ring-[#dbe6ff]"
+                className="rounded-2xl bg-gradient-to-r from-[#eff4ff] to-[#f8f9ff] px-4 py-3 ring-1 ring-[#dbe6ff]"
               >
-                <span className="text-sm font-semibold text-[#434655]">Total paid</span>
-                <span className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#004ac6]">
-                  {formattedPrice}
-                </span>
+                {breakdown ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm text-[#434655]">
+                      <span>Original price</span>
+                      <span className="font-semibold text-[#121c2a]">
+                        NPR {Number(breakdown.original).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-emerald-700">
+                      <span>
+                        Discount{' '}
+                        <span className="ml-1 rounded-md bg-white px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-emerald-700 uppercase ring-1 ring-emerald-200">
+                          {breakdown.code}
+                        </span>
+                      </span>
+                      <span className="font-semibold">
+                        −NPR {Number(breakdown.discount).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-[#dbe6ff] pt-2">
+                      <span className="text-sm font-semibold text-[#434655]">Total paid</span>
+                      <span className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#004ac6]">
+                        NPR {Number(breakdown.final).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#434655]">Total paid</span>
+                    <span className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#004ac6]">
+                      {formattedPrice}
+                    </span>
+                  </div>
+                )}
               </motion.div>
 
               {bookingId && (

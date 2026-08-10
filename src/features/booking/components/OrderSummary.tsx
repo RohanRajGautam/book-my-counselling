@@ -16,11 +16,19 @@ interface OrderSummaryProps {
     startTime?: string | null
     endTime?: string | null
   }
+  /** Gross price (or single net price when no breakdown is provided). */
   price: number
   priceLabel?: string
+  /** When set, renders a 3-line price breakdown instead of a single Total. */
+  breakdown?: {
+    original: string
+    discount: string
+    final: string
+    code: string
+  }
 }
 
-export function OrderSummary({ mentor, session, price, priceLabel }: OrderSummaryProps) {
+export function OrderSummary({ mentor, session, price, priceLabel, breakdown }: OrderSummaryProps) {
   const initials = getInitials(mentor.name)
   const imageSrc = mentor.imageUrl?.trim() || null
 
@@ -105,14 +113,44 @@ export function OrderSummary({ mentor, session, price, priceLabel }: OrderSummar
       </div>
 
       {/* Total */}
-      <div className="flex items-center justify-between border-t border-[#c3c6d7]/15 pt-6">
-        <span className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
-          Total
-        </span>
-        <span className="font-[family-name:var(--font-headline)] text-2xl font-bold text-[#004ac6]">
-          {priceLabel ?? `NPR ${price.toLocaleString()}`}
-        </span>
-      </div>
+      {breakdown ? (
+        <div className="space-y-2 border-t border-[#c3c6d7]/15 pt-6">
+          <div className="flex items-center justify-between text-sm text-[#434655]">
+            <span>Original price</span>
+            <span className="font-semibold text-[#121c2a]">
+              NPR {Number(breakdown.original).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm text-emerald-700">
+            <span>
+              Discount{' '}
+              <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase ring-1 ring-emerald-200">
+                {breakdown.code}
+              </span>
+            </span>
+            <span className="font-semibold">
+              −NPR {Number(breakdown.discount).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex items-center justify-between border-t border-[#c3c6d7]/15 pt-3">
+            <span className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
+              Total
+            </span>
+            <span className="font-[family-name:var(--font-headline)] text-2xl font-bold text-[#004ac6]">
+              NPR {Number(breakdown.final).toLocaleString()}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between border-t border-[#c3c6d7]/15 pt-6">
+          <span className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a]">
+            Total
+          </span>
+          <span className="font-[family-name:var(--font-headline)] text-2xl font-bold text-[#004ac6]">
+            {priceLabel ?? `NPR ${price.toLocaleString()}`}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

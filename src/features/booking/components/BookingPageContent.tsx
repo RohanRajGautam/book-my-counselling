@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FormInput } from '@/features/booking/components/FormInput'
 import { FormSelect } from '@/features/booking/components/FormSelect'
@@ -20,6 +21,10 @@ import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { createGuestBooking } from '@/features/booking/api/bookingApi'
 import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
+import { PromoCodeInput } from '@/features/promo-codes/components/PromoCodeInput'
+import { useValidatePromoCode } from '@/features/promo-codes/hooks/useValidatePromoCode'
+import { promoCodeErrorMessage } from '@/features/promo-codes/lib/promoCodeErrors'
+import type { PromoCodeValidationResponse } from '@/features/promo-codes/types/promo-codes.types'
 
 export function BookingPageContent() {
   const searchParams = useSearchParams()
@@ -58,6 +63,44 @@ export function BookingPageContent() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [bookingCompleteOpen, setBookingCompleteOpen] = useState(false)
   const handlePaymentSuccess = useCallback(() => setBookingCompleteOpen(true), [])
+
+  // Promo code state — one applied code per booking.
+  const [promoInput, setPromoInput] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState<PromoCodeValidationResponse | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const { mutate: validatePromo, isPending: isValidatingPromo } = useValidatePromoCode()
+
+  const handlePromoApply = useCallback(() => {
+    const code = promoInput.trim()
+    if (!code || isEvent || !mentorId) return
+    setPromoError(null)
+    validatePromo(
+      {
+        code,
+        mentor_id: mentorId,
+        package_id: packageId ?? undefined,
+      },
+      {
+        onSuccess: (result) => {
+          setAppliedPromo(result)
+          setPromoError(null)
+          toast.success(`Promo ${result.code} applied.`)
+        },
+        onError: (err) => {
+          setAppliedPromo(null)
+          const msg = promoCodeErrorMessage(err) ?? 'Could not apply promo code.'
+          setPromoError(msg)
+          toast.error(msg)
+        },
+      },
+    )
+  }, [promoInput, mentorId, packageId, isEvent, validatePromo])
+
+  const handlePromoRemove = useCallback(() => {
+    setAppliedPromo(null)
+    setPromoError(null)
+    setPromoInput('')
+  }, [])
 
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -123,6 +166,7 @@ export function BookingPageContent() {
         guardian_phone: formData.guardianPhone || undefined,
         mentee_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         topic: isEvent ? FEATURED_EVENT.topic : undefined,
+        promo_code: appliedPromo?.code,
       })
 
       setBookingId(result.booking_id)
@@ -179,6 +223,15 @@ export function BookingPageContent() {
     : selectedPackage
       ? Number(selectedPackage.price)
       : 0
+
+  const promoBreakdown = appliedPromo
+    ? {
+        original: appliedPromo.original_amount,
+        discount: appliedPromo.discount_amount,
+        final: appliedPromo.final_amount,
+        code: appliedPromo.code,
+      }
+    : undefined
 
   // Guard: if required URL params are missing, show a helpful message
   if (
@@ -311,6 +364,24 @@ export function BookingPageContent() {
               error={touched.message ? errors.message : undefined}
             />
           </section>
+
+          {/* Promo code */}
+          {!isEvent ? (
+            <section className="rounded-[24px] bg-[#eff4ff] p-8">
+              <h2 className="mb-6 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
+                Promo code
+              </h2>
+              <PromoCodeInput
+                value={promoInput}
+                onChange={setPromoInput}
+                onApply={handlePromoApply}
+                onRemove={handlePromoRemove}
+                applied={appliedPromo}
+                isValidating={isValidatingPromo}
+                errorMessage={promoError}
+              />
+            </section>
+          ) : null}
         </div>
 
         {/* Right Column: Summary & Payment */}
@@ -339,6 +410,7 @@ export function BookingPageContent() {
                 mentor={orderSummaryMentor}
                 session={orderSummarySession}
                 price={orderSummaryPrice}
+                breakdown={promoBreakdown}
               />
             ) : null}
 
@@ -385,7 +457,8 @@ export function BookingPageContent() {
         bookingId={bookingId}
         mentor={orderSummaryMentor}
         session={orderSummarySession}
-        price={orderSummaryPrice}
+        price={appliedPromo ? Number(appliedPromo.final_amount) : orderSummaryPrice}
+        breakdown={promoBreakdown}
       />
     </main>
   )
