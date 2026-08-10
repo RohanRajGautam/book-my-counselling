@@ -1,36 +1,18 @@
 'use client'
 
-import { useFilters } from '@/features/filters/context/FilterContext'
-import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
-import { useRouter } from 'next/navigation'
-// import { ArrowUpRight, CalendarDays, Clock3, Info, Sparkles, Users } from 'lucide-react'
-// import { getFeaturedEvent } from '@/features/home/lib/featuredEvent'
-import { Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useFilters } from '@/features/filters/context/FilterContext'
+import { MentorSearchBar } from '@/features/mentors/components/MentorSearchBar'
 import { smartSearch } from '@/features/search/lib/smart-search'
 
 export function HeroSection() {
   const { filters, updateFilter } = useFilters()
-  // const [isCardFlipped, setIsCardFlipped] = useState(false)
-  // const featuredEvent = getFeaturedEvent()
-  // const eventDetails = [
-  //   { Icon: CalendarDays, title: 'Live session', label: 'Interactive format' },
-  //   { Icon: Clock3, title: `${featuredEvent.durationMinutes} minutes`, label: 'Compact workshop' },
-  //   { Icon: Users, title: `Registration`, label: 'Completely Free' },
-  // ]
   const router = useRouter()
   const [isSearching, setIsSearching] = useState(false)
-  // const featuredEventBookingHref = {
-  //   pathname: '/event-booking',
-  //   query: {
-  //     guestName: featuredEvent.guest.name,
-  //     guestDesc: featuredEvent.guest.title,
-  //     imageUrl: featuredEvent.guest.imageUrl,
-  //     topic: featuredEvent.topic,
-  //   },
-  // }
 
   const handleSearchSubmit = async () => {
     const search = filters.jobTitle?.trim() ?? ''
@@ -50,36 +32,31 @@ export function HeroSection() {
     }
   }
 
-  // const handleCardTouchPress = (event: PointerEvent<HTMLDivElement>) => {
-  //   if (event.pointerType !== 'touch') return
-
-  //   const target = event.target as HTMLElement
-  //   if (target.closest('button, a, input, select, textarea')) return
-
-  //   setIsCardFlipped((current) => !current)
-  // }
-
   return (
-    <section className="relative isolate overflow-hidden px-5 pt-16 pb-20 sm:px-8 lg:pt-24 lg:pb-28">
-      {/* Background decorations */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#ffffff_0%,#f8f9ff_48%,#eef4ff_100%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]" />
-      <div className="pointer-events-none absolute inset-0 -z-10 [background-image:linear-gradient(#d9e3f6_1px,transparent_1px),linear-gradient(90deg,#d9e3f6_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_72%)] [background-size:72px_72px] opacity-[0.34]" />
-      {/* Soft glow behind the headline */}
+    <section className="relative isolate mt-[-25px] overflow-hidden px-6 pt-16 pb-20 sm:px-8 lg:pt-22 lg:pb-24">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#ffffff_0%,#f8f9ff_48%,#eef4ff_100%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 [background-image:linear-gradient(#d9e3f6_1px,transparent_1px),linear-gradient(90deg,#d9e3f6_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_72%)] [background-size:72px_72px] opacity-30"
+      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-1/3 left-1/2 -z-10 h-[420px] w-[640px] -translate-x-1/2 rounded-full bg-gradient-to-br from-[#004ac6]/10 via-[#2563eb]/5 to-transparent blur-3xl"
       />
 
-      {/* Centered single column */}
       <div className="mx-auto w-full max-w-6xl text-center">
-        {/* Eyebrow badge */}
         <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white/74 px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)] backdrop-blur">
           <Sparkles className="size-4" aria-hidden="true" />
           1:1 Mentorship
         </div>
 
-        {/* Headline */}
         <h1 className="mt-2 font-[family-name:var(--font-headline)] text-[clamp(2.5rem,6vw,4rem)] leading-[1.0] font-extrabold tracking-[-0.02em] text-[#121c2a]">
           Your career journey,{' '}
           <span className="relative isolate inline-block text-[#004ac6]">
@@ -89,13 +66,11 @@ export function HeroSection() {
           .
         </h1>
 
-        {/* Subhead */}
         <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-[#434655] sm:text-lg">
           Connect with world-class mentors from industry giants and top universities to navigate
           your professional growth with precision.
         </p>
 
-        {/* Search */}
         <div className="mx-auto mt-10 max-w-2xl">
           <MentorSearchBar
             value={filters.jobTitle ?? ''}
@@ -104,242 +79,7 @@ export function HeroSection() {
             isLoading={isSearching}
           />
         </div>
-
-        {/* <div className="mx-auto mt-9 grid max-w-2xl gap-3 text-left sm:grid-cols-3 lg:mx-0">
-          {['Industry mentors', 'Focused guidance', 'Actionable next steps'].map((item) => (
-            <div
-              key={item}
-              className="flex min-h-14 items-center gap-2 rounded-lg border border-[#d9e3f6] bg-white/72 px-4 text-sm font-bold text-[#27313f] shadow-[0_10px_26px_rgba(18,28,42,0.05)] backdrop-blur"
-            >
-              <CheckCircle2 className="size-4 shrink-0 text-[#004ac6]" aria-hidden="true" />
-              <span>{item}</span>
-            </div>
-          ))}
-        </div> */}
-        {/* <div className="flex justify-center">
-          <div className="mx-auto mt-9 w-full max-w-2xl border-t border-[#d9e3f6] pt-6">
-            <div className="grid grid-cols-3 gap-4 text-center sm:flex sm:justify-between sm:gap-12">
-              {[
-                ['1:1', 'Personal guidance'],
-                ['100+', 'Curated mentor seats'],
-                ['1000+', 'Booked sessions'],
-              ].map(([value, label]) => (
-                <div key={label}>
-                  <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a] sm:text-2xl">
-                    {value}
-                  </p>
-                  <p className="mt-1 text-[10px] font-bold tracking-[0.12em] text-[#737686] uppercase sm:text-xs">
-                    {label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div> */}
       </div>
-
-      {/* RIGHT CARD */}
-      {/* <div className="relative mx-auto w-full max-w-[630px] lg:mx-0 lg:justify-self-end">
-        <div
-          className="hero-flip-scene cursor-pointer touch-manipulation"
-          onMouseEnter={() => setIsCardFlipped(true)}
-          onMouseLeave={() => setIsCardFlipped(false)}
-          onPointerUp={handleCardTouchPress}
-        >
-          <div className={`hero-flip-card relative grid ${isCardFlipped ? 'is-flipped' : ''}`}>
-            <div
-              className={`hero-flip-face col-start-1 row-start-1 h-full ${
-                isCardFlipped ? 'pointer-events-none' : ''
-              }`}
-              aria-hidden={isCardFlipped}
-            >
-              <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
-                <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
-
-                <button
-                  type="button"
-                  onClick={() => setIsCardFlipped(true)}
-                  className="absolute top-4 left-4 z-20 grid size-10 place-items-center rounded-full border border-white/80 bg-white/90 text-[#004ac6] shadow-[0_14px_32px_rgba(18,28,42,0.12)] transition hover:-translate-y-0.5 hover:bg-white focus:ring-3 focus:ring-[#004ac6]/20 focus:outline-none"
-                  aria-label="View more event information"
-                >
-                  <Info className="size-4" aria-hidden="true" />
-                </button>
-
-                <div className="absolute top-4 right-4 z-20 hidden rounded-full bg-[#004ac6] px-4 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase shadow-[0_18px_36px_rgba(0,74,198,0.22)] sm:block">
-                  Only {featuredEvent.seats} seats
-                </div>
-
-                <div className="overflow-hidden rounded-[1.2rem] bg-white">
-                  <div className="relative min-h-[220px] overflow-hidden rounded-[1rem] bg-[linear-gradient(140deg,#eef4ff_0%,#dbe6ff_48%,#ffffff_100%)] sm:min-h-[250px]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(180deg,transparent_58%,rgba(255,255,255,0.62)_100%)]" />
-                    <div className="absolute right-8 bottom-8 left-8 h-20 rounded-[50%] bg-white/72 blur-md" />
-
-                    <Image
-                      src={featuredEvent.guest.imageUrl}
-                      alt={`${featuredEvent.guest.name} portrait`}
-                      width={900}
-                      height={1125}
-                      priority
-                      sizes="(min-width: 1024px) 420px, 90vw"
-                      className="absolute right-0 bottom-0 h-[110%] w-full object-contain object-bottom drop-shadow-[0_22px_30px_rgba(18,28,42,0.2)]"
-                    />
-
-                    <div className="absolute bottom-0 flex h-12 w-full items-center justify-center bg-blue-700 px-3 text-center font-bold text-white">
-                      <span className="text-balance">{featuredEvent.topic}</span>
-                    </div>
-                  </div>
-
-                  <div className="px-4 pt-4 pb-4 sm:px-5">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="mb-2 text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
-                          Exclusive Event
-                        </p>
-
-                        <h2 className="font-[family-name:var(--font-headline)] text-2xl font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                          {featuredEvent.guest.name}
-                        </h2>
-
-                        <p className="my-2 text-sm leading-5 font-semibold text-green-800">
-                          {featuredEvent.guest.title}
-                        </p>
-
-                        {(featuredEvent.date || featuredEvent.time) && (
-                          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] font-extrabold text-[#525866]">
-                            {featuredEvent.date && (
-                              <span className="flex items-center gap-1.5">
-                                <svg
-                                  className="size-3.5 text-[#004ac6]/70"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                >
-                                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                                  <path d="M16 2v4M8 2v4M3 10h18" />
-                                </svg>
-                                {featuredEvent.date}
-                              </span>
-                            )}
-
-                            {featuredEvent.date && featuredEvent.time && (
-                              <span
-                                className="size-1 rounded-full bg-[#d9e3f6]"
-                                aria-hidden="true"
-                              />
-                            )}
-
-                            {featuredEvent.time && (
-                              <span className="flex items-center gap-1.5">
-                                <svg
-                                  className="size-3.5 text-[#004ac6]/70"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                >
-                                  <circle cx="12" cy="12" r="10" />
-                                  <path d="M12 6v6l4 2" />
-                                </svg>
-                                {featuredEvent.time}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] px-4 py-3 text-left sm:text-right">
-                        <p className="text-center text-[10px] font-extrabold tracking-[0.18em] text-[#737686] uppercase">
-                          Registration
-                        </p>
-
-                        <p className="mt-1 text-center font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-[#121c2a]">
-                          FREE
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-2 border-t border-[#eff4ff] pt-4 text-sm text-[#121c2a]">
-                      {featuredEvent.highlights.map((item) => (
-                        <div
-                          key={item}
-                          className="flex items-center gap-3 rounded-lg bg-[#f8f9ff] px-3 py-1.5"
-                        >
-                          <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#e6eeff]">
-                            <span className="size-2 rounded-full bg-[#004ac6]" />
-                          </span>
-                          <span className="font-medium">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Link
-                      href={featuredEventBookingHref}
-                      className="mt-6 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
-                    >
-                      Secure Spot
-                      <ArrowUpRight className="size-4" aria-hidden="true" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={`hero-flip-face hero-flip-face-back absolute inset-0 ${
-                isCardFlipped ? '' : 'pointer-events-none'
-              }`}
-              aria-hidden={!isCardFlipped}
-            >
-              <div className="relative h-full rounded-[1.6rem] border border-white/80 bg-white/86 p-2.5 shadow-[0_28px_70px_rgba(18,28,42,0.13)] ring-1 ring-[#d9e3f6]/80 backdrop-blur">
-                <div className="absolute inset-x-8 -bottom-6 -z-10 h-24 rounded-full bg-[#004ac6]/14 blur-3xl" />
-
-                <div className="relative flex h-full flex-col overflow-y-auto overscroll-contain rounded-[1.2rem] bg-white p-5 sm:p-6">
-                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,#eef4ff_0%,#ffffff_42%,#f8f9ff_100%)]" />
-                  <div className="pointer-events-none absolute -top-24 right-10 size-56 rounded-full bg-[#dbe6ff]/70 blur-3xl" />
-
-                  <div className="relative">
-                    <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#737686] uppercase">
-                      Exclusive Guest
-                    </p>
-                    <h3 className="mt-3 font-[family-name:var(--font-headline)] text-2xl leading-tight font-extrabold tracking-tight text-[#121c2a] sm:text-[1.6rem]">
-                      {featuredEvent.guest.name}
-                    </h3>
-                    <p className="mt-3 max-w-md text-sm leading-7 text-[#434655]">
-                      {featuredEvent.bio}
-                    </p>
-                  </div>
-
-                  <div className="relative mt-8 grid grid-cols-3 gap-2 sm:mt-5">
-                    {eventDetails.map(({ Icon, title, label }) => (
-                      <div
-                        key={title}
-                        className="rounded-xl border border-[#d9e3f6] bg-[#f8f9ff] p-3"
-                      >
-                        <Icon className="size-5 text-[#004ac6]" aria-hidden="true" />
-                        <p className="mt-3 font-[family-name:var(--font-headline)] text-sm font-extrabold text-[#121c2a]">
-                          {title}
-                        </p>
-                        <p className="mt-1 text-xs font-medium text-[#737686]">{label}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="relative mt-auto pt-4">
-                    <Link
-                      href={featuredEventBookingHref}
-                      className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-xl bg-[#004ac6] px-6 font-[family-name:var(--font-headline)] text-sm font-extrabold text-white shadow-[0_18px_34px_rgba(0,74,198,0.22)] transition hover:bg-[#003fa8] focus:ring-3 focus:ring-[#004ac6]/25 focus:outline-none active:translate-y-px"
-                    >
-                      Secure Spot
-                      <ArrowUpRight className="size-4" aria-hidden="true" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </section>
   )
 }

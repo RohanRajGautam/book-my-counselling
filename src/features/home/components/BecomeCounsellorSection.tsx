@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { AnimatedSection } from '@/components/common/AnimatedSection'
-import { SectionContainer } from '@/components/common/SectionContainer'
 
 export function BecomeCounsellorSection() {
   return (
-    <SectionContainer className="rounded-xl bg-[#004ac6] px-8 !py-10 my-10">
+    <section className="px-6 py-14 sm:px-8 sm:py-16">
       <AnimatedSection>
-        <div className="text-center">
-          <h2 className="mb-6 font-[family-name:var(--font-headline)] text-xl font-bold tracking-tight text-white md:text-3xl lg:text-4xl">
+        <div className="mx-auto max-w-7xl rounded-3xl bg-[#004ac6] px-6 py-12 text-center sm:px-10 sm:py-14">
+          <h2 className="mb-6 font-[family-name:var(--font-headline)] text-2xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
             Are you a professional or looking to share your expertise?
           </h2>
           <p className="mx-auto mb-8 max-w-4xl text-base text-white md:text-lg lg:text-xl">
@@ -18,13 +17,13 @@ export function BecomeCounsellorSection() {
           <Link href="/mentor">
             <Button
               size="lg"
-              className="rounded-lg bg-white px-8 py-6 text-base font-semibold text-black shadow-lg transition-all duration-150 hover:shadow-[#004ac6]/20 active:scale-95 md:text-lg"
+              className="rounded-full bg-white px-8 py-6 text-base font-semibold text-black shadow-lg transition-all duration-150 hover:shadow-[#004ac6]/20 active:scale-95 md:text-lg"
             >
               Apply to be a Counsellor
             </Button>
           </Link>
         </div>
       </AnimatedSection>
-    </SectionContainer>
+    </section>
   )
 }
