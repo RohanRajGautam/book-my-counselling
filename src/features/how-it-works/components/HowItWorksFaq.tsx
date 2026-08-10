@@ -48,7 +48,7 @@ export function HowItWorksFaq() {
     <section className="bg-[#eef4ff] px-6 py-20 sm:px-8 lg:py-28">
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
-          <h2 className="font-[family-name:var(--font-headline)] text-3xl font-extrabold tracking-tight text-[#121c2a] sm:text-4xl">
+          <h2 className="font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-[var(--foreground)] sm:text-4xl lg:text-5xl">
             Frequently Asked Questions
           </h2>
           <p className="mt-4 text-base leading-7 text-[#434655]">
@@ -63,7 +63,7 @@ export function HowItWorksFaq() {
             return (
               <div
                 key={item.id}
-                className="overflow-hidden rounded-[24px] bg-white shadow-[0_16px_38px_rgba(18,28,42,0.04)]"
+                className="overflow-hidden rounded-3xl bg-white shadow-[0_16px_38px_rgba(18,28,42,0.04)]"
               >
                 <button
                   onClick={() => toggle(item.id)}
