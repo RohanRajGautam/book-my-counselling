@@ -20,7 +20,18 @@ export interface MentorBooking {
   current_school: string | null
   preparation_notes: string | null
   mentee_timezone: string | null
+  /** Net price the mentee paid to Fonepay (post-discount). */
   agreed_price: string
+  /** Gross price before any promo discount. */
+  original_price: string
+  /** Promo discount applied. `0` when no code was used. */
+  discount_amount: string
+  /** Mentor's cut, snapshotted at booking time. Computed off `original_price`. */
+  mentor_earning: string
+  /** Platform's cut; can be `0` or negative when a discount exceeds the platform share. */
+  platform_earning: string
+  /** Promo code applied, or `null` when none. */
+  promo_code: string | null
   session_start: string
   session_end: string
   cancellation_reason: string | null
