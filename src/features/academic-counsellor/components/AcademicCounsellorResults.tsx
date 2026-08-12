@@ -132,15 +132,15 @@ export function AcademicCounsellorResults() {
       </div>
 
       {totalPages > 1 && (
-        <div className="my-12 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-12 mb-16 flex flex-wrap items-center justify-center gap-1.5">
           <button
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1 || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] focus-visible:ring-3 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:hover:text-slate-300"
             aria-label="Previous page"
           >
-            <ChevronLeft className="size-5" />
+            <ChevronLeft className="size-4" strokeWidth={2} />
           </button>
 
           {getPageNumbers().map((page, index) => (
@@ -149,11 +149,11 @@ export function AcademicCounsellorResults() {
               type="button"
               onClick={() => typeof page === 'number' && handlePageChange(page)}
               disabled={page === '...' || isFetching}
-              className={`flex size-11 items-center justify-center rounded-full text-sm font-extrabold transition ${
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold transition focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-default disabled:opacity-60 ${
                 page === currentPage
-                  ? 'bg-[var(--brand-blue)] text-white shadow-[0_10px_22px_rgba(0,83,219,0.22)]'
-                  : 'bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)]'
-              } focus-visible:ring-3 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-default disabled:opacity-60`}
+                  ? 'bg-[var(--brand-blue)] text-white'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+              }`}
             >
               {page}
             </button>
@@ -163,10 +163,10 @@ export function AcademicCounsellorResults() {
             type="button"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || isFetching}
-            className="flex size-11 items-center justify-center rounded-full bg-white text-[var(--color-on-surface-variant)] shadow-[0_10px_24px_rgba(18,28,42,0.05)] transition hover:bg-[var(--brand-blue-surface)] hover:text-[var(--brand-blue)] focus-visible:ring-3 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-[var(--color-on-surface-variant)]"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:hover:text-slate-300"
             aria-label="Next page"
           >
-            <ChevronRight className="size-5" />
+            <ChevronRight className="size-4" strokeWidth={2} />
           </button>
         </div>
       )}

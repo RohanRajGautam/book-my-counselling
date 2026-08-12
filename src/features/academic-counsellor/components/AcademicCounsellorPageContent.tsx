@@ -32,16 +32,16 @@ export function AcademicCounsellorPageContent({
     <AcademicFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
       <div
         id="mentor-discovery"
-        className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[280px_minmax(0,1fr)]"
+        className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#eff4ff] lg:grid-cols-[280px_minmax(0,1fr)]"
       >
         <div className="hidden lg:block">
           <AcademicCounsellorFiltersSidebar />
         </div>
 
-        <div>
+        <div className="min-h-screen bg-[#f8f9ff]">
           <AcademicCounsellorListingHeader />
 
-          <section id="mentor-results" className="px-6 sm:px-8">
+          <section id="mentor-results" className="bg-[#f8f9ff] px-6 sm:px-8">
             {showCffBanner && crossLink && (
               <div className="pt-4 pb-1 sm:pt-0">
                 <SearchCrossLinkBanner

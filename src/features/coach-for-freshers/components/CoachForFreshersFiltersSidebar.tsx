@@ -10,7 +10,7 @@ export function CoachForFreshersFiltersSidebar() {
   const { filters, updateFilters } = useCoachForFreshersFilters()
 
   return (
-    <aside className="h-full border-r border-gray-200 px-4 py-8 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
+    <aside className="bg-[#eff4ff] px-4 py-8 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
       <section className="overflow-hidden rounded-lg bg-white shadow">
         <div className="border-b border-[var(--color-surface-container-high)] px-5 py-4">
           <div className="flex min-w-0 items-center gap-2">
