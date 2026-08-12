@@ -3,14 +3,13 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ArrowRight, BookText, ChevronDown, GraduationCap, Menu, X } from 'lucide-react'
+import { ArrowRight, ChevronDown, Compass, GraduationCap, Info, Menu, X } from 'lucide-react'
 import {
   getStoredCoachForFreshersSearchParams,
   subscribeToStoredCoachForFreshersParams,
 } from '@/features/coach-for-freshers/lib/filter-storage'
 
 import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
-// import { ArrowRight, BookOpen, Compass, Globe2, Menu, Rocket, X } from 'lucide-react'
 
 const navItems = [
   {
@@ -18,20 +17,16 @@ const navItems = [
     label: 'Academic Counsellor',
     icon: GraduationCap,
   },
-  // {
-  //   href: '/blog',
-  //   label: 'Blog',
-  //   icon: BookText,
-  // },
-  // {
-  //   href: '/professional-counsellor',
-  //   label: 'Professional Coach',
-  //   icon: BriefcaseBusiness,
-  // },
-  // { href: '/study-abroad', label: 'Study Abroad', icon: Globe2 },
-  // { href: '/how-it-works', label: 'How it Works', icon: Compass },
-  // { href: '/events', label: '"३० मा ३०"', icon: BookOpen },
-  // { href: '/about', label: 'About Us' },
+  {
+    href: '/how-it-works',
+    label: 'How it Works',
+    icon: Compass,
+  },
+  {
+    href: '/about',
+    label: 'About Us',
+    icon: Info,
+  },
 ]
 
 const coachNavItems = [
