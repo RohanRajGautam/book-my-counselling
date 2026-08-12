@@ -51,7 +51,10 @@ export function MentorSearchBar({
       return
     }
 
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
       setDisplayState({
         index: 0,
         text: ROTATING_PLACEHOLDERS[0] ?? '',
@@ -137,7 +140,7 @@ export function MentorSearchBar({
             >
               <span className="flex w-full items-center font-[family-name:var(--font-body)] text-[#c3c6d7]">
                 <span className="flex-1 truncate text-left">{displayState.text}</span>
-                <span className="ml-0.5 inline-block h-[0.9em] w-[1.5px] shrink-0 animate-cursor-blink bg-current" />
+                <span className="animate-cursor-blink ml-0.5 inline-block h-[0.9em] w-[1.5px] shrink-0 bg-current" />
               </span>
             </div>
           )}
