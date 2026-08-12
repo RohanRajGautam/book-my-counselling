@@ -107,9 +107,11 @@ export function DashboardStats() {
             {averageRating > 0 ? averageRating.toFixed(1) : '—'}
           </p>
         )}
-        <p className="relative mt-4 text-sm font-semibold text-slate-500">
-          {totalReviews > 0 ? `From ${totalReviews} student review${totalReviews !== 1 ? 's' : ''}` : 'No reviews yet'}
-        </p>
+        {totalReviews > 0 && (
+          <p className="relative mt-4 text-sm font-semibold text-slate-500">
+            From {totalReviews} student review{totalReviews !== 1 ? 's' : ''}
+          </p>
+        )}
       </article>
     </section>
   )
