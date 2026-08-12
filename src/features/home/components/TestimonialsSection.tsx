@@ -1,247 +1,191 @@
 'use client'
 
-import type { TransitionEvent } from 'react'
-import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { HOME_TESTIMONIALS } from '../lib/home.constants'
 
-function CarouselDot({
-  isActive,
-  isAnimating,
-  onSelect,
-  name,
-}: {
-  isActive: boolean
-  isAnimating: boolean
-  onSelect: () => void
-  name: string
-}) {
+const AUTO_SCROLL_PX_PER_SEC = 28
+const CARD_GAP_PX = 24
+
+function TagPill({ tag }: { tag: string }) {
   return (
-    <button
-      type="button"
-      aria-label={`Show testimonial from ${name}`}
-      aria-current={isActive}
-      disabled={isAnimating}
-      onClick={onSelect}
-      className="h-2.5 w-2.5 rounded-full bg-[#b4c5ff] transition-all focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-8 aria-current:bg-[#004ac6]"
-    />
+    <span className="inline-flex items-center rounded-full bg-[#6cf8bb]/35 px-2.5 py-1 text-[11px] font-extrabold tracking-[0.04em] text-[#003ea8] uppercase">
+      {tag}
+    </span>
   )
 }
 
-function CarouselArrow({
-  direction,
-  onClick,
-  isAnimating,
-  size,
-  className,
+function TestimonialCard({
+  testimonial,
 }: {
-  direction: 'prev' | 'next'
-  onClick: () => void
-  isAnimating: boolean
-  size: 11 | 12
-  className?: string
+  testimonial: (typeof HOME_TESTIMONIALS)[number]
 }) {
-  const isLarge = size === 12
-  const Icon = direction === 'prev' ? ChevronLeft : ChevronRight
-  const hoverTranslate = isLarge
-    ? direction === 'prev'
-      ? 'hover:-translate-x-0.5'
-      : 'hover:translate-x-0.5'
-    : ''
-
   return (
-    <button
-      type="button"
-      aria-label={direction === 'prev' ? 'Show previous testimonial' : 'Show next testimonial'}
-      disabled={isAnimating}
-      onClick={onClick}
-      className={`flex ${
-        isLarge ? 'size-12 backdrop-blur' : 'size-11'
-      } items-center justify-center rounded-full border border-[#d9e3f6] bg-white text-[#434655] shadow-[0_10px_24px_rgba(18,28,42,0.09)] transition ${hoverTranslate} hover:text-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${className ?? ''}`}
+    <article
+      data-card
+      className="flex w-[88%] shrink-0 flex-col rounded-3xl border border-slate-100 bg-white p-8 transition-all duration-300 hover:border-slate-200 hover:shadow-[0_24px_60px_-18px_rgba(15,23,42,0.18)] sm:w-[460px] sm:p-10"
     >
-      <Icon className={isLarge ? 'size-6' : 'size-5'} />
-    </button>
+      <blockquote className="font-[family-name:var(--font-body)] text-lg leading-[1.65] font-medium text-slate-800">
+        &ldquo;{testimonial.quote}&rdquo;
+      </blockquote>
+
+      <div className="mt-auto flex items-center gap-4 pt-10">
+        <div className="size-12 shrink-0 overflow-hidden rounded-full shadow-[0_8px_18px_rgba(15,23,42,0.14)] ring-1 ring-slate-100">
+          <Image
+            src={testimonial.image}
+            alt={testimonial.name}
+            width={96}
+            height={96}
+            className="size-full object-cover"
+          />
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-[family-name:var(--font-headline)] text-base font-extrabold text-slate-950">
+              {testimonial.name}
+            </p>
+            <TagPill tag={testimonial.tag} />
+          </div>
+          <p className="mt-1 truncate text-sm text-slate-500">{testimonial.role}</p>
+        </div>
+      </div>
+    </article>
   )
 }
 
 export function TestimonialsSection() {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const offsetRef = useRef(0)
+  const pausedRef = useRef(false)
+  const animFrameRef = useRef<number | null>(null)
+  const reducedMotionRef = useRef(false)
+
+  const [cardWidth, setCardWidth] = useState(0)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [slideIndex, setSlideIndex] = useState(1)
-  const [isTransitioning, setIsTransitioning] = useState(true)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const activeTestimonial = HOME_TESTIMONIALS[activeIndex]
+
   const testimonialCount = HOME_TESTIMONIALS.length
-  const firstTestimonial = HOME_TESTIMONIALS[0]
-  const lastTestimonial = HOME_TESTIMONIALS[testimonialCount - 1]
-  const carouselTestimonials =
-    firstTestimonial && lastTestimonial
-      ? [lastTestimonial, ...HOME_TESTIMONIALS, firstTestimonial]
-      : HOME_TESTIMONIALS
-
-  const showPrevious = useCallback(() => {
-    if (isAnimating) {
-      return
-    }
-
-    setIsAnimating(true)
-    setIsTransitioning(true)
-    setSlideIndex((currentIndex) => currentIndex - 1)
-    setActiveIndex((currentIndex) =>
-      currentIndex === 0 ? HOME_TESTIMONIALS.length - 1 : currentIndex - 1
-    )
-  }, [isAnimating])
-
-  const showNext = useCallback(() => {
-    if (isAnimating) {
-      return
-    }
-
-    setIsAnimating(true)
-    setIsTransitioning(true)
-    setSlideIndex((currentIndex) => currentIndex + 1)
-    setActiveIndex((currentIndex) =>
-      currentIndex === HOME_TESTIMONIALS.length - 1 ? 0 : currentIndex + 1
-    )
-  }, [isAnimating])
 
   useEffect(() => {
-    const intervalId = window.setInterval(showNext, 5500)
+    reducedMotionRef.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    return () => window.clearInterval(intervalId)
-  }, [showNext])
+    const measure = () => {
+      const track = trackRef.current
+      if (!track) return
+      const card = track.querySelector<HTMLElement>('[data-card]')
+      if (card) setCardWidth(card.offsetWidth + CARD_GAP_PX)
+    }
+
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
 
   useEffect(() => {
-    if (!isTransitioning) {
-      const animationFrameId = window.requestAnimationFrame(() => setIsTransitioning(true))
+    if (reducedMotionRef.current) return
+    if (cardWidth === 0) return
 
-      return () => window.cancelAnimationFrame(animationFrameId)
+    let lastTime = performance.now()
+    const setWidth = cardWidth * testimonialCount
+
+    const tick = (now: number) => {
+      const dt = (now - lastTime) / 1000
+      lastTime = now
+
+      if (!pausedRef.current) {
+        offsetRef.current += AUTO_SCROLL_PX_PER_SEC * dt
+
+        if (offsetRef.current >= setWidth) {
+          offsetRef.current -= setWidth
+        }
+
+        const track = trackRef.current
+        if (track) {
+          track.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+        }
+
+        const idx = Math.floor(offsetRef.current / cardWidth) % testimonialCount
+        if (idx !== activeIndex) setActiveIndex(idx)
+      }
+
+      animFrameRef.current = requestAnimationFrame(tick)
     }
 
-    return undefined
-  }, [isTransitioning])
-
-  if (!activeTestimonial) {
-    return null
-  }
-
-  const showTestimonial = (index: number) => {
-    if (isAnimating || index === activeIndex) {
-      return
+    animFrameRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current)
     }
+  }, [cardWidth, testimonialCount, activeIndex])
 
-    setIsAnimating(true)
-    setIsTransitioning(true)
+  const handleDotClick = (index: number) => {
+    if (cardWidth === 0) return
+    offsetRef.current = index * cardWidth
+    const track = trackRef.current
+    if (track) {
+      track.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+    }
     setActiveIndex(index)
-    setSlideIndex(index + 1)
   }
 
-  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget || event.propertyName !== 'transform') {
-      return
-    }
-
-    setIsAnimating(false)
-
-    if (slideIndex === 0) {
-      setIsTransitioning(false)
-      setSlideIndex(testimonialCount)
-      return
-    }
-
-    if (slideIndex === testimonialCount + 1) {
-      setIsTransitioning(false)
-      setSlideIndex(1)
-    }
+  const handleMouseEnter = () => {
+    pausedRef.current = true
+  }
+  const handleMouseLeave = () => {
+    pausedRef.current = false
   }
 
   return (
-    <section className="relative isolate overflow-hidden px-6 py-14 sm:px-8 sm:py-20 lg:py-24">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.92),transparent_34%),linear-gradient(180deg,#eef4ff_0%,#f8f9ff_100%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]" />
+    <section className="relative isolate bg-[#f8fafc] px-6 py-20 sm:px-8 sm:py-24 lg:py-28">
+      <div className="mx-auto max-w-7xl">
+        <div className="max-w-2xl">
+          <p className="text-xs font-extrabold tracking-[0.18em] text-[#004ac6] uppercase">
+            In their words
+          </p>
+          <h2 className="mt-4 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            Stories from the people we mentor.
+          </h2>
+        </div>
 
-      <div className="mx-auto max-w-6xl">
-        <div className="relative rounded-3xl px-5 py-8 sm:px-8 sm:py-10 lg:px-16 lg:py-14">
-          <div className="pointer-events-none absolute top-6 right-6 hidden size-16 items-center justify-center text-[#d9e3f6] sm:flex">
-            <Quote className="size-16 fill-current stroke-0" aria-hidden="true" />
-          </div>
-
-          <div className="overflow-hidden">
-            <div
-              className={
-                isTransitioning
-                  ? 'flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]'
-                  : 'flex'
-              }
-              style={{ transform: `translateX(-${slideIndex * 100}%)` }}
-              onTransitionEnd={handleTransitionEnd}
-            >
-              {carouselTestimonials.map((testimonial, index) => (
-                <article
-                  key={`${testimonial.name}-${index}`}
-                  className="w-full shrink-0 px-1 text-center"
-                  aria-hidden={testimonial.name !== activeTestimonial.name}
-                >
-                  <div className="mx-auto flex max-w-3xl flex-col items-center">
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      width={160}
-                      height={160}
-                      sizes="(min-width: 640px) 128px, 104px"
-                      className="size-26 rounded-full border-4 border-white object-cover shadow-[0_18px_38px_rgba(18,28,42,0.18)] ring-1 ring-[#d9e3f6] sm:size-32"
-                    />
-                    <p className="mt-5 font-[family-name:var(--font-headline)] text-2xl font-extrabold text-[#121c2a] sm:text-3xl">
-                      {testimonial.name}
-                    </p>
-                    <p className="mt-2 max-w-sm text-sm leading-6 font-semibold text-[#434655] sm:text-base">
-                      {testimonial.role}
-                    </p>
-                  </div>
-
-                  <blockquote className="mx-auto mt-8 max-w-4xl font-[family-name:var(--font-headline)] text-[1.65rem] leading-[1.18] font-semibold text-[#19222e] sm:mt-10 sm:text-4xl">
-                    &quot;{testimonial.quote}&quot;
-                  </blockquote>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div
-            className="mt-8 flex items-center justify-center gap-3"
-            aria-label="Choose testimonial"
-          >
-            {HOME_TESTIMONIALS.map((testimonial, index) => (
-              <CarouselDot
-                key={testimonial.name}
-                name={testimonial.name}
-                isActive={activeIndex === index}
-                isAnimating={isAnimating}
-                onSelect={() => showTestimonial(index)}
-              />
+        <div
+          className="relative mt-12 overflow-hidden"
+          style={{
+            maskImage:
+              'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
+            WebkitMaskImage:
+              'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div ref={trackRef} className="flex w-max items-stretch gap-6">
+            {[0, 1].map((groupIndex) => (
+              <div
+                key={groupIndex}
+                aria-hidden={groupIndex === 1}
+                className="flex shrink-0 items-stretch gap-6 pr-6"
+              >
+                {HOME_TESTIMONIALS.map((testimonial) => (
+                  <TestimonialCard
+                    key={`${testimonial.name}-${groupIndex}`}
+                    testimonial={testimonial}
+                  />
+                ))}
+              </div>
             ))}
-          </div>
-
-          <div className="mt-8 flex justify-center gap-3 lg:hidden">
-            <CarouselArrow direction="prev" onClick={showPrevious} isAnimating={isAnimating} size={11} />
-            <CarouselArrow direction="next" onClick={showNext} isAnimating={isAnimating} size={11} />
           </div>
         </div>
 
-        <CarouselArrow
-          direction="prev"
-          onClick={showPrevious}
-          isAnimating={isAnimating}
-          size={12}
-          className="absolute top-1/2 left-6 hidden -translate-y-1/2 lg:flex"
-        />
-        <CarouselArrow
-          direction="next"
-          onClick={showNext}
-          isAnimating={isAnimating}
-          size={12}
-          className="absolute top-1/2 right-6 hidden -translate-y-1/2 lg:flex"
-        />
+        <div className="mt-10 flex items-center justify-center gap-2.5" aria-label="Choose testimonial">
+          {HOME_TESTIMONIALS.map((testimonial, index) => (
+            <button
+              key={testimonial.name}
+              type="button"
+              aria-label={`Show testimonial from ${testimonial.name}`}
+              aria-current={activeIndex === index}
+              onClick={() => handleDotClick(index)}
+              className="h-2 rounded-full transition-all aria-current:w-8 aria-current:bg-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-[current=false]:w-2 aria-[current=false]:bg-slate-300"
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

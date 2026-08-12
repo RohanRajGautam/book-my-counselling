@@ -6,6 +6,7 @@ import { TestimonialsSection } from '@/features/home/components/TestimonialsSect
 import { ExclusiveEventsSection } from '@/features/home/components/ExclusiveEventsSection'
 import { HowItWorksFaq } from '@/features/how-it-works/components/HowItWorksFaq'
 import { MentorCompaniesMarquee } from '@/features/home/components/MentorCompaniesMarquee'
+import { ThreePillarsSection } from '@/features/home/components/ThreePillarsSection'
 
 export default function Home() {
   return (
@@ -13,8 +14,9 @@ export default function Home() {
       <FilterProvider>
         <HeroSection />
         <MentorCompaniesMarquee />
-        <ExclusiveEventsSection />
+        <ThreePillarsSection />
         <Statistics />
+        <ExclusiveEventsSection />
         <TestimonialsSection />
         <BecomeCounsellorSection />
         <HowItWorksFaq />
