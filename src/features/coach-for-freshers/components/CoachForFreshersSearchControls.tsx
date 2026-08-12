@@ -49,7 +49,7 @@ export function CoachForFreshersSearchControls({
 
   return (
     <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
-      <div className="flex h-12 min-w-0 flex-1 items-center rounded-2xl border border-[var(--color-surface-container-high)] bg-white px-4 ring-1 ring-[var(--brand-blue-surface)] ring-inset transition focus-within:ring-[var(--brand-blue)]/40 xl:h-16">
+      <div className="flex h-12 min-w-0 flex-1 items-center rounded-2xl border border-[var(--color-surface-container-high)] bg-white pl-4 pr-2 ring-1 ring-[var(--brand-blue-surface)] ring-inset transition focus-within:ring-[var(--brand-blue)]/40 xl:h-16">
         <Search className="mr-3 size-6 shrink-0 text-[var(--brand-blue)]" />
         <input
           type="search"
