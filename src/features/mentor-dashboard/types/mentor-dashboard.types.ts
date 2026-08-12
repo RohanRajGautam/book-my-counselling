@@ -50,6 +50,59 @@ export interface MentorBooking {
  * Money fields are pre-formatted strings (e.g. "10.00") — render verbatim,
  * do not parseFloat and re-round.
  */
+// ── Mentor earnings history ───────────────────────────────────────────────
+
+/**
+ * One row in the per-booking ledger returned by `GET /mentors/me/earnings`.
+ *
+ * Every money field is a pre-formatted, server-quantized string. Render
+ * verbatim — do not `parseFloat` and re-round. The split is computed off
+ * `original_price`, so a promo discount never reduces `mentor_earning`.
+ */
+export type MentorPaymentStatus = 'unpaid' | 'paid' | 'refunded' | 'failed'
+
+export interface MentorEarningRow {
+  booking_id: string
+  session_start: string
+  session_end: string
+  status: BookingStatus
+  payment_status: MentorPaymentStatus
+  mentee: MenteePublic
+  package: { id: string; title: string } | null
+  topic: string | null
+
+  /** Gross price before any promo discount. */
+  original_price: string
+  /** Promo discount applied. `0` when no code was used. */
+  discount_amount: string
+  /** What the mentee actually paid Fonepay (original − discount). */
+  agreed_price: string
+  /** This mentor's cut, snapshotted at booking time. */
+  mentor_earning: string
+  /** BYC's cut. Can be 0 or negative when a promo exceeds the platform share. */
+  platform_earning: string
+  /** Promo code applied, or `null` when none. */
+  promo_code: string | null
+  /** Derived per row: (mentor_earning / original_price) × 100, quantized to 2dp. */
+  mentor_share_pct: string
+
+  created_at: string
+  confirmed_at: string | null
+  completed_at: string | null
+  cancelled_at: string | null
+}
+
+/** Filters accepted by `GET /mentors/me/earnings`. The default view is paid + non-cancelled. */
+export interface EarningsFilters {
+  page?: number
+  page_size?: number
+  status?: BookingStatus
+  date_from?: string
+  date_to?: string
+  include_unpaid?: boolean
+  include_cancelled?: boolean
+}
+
 export interface MentorStatsResponse {
   /** SUM(mentor_earning) for paid, non-cancelled bookings. */
   total_earnings: string
