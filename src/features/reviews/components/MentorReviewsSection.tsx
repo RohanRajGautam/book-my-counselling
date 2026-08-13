@@ -59,11 +59,7 @@ export function MentorReviewsSection({ mentorId }: MentorReviewsSectionProps) {
   }
 
   if (totalReviews === 0) {
-    return (
-      <div className="rounded-[24px] bg-white p-8 text-center shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
-        <p className="text-sm font-medium text-[#737686]">No reviews yet.</p>
-      </div>
-    )
+    return null
   }
 
   return (

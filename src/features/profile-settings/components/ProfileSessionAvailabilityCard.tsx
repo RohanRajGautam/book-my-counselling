@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { CalendarDays, Check, Loader2, Plus, Trash2 } from 'lucide-react'
+import { CalendarDays, Check, ChevronRight, Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -432,14 +432,15 @@ export function ProfileSessionAvailabilityCard() {
               ))}
             </div>
           ) : sortedDateKeys.length === 0 ? (
-            <div className="rounded-2xl bg-[#f8f9ff] p-6 text-center">
-              <CalendarDays className="mx-auto mb-2 size-6 text-slate-400" />
-              <p className="text-sm font-medium text-slate-700">
-                No availability yet.
-              </p>
-              <p className="mt-1 text-xs font-medium text-slate-500">
-                Use the form to add your first time window.
-              </p>
+            <div className="mt-2 flex items-center gap-4 rounded-md bg-[#004ac6] p-6 text-white">
+              <CalendarDays className="size-6 shrink-0" aria-hidden="true" />
+              <div className="flex-1">
+                <p className="text-sm font-extrabold">No availability yet</p>
+                <p className="mt-1 text-xs font-medium text-white/80">
+                  Use the form to add your first time window.
+                </p>
+              </div>
+              <ChevronRight className="size-5 shrink-0" aria-hidden="true" />
             </div>
           ) : (
             <div className="max-h-[560px] space-y-4 overflow-y-auto pr-1">

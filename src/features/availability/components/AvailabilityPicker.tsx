@@ -1,16 +1,16 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { CalendarOff, Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarOff, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { AvailabilitySlotResponse } from '../types/availability.types'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface DayOption {
-  dateKey: string   // "YYYY-MM-DD" local
-  label: string     // "Mon\n19"
-  dayName: string   // "Mon"
-  dayNum: string    // "19"
+  dateKey: string // "YYYY-MM-DD" local
+  dayName: string // "Sat"
+  dayNum: string // "15"
+  monthShort: string // "Jan"
   slots: SlicedSlot[]
 }
 
@@ -50,12 +50,12 @@ function formatTime(iso: string): string {
 
 function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number): SlicedSlot[] {
   if (!durationMinutes) {
-    return slots.map(s => ({
+    return slots.map((s) => ({
       id: s.id,
       parentSlotId: s.id,
       start_time: s.start_time,
       end_time: s.end_time,
-      is_booked: s.is_booked || (s.booked_intervals?.length ?? 0) > 0
+      is_booked: s.is_booked || (s.booked_intervals?.length ?? 0) > 0,
     }))
   }
 
@@ -63,34 +63,39 @@ function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number)
   for (const slot of slots) {
     const start = new Date(slot.start_time)
     const end = new Date(slot.end_time)
-    
-    // If the slot is exactly the same or smaller than duration, keep it
-    if (end.getTime() - start.getTime() <= durationMinutes * 60000) {
-       const isBooked = slot.is_booked || (slot.booked_intervals?.some(b => {
-         const bStart = new Date(b.start).getTime()
-         const bEnd = new Date(b.end).getTime()
-         return bStart < end.getTime() && bEnd > start.getTime()
-       }) ?? false)
 
-       sliced.push({
-         id: slot.id,
-         parentSlotId: slot.id,
-         start_time: slot.start_time,
-         end_time: slot.end_time,
-         is_booked: isBooked
-       })
-       continue
+    if (end.getTime() - start.getTime() <= durationMinutes * 60000) {
+      const isBooked =
+        slot.is_booked ||
+        (slot.booked_intervals?.some((b) => {
+          const bStart = new Date(b.start).getTime()
+          const bEnd = new Date(b.end).getTime()
+          return bStart < end.getTime() && bEnd > start.getTime()
+        }) ??
+          false)
+
+      sliced.push({
+        id: slot.id,
+        parentSlotId: slot.id,
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+        is_booked: isBooked,
+      })
+      continue
     }
 
     let currentStart = start
     while (currentStart.getTime() + durationMinutes * 60000 <= end.getTime()) {
       const currentEnd = new Date(currentStart.getTime() + durationMinutes * 60000)
-      
-      const isBooked = slot.is_booked || (slot.booked_intervals?.some(b => {
-         const bStart = new Date(b.start).getTime()
-         const bEnd = new Date(b.end).getTime()
-         return bStart < currentEnd.getTime() && bEnd > currentStart.getTime()
-       }) ?? false)
+
+      const isBooked =
+        slot.is_booked ||
+        (slot.booked_intervals?.some((b) => {
+          const bStart = new Date(b.start).getTime()
+          const bEnd = new Date(b.end).getTime()
+          return bStart < currentEnd.getTime() && bEnd > currentStart.getTime()
+        }) ??
+          false)
 
       sliced.push({
         id: `${slot.id}_${currentStart.toISOString()}`,
@@ -107,7 +112,7 @@ function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number)
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-const DAYS_VISIBLE = 5   // how many day pills to show at once
+const DAYS_VISIBLE = 5
 
 export function AvailabilityPicker({
   slots,
@@ -124,7 +129,6 @@ export function AvailabilityPicker({
     [slots, packageDurationMinutes]
   )
 
-  // Group by local date key, sorted ascending
   const days: DayOption[] = useMemo(() => {
     const map = new Map<string, SlicedSlot[]>()
     for (const slot of effectiveSlots) {
@@ -138,11 +142,11 @@ export function AvailabilityPicker({
         const d = new Date(`${dateKey}T12:00:00`)
         return {
           dateKey,
-          label: d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }),
           dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
           dayNum: String(d.getDate()),
+          monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
           slots: daySlots.sort(
-            (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
+            (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
           ),
         }
       })
@@ -152,24 +156,11 @@ export function AvailabilityPicker({
   const canPrev = dayOffset > 0
   const canNext = dayOffset + DAYS_VISIBLE < days.length
 
-  // Visitor picks a day explicitly — no day is selected on mount, even if
-  // the mentor has slots. This forces the visitor to actively choose instead
-  // of silently booking the first day.
   const activeDateKey = selectedDateKey
   const activeDay = days.find((d) => d.dateKey === activeDateKey) ?? null
 
   if (days.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-2 rounded-[16px] bg-[#f8f9ff] p-8 text-center">
-        <CalendarOff className="size-7 text-[#737686]" />
-        <p className="text-sm font-extrabold text-[#121c2a]">
-          No availability published yet
-        </p>
-        <p className="max-w-xs text-xs font-medium text-[#737686]">
-          This mentor hasn&apos;t set their available times. Please check back soon.
-        </p>
-      </div>
-    )
+    return <NoSlotsBanner />
   }
 
   return (
@@ -181,7 +172,7 @@ export function AvailabilityPicker({
           onClick={() => setDayOffset((o) => Math.max(0, o - DAYS_VISIBLE))}
           disabled={disabled || !canPrev}
           aria-label="Previous days"
-          className={`flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:cursor-not-allowed ${
+          className={`flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:cursor-not-allowed ${
             !canPrev && !disabled ? 'disabled:opacity-30' : ''
           }`}
         >
@@ -198,30 +189,42 @@ export function AvailabilityPicker({
                 disabled={disabled}
                 onClick={() => {
                   setSelectedDateKey(day.dateKey)
-                  // Deselect time if switching day
                   if (selectedSlotId) {
                     const slotDay = toLocalDateKey(
-                      effectiveSlots.find((s) => s.id === selectedSlotId)?.start_time ?? '',
+                      effectiveSlots.find((s) => s.id === selectedSlotId)?.start_time ?? ''
                     )
                     if (slotDay !== day.dateKey) {
-                       const found = effectiveSlots.find((s) => s.id === selectedSlotId)
-                       if (found) onSelect(selectedSlotId, found.parentSlotId, found.start_time, found.end_time) // toggle off
+                      const found = effectiveSlots.find((s) => s.id === selectedSlotId)
+                      if (found)
+                        onSelect(
+                          selectedSlotId,
+                          found.parentSlotId,
+                          found.start_time,
+                          found.end_time
+                        )
                     }
                   }
                 }}
-                className={`flex flex-1 flex-col items-center rounded-2xl py-3 transition disabled:cursor-not-allowed ${
+                className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-3 transition disabled:cursor-not-allowed ${
                   isActive
                     ? 'bg-[#004ac6] text-white'
                     : 'bg-[#f8f9ff] text-[#434655] hover:bg-[#eff4ff]'
                 }`}
               >
-                <span className={`text-[11px] font-extrabold ${isActive ? 'text-white/80' : 'text-[#737686]'}`}>
+                <span
+                  className={`text-xs font-medium tracking-wide uppercase ${
+                    isActive ? 'text-white/80' : 'text-[#737686]'
+                  }`}
+                >
                   {day.dayName}
                 </span>
-                <span className={`mt-0.5 text-lg font-extrabold leading-none ${isActive ? 'text-white' : 'text-[#121c2a]'}`}>
-                  {day.dayNum}
+                <span
+                  className={`text-base leading-none font-bold ${
+                    isActive ? 'text-white' : 'text-[#121c2a]'
+                  }`}
+                >
+                  {day.dayNum} {day.monthShort}
                 </span>
-                <span className={`mt-1.5 size-1.5 rounded-full ${isActive ? 'bg-white/60' : 'bg-[#004ac6]/40'}`} />
               </button>
             )
           })}
@@ -232,7 +235,7 @@ export function AvailabilityPicker({
           onClick={() => setDayOffset((o) => o + DAYS_VISIBLE)}
           disabled={disabled || !canNext}
           aria-label="Next days"
-          className={`flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:cursor-not-allowed ${
+          className={`flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f8f9ff] text-[#737686] transition hover:bg-[#eff4ff] disabled:cursor-not-allowed ${
             !canNext && !disabled ? 'disabled:opacity-30' : ''
           }`}
         >
@@ -242,43 +245,56 @@ export function AvailabilityPicker({
 
       {/* ── Time slots for selected day ────────────────────────────────────── */}
       {activeDay ? (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {activeDay.slots.map((slot) => {
-            const isSelected = selectedSlotId === slot.id
-            const startTime = formatTime(slot.start_time)
-            const endTime = formatTime(slot.end_time)
+        activeDay.slots.length === 0 ? (
+          <NoSlotsBanner />
+        ) : (
+          <div className="grid grid-cols-2 gap-3 px-[44px] sm:grid-cols-3 xl:grid-cols-4">
+            {activeDay.slots.map((slot) => {
+              const isSelected = selectedSlotId === slot.id
+              const label = `${formatTime(slot.start_time)} - ${formatTime(slot.end_time)}`
 
-            return (
-              <button
-                key={slot.id}
-                type="button"
-                disabled={disabled || slot.is_booked}
-                onClick={() => onSelect(slot.id, slot.parentSlotId, slot.start_time, slot.end_time)}
-                className={`flex items-center justify-between rounded-[14px] px-3 py-3 text-left ring-1 transition ring-inset disabled:cursor-not-allowed ${
-                  slot.is_booked
-                    ? 'bg-slate-100 ring-slate-200 opacity-60 cursor-not-allowed'
-                    : isSelected
-                    ? 'bg-[#004ac6] ring-[#004ac6]'
-                    : 'bg-[#f8f9ff] ring-[#eff4ff] hover:bg-[#eff4ff]'
-                }`}
-              >
-                <div>
-                  <p className={`text-sm font-extrabold ${isSelected ? 'text-white' : 'text-[#121c2a]'}`}>
-                    {startTime}
-                  </p>
-                  <p className={`text-xs font-medium ${isSelected ? 'text-white/70' : 'text-[#737686]'}`}>
-                    – {endTime}
-                  </p>
-                </div>
-                {isSelected && <Check className="size-4 shrink-0 text-white" />}
-                {slot.is_booked && <span className="text-[10px] font-extrabold text-slate-500 uppercase">Booked</span>}
-              </button>
-            )
-          })}
-        </div>
+              return (
+                <button
+                  key={slot.id}
+                  type="button"
+                  disabled={disabled || slot.is_booked}
+                  onClick={() =>
+                    onSelect(slot.id, slot.parentSlotId, slot.start_time, slot.end_time)
+                  }
+                  className={`flex items-center justify-center rounded-lg border px-3 py-4 text-sm font-medium transition disabled:cursor-not-allowed ${
+                    slot.is_booked
+                      ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-60'
+                      : isSelected
+                        ? 'border-[#004ac6] bg-[#004ac6] text-white'
+                        : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        )
       ) : (
         <p className="text-sm text-[#737686]">Select a day above to see available times.</p>
       )}
+    </div>
+  )
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function NoSlotsBanner() {
+  return (
+    <div className="mt-6 flex items-center gap-4 rounded-md bg-[#004ac6] p-6 text-white">
+      <CalendarOff className="size-6 shrink-0" aria-hidden="true" />
+      <div className="flex-1">
+        <p className="text-sm font-extrabold">No availability published yet</p>
+        <p className="mt-1 text-xs font-medium text-white/80">
+          This mentor hasn&apos;t set their available times. Please check back soon.
+        </p>
+      </div>
+      <ChevronRight className="size-5 shrink-0" aria-hidden="true" />
     </div>
   )
 }

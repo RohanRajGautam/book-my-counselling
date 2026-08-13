@@ -27,9 +27,7 @@ function ProfileRouteModal({ mentorSlugOrId }: { mentorSlugOrId: string }) {
     router.push(queryString ? `/coach-for-freshers?${queryString}` : '/coach-for-freshers')
   }
 
-  return (
-    <CoachForFreshersProfileModal mentorId={mentorSlugOrId} onClose={handleClose} />
-  )
+  return <CoachForFreshersProfileModal mentorId={mentorSlugOrId} onClose={handleClose} />
 }
 
 export function CoachForFreshersProfile({
