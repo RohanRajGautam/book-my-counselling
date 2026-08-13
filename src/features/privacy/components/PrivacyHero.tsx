@@ -18,7 +18,7 @@ export function PrivacyHero() {
           </p>
           <p className="mt-8 flex items-center gap-3 text-sm font-medium text-[#434655]">
             <RotateCcw className="h-4 w-4 text-[#1155d9]" />
-            Last Updated: June 15, 2024
+            Last Updated: July 15, 2026
           </p>
         </div>
         <ShieldCheck className="absolute right-8 bottom-8 h-32 w-32 text-[#121c2a]/10 sm:right-12" />
