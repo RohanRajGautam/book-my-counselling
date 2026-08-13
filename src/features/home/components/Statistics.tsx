@@ -10,7 +10,7 @@ function StatCard({
   detail: string
 }) {
   return (
-    <div className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white p-8 shadow-[0_24px_60px_-20px_rgba(2,18,52,0.55)] ring-1 ring-black/[0.04] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_32px_70px_-18px_rgba(2,18,52,0.65)] sm:p-10">
+    <div className="group flex h-full flex-col items-center rounded-2xl border border-white/10 bg-white p-8 text-center shadow-[0_24px_60px_-20px_rgba(2,18,52,0.55)] ring-1 ring-black/[0.04] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_32px_70px_-18px_rgba(2,18,52,0.65)] sm:p-10">
       <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 uppercase">
         {label}
       </p>
