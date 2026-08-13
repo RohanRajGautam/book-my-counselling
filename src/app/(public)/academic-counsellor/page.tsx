@@ -16,7 +16,7 @@ export default async function AcademicCounsellorPage({
   const crossLink = parseCrossLink(await searchParams)
 
   return (
-    <main className="min-h-screen bg-[#eff4ff] pt-15">
+    <main className="min-h-screen bg-[linear-gradient(to_right,#eff4ff_0%,#eff4ff_50%,#f8f9ff_50%,#f8f9ff_100%)] pt-15">
       <AcademicCounsellorPageContent
         initialFilters={filters}
         initialPage={page}
