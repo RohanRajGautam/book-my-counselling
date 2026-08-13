@@ -136,9 +136,7 @@ function CategoryRow({ categoryId, categoryName, isExpanded, onToggleExpanded }:
         >
           <span
             className={`flex size-5 shrink-0 items-center justify-center rounded-md text-white ring-1 transition-all ring-inset ${
-              isSelected
-                ? 'scale-110 bg-[#0053db] ring-[#0053db]'
-                : 'bg-white ring-[#cfd9ea]'
+              isSelected ? 'scale-110 bg-[#0053db] ring-[#0053db]' : 'bg-white ring-[#cfd9ea]'
             }`}
           >
             {isSelected && <Check className="size-3.5" strokeWidth={3.5} />}
@@ -235,8 +233,8 @@ export function AcademicCounsellorFiltersSidebar() {
     setExpandedCategoryIds((current) => toggleId(current, categoryId))
 
   return (
-    <aside className="bg-[#eff4ff] px-4 py-8 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
-      <section className="overflow-hidden rounded-lg bg-white shadow">
+    <aside className="px-4 py-10 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
+      <section className="overflow-hidden rounded-lg bg-white">
         <div className="border-b border-[var(--color-surface-container-high)] px-5 py-4">
           <div className="flex items-center gap-2">
             <Image
@@ -282,12 +280,12 @@ export function AcademicCounsellorFiltersSidebar() {
         <h3 className="my-4 font-[family-name:var(--font-headline)] text-[11px] font-extrabold tracking-wider text-[var(--color-on-surface-variant)] uppercase">
           Availability
         </h3>
-        <label className="flex cursor-pointer items-center gap-3 rounded-[18px] bg-white p-4 text-sm font-semibold text-[var(--color-on-surface-variant)] shadow-sm ring-1 ring-[var(--color-surface-container-high)] ring-inset transition-colors hover:text-[var(--foreground)]">
+        <label className="flex cursor-pointer items-center gap-3 rounded-[18px] bg-white p-4 text-sm font-semibold text-[var(--color-on-surface-variant)] shadow-sm ring-1 ring-[var(--color-surface-container-high)] transition-colors ring-inset hover:text-[var(--foreground)]">
           <input
             type="checkbox"
             checked={Boolean(filters.availableThisWeek)}
             onChange={(event) => updateFilters({ availableThisWeek: event.target.checked })}
-            className="size-4 rounded-[4px] border-0 bg-white text-[#0053db] shadow-sm ring-1 ring-[var(--color-surface-container-high)] ring-inset transition-colors focus:ring-2 focus:ring-[var(--brand-blue)]/30"
+            className="size-4 rounded-[4px] border-0 bg-white text-[#0053db] shadow-sm ring-1 ring-[var(--color-surface-container-high)] transition-colors ring-inset focus:ring-2 focus:ring-[var(--brand-blue)]/30"
           />
           <span>This Week</span>
         </label>

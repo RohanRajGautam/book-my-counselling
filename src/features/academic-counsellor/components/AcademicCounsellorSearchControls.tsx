@@ -49,7 +49,7 @@ export function AcademicCounsellorSearchControls({
 
   return (
     <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center">
-      <div className="flex h-14 min-w-0 flex-1 items-center rounded-xl border border-[var(--color-surface-container-high)] bg-white pl-5 pr-2 transition focus-within:border-[var(--brand-blue)]/40 xl:h-16">
+      <div className="flex h-14 min-w-0 flex-1 items-center rounded-xl border border-[var(--color-surface-container-high)] bg-white pl-5 transition focus-within:border-[var(--brand-blue)]/40 xl:h-16">
         <Search className="mr-3 size-5 shrink-0 text-[var(--brand-blue)]" />
         <input
           type="search"
@@ -57,7 +57,7 @@ export function AcademicCounsellorSearchControls({
           onChange={(event) => handleSearchChange(event.target.value)}
           placeholder="Search by name, role, or company..."
           aria-label="Search mentors by name, role, or company"
-          className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--color-outline)] placeholder:font-medium"
+          className="h-full min-w-0 flex-1 bg-transparent text-base font-semibold text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--color-outline)]"
         />
         <button
           type="button"
@@ -74,8 +74,10 @@ export function AcademicCounsellorSearchControls({
       </div>
 
       <div className="flex items-center gap-3">
-        <label className="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--color-surface-container-high)] bg-white px-3 ring-1 ring-[var(--brand-blue-surface)] ring-inset transition focus-within:ring-[var(--brand-blue)]/40 xl:h-14 xl:flex-none">
-          <span className="text-sm font-extrabold text-[var(--color-on-surface-variant)]">Sort</span>
+        <label className="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--color-surface-container-high)] bg-white px-3 ring-1 ring-[var(--brand-blue-surface)] transition ring-inset focus-within:ring-[var(--brand-blue)]/40 xl:h-14 xl:flex-none">
+          <span className="text-sm font-extrabold text-[var(--color-on-surface-variant)]">
+            Sort
+          </span>
           <span className="relative min-w-0 flex-1 xl:flex-none">
             <select
               value={filters.sortBy}
@@ -98,7 +100,7 @@ export function AcademicCounsellorSearchControls({
           <button
             type="button"
             onClick={onOpenMobileFilters}
-            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-extrabold text-[var(--brand-blue)] shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[var(--brand-blue-surface)] ring-inset transition hover:bg-[var(--brand-blue-surface)] lg:hidden"
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-extrabold text-[var(--brand-blue)] shadow-[0_12px_30px_rgba(18,28,42,0.04)] ring-1 ring-[var(--brand-blue-surface)] transition ring-inset hover:bg-[var(--brand-blue-surface)] lg:hidden"
           >
             <SlidersHorizontal className="size-4" />
             Filters

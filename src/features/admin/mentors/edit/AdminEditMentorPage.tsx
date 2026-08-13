@@ -38,6 +38,7 @@ import {
 } from '../create/components/AdminCreateMentorCounsellingCard'
 import { AdminCreateMentorPhotoCard } from '../create/components/AdminCreateMentorPhotoCard'
 import { AdminCreateMentorLogoCard } from '../create/components/AdminCreateMentorLogoCard'
+import { AdminEditMentorFeaturedCard } from './components/AdminEditMentorFeaturedCard'
 import {
   AdminCreateMentorBioCard,
   type AdminCreateMentorBioForm,
@@ -456,6 +457,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                 onUpload={handleMentorLogoUpload}
                 companyName={general.company}
               />
+              <AdminEditMentorFeaturedCard mentor={cachedMentor} />
             </aside>
           </div>
         )}

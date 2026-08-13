@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ArrowRight, ChevronDown, Compass, GraduationCap, Info, Menu, X } from 'lucide-react'
+import { ArrowRight, ChevronDown, GraduationCap, Info, Menu, X } from 'lucide-react'
 import {
   getStoredCoachForFreshersSearchParams,
   subscribeToStoredCoachForFreshersParams,
@@ -13,19 +13,14 @@ import { COACH_FOR_FRESHERS_VARIETIES } from '@/features/coach-for-freshers/type
 
 const navItems = [
   {
-    href: '/academic-counsellor',
-    label: 'Academic Counsellor',
-    icon: GraduationCap,
-  },
-  {
-    href: '/how-it-works',
-    label: 'How it Works',
-    icon: Compass,
-  },
-  {
     href: '/about',
     label: 'About Us',
     icon: Info,
+  },
+  {
+    href: '/academic-counsellor',
+    label: 'Academic Counsellor',
+    icon: GraduationCap,
   },
 ]
 
@@ -164,17 +159,11 @@ export function Navbar() {
               href="/"
               className="flex items-center font-[family-name:var(--font-headline)] text-xl font-bold tracking-tight text-blue-700 sm:text-2xl dark:text-blue-300"
             >
-              {/* <Image
-              src={'/home/byc-logo.svg'}
-              alt="Book Your Counselling Logo"
-              width={32}
-              height={32}
-            /> */}
               Book Your Counselling
             </Link>
           </div>
 
-          <div className="hidden gap-8 sm:flex">
+          <div className="hidden gap-8 md:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}

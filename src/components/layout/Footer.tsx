@@ -6,12 +6,11 @@ import { Globe, MessageCircle, Mail, ArrowUpRight } from 'lucide-react'
 
 const PLATFORM_LINKS = [
   { href: '/privacy', label: 'Privacy Policy' },
-  { href: '/how-it-works', label: 'How It Works' },
   { href: '/mentor', label: 'Mentor Sign In' },
 ]
 
 const SUPPORT_LINKS = [
-  { href: '/#about', label: 'About us' },
+  { href: '/about', label: 'About us' },
   { href: '/#faq', label: 'Mentorship FAQ' },
 ]
 

@@ -173,7 +173,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
       onClick={onClose}
     >
       <div
-        className="relative grid max-h-[calc(100dvh-1.5rem)] w-full max-w-7xl grid-cols-1 gap-4 overflow-y-auto overscroll-contain rounded-3xl bg-[#f8f9ff] p-4 sm:max-h-[calc(100dvh-2rem)] sm:gap-5 sm:rounded-3xl sm:p-6 lg:grid-cols-12 lg:gap-6 lg:p-8"
+        className="relative grid max-h-[calc(100dvh-1.5rem)] w-full max-w-7xl grid-cols-1 gap-3 overflow-y-auto overscroll-contain rounded-3xl bg-[#f8f9ff] p-4 sm:max-h-[calc(100dvh-2rem)] sm:gap-4 sm:rounded-3xl sm:p-6 lg:grid-cols-12 lg:gap-6 lg:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -188,7 +188,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
         <div className="flex flex-col gap-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:gap-5 sm:pb-[calc(6rem+env(safe-area-inset-bottom))] lg:col-span-4 lg:pb-[7rem]">
           <div className="relative overflow-hidden rounded-3xl bg-white">
             {/* Cover — blue gradient banner behind the profile image */}
-            <div className="h-32 bg-[linear-gradient(180deg,#00084f_0%,#001e78_25%,#0034a6_50%,#0049d8_75%,#005eff_100%)] sm:h-36" />
+            <div className="h-32 bg-[linear-gradient(180deg,#002875_0%,#004ac6_55%,#2563eb_100%)] sm:h-36" />
             <div className="px-5 pb-5 text-center sm:px-6 sm:pb-6 lg:px-7 lg:pb-7">
               <div className="relative mx-auto -mt-14 mb-5 h-28 w-28 rounded-full ring-4 ring-white ring-offset-4 ring-offset-[#0053db]/10 sm:-mt-16">
                 <div className="h-full w-full overflow-hidden rounded-full">
@@ -262,28 +262,30 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             {hasCompany ? (
               <>
                 <div className="my-6 border-t border-slate-100" />
-                <div className="flex items-center gap-4" data-testid="mentor-company-block">
-                  <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-[#0053db]/15 bg-[#f8f9ff]">
-                    {companyLogoUrl ? (
-                      <Image
-                        src={companyLogoUrl}
-                        alt={companyName ? `${companyName} logo` : 'Company logo'}
-                        width={64}
-                        height={64}
-                        className="size-full object-contain"
-                        unoptimized
-                      />
-                    ) : (
-                      <Building2 className="size-7 text-[#737686]" aria-hidden />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold tracking-[0.14em] text-[#737686] uppercase">
-                      Company
-                    </p>
-                    <p className="mt-1 truncate font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
-                      {companyName || '—'}
-                    </p>
+                <div className="px-5 sm:px-6 lg:px-7">
+                  <div className="flex items-center gap-4" data-testid="mentor-company-block">
+                    <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-[#0053db]/15 bg-[#f8f9ff]">
+                      {companyLogoUrl ? (
+                        <Image
+                          src={companyLogoUrl}
+                          alt={companyName ? `${companyName} logo` : 'Company logo'}
+                          width={64}
+                          height={64}
+                          className="size-full object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <Building2 className="size-7 text-[#737686]" aria-hidden />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold tracking-[0.14em] text-[#737686] uppercase">
+                        Company
+                      </p>
+                      <p className="mt-1 truncate font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
+                        {companyName || '—'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </>
@@ -291,33 +293,35 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
 
             {/* Services — no card wrapper, sits inside unified surface */}
             <div className={hasCompany ? 'mt-6' : 'mt-6 border-t border-slate-100 pt-6'}>
-              <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
-                <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
-                  Services offered
-                </h3>
-                <span className="text-xs font-bold text-[#737686]">{services.length} total</span>
-              </div>
-              <div className="flex flex-wrap gap-2 sm:gap-3">
-                {services.length > 0 ? (
-                  services.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="rounded-full bg-[#e6eeff] px-4 py-2 text-[12px] font-extrabold text-[#004ac6]"
-                    >
-                      {displayTagName(tag.name)}
+              <div className="px-5 sm:px-6 lg:px-7">
+                <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+                  <h3 className="font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a] sm:text-lg">
+                    Services offered
+                  </h3>
+                  <span className="text-xs font-bold text-[#737686]">{services.length} total</span>
+                </div>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  {services.length > 0 ? (
+                    services.map((tag) => (
+                      <span
+                        key={tag.id}
+                        className="rounded-full bg-[#e6eeff] px-4 py-2 text-[12px] font-extrabold text-[#004ac6]"
+                      >
+                        {displayTagName(tag.name)}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="rounded-full bg-[#e6eeff] px-4 py-2 text-sm font-extrabold text-[#004ac6]">
+                      Mentorship
                     </span>
-                  ))
-                ) : (
-                  <span className="rounded-full bg-[#e6eeff] px-4 py-2 text-sm font-extrabold text-[#004ac6]">
-                    Mentorship
-                  </span>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           {hasAvailability ? (
-            <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-[8px] sm:inset-x-4 sm:rounded-b-[32px] lg:inset-x-auto lg:bottom-5 lg:left-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:w-[calc((min(100vw,80rem)-4rem-1.5rem)*4/12)] lg:z-30 lg:max-w-none lg:bg-[#f8f9ff]/90 lg:p-3 lg:pt-3 lg:rounded-3xl lg:backdrop-blur-md">
+            <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-[8px] sm:inset-x-4 sm:rounded-b-[32px] lg:inset-x-auto lg:bottom-5 lg:left-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:z-30 lg:w-[calc((min(100vw,80rem)-4rem-1.5rem)*4/12)] lg:max-w-none lg:rounded-3xl lg:bg-[#f8f9ff]/90 lg:p-3 lg:pt-3 lg:backdrop-blur-md">
               <button
                 type="button"
                 disabled={!canBook}
@@ -333,7 +337,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     )
                   }
                 }}
-                className="block w-full rounded-full bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
+                className="block w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
               >
                 {ctaLabel}
               </button>
@@ -450,7 +454,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     Times are shown in your local timezone.
                   </p>
                 </div>
-                <span className="shrink-0 rounded-full bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
+                <span className="shrink-0 rounded-xl bg-[#e6eeff] px-3 py-1.5 text-xs font-extrabold text-[#004ac6]">
                   {!hasAvailability
                     ? 'Unavailable'
                     : selectedPackageId

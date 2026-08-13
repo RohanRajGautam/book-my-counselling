@@ -7,11 +7,11 @@ export function ThreePillarsSection() {
   return (
     <section className="px-6 py-14 sm:px-8 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)]">
+        <div className="max-w-3xl">
+          {/* <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)]">
             <span aria-hidden="true">🎯</span>
             Tailored Advisory
-          </div>
+          </div> */}
           <h2 className="mt-6 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-[#121c2a] sm:text-4xl lg:text-5xl">
             The Right Guidance, At The Right Time.
           </h2>
@@ -30,9 +30,9 @@ export function ThreePillarsSection() {
                 {pillar.headline}
               </h3>
               <p className="mt-4 text-[15px] leading-7 text-[#434655]">{pillar.body}</p>
-              <div className="mt-6 rounded-2xl bg-[#eff4ff] px-5 py-4 text-sm leading-6 font-semibold text-[#003ea8]">
+              {/* <div className="mt-8 rounded-xl bg-[#eff4ff] px-5 py-4 text-sm leading-6 font-semibold text-[#003ea8]">
                 {pillar.stat}
-              </div>
+              </div> */}
               <Link
                 href={pillar.href}
                 className="mt-auto inline-flex items-center gap-1.5 pt-7 text-sm font-extrabold tracking-[0.04em] text-[#004ac6] uppercase transition hover:gap-2.5 hover:text-[#003fa8]"

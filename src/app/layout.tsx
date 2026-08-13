@@ -1,22 +1,22 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Manrope } from 'next/font/google'
+import { Bricolage_Grotesque, Manrope } from 'next/font/google'
 import { Toaster } from 'sonner'
 
 import './globals.css'
 import { Providers } from './providers'
 import Script from 'next/script'
 
-const headline = Plus_Jakarta_Sans({
+const headline = Bricolage_Grotesque({
   subsets: ['latin'],
   variable: '--font-headline',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: 'variable',
   display: 'swap',
 })
 
 const body = Manrope({
   subsets: ['latin'],
   variable: '--font-body',
-  weight: ['400', '500', '600', '700'],
+  weight: 'variable',
   display: 'swap',
 })
 
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: '%s | Book Your Counselling',
   },
   description:
-    'Connect with world-class mentors from industry giants and top universities to navigate your professional growth with precision.',
+    'Find the right career path with Nepal’s premier mentorship platform. Book 1-on-1 sessions with vetted educators, executives, and medical professionals to accelerate your future.',
   keywords: [
     'career mentorship',
     'professional mentors',

@@ -45,34 +45,34 @@ export function HowItWorksFaq() {
   }
 
   return (
-    <section className="bg-[#eef4ff] px-6 py-20 sm:px-8 lg:py-28">
-      <div className="mx-auto max-w-4xl">
+    <section className="bg-slate-50 px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-3xl">
         <div className="text-center">
-          <h2 className="font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-[var(--foreground)] sm:text-4xl lg:text-5xl">
+          <h2 className="font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-[#121c2a] sm:text-4xl lg:text-5xl">
             Frequently Asked Questions
           </h2>
-          <p className="mt-4 text-base leading-7 text-[#434655]">
+          <p className="mt-4 text-base leading-7 font-medium text-slate-500 sm:text-lg">
             Everything you need to know about starting your journey with Book Your Counselling.
           </p>
         </div>
 
-        <div className="mt-16 space-y-4">
+        <div className="mt-6 border-slate-200 sm:mt-8">
           {faqItems.map((item) => {
             const isOpen = openId === item.id
 
             return (
-              <div
-                key={item.id}
-                className="overflow-hidden rounded-3xl bg-white shadow-[0_16px_38px_rgba(18,28,42,0.04)]"
-              >
+              <div key={item.id} className="border-slate-200">
                 <button
+                  type="button"
                   onClick={() => toggle(item.id)}
-                  className="flex w-full items-center justify-between gap-6 px-8 py-7 text-left font-[family-name:var(--font-headline)] text-base font-bold text-[#121c2a]"
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-6 py-6 text-left font-[family-name:var(--font-headline)] text-lg leading-snug font-semibold tracking-tight text-[#121c2a] transition-colors hover:text-[#004ac6] sm:text-xl"
                 >
                   <span>{item.question}</span>
                   <ChevronDown
+                    strokeWidth={2.6}
                     className={cn(
-                      'h-5 w-5 text-[#434655] transition-transform duration-200',
+                      'size-6 shrink-0 text-[#004ac6] transition-transform duration-200',
                       isOpen && 'rotate-180'
                     )}
                   />
@@ -85,7 +85,7 @@ export function HowItWorksFaq() {
                   )}
                 >
                   <div className="overflow-hidden">
-                    <p className="max-w-3xl px-8 pb-8 text-sm leading-6 text-[#434655]">
+                    <p className="max-w-2xl pb-6 text-base leading-7 font-normal text-slate-600">
                       {item.answer}
                     </p>
                   </div>
