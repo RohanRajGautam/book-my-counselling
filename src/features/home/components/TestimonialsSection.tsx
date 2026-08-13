@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { HOME_TESTIMONIALS } from '../lib/home.constants'
 
 const AUTO_SCROLL_PX_PER_SEC = 28
-const CARD_GAP_PX = 24
+const CARD_GAP_PX = 16
 
 function TagPill({ tag }: { tag: string }) {
   return (
@@ -15,11 +15,7 @@ function TagPill({ tag }: { tag: string }) {
   )
 }
 
-function TestimonialCard({
-  testimonial,
-}: {
-  testimonial: (typeof HOME_TESTIMONIALS)[number]
-}) {
+function TestimonialCard({ testimonial }: { testimonial: (typeof HOME_TESTIMONIALS)[number] }) {
   return (
     <article
       data-card
@@ -134,12 +130,12 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="relative isolate bg-[#f8fafc] px-6 py-20 sm:px-8 sm:py-24 lg:py-28">
+    <section className="relative isolate bg-[#f8fafc] px-6 pt-0 pb-4 sm:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <p className="text-xs font-extrabold tracking-[0.18em] text-[#004ac6] uppercase">
+          {/* <p className="text-xs font-extrabold tracking-[0.18em] text-[#004ac6] uppercase">
             In their words
-          </p>
+          </p> */}
           <h2 className="mt-4 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
             Stories from the people we mentor.
           </h2>
@@ -148,20 +144,19 @@ export function TestimonialsSection() {
         <div
           className="relative mt-12 overflow-hidden"
           style={{
-            maskImage:
-              'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
+            maskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
             WebkitMaskImage:
               'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
           }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div ref={trackRef} className="flex w-max items-stretch gap-6">
+          <div ref={trackRef} className="flex w-max items-stretch gap-4">
             {[0, 1].map((groupIndex) => (
               <div
                 key={groupIndex}
                 aria-hidden={groupIndex === 1}
-                className="flex shrink-0 items-stretch gap-6 pr-6"
+                className="flex shrink-0 items-stretch gap-4"
               >
                 {HOME_TESTIMONIALS.map((testimonial) => (
                   <TestimonialCard
@@ -174,7 +169,10 @@ export function TestimonialsSection() {
           </div>
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-2.5" aria-label="Choose testimonial">
+        <div
+          className="mt-10 flex items-center justify-center gap-2.5"
+          aria-label="Choose testimonial"
+        >
           {HOME_TESTIMONIALS.map((testimonial, index) => (
             <button
               key={testimonial.name}
@@ -182,7 +180,7 @@ export function TestimonialsSection() {
               aria-label={`Show testimonial from ${testimonial.name}`}
               aria-current={activeIndex === index}
               onClick={() => handleDotClick(index)}
-              className="h-2 rounded-full transition-all aria-current:w-8 aria-current:bg-[#004ac6] focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-[current=false]:w-2 aria-[current=false]:bg-slate-300"
+              className="h-2 rounded-full transition-all focus-visible:ring-3 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-8 aria-current:bg-[#004ac6] aria-[current=false]:w-2 aria-[current=false]:bg-slate-300"
             />
           ))}
         </div>

@@ -1,44 +1,44 @@
+import { Sparkles } from 'lucide-react'
 import Image from 'next/image'
 
 export function AboutHero() {
   return (
-    <section className="relative overflow-hidden bg-[#f7f8ff]">
-      <div className="mx-auto grid min-h-[720px] max-w-7xl items-center gap-14 px-6 py-16 sm:px-8 lg:grid-cols-[0.92fr_1fr] lg:gap-20 lg:py-20">
-        <div className="max-w-2xl">
-          <p className="mb-4 inline-flex rounded-full bg-[#62f2ad] px-4 py-2 font-[family-name:var(--font-headline)] text-[11px] font-bold tracking-[0.16em] text-[#0b5b4c] uppercase">
+    <section className="relative isolate mt-[-25px] overflow-hidden bg-white px-6 pt-16 pb-20 sm:px-8 sm:pt-20 sm:pb-24 lg:pt-28 lg:pb-32">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#ffffff_0%,#f8f9ff_48%,#eef4ff_100%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-[linear-gradient(90deg,transparent,#b4c5ff,transparent)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 [background-image:linear-gradient(#d9e3f6_1px,transparent_1px),linear-gradient(90deg,#d9e3f6_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_72%)] [background-size:72px_72px] opacity-30"
+      />
+      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white/74 px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)] backdrop-blur">
+            <Sparkles className="size-4" aria-hidden="true" />
             Our Philosophy
-          </p>
-          <h1 className="font-[family-name:var(--font-headline)] text-[clamp(3rem,8vw,4.7rem)] leading-[1.07] font-extrabold tracking-tight text-[#121c2a]">
-            Redefining the <span className="block text-[#1155d9]">Mentorship</span>
-            Landscape.
+          </div>
+          <h1 className="mt-5 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-balance text-slate-950 sm:text-4xl lg:text-6xl">
+            Redefining the <span className="text-[var(--brand-blue)]">Mentorship</span> Landscape.
           </h1>
-          <p className="mt-8 max-w-xl text-lg leading-8 text-[#434655]">
+          <p className="mt-5 text-base leading-7 font-medium text-slate-500 sm:text-lg">
             At Book Your Counselling, we believe that the distance between academic potential and
             career excellence should not be determined by geography or network, but by ambition.
           </p>
         </div>
-
-        <div className="relative mx-auto w-full max-w-[610px] pb-10 lg:pb-0">
-          <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-[24px] bg-[#8ed1da] shadow-[0_30px_70px_rgba(18,28,42,0.16)] sm:translate-x-5 sm:translate-y-5" />
-          <div className="relative rounded-[20px] bg-[#bcecef]/65 p-5 shadow-[inset_0_0_35px_rgba(255,255,255,0.54)] sm:p-8">
-            <Image
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1080&q=85"
-              alt="Mentor guiding students during a laptop discussion"
-              width={1080}
-              height={760}
-              priority
-              className="h-[300px] w-full rounded-[12px] object-cover shadow-[0_22px_45px_rgba(18,28,42,0.22)] sm:h-[380px]"
-            />
-          </div>
-
-          <div className="relative -mt-16 ml-4 max-w-[305px] rounded-lg bg-white px-8 py-7 shadow-[0_22px_42px_rgba(18,28,42,0.14)] sm:ml-[-32px]">
-            <p className="font-[family-name:var(--font-headline)] text-3xl font-extrabold tracking-tight text-[#1155d9]">
-              500+
-            </p>
-            <p className="mt-2 text-sm leading-5 text-[#434655]">
-              Curated mentors from Ivy League and Fortune 500 institutions.
-            </p>
-          </div>
+        <div className="relative">
+          <Image
+            src="/about/about-hero.png"
+            alt="Book Your Counselling team"
+            width={1080}
+            height={760}
+            priority
+            className="h-[280px] w-full rounded-lg object-cover shadow-[0_22px_45px_rgba(18,28,42,0.12)] sm:h-[380px] lg:h-[460px]"
+          />
         </div>
       </div>
     </section>

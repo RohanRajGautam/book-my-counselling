@@ -1,11 +1,15 @@
 const MENTOR_COMPANIES = [
   'Leapfrog',
   'Snappet',
+  'Summit Air',
   'Webpoint',
-  'Legal Access Nepal',
-  'Manab Dental Home',
-  'Madhyapur Hospital',
-  'Aspire Academy',
+  'Yeti Brewery',
+  'Genese Solution',
+  'Upaya City',
+  'Fonepay',
+  'Ncell',
+  'Uptech',
+  'Syara Global',
 ]
 
 export function MentorCompaniesMarquee() {

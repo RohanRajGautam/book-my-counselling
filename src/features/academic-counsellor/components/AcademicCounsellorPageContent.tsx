@@ -32,7 +32,7 @@ export function AcademicCounsellorPageContent({
     <AcademicFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
       <div
         id="mentor-discovery"
-        className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#eff4ff] lg:grid-cols-[280px_minmax(0,1fr)]"
+        className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#eef2fb] lg:grid-cols-[280px_minmax(0,1fr)]"
       >
         <div className="hidden lg:block">
           <AcademicCounsellorFiltersSidebar />

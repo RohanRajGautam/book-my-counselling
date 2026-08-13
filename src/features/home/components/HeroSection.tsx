@@ -67,8 +67,8 @@ export function HeroSection() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-[#434655] sm:text-lg">
-          Connect with world-class mentors from industry giants and top universities to navigate
-          your professional growth with precision.
+          Nepal’s first mentorship platform to book a 1:1 session with educators, executives, and
+          professionals in various fields and accelerate your future.
         </p>
 
         <div className="mx-auto mt-10 max-w-2xl">

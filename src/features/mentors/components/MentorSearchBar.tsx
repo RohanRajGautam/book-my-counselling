@@ -140,7 +140,6 @@ export function MentorSearchBar({
             >
               <span className="flex w-full items-center font-[family-name:var(--font-body)] text-[#c3c6d7]">
                 <span className="flex-1 truncate text-left">{displayState.text}</span>
-                <span className="animate-cursor-blink ml-0.5 inline-block h-[0.9em] w-[1.5px] shrink-0 bg-current" />
               </span>
             </div>
           )}

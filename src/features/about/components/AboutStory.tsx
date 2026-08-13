@@ -1,16 +1,17 @@
 export function AboutStory() {
   return (
-    <section className="bg-[#eef4ff]">
-      <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 sm:px-8 md:py-24 lg:grid-cols-[0.82fr_1.18fr] lg:gap-20">
+    <section className="bg-[#f8f9ff] px-6 pt-16 pb-20 sm:px-8 lg:pt-24 lg:pb-28">
+      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1fr_1.6fr] md:gap-12 lg:grid-cols-[1fr_2fr] lg:gap-16">
         <div>
-          <h2 className="font-[family-name:var(--font-headline)] text-4xl font-extrabold tracking-tight text-[#121c2a]">
+          <h2 className="text-balance font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
             Our Story
           </h2>
-          <div className="mt-8 h-1.5 w-20 rounded-full bg-[#1155d9]" />
+          <p className="mt-4 text-base leading-7 font-medium text-slate-500 sm:text-lg">
+            How a gap in career guidance became a platform for accessible mentorship.
+          </p>
         </div>
-
-        <div className="max-w-3xl space-y-9 text-lg leading-8 text-[#434655]">
-          <p className="font-medium text-[#121c2a]">
+        <div className="space-y-6 text-base leading-7 text-[#434655] sm:text-lg sm:leading-8">
+          <p className="font-medium text-slate-950">
             Book Your Counselling was born from a simple observation: the transition from higher
             education to a high-impact career is often the most vulnerable period in a
             professional&apos;s life.

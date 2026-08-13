@@ -41,7 +41,7 @@ export const HOME_PILLARS = [
     body: 'Hit a ceiling at Year 5? Need to resolve an HR crisis, scale sales, or pivot industries? Book 1:1 time with senior industry leaders.',
     stat: 'Break the 5-year ceiling. (60% face mid-career stagnation).',
     cta: 'Consult Industry Leaders',
-    href: '/coach-for-freshers',
+    href: '/coach-for-freshers/career-clarity-roadmap',
   },
 ] as const
 
