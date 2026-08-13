@@ -3,7 +3,7 @@ import { BecomeCounsellorSection } from '@/features/home/components/BecomeCounse
 import { FilterProvider } from '@/features/filters/context/FilterContext'
 import { Statistics } from '@/features/home/components/Statistics'
 import { TestimonialsSection } from '@/features/home/components/TestimonialsSection'
-import { ExclusiveEventsSection } from '@/features/home/components/ExclusiveEventsSection'
+import { FeaturedMentorsSection } from '@/features/home/components/FeaturedMentorsSection'
 import { HowItWorksFaq } from '@/features/how-it-works/components/HowItWorksFaq'
 import { MentorCompaniesMarquee } from '@/features/home/components/MentorCompaniesMarquee'
 import { ThreePillarsSection } from '@/features/home/components/ThreePillarsSection'
@@ -16,7 +16,7 @@ export default function Home() {
         <MentorCompaniesMarquee />
         <ThreePillarsSection />
         <Statistics />
-        <ExclusiveEventsSection />
+        <FeaturedMentorsSection />
         <TestimonialsSection />
         <BecomeCounsellorSection />
         <HowItWorksFaq />
