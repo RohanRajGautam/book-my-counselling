@@ -35,16 +35,16 @@ export function CoachForFreshersPageContent({
     <CoachForFreshersFiltersProvider initialFilters={initialFilters} initialPage={initialPage}>
       <div
         id="coach-for-freshers"
-        className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#f8f9ff] lg:grid-cols-[280px_minmax(0,1fr)]"
+        className="mx-auto grid min-h-screen max-w-[1350px] grid-cols-1 bg-[#eff4ff] lg:grid-cols-[280px_minmax(0,1fr)]"
       >
         <div className="hidden lg:block">
           <CoachForFreshersFiltersSidebar />
         </div>
 
-        <div>
+        <div className="min-h-screen bg-[#f8f9ff]">
           <CoachForFreshersListingHeader variety={variety} />
 
-          <section id="coach-for-freshers-results" className="px-6 sm:px-8">
+          <section id="coach-for-freshers-results" className="bg-[#f8f9ff] px-6 sm:px-8">
             {showAcademicBanner && crossLink && (
               <div className="pt-4 pb-1 sm:pt-0">
                 <SearchCrossLinkBanner
@@ -55,7 +55,9 @@ export function CoachForFreshersPageContent({
               </div>
             )}
 
-            <CoachForFreshersSearchControls onOpenMobileFilters={() => setShowMobileFilters(true)} />
+            <CoachForFreshersSearchControls
+              onOpenMobileFilters={() => setShowMobileFilters(true)}
+            />
 
             <CoachForFreshersResults variety={variety} />
           </section>

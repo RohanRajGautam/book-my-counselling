@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { Inbox } from 'lucide-react'
 
-import { AdminPageHeader } from '@/features/admin/layout/AdminPageHeader'
 // Re-use the admin pagination block since it's generic list UI.
 // (We don't depend on the admin feature for routing — just the visual.)
 import { AdminMentorPagination } from '@/features/admin/mentors/components/AdminMentorPagination'
@@ -40,16 +39,23 @@ export function MentorAvailabilityRequestsPage() {
 
   return (
     <div className="min-h-svh overflow-x-hidden bg-[#f8f9ff] text-slate-950">
-      <div className="mx-auto w-full max-w-[1080px] space-y-6 px-3 py-5 sm:space-y-8 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <AdminPageHeader
-          title="Availability requests"
-          subtitle="Visitors who asked you to open a session at a specific time. Approve to open the slot, or decline with an optional note."
-          action={
+      <div className="mx-auto w-full max-w-[1180px] space-y-6 px-3 py-5 sm:space-y-8 sm:px-6 sm:py-6 lg:space-y-10 lg:px-8 lg:py-8">
+        <header className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-headline text-3xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+              Availability requests
+            </h1>
+            <p className="mt-2 text-sm leading-6 font-medium text-slate-500 sm:text-base sm:leading-7">
+              Visitors who asked you to open a session at a specific time. Approve to open the
+              slot, or decline with an optional note.
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
             <span className="hidden self-start rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700 sm:inline-flex">
               {data?.total ?? 0} total
             </span>
-          }
-        />
+          </div>
+        </header>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <AvailabilityRequestFiltersBar

@@ -1,17 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { CalendarCheck2, Clock, Timer, Wallet } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 import { useUpdateBookingStatus } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 import { MentorBooking } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import { BookingStatus } from '@/features/mentor-dashboard/types/booking-status'
-import { useMentorProfile } from '@/features/mentor-dashboard/hooks/useMentorProfile'
 
 const STATUS_TABS: { label: string; value: BookingStatus | undefined }[] = [
   { label: 'Upcoming', value: 'confirmed' },
-  { label: 'Pending', value: 'pending' },
+  // { label: 'Pending', value: 'pending' },
   { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' },
 ]
@@ -34,16 +34,23 @@ function formatSessionTime(sessionStart: string): string {
   const sessionDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
   const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-  if (sessionDay.getTime() === today.getTime()) return `Today, ${timeStr}`
-  if (sessionDay.getTime() === tomorrow.getTime()) return `Tomorrow, ${timeStr}`
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + `, ${timeStr}`
+  if (sessionDay.getTime() === today.getTime()) return `Today · ${timeStr}`
+  if (sessionDay.getTime() === tomorrow.getTime()) return `Tomorrow · ${timeStr}`
+  return (
+    date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ` · ${timeStr}`
+  )
 }
 
 function formatDuration(sessionStart: string, sessionEnd: string): string {
   const mins = Math.round(
     (new Date(sessionEnd).getTime() - new Date(sessionStart).getTime()) / 60000
   )
-  return `${mins} min session`
+  if (mins >= 60) {
+    const h = Math.floor(mins / 60)
+    const m = mins % 60
+    return m === 0 ? `${h}h` : `${h}h ${m}m`
+  }
+  return `${mins} min`
 }
 
 function isJoinable(sessionStart: string): boolean {
@@ -51,6 +58,134 @@ function isJoinable(sessionStart: string): boolean {
   const now = new Date()
   const diffMins = (start.getTime() - now.getTime()) / 60000
   return diffMins <= 15 && diffMins >= -60
+}
+
+type StatusVisuals = {
+  badge: string
+  badgeInk: string
+  badgeDot: string
+  label: string
+}
+
+function visualsFor(status: BookingStatus | undefined, joinable: boolean): StatusVisuals {
+  if (status === 'completed') {
+    return {
+      badge: 'bg-emerald-50',
+      badgeInk: 'text-emerald-700',
+      badgeDot: 'bg-emerald-500',
+      label: 'Completed',
+    }
+  }
+  if (status === 'cancelled') {
+    return {
+      badge: 'bg-rose-50',
+      badgeInk: 'text-rose-700',
+      badgeDot: 'bg-rose-500',
+      label: 'Cancelled',
+    }
+  }
+  if (status === 'confirmed') {
+    if (joinable) {
+      return {
+        badge: 'bg-blue-600',
+        badgeInk: 'text-white',
+        badgeDot: 'bg-white',
+        label: 'Live now',
+      }
+    }
+    return {
+      badge: 'bg-blue-50',
+      badgeInk: 'text-blue-700',
+      badgeDot: 'bg-blue-500',
+      label: 'Confirmed',
+    }
+  }
+  if (status === 'pending') {
+    return {
+      badge: 'bg-amber-50',
+      badgeInk: 'text-amber-700',
+      badgeDot: 'bg-amber-500',
+      label: 'Awaiting confirmation',
+    }
+  }
+  return {
+    badge: 'bg-slate-50',
+    badgeInk: 'text-slate-700',
+    badgeDot: 'bg-slate-400',
+    label: 'Scheduled',
+  }
+}
+
+function StatusPill({ visuals }: { visuals: StatusVisuals }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold tracking-[0.06em] uppercase ${visuals.badge} ${visuals.badgeInk}`}
+    >
+      <span className={`size-1.5 rounded-full ${visuals.badgeDot}`} />
+      {visuals.label}
+    </span>
+  )
+}
+
+function MetaStat({
+  icon: Icon,
+  label,
+  value,
+  strong,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string
+  strong?: boolean
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase">
+        <Icon className="size-3" />
+        {label}
+      </div>
+      <p
+        className={`mt-1.5 truncate font-headline text-sm font-extrabold ${
+          strong ? 'text-slate-950' : 'text-slate-700'
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  )
+}
+
+function SessionCardSkeleton() {
+  return (
+    <article className="flex animate-pulse flex-col gap-5 rounded-3xl bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] ring-1 ring-slate-100/80 sm:p-6 md:p-6">
+      <div className="flex items-center gap-3">
+        <div className="size-10 rounded-full bg-slate-100" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-40 rounded-md bg-slate-100" />
+          <div className="h-3 w-56 rounded-md bg-slate-100" />
+        </div>
+        <div className="h-6 w-24 rounded-full bg-slate-100" />
+      </div>
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 border-t border-slate-100 pt-4 sm:grid-cols-3">
+        <div className="space-y-2">
+          <div className="h-3 w-10 rounded bg-slate-100" />
+          <div className="h-4 w-24 rounded-md bg-slate-100" />
+        </div>
+        <div className="space-y-2">
+          <div className="h-3 w-12 rounded bg-slate-100" />
+          <div className="h-4 w-16 rounded-md bg-slate-100" />
+        </div>
+        <div className="space-y-2">
+          <div className="h-3 w-12 rounded bg-slate-100" />
+          <div className="h-4 w-20 rounded-md bg-slate-100" />
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <div className="h-9 w-24 rounded-full bg-slate-100" />
+        <div className="h-9 w-20 rounded-full bg-slate-100" />
+      </div>
+    </article>
+  )
 }
 
 function SessionCard({
@@ -63,92 +198,92 @@ function SessionCard({
   const { mutate: updateStatus, isPending } = useUpdateBookingStatus()
   const joinable = isJoinable(booking.session_start)
   const initials = getInitials(booking.mentee.full_name)
-  const subject = [booking.topic, booking.current_school].filter(Boolean).join(' • ')
+  const subject = [booking.topic, booking.current_school].filter(Boolean).join(' · ')
+  const visuals = visualsFor(activeStatus, joinable)
+  const isLive = activeStatus === 'confirmed' && joinable
 
   const handleConfirm = () => updateStatus({ bookingId: booking.id, status: 'confirmed' })
   const handleComplete = () => updateStatus({ bookingId: booking.id, status: 'completed' })
-  const handleCancel = () =>
-    updateStatus({ bookingId: booking.id, status: 'cancelled', cancellationReason: 'Cancelled by mentor' })
 
   return (
-    <article className="grid min-h-[132px] gap-5 rounded-[24px] bg-white px-4 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:px-7 sm:py-6 md:grid-cols-[minmax(0,1fr)_175px_auto] md:items-center">
-      <div className="flex min-w-0 items-center gap-4 sm:gap-5">
-        <Avatar className="size-12 shrink-0 sm:size-[54px]">
-          <AvatarFallback className="bg-blue-100 text-base font-extrabold text-blue-700">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0">
-          <h2 className="font-headline text-lg font-extrabold leading-tight text-slate-950 sm:text-xl">
-            {booking.mentee.full_name}
-          </h2>
-          <p className="mt-2 max-w-[250px] text-sm leading-5 text-slate-500 sm:text-base sm:leading-6">
-            {subject || 'Session'}
-          </p>
+    <article
+      className={`flex flex-col gap-5 rounded-3xl bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] ring-1 ring-slate-100/80 transition-all duration-200 sm:p-6 md:p-6 ${
+        isLive ? 'shadow-[0_24px_55px_rgba(0,74,198,0.16)] ring-blue-200/80' : ''
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar className="size-10 shrink-0">
+            <AvatarFallback className="bg-blue-100 text-sm font-bold text-blue-700">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <h2 className="truncate font-headline text-lg font-extrabold leading-tight text-slate-950 sm:text-xl">
+              {booking.mentee.full_name}
+            </h2>
+            <p className="truncate text-sm leading-5 text-slate-500">
+              {subject || 'Session'}
+            </p>
+          </div>
         </div>
+        <StatusPill visuals={visuals} />
       </div>
 
-      <div className="text-left md:text-center">
-        <p className="text-base font-extrabold text-slate-950">
-          {formatSessionTime(booking.session_start)}
-        </p>
-        <p className="mt-1 text-sm font-medium text-slate-500">
-          {formatDuration(booking.session_start, booking.session_end)}
-        </p>
-        <p className="mt-1 text-xs font-semibold text-slate-400">
-          NPR {booking.mentor_earning} • {booking.payment_status}
-        </p>
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 border-t border-slate-100 pt-4 sm:grid-cols-3">
+        <MetaStat
+          icon={CalendarCheck2}
+          label="Time"
+          value={formatSessionTime(booking.session_start)}
+          strong
+        />
+        <MetaStat
+          icon={Timer}
+          label="Duration"
+          value={formatDuration(booking.session_start, booking.session_end)}
+        />
+        <MetaStat icon={Wallet} label="Earning" value={`NPR ${booking.mentor_earning}`} />
       </div>
 
       <div className="flex flex-wrap gap-2 max-sm:[&>button]:flex-1">
         {activeStatus === 'pending' && (
           <Button
             size="sm"
-            className="rounded-2xl bg-blue-600 px-5 font-extrabold text-white hover:bg-blue-700"
+            className="h-9 rounded-full bg-blue-600 px-5 font-bold text-white hover:bg-blue-700"
             onClick={handleConfirm}
             disabled={isPending}
           >
             Confirm
           </Button>
         )}
-        {activeStatus === 'confirmed' && joinable && (
-          <Button
-            size="sm"
-            className="rounded-2xl bg-blue-100 px-5 font-extrabold text-blue-700 hover:bg-blue-200"
-          >
-            Join
-          </Button>
-        )}
         {activeStatus === 'confirmed' && (
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-2xl border-slate-100 bg-slate-50 px-5 font-extrabold text-blue-700 hover:bg-blue-50"
-            onClick={handleComplete}
-            disabled={isPending}
-          >
-            Complete
-          </Button>
-        )}
-        {(activeStatus === 'pending' || activeStatus === 'confirmed') && (
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-2xl border-red-100 bg-red-50 px-5 font-extrabold text-red-600 hover:bg-red-100"
-            onClick={handleCancel}
-            disabled={isPending}
-          >
-            Cancel
-          </Button>
+          <>
+            {joinable && (
+              <Button
+                size="sm"
+                className="h-9 rounded-full bg-blue-600 px-5 font-bold text-white shadow-sm shadow-blue-200 hover:bg-blue-700"
+              >
+                Join now
+              </Button>
+            )}
+            <Button
+              size="sm"
+              className="h-9 rounded-full bg-blue-600 px-5 font-bold text-white hover:bg-blue-700"
+              onClick={handleComplete}
+              disabled={isPending}
+            >
+              Mark complete
+            </Button>
+          </>
         )}
         {activeStatus === 'completed' && (
-          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-700">
-            Completed
+          <span className="inline-flex h-9 items-center rounded-full bg-emerald-50 px-4 text-sm font-bold text-emerald-700">
+            ✓ Completed
           </span>
         )}
         {activeStatus === 'cancelled' && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-extrabold text-red-600">
+            <span className="inline-flex h-9 items-center rounded-full bg-rose-50 px-4 text-sm font-bold text-rose-700">
               Cancelled
             </span>
             <RefundBadge paymentStatus={booking.payment_status} />
@@ -162,7 +297,7 @@ function SessionCard({
 function RefundBadge({ paymentStatus }: { paymentStatus: string }) {
   if (paymentStatus === 'refunded') {
     return (
-      <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-700">
+      <span className="inline-flex h-9 items-center rounded-full bg-emerald-50 px-4 text-sm font-bold text-emerald-700">
         Refunded
       </span>
     )
@@ -170,7 +305,7 @@ function RefundBadge({ paymentStatus }: { paymentStatus: string }) {
   if (paymentStatus === 'paid') {
     return (
       <span
-        className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700"
+        className="inline-flex h-9 items-center rounded-full bg-amber-50 px-4 text-sm font-bold text-amber-700"
         title="Refund is awaiting admin processing. The mentee will receive an email once it's completed."
       >
         Refund pending
@@ -183,7 +318,6 @@ function RefundBadge({ paymentStatus }: { paymentStatus: string }) {
 export function MySessionsPage() {
   const [activeTab, setActiveTab] = useState<BookingStatus | undefined>('confirmed')
   const [page, setPage] = useState(1)
-  const { data: profileData } = useMentorProfile()
 
   const { data, isLoading } = useMentorBookings(activeTab, page, 10)
   const bookings = data?.items ?? []
@@ -195,7 +329,7 @@ export function MySessionsPage() {
 
   return (
     <div className="min-h-svh overflow-x-hidden bg-[#f8f9ff] text-slate-950">
-      <div className="mx-auto grid w-full max-w-[1180px] gap-6 px-3 py-5 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8 lg:px-8 lg:py-11">
+      <div className="mx-auto w-full max-w-[1180px] space-y-6 px-3 py-5 sm:space-y-8 sm:px-6 sm:py-6 lg:space-y-10 lg:px-8 lg:py-8">
         <section className="min-w-0">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h1 className="font-headline text-3xl leading-tight font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
@@ -204,51 +338,40 @@ export function MySessionsPage() {
           </div>
 
           {/* Status tabs */}
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
-            {STATUS_TABS.map((tab) => (
-              <button
-                key={tab.label}
-                type="button"
-                onClick={() => handleTabChange(tab.value)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-extrabold transition ${
-                  activeTab === tab.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-slate-600 shadow-sm hover:bg-blue-50 hover:text-blue-700'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div
+            role="tablist"
+            aria-label="Filter by status"
+            className="mb-4 inline-flex flex-wrap rounded-full bg-slate-100 p-1"
+          >
+            {STATUS_TABS.map((tab) => {
+              const active = activeTab === tab.value
+              return (
+                <button
+                  key={tab.label}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => handleTabChange(tab.value)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-extrabold transition ${
+                    active
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
           </div>
 
           {isLoading ? (
             <div className="space-y-5">
               {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="grid min-h-[132px] animate-pulse gap-5 rounded-[24px] bg-white px-4 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:px-7 sm:py-6 md:grid-cols-[minmax(0,1fr)_175px_auto] md:items-center"
-                >
-                  <div className="flex items-center gap-4 sm:gap-5">
-                    <div className="size-12 shrink-0 rounded-full bg-slate-100 sm:size-[54px]" />
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <div className="h-5 w-40 rounded-md bg-slate-100" />
-                      <div className="h-4 w-56 rounded-md bg-slate-100" />
-                    </div>
-                  </div>
-                  <div className="space-y-2 md:text-center">
-                    <div className="mx-auto h-4 w-32 rounded-md bg-slate-100 md:mx-0" />
-                    <div className="mx-auto h-3 w-24 rounded-md bg-slate-100 md:mx-0" />
-                    <div className="mx-auto h-3 w-28 rounded-md bg-slate-100 md:mx-0" />
-                  </div>
-                  <div className="flex flex-wrap gap-2 max-sm:[&>button]:flex-1">
-                    <div className="h-9 w-24 rounded-2xl bg-slate-100" />
-                    <div className="h-9 w-20 rounded-2xl bg-slate-100" />
-                  </div>
-                </div>
+                <SessionCardSkeleton key={i} />
               ))}
             </div>
           ) : bookings.length === 0 ? (
-            <p className="rounded-[24px] bg-white px-7 py-8 text-sm text-slate-500 shadow-sm">
+            <p className="rounded-3xl bg-white px-7 py-8 text-sm text-slate-500 shadow-sm ring-1 ring-slate-100/80">
               No {STATUS_TABS.find((t) => t.value === activeTab)?.label.toLowerCase()} sessions.
             </p>
           ) : (
@@ -284,40 +407,7 @@ export function MySessionsPage() {
             </div>
           )}
         </section>
-
-        <aside>
-          <ShareProfileCard mentorId={profileData?.id} />
-        </aside>
       </div>
     </div>
-  )
-}
-
-function ShareProfileCard({ mentorId }: { mentorId?: string }) {
-  const profileUrl = mentorId
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/academic-counsellor/${mentorId}`
-    : '#'
-
-  const handleShare = () => {
-    if (navigator.share && mentorId) {
-      navigator.share({ title: 'My Counselling Profile', url: profileUrl }).catch(() => {})
-    } else if (mentorId) {
-      navigator.clipboard.writeText(profileUrl).catch(() => {})
-    }
-  }
-
-  return (
-    <section className="rounded-[28px] bg-[#243247] p-6 text-white shadow-[0_18px_45px_rgba(15,23,42,0.06)] sm:p-9">
-      <h2 className="font-headline text-xl font-extrabold">Share your profile</h2>
-      <p className="mt-4 max-w-[220px] text-base leading-6 text-slate-200">
-        For maximum visibility, share your profile on your social medias.
-      </p>
-      <Button
-        className="mt-8 h-11 w-full rounded-2xl bg-white font-extrabold text-slate-950 hover:bg-blue-50 sm:w-[172px]"
-        onClick={handleShare}
-      >
-        Share Now
-      </Button>
-    </section>
   )
 }

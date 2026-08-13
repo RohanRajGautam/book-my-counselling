@@ -9,7 +9,6 @@ import {
   COACH_FOR_FRESHERS_SERVICE_TAGS,
   COACH_FOR_FRESHERS_TAG_LABELS,
 } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
-import { displayTagName } from '@/features/mentors/utils/mentors.utils'
 
 const COACH_FOR_FRESHERS_GROUP_LABEL = COACH_FOR_FRESHERS_TAG_LABELS[COACH_FOR_FRESHERS_GROUP_TAG]
 
@@ -80,6 +79,14 @@ function formatDisplayName(name: string) {
     .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
 }
 
+function formatServiceTag(tag: string) {
+  return tag
+    .replace(/^#+/, '')
+    .replace(/[-_]+/g, ' ')
+    .trim()
+    .replace(/(^|\s)(\p{L})/gu, (_, prefix, letter) => `${prefix}${letter.toUpperCase()}`)
+}
+
 function cleanCompanyName(company: string): string | null {
   const trimmed = company.trim()
   if (!trimmed) return null
@@ -123,9 +130,8 @@ export function MentorCard({
   })()
 
   const services = filteredTags
-    .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? tag)
+    .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? formatServiceTag(tag))
     .slice(0, 4)
-    .map(displayTagName)
 
   // Show the 3 standard tiers if available, otherwise fall back to "Starting at"
   const hasTiers = packageTiers && packageTiers.length > 0
@@ -135,7 +141,7 @@ export function MentorCard({
 
   return (
     <article
-      className="group flex h-full cursor-pointer flex-col rounded-2xl bg-white p-5 shadow-[0_16px_40px_rgba(18,28,42,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(18,28,42,0.08)]"
+      className="group flex h-full cursor-pointer flex-col rounded-[24px] bg-white p-5 transition hover:-translate-y-0.5"
       onClick={onClick}
     >
       <div className="mb-4 flex h-[80px] items-center gap-4">
@@ -197,11 +203,11 @@ export function MentorCard({
         </div>
       )}
 
-      <div className="mb-4">
+      <div>
         <p className="mb-2 text-[11px] font-extrabold tracking-wider text-[var(--color-outline)] uppercase">
           Services offered
         </p>
-        <div className="flex min-h-[30px] flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {services.length > 0 ? (
             <>
               {services.slice(0, 3).map((service) => (

@@ -6,6 +6,8 @@ import {
   MentorProfileCreate,
   MentorProfileUpdate,
   MentorStatsResponse,
+  MentorEarningRow,
+  EarningsFilters,
   ServicePackage,
   ServicePackageCreate,
   ServicePackageUpdate,
@@ -37,6 +39,26 @@ export async function updateMyMentorProfile(data: MentorProfileUpdate): Promise<
 
 export async function getMyStats(): Promise<MentorStatsResponse> {
   const response = await apiClient.get<MentorStatsResponse>('/mentors/me/stats')
+  return response.data
+}
+
+export async function getMyEarnings(
+  filters: EarningsFilters = {}
+): Promise<PaginatedResponse<MentorEarningRow>> {
+  const response = await apiClient.get<PaginatedResponse<MentorEarningRow>>(
+    '/mentors/me/earnings',
+    {
+      params: {
+        page: filters.page,
+        page_size: filters.page_size,
+        status: filters.status,
+        date_from: filters.date_from,
+        date_to: filters.date_to,
+        include_unpaid: filters.include_unpaid,
+        include_cancelled: filters.include_cancelled,
+      },
+    }
+  )
   return response.data
 }
 
