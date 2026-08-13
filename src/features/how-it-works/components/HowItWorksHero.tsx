@@ -1,45 +1,41 @@
-import Link from 'next/link'
+import { Sparkles } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export function HowItWorksHero() {
   return (
-    <section className="relative mx-auto flex min-h-[540px] max-w-[1350px] flex-col px-6 py-14 sm:px-8 md:py-20 lg:flex-row lg:items-center lg:gap-10 lg:px-8">
-      <div className="relative z-10 max-w-xl lg:w-[88%]">
-        <p className="mb-5 font-[family-name:var(--font-headline)] text-[11px] font-semibold tracking-[0.28em] text-[#0b55db] uppercase">
-          The Path to Clarity
-        </p>
-        <h1 className="font-[family-name:var(--font-headline)] text-4xl leading-[0.98] font-extrabold tracking-tight text-[#121c2a] sm:text-6xl md:text-[62px]">
-          Guided Fluidity in <span className="block text-[#004ac6]">Career Success.</span>
-        </h1>
-        <p className="mt-8 max-w-[480px] leading-7 text-[#434655]">
-          Navigate the complexities of your academic and professional journey with high-end
-          mentorship. We&apos;ve streamlined the connection between ambition and experience.
-        </p>
-
-        <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+    <section className="relative isolate mt-[-25px] bg-white">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-12 pb-16 sm:px-0 sm:pt-14 sm:pb-20 lg:grid-cols-2 lg:gap-16 lg:pt-16 lg:pb-24">
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white/74 px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)] backdrop-blur">
+            <Sparkles className="size-4" aria-hidden="true" />
+            The Path to Clarity
+          </div>
+          <h1 className="mt-5 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-6xl">
+            Guided Fluidity in <span className="text-[var(--brand-blue)]">Career Success.</span>
+          </h1>
+          <p className="mt-5 text-base leading-7 font-medium text-slate-500 sm:text-lg">
+            Navigate the complexities of your academic and professional journey with high-end
+            mentorship. We&apos;ve streamlined the connection between ambition and experience.
+          </p>
           <Link
             href="/academic-counsellor"
-            className="inline-flex min-h-12 items-center justify-center rounded-lg bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-7 font-[family-name:var(--font-headline)] text-sm font-bold text-white shadow-[0_16px_32px_rgba(0,74,198,0.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(0,74,198,0.28)] active:translate-y-0"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-[24px] bg-[var(--brand-blue)] px-7 font-[family-name:var(--font-headline)] text-sm font-bold text-white transition-colors hover:bg-[var(--brand-blue-hover)]"
           >
             Explore Mentors
           </Link>
-          <a
-            href="#process"
-            className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#dbe4f7] bg-white/35 px-7 font-[family-name:var(--font-headline)] text-sm font-bold text-[#004ac6] transition-all hover:border-[#b9caf0] hover:bg-white/60 active:scale-[0.99]"
-          >
-            Watch how it workss
-          </a>
+        </div>
+        <div className="relative">
+          <Image
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1080&q=85"
+            alt="Mentor guiding students during a laptop discussion"
+            width={1080}
+            height={760}
+            priority
+            className="h-[280px] w-full rounded-[24px] object-cover shadow-[0_22px_45px_rgba(18,28,42,0.12)] sm:h-[380px] lg:h-[460px]"
+          />
         </div>
       </div>
-
-      <Image
-        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1080&q=85"
-        alt="Mentor guiding students during a laptop discussion"
-        width={1080}
-        height={760}
-        priority
-        className="h-[300px] w-full rounded-[12px] object-cover shadow-[0_22px_45px_rgba(18,28,42,0.22)] sm:h-[440px]"
-      />
     </section>
   )
 }

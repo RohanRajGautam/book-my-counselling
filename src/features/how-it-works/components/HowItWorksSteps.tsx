@@ -38,39 +38,39 @@ const steps: HowItWorksStep[] = [
 
 export function HowItWorksSteps() {
   return (
-    <section id="process" className="bg-[#eef4ff] px-6 py-20 sm:px-8 lg:py-28">
-      <div className="mx-auto max-w-[1350px] px-8 py-4">
+    <section id="process" className="bg-[#f8f9ff]">
+      <div className="mx-auto max-w-7xl px-4 pt-16 pb-20 sm:px-0 lg:pt-24 lg:pb-28">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-[family-name:var(--font-headline)] text-3xl font-extrabold tracking-tight text-[#121c2a] sm:text-4xl">
+          <h2 className="font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
             Three Steps to Mastery
           </h2>
-          <p className="mt-4 text-sm leading-6 text-[#434655] sm:text-base">
+          <p className="mt-4 text-base leading-7 font-medium text-slate-500 sm:text-lg">
             Our ecosystem is designed for precision. No clutter, just direct paths to growth.
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 lg:mt-16 lg:grid-cols-3 lg:gap-8">
           {steps.map((step) => {
             const Icon = step.icon
 
             return (
               <article
                 key={step.title}
-                className="flex min-h-[312px] flex-col rounded-[24px] bg-white p-8 shadow-[0_18px_40px_rgba(18,28,42,0.04)] sm:p-10"
+                className="flex flex-col rounded-[24px] bg-white p-6 ring-1 ring-slate-200/70 sm:p-8"
               >
-                <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-[20px] bg-[#dfe9ff] text-[#004ac6]">
-                  <Icon className="h-6 w-6" strokeWidth={2.4} />
+                <div className="flex size-12 items-center justify-center rounded-[24px] bg-[#e6eeff] text-[var(--brand-blue)]">
+                  <Icon className="size-5" />
                 </div>
-                <h3 className="font-[family-name:var(--font-headline)] text-2xl font-medium tracking-tight text-[#121c2a]">
+                <h3 className="mt-6 font-[family-name:var(--font-headline)] text-xl font-extrabold tracking-tight text-slate-950">
                   {step.title}
                 </h3>
-                <p className="mt-4 flex-1 text-sm leading-6 text-[#434655]">{step.description}</p>
+                <p className="mt-3 flex-1 text-base leading-7 text-[#434655]">{step.description}</p>
                 <Link
                   href={step.href}
-                  className="mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-headline)] text-sm font-bold text-[#004ac6] transition-colors hover:text-[#2563eb]"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand-blue)] transition-colors hover:text-[var(--brand-blue-hover)]"
                 >
                   {step.action}
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="size-4" />
                 </Link>
               </article>
             )
