@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import {
   CalendarDays,
   Inbox,
@@ -22,6 +23,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -47,6 +57,7 @@ function getInitials(name: string): string {
 export function MentorSidebar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
+  const [signOutOpen, setSignOutOpen] = useState(false)
 
   const displayName = user?.full_name ?? '—'
   const initials = getInitials(displayName)
@@ -160,7 +171,7 @@ export function MentorSidebar() {
             </div>
             <button
               type="button"
-              onClick={logout}
+              onClick={() => setSignOutOpen(true)}
               aria-label="Sign out"
               title="Sign out"
               className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-blue-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500 active:scale-[0.96]"
@@ -170,7 +181,63 @@ export function MentorSidebar() {
           </div>
         </div>
       </SidebarFooter>
+
+      <SignOutConfirmationDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        onConfirm={logout}
+      />
     </Sidebar>
+  )
+}
+
+function SignOutConfirmationDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
+  open: boolean
+  onOpenChange: (next: boolean) => void
+  onConfirm: () => void
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-sm gap-6 rounded-3xl bg-white p-7 text-center shadow-[0_24px_60px_rgba(15,23,42,0.18)] ring-0"
+      >
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white shadow-[0_10px_30px_rgba(220,38,38,0.32)]">
+            <LogOut className="size-6" strokeWidth={2.2} />
+          </div>
+          <div className="space-y-1.5">
+            <DialogTitle className="font-headline text-lg font-extrabold tracking-tight text-slate-950">
+              Sign out of your account?
+            </DialogTitle>
+            <DialogDescription className="mx-auto max-w-[18rem] text-sm leading-5 font-medium text-slate-500">
+              You&apos;ll need to sign in again to access your mentor dashboard and earnings.
+            </DialogDescription>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="h-11 flex-1 rounded-xl border-slate-200 bg-white font-bold text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={onConfirm}
+            className="h-11 flex-1 rounded-xl bg-red-600 font-bold text-white shadow-[0_8px_20px_rgba(220,38,38,0.28)] hover:bg-red-700"
+          >
+            Sign out
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
