@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { AlertCircle, ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
+import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { MentorCardSkeleton } from '@/components/ui/skeleton'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
+import { RequestMentorEmptyState } from '@/features/mentor-match-requests/components/RequestMentorForm'
 import { getMentorProfileSlug } from '@/features/mentors/utils/mentors.utils'
 
 import { COACH_FOR_FRESHERS_PER_PAGE } from '../api/coach-for-freshers.api'
@@ -99,19 +100,7 @@ export function CoachForFreshersResults({ variety }: CoachForFreshersResultsProp
   }
 
   if (currentMentors.length === 0) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-3xl bg-white p-12 text-center shadow-[0_16px_40px_rgba(18,28,42,0.04)] ring-1 ring-[var(--color-surface-container-high)] ring-inset">
-        <div className="flex flex-col items-center">
-          <SearchX className="mb-4 size-10 text-[var(--brand-blue)]" aria-hidden="true" />
-          <p className="font-[family-name:var(--font-headline)] text-xl font-extrabold text-[var(--foreground)]">
-            No coaches found
-          </p>
-          <p className="mt-2 font-medium text-[var(--color-on-surface-variant)]">
-            Try a different category or search term.
-          </p>
-        </div>
-      </div>
-    )
+    return <RequestMentorEmptyState context="coach" />
   }
 
   return (
