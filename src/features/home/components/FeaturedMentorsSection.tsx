@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Building2 } from 'lucide-react'
+import { ArrowRight, Building2, ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { getFeaturedMentors, type FeaturedMentor } from '@/features/mentors/api/featuredMentors.api'
 import { getMentorProfileSlug } from '@/features/mentors/utils/mentors.utils'
@@ -15,6 +15,7 @@ const FEATURED_LIMIT = 8
 const SLIDER_THRESHOLD = 4
 const AUTO_SCROLL_PX_PER_SEC = 28
 const CARD_GAP_PX = 24
+const MANUAL_ANIM_MS = 450
 
 function AvatarSquare({ mentor }: { mentor: FeaturedMentor }) {
   const url = mentor.user.avatar_url
@@ -65,7 +66,7 @@ function FeaturedMentorCard({ mentor, onOpen }: { mentor: FeaturedMentor; onOpen
           {mentor.user.full_name}
         </h3>
 
-        <p className="mt-2 text-sm leading-5 font-semibold text-[var(--brand-blue)]">
+        <p className="mt-2 truncate text-sm leading-5 font-semibold text-[var(--brand-blue)]">
           {mentor.title}
         </p>
 
@@ -132,77 +133,214 @@ function MentorSlider({
   mentors: FeaturedMentor[]
   onOpen: (m: FeaturedMentor) => void
 }) {
-  const trackRef = useRef<HTMLDivElement>(null)
+  const mobileTrackRef = useRef<HTMLDivElement>(null)
+  const desktopTrackRef = useRef<HTMLDivElement>(null)
   const offsetRef = useRef(0)
   const pausedRef = useRef(false)
+  const animFrameRef = useRef<number | null>(null)
+  const modeRef = useRef<'auto' | 'manual'>('auto')
+  const manualAnimRef = useRef({ startTime: 0, from: 0, to: 0, targetIndex: 0 })
   const [cardWidth, setCardWidth] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const mentorCount = mentors.length
 
   useEffect(() => {
     const measure = () => {
-      const card = trackRef.current?.querySelector<HTMLElement>('[data-mentor-card]')
-      if (card) setCardWidth(card.offsetWidth + CARD_GAP_PX)
+      const card = desktopTrackRef.current?.querySelector<HTMLElement>('[data-mentor-card]')
+      if (card && card.offsetWidth > 0) setCardWidth(card.offsetWidth + CARD_GAP_PX)
     }
 
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [mentors.length])
+  }, [mentorCount])
 
   useEffect(() => {
     if (cardWidth === 0) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const setWidth = cardWidth * mentors.length
-    let frame = 0
+    const setWidth = cardWidth * mentorCount
     let lastTime = performance.now()
 
     const tick = (now: number) => {
-      const dt = (now - lastTime) / 1000
-      lastTime = now
+      if (modeRef.current === 'manual') {
+        const anim = manualAnimRef.current
+        const elapsed = now - anim.startTime
+        const t = Math.min(elapsed / MANUAL_ANIM_MS, 1)
+        const eased = 1 - Math.pow(1 - t, 3)
+        const next = anim.from + (anim.to - anim.from) * eased
+        offsetRef.current = next
 
-      if (!pausedRef.current) {
+        const track = desktopTrackRef.current
+        if (track) track.style.transform = `translate3d(-${next}px, 0, 0)`
+
+        if (t >= 1) {
+          offsetRef.current = anim.to
+          if (track) track.style.transform = `translate3d(-${anim.to}px, 0, 0)`
+          modeRef.current = 'auto'
+          lastTime = now
+          setActiveIndex(anim.targetIndex)
+        }
+      } else if (!pausedRef.current) {
+        const dt = (now - lastTime) / 1000
+        lastTime = now
+
         offsetRef.current += AUTO_SCROLL_PX_PER_SEC * dt
-        if (offsetRef.current >= setWidth) offsetRef.current -= setWidth
+        if (setWidth > 0 && offsetRef.current >= setWidth) offsetRef.current -= setWidth
 
-        const track = trackRef.current
+        const track = desktopTrackRef.current
         if (track) track.style.transform = `translate3d(-${offsetRef.current}px, 0, 0)`
+
+        const idx = Math.floor(offsetRef.current / cardWidth) % mentorCount
+        if (idx !== activeIndex) setActiveIndex(idx)
+      } else {
+        lastTime = now
       }
 
-      frame = requestAnimationFrame(tick)
+      animFrameRef.current = requestAnimationFrame(tick)
     }
 
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [cardWidth, mentors.length])
+    animFrameRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [cardWidth, mentorCount, activeIndex])
+
+  useEffect(() => {
+    const track = mobileTrackRef.current
+    if (!track) return
+
+    const onScroll = () => {
+      const card = track.querySelector<HTMLElement>('[data-mentor-card]')
+      if (!card) return
+      const cardW = card.offsetWidth + CARD_GAP_PX
+      if (cardW === 0) return
+      const raw = Math.round(track.scrollLeft / cardW)
+      const idx = ((raw % mentorCount) + mentorCount) % mentorCount
+      setActiveIndex(idx)
+    }
+
+    track.addEventListener('scroll', onScroll, { passive: true })
+    return () => track.removeEventListener('scroll', onScroll)
+  }, [mentorCount])
+
+  const scrollMobileTo = (index: number) => {
+    const track = mobileTrackRef.current
+    const card = track?.querySelector<HTMLElement>('[data-mentor-card]')
+    if (!track || !card) return
+    const cardW = card.offsetWidth + CARD_GAP_PX
+    track.scrollTo({ left: index * cardW, behavior: 'smooth' })
+  }
+
+  const jumpDesktopTo = (index: number) => {
+    if (cardWidth === 0) return
+    const target = index * cardWidth
+    if (Math.abs(target - offsetRef.current) < 1) return
+
+    manualAnimRef.current = {
+      startTime: performance.now(),
+      from: offsetRef.current,
+      to: target,
+      targetIndex: index,
+    }
+    modeRef.current = 'manual'
+  }
+
+  const handlePrev = () => {
+    const prev = (activeIndex - 1 + mentorCount) % mentorCount
+    scrollMobileTo(prev)
+    jumpDesktopTo(prev)
+  }
+
+  const handleNext = () => {
+    const next = (activeIndex + 1) % mentorCount
+    scrollMobileTo(next)
+    jumpDesktopTo(next)
+  }
 
   return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        maskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)',
-      }}
-      onMouseEnter={() => {
-        pausedRef.current = true
-      }}
-      onMouseLeave={() => {
-        pausedRef.current = false
-      }}
-    >
-      <div ref={trackRef} className="flex w-max items-stretch gap-6">
-        {[0, 1].map((groupIndex) => (
-          <div key={groupIndex} aria-hidden={groupIndex === 1} className="flex shrink-0 gap-6">
-            {mentors.map((mentor) => (
-              <div
-                key={`${mentor.id}-${groupIndex}`}
-                data-mentor-card
-                className="w-[280px] shrink-0 sm:w-[300px]"
-              >
-                <FeaturedMentorCard mentor={mentor} onOpen={() => onOpen(mentor)} />
-              </div>
-            ))}
+    <div>
+      <div
+        ref={mobileTrackRef}
+        className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] sm:hidden [&::-webkit-scrollbar]:hidden"
+      >
+        {mentors.map((mentor) => (
+          <div
+            key={mentor.id}
+            data-mentor-card
+            className="w-[84%] shrink-0 snap-start"
+          >
+            <FeaturedMentorCard mentor={mentor} onOpen={() => onOpen(mentor)} />
           </div>
         ))}
+      </div>
+
+      <div
+        className="relative hidden overflow-hidden sm:block"
+        onMouseEnter={() => {
+          pausedRef.current = true
+        }}
+        onMouseLeave={() => {
+          pausedRef.current = false
+        }}
+      >
+        <div ref={desktopTrackRef} className="flex w-max items-stretch gap-6">
+          {[0, 1].map((groupIndex) => (
+            <div key={groupIndex} aria-hidden={groupIndex === 1} className="flex shrink-0 gap-6">
+              {mentors.map((mentor) => (
+                <div
+                  key={`${mentor.id}-${groupIndex}`}
+                  data-mentor-card
+                  className="w-[280px] shrink-0 sm:w-[300px]"
+                >
+                  <FeaturedMentorCard mentor={mentor} onOpen={() => onOpen(mentor)} />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8 flex items-center justify-center gap-5">
+        <button
+          type="button"
+          aria-label="Previous mentor"
+          onClick={handlePrev}
+          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+        >
+          <ChevronLeft className="size-5" strokeWidth={2.2} />
+        </button>
+
+        <div
+          className="flex items-center gap-2"
+          aria-label="Choose mentor"
+          role="tablist"
+        >
+          {mentors.map((mentor, index) => (
+            <button
+              key={mentor.id}
+              type="button"
+              role="tab"
+              aria-selected={activeIndex === index}
+              aria-label={`Show mentor ${mentor.user.full_name}`}
+              onClick={() => {
+                scrollMobileTo(index)
+                jumpDesktopTo(index)
+              }}
+              className="h-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 aria-[selected=true]:w-7 aria-[selected=true]:bg-[#004ac6] aria-[selected=false]:w-1.5 aria-[selected=false]:bg-slate-300"
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          aria-label="Next mentor"
+          onClick={handleNext}
+          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+        >
+          <ChevronRight className="size-5" strokeWidth={2.2} />
+        </button>
       </div>
     </div>
   )
