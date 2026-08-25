@@ -106,7 +106,6 @@ export function Navbar() {
 
     return false
   }
-  const showAnnouncement = pathname === '/'
 
   // Auto-close mobile menu when the route changes
   useEffect(() => {
@@ -136,22 +135,8 @@ export function Navbar() {
 
   return (
     <>
-      {showAnnouncement && (
-        <Link
-          href="/academic-counsellor"
-          className="fixed inset-x-0 top-0 z-50 flex min-h-10 items-center justify-center gap-2 bg-[#004ac6] px-4 py-2 text-center text-xs font-extrabold text-white shadow-[0_8px_22px_rgba(0,74,198,0.18)] sm:text-sm"
-        >
-          <span>Completed +2 and confused about career?</span>
-          <span className="inline-flex items-center gap-1 whitespace-nowrap">
-            Find Mentor <ArrowRight className="size-4" />
-          </span>
-        </Link>
-      )}
-
       <nav
-        className={`fixed z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88 ${
-          showAnnouncement ? 'top-10' : 'top-0'
-        }`}
+        className="fixed top-0 z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88"
       >
         <div className="mx-auto flex max-w-[1380px] items-center justify-between px-4 py-4 sm:px-8">
           <div>
@@ -257,7 +242,7 @@ export function Navbar() {
           mobileMenuOpen
             ? 'translate-y-0 scale-100 opacity-100'
             : 'pointer-events-none -translate-y-2 scale-[0.98] opacity-0'
-        } ${showAnnouncement ? 'top-[128px]' : 'top-[84px]'}`}
+        } top-[84px]`}
       >
         <div className="flex flex-col gap-1 p-2">
           {navItems.map((item) => {
