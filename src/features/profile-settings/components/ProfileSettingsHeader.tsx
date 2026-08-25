@@ -3,9 +3,14 @@ import { Button } from '@/components/ui/button'
 type ProfileSettingsHeaderProps = {
   onSave: () => void
   isSaving?: boolean
+  hasChanges?: boolean
 }
 
-export function ProfileSettingsHeader({ onSave, isSaving = false }: ProfileSettingsHeaderProps) {
+export function ProfileSettingsHeader({
+  onSave,
+  isSaving = false,
+  hasChanges = false,
+}: ProfileSettingsHeaderProps) {
   return (
     <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
       <div>
@@ -22,7 +27,7 @@ export function ProfileSettingsHeader({ onSave, isSaving = false }: ProfileSetti
         <Button
           type="button"
           onClick={onSave}
-          disabled={isSaving}
+          disabled={isSaving || !hasChanges}
           className="h-14 rounded-xl bg-[#0755d8] px-8 font-bold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
         >
           {isSaving ? 'Saving…' : 'Save Changes'}

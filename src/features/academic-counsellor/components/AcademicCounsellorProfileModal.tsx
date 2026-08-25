@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Check, Link, Globe, ChevronRight, CalendarPlus, Building2 } from 'lucide-react'
@@ -130,6 +130,17 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
   const bioFallback = `${mentor?.user?.full_name ?? 'This mentor'} is an experienced ${mentor?.title ?? 'mentor'} passionate about mentoring professionals.`
 
   const isInitialLoading = isMentorLoading || isPackagesLoading || isAvailabilityLoading
+
+  // When the bottom CTA says "Choose a Package", clicking it should jump the
+  // user straight to the packages list rather than sitting at the bottom of
+  // the modal. The packages section sits inside the right column's scroll
+  // container, so we scroll it into view within that container.
+  const packagesSectionRef = useRef<HTMLDivElement>(null)
+  const scrollToPackages = () => {
+    const target = packagesSectionRef.current
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -324,8 +335,16 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-7xl bg-[#f8f9ff]/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-[8px] sm:inset-x-4 sm:rounded-b-[32px] lg:inset-x-auto lg:bottom-5 lg:left-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:z-30 lg:w-[calc((min(100vw,80rem)-4rem-1.5rem)*4/12)] lg:max-w-none lg:rounded-3xl lg:bg-[#f8f9ff]/90 lg:p-3 lg:pt-3 lg:backdrop-blur-md">
               <button
                 type="button"
-                disabled={!canBook}
+                // The CTA is interactive in two states: when nothing is selected
+                // yet (it scrolls the user to the right section) and when
+                // everything is selected (it books). In the in-between state
+                // ("Choose a Time Slot") it stays disabled.
+                disabled={!canBook && ctaLabel !== 'Choose a Package'}
                 onClick={() => {
+                  if (ctaLabel === 'Choose a Package') {
+                    scrollToPackages()
+                    return
+                  }
                   if (
                     selectedPackageId &&
                     selectedParentSlotId &&
@@ -337,7 +356,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                     )
                   }
                 }}
-                className="block w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
+                className="block w-full cursor-pointer rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-6 py-3.5 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white transition-transform duration-300 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 sm:px-8 sm:py-4 sm:text-lg"
               >
                 {ctaLabel}
               </button>
@@ -362,7 +381,7 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
             <div className="my-6 border-t border-slate-100" />
 
             {/* Packages */}
-            <section>
+            <section ref={packagesSectionRef}>
               <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
                 <div>
                   <h3 className="font-[family-name:var(--font-headline)] text-lg font-bold text-[#121c2a] sm:text-xl">
