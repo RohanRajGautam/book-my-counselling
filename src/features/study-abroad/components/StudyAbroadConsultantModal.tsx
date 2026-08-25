@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Check, Clock, MapPin, Sparkles, X } from 'lucide-react'
@@ -94,6 +94,17 @@ export function StudyAbroadConsultantModal({
     (Boolean(consultant.universityName) || Boolean(consultant.program))
   const highlights = consultant.highlights ?? []
 
+  // When the bottom CTA says "Choose a Package", clicking it should jump the
+  // user straight to the packages list rather than sitting at the bottom of
+  // the modal. The packages section sits inside the right column's scroll
+  // container, so we scroll it into view within that container.
+  const packagesSectionRef = useRef<HTMLDivElement>(null)
+  const scrollToPackages = () => {
+    const target = packagesSectionRef.current
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-4 backdrop-blur-[12px]"
@@ -157,14 +168,21 @@ export function StudyAbroadConsultantModal({
           <div className="rounded-[24px] bg-white p-3 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <button
               type="button"
+              // The CTA is interactive in two states: when nothing is selected
+              // yet (it scrolls the user to the right section) and when
+              // everything is selected (it books). In the in-between state
+              // it stays disabled.
               disabled={selectedPackage?.consultantId !== consultant.id}
               onClick={() => {
-                if (selectedPackage?.consultantId !== consultant.id) return
+                if (selectedPackage?.consultantId !== consultant.id) {
+                  scrollToPackages()
+                  return
+                }
                 router.push(
                   `/study-abroad/booking?consultantId=${consultant.id}&duration=${selectedPackage.durationMinutes}`
                 )
               }}
-              className="h-12 w-full rounded-[18px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:scale-100"
+              className="h-12 w-full cursor-pointer rounded-[18px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-8 text-center font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-lg shadow-[#004ac6]/20 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:scale-100"
             >
               {selectedPackage?.consultantId === consultant.id
                 ? 'Continue Booking'
@@ -249,7 +267,7 @@ export function StudyAbroadConsultantModal({
             )}
           </div>
 
-          <div className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
+          <div ref={packagesSectionRef} className="rounded-[24px] bg-white p-6 shadow-[0_8px_24px_rgba(18,28,42,0.04)]">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">

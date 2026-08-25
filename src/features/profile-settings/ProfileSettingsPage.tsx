@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+
+import type { ProfessionalCategoryWithSubs } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 
 import { ProfileGeneralInfoCard, type GeneralInfoForm } from './components/ProfileGeneralInfoCard'
 import { ProfilePhotoCard } from './components/ProfilePhotoCard'
@@ -71,6 +73,14 @@ const DEFAULT_PACKAGES: PackagesForm = {
   hourlyRate: '',
 }
 
+type CleanSnapshot = {
+  profileId: string
+  generalInfo: GeneralInfoForm
+  professionalBio: ProfessionalBioForm
+  counselling: CounsellingType
+  packages: PackagesForm
+}
+
 export function ProfileSettingsPage() {
   const [activeTab, setActiveTab] = useState<ProfileSettingsTab>('general-info')
   const [generalInfo, setGeneralInfo] = useState<GeneralInfoForm>(DEFAULT_GENERAL_INFO)
@@ -109,31 +119,33 @@ export function ProfileSettingsPage() {
   // per loaded profile; the setState here is the "derived state from props" pattern
   // (https://react.dev/learn/you-might-not-need-an-effect#resetting-all-state-when-a-prop-changes).
   const [seededProfileId, setSeededProfileId] = useState<string | null>(null)
+  // Snapshot of the seeded values — the "clean" baseline the user is editing
+  // against. We compare the live form state against this whenever we need to
+  // know whether anything has actually changed (e.g. should the Save button be
+  // enabled?). The state slot is only updated at seed time, so its identity
+  // is stable for the life of the loaded profile.
+  const [cleanSnapshot, setCleanSnapshot] = useState<CleanSnapshot | null>(null)
   if (
     profile &&
     profile.id !== seededProfileId &&
     !academicBucketingLoading &&
     !professionalBucketingLoading
   ) {
-    setSeededProfileId(profile.id)
-
-    setGeneralInfo({
+    const nextGeneralInfo: GeneralInfoForm = {
       professionalTitle: profile.title ?? '',
       currentCompany: profile.company ?? '',
       experience: profile.years_of_experience ? String(profile.years_of_experience) : '',
       hourlyRate: profile.hourly_rate ? String(profile.hourly_rate) : '',
-    })
-
-    setProfessionalBio({
+    }
+    const nextProfessionalBio: ProfessionalBioForm = {
       headline: profile.title ?? '',
       fullBiography: profile.bio ?? '',
       linkedinUrl: profile.linkedin_url ?? '',
       portfolioUrl: profile.website_url ?? '',
-    })
-
+    }
     const subIds = (profile.subcategories ?? []).map((s) => s.id)
     const profileTagSlugs = (profile.tags ?? []).map((tag) => tag.slug)
-    setCounselling({
+    const nextCounselling: CounsellingType = {
       is_professional_counselor: profile.is_professional_counselor ?? false,
       is_academic_counselor: profile.is_academic_counselor ?? false,
       coaching_services: profileTagSlugs.filter((slug) =>
@@ -150,14 +162,56 @@ export function ProfileSettingsPage() {
           !COACH_FOR_FRESHERS_SERVICE_SLUGS.includes(slug) && slug !== COACH_FOR_FRESHERS_GROUP_TAG
       ),
       industry_ids: (profile.industries ?? []).map((i) => i.id),
-    })
-
-    setPackages({
+    }
+    const nextPackages: PackagesForm = {
       hourlyRate: profile.hourly_rate ? String(profile.hourly_rate) : '',
+    }
+
+    setSeededProfileId(profile.id)
+    setGeneralInfo(nextGeneralInfo)
+    setProfessionalBio(nextProfessionalBio)
+    setCounselling(nextCounselling)
+    setPackages(nextPackages)
+    setCleanSnapshot({
+      profileId: profile.id,
+      generalInfo: nextGeneralInfo,
+      professionalBio: nextProfessionalBio,
+      counselling: nextCounselling,
+      packages: nextPackages,
     })
   }
 
+  // "Has the user actually changed anything they'd want to save?" — drives the
+  // Save button's disabled state and short-circuits handleSave so we never
+  // hit the API with a no-op payload. The logo upload flag is folded in
+  // because a logo swap is a real change even if no other field moved.
+  const hasChanges = useMemo(() => {
+    if (companyLogoUploadedInSession) return true
+    if (!cleanSnapshot) return false
+    return (
+      !equalsGeneralInfo(cleanSnapshot.generalInfo, generalInfo) ||
+      !equalsProfessionalBio(cleanSnapshot.professionalBio, professionalBio) ||
+      !equalsCounselling(cleanSnapshot.counselling, counselling) ||
+      !equalsPackages(cleanSnapshot.packages, packages)
+    )
+  }, [
+    cleanSnapshot,
+    generalInfo,
+    professionalBio,
+    counselling,
+    packages,
+    companyLogoUploadedInSession,
+  ])
+
   const handleSave = () => {
+    // No-op guard: if nothing has changed we don't want to fire the mutation
+    // (the server would happily 200 it and we'd show a misleading "Profile
+    // updated" toast). The button is also disabled in this state, but this
+    // covers keyboard / programmatic clicks.
+    if (!hasChanges) {
+      return
+    }
+
     if (activeTab === 'packages') {
       handleSavePackages()
       return
@@ -308,7 +362,11 @@ export function ProfileSettingsPage() {
   return (
     <div className="min-h-svh bg-[#f8f9ff] pb-28 text-slate-950 md:pb-0">
       <div className="mx-auto w-full max-w-[1180px] space-y-3 px-3 py-5 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <ProfileSettingsHeader onSave={handleSave} isSaving={isSavingAny} />
+        <ProfileSettingsHeader
+          onSave={handleSave}
+          isSaving={isSavingAny}
+          hasChanges={hasChanges}
+        />
         <div className="sticky top-16 z-10 -mx-3 bg-[#f8f9ff]/95 px-3 py-2 backdrop-blur md:static md:mx-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
           <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
@@ -360,7 +418,7 @@ export function ProfileSettingsPage() {
         <Button
           type="button"
           onClick={handleSave}
-          disabled={isSavingAny}
+          disabled={isSavingAny || !hasChanges}
           className="h-12 w-full rounded-2xl bg-[#0755d8] font-bold text-white shadow-[0_12px_24px_rgba(7,85,216,0.22)] hover:bg-blue-700 disabled:opacity-60"
         >
           {isSavingAny ? 'Saving…' : 'Save Changes'}
@@ -395,4 +453,70 @@ function extractApiError(err: unknown): string | null {
   if (typeof data['detail'] === 'string') return data['detail']
 
   return null
+}
+
+// Equality checks between the seeded baseline and the live form state. We
+// trim string fields so a stray space doesn't count as a change (the save
+// handler trims before sending) and compare arrays as unordered sets so a
+// re-ordered selection isn't treated as a change.
+function equalsGeneralInfo(a: GeneralInfoForm, b: GeneralInfoForm): boolean {
+  return (
+    a.professionalTitle.trim() === b.professionalTitle.trim() &&
+    a.currentCompany.trim() === b.currentCompany.trim() &&
+    a.experience.trim() === b.experience.trim() &&
+    a.hourlyRate.trim() === b.hourlyRate.trim()
+  )
+}
+
+function equalsProfessionalBio(a: ProfessionalBioForm, b: ProfessionalBioForm): boolean {
+  return (
+    a.headline.trim() === b.headline.trim() &&
+    a.fullBiography.trim() === b.fullBiography.trim() &&
+    a.linkedinUrl.trim() === b.linkedinUrl.trim() &&
+    a.portfolioUrl.trim() === b.portfolioUrl.trim()
+  )
+}
+
+function equalsCounselling(a: CounsellingType, b: CounsellingType): boolean {
+  return (
+    a.is_professional_counselor === b.is_professional_counselor &&
+    a.is_academic_counselor === b.is_academic_counselor &&
+    sameStringSet(a.coaching_services, b.coaching_services) &&
+    sameStringSet(a.subcategory_ids, b.subcategory_ids) &&
+    sameProfessionalCategories(a.professional_categories, b.professional_categories) &&
+    sameStringSet(a.academic_tags, b.academic_tags) &&
+    sameStringSet(a.industry_ids, b.industry_ids)
+  )
+}
+
+function equalsPackages(a: PackagesForm, b: PackagesForm): boolean {
+  return a.hourlyRate.trim() === b.hourlyRate.trim()
+}
+
+function sameStringSet(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false
+  const sortedA = [...a].sort()
+  const sortedB = [...b].sort()
+  return sortedA.every((value, index) => value === sortedB[index])
+}
+
+function sameProfessionalCategories(
+  a: readonly ProfessionalCategoryWithSubs[],
+  b: readonly ProfessionalCategoryWithSubs[]
+): boolean {
+  if (a.length !== b.length) return false
+  const normalize = (cats: readonly ProfessionalCategoryWithSubs[]) =>
+    [...cats]
+      .map((c) => ({
+        category_id: c.category_id,
+        subcategory_ids: [...c.subcategory_ids].sort(),
+      }))
+      .sort((x, y) => x.category_id.localeCompare(y.category_id))
+  const left = normalize(a)
+  const right = normalize(b)
+  return left.every((cat, index) => {
+    const other = right[index]
+    return other !== undefined && cat.category_id === other.category_id &&
+      sameStringSet(cat.subcategory_ids, other.subcategory_ids)
+  })
 }
