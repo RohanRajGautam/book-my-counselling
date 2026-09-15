@@ -185,7 +185,7 @@ export function EventBookingPageContent() {
 
       <div className="flex flex-col gap-12 lg:flex-row lg:gap-24">
         <div className="flex-1 space-y-12">
-          <section className="rounded-[24px] bg-[#eff4ff] p-8">
+          <section className="rounded-[22px] bg-[#eff4ff] p-8">
             <h2 className="mb-8 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
               Personal Details
             </h2>
@@ -225,7 +225,7 @@ export function EventBookingPageContent() {
             </div>
           </section>
 
-          <section className="rounded-[24px] bg-[#eff4ff] p-8">
+          <section className="rounded-[22px] bg-[#eff4ff] p-8">
             <h2 className="mb-8 font-[family-name:var(--font-headline)] text-2xl font-bold text-[#121c2a]">
               Academic Details
             </h2>
@@ -283,7 +283,7 @@ export function EventBookingPageContent() {
             />
 
             {isSubmitted ? (
-              <div className="rounded-[24px] bg-[#ecfdf5] p-6 text-[#006c49]">
+              <div className="rounded-[22px] bg-[#ecfdf5] p-6 text-[#006c49]">
                 <CheckCircle2 className="size-8" aria-hidden="true" />
                 <p className="mt-4 font-[family-name:var(--font-headline)] text-xl font-bold">
                   Spot secured
@@ -295,14 +295,14 @@ export function EventBookingPageContent() {
             ) : (
               <div className="hidden space-y-3 md:block">
                 {submitError && (
-                  <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-[#ba1a1a]">
+                  <p className="rounded-[22px] bg-red-50 px-4 py-3 text-sm text-[#ba1a1a]">
                     {submitError}
                   </p>
                 )}
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-[22px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-lg font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isSubmitting ? 'Securing spot...' : 'Secure Free Spot'}
                 </button>
@@ -315,14 +315,14 @@ export function EventBookingPageContent() {
       {!isSubmitted && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#d9e3f6] bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-18px_42px_rgba(18,28,42,0.16)] backdrop-blur md:hidden">
           {submitError && (
-            <p className="mb-2 rounded-xl bg-red-50 px-4 py-2 text-sm text-[#ba1a1a]">
+            <p className="mb-2 rounded-[22px] bg-red-50 px-4 py-2 text-sm text-[#ba1a1a]">
               {submitError}
             </p>
           )}
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full rounded-[20px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-[22px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-4 font-[family-name:var(--font-headline)] text-base font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? 'Securing spot...' : 'Secure Free Spot'}
           </button>
