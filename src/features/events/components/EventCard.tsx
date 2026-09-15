@@ -79,16 +79,22 @@ export function EventCard({ event }: EventCardProps) {
               Featuring {event.speaker_name}
             </span>
             {hasLinkedin && event.speaker_linkedin_url ? (
-              <a
-                href={event.speaker_linkedin_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  window.open(
+                    event.speaker_linkedin_url ?? '',
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }}
                 aria-label={`View ${event.speaker_name ?? 'speaker'} on LinkedIn`}
-                className="ml-auto inline-flex size-6 items-center justify-center rounded-full bg-[#e6eeff] text-[#0a66c2] transition hover:bg-[#0a66c2] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+                className="ml-auto inline-flex size-6 cursor-pointer items-center justify-center rounded-full bg-[#e6eeff] text-[#0a66c2] transition hover:bg-[#0a66c2] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
               >
                 <FaLinkedin className="size-3" aria-hidden="true" />
-              </a>
+              </button>
             ) : null}
           </div>
         ) : null}
