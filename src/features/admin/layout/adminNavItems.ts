@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Banknote,
+  CalendarDays,
   CalendarSearch,
   Database,
   Inbox,
@@ -21,6 +22,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { icon: BarChart3, href: '/admin/dashboard', label: 'Analytics' },
   { icon: UserCheck, href: '/admin/mentors', label: 'Mentors' },
   { icon: CalendarSearch, href: '/admin/bookings', label: 'Bookings' },
+  { icon: CalendarDays, href: '/admin/events', label: 'Events' },
   { icon: Inbox, href: '/admin/availability-requests', label: 'Availability Requests' },
   { icon: LifeBuoy, href: '/admin/mentor-match-requests', label: 'Mentor Match Requests' },
   { icon: Banknote, href: '/admin/refunds', label: 'Refunds' },

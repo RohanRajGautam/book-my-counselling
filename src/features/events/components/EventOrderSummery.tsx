@@ -42,7 +42,7 @@ export function EventOrderSummary({ mentor, session }: EventOrderSummaryProps) {
   }
 
   return (
-    <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
+    <div className="rounded-[22px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
       <h3 className="mb-6 font-[family-name:var(--font-headline)] text-xl font-bold text-[#121c2a]">
         Order Summary
       </h3>
@@ -89,7 +89,7 @@ export function EventOrderSummary({ mentor, session }: EventOrderSummaryProps) {
         </div>
 
         {sessionDate && sessionTime && (
-          <div className="space-y-3 rounded-2xl bg-[#f8f9ff] p-4 text-sm">
+          <div className="space-y-3 rounded-[22px] bg-[#f8f9ff] p-4 text-sm">
             <div className="flex items-center gap-3 text-[#434655]">
               <Calendar className="h-4 w-4 text-[#004ac6]" />
               <span className="font-medium text-[#121c2a]">{sessionDate}</span>

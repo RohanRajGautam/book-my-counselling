@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ArrowRight, ChevronDown, GraduationCap, Info, Menu, X } from 'lucide-react'
+import { ArrowRight, CalendarDays, ChevronDown, GraduationCap, Info, Menu, X } from 'lucide-react'
 import {
   getStoredCoachForFreshersSearchParams,
   subscribeToStoredCoachForFreshersParams,
@@ -16,6 +16,11 @@ const navItems = [
     href: '/about',
     label: 'About Us',
     icon: Info,
+  },
+  {
+    href: '/events',
+    label: 'Events',
+    icon: CalendarDays,
   },
   {
     href: '/academic-counsellor',
