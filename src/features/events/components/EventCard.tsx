@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { CalendarDays, MapPin } from 'lucide-react'
+import { FaLinkedin } from 'react-icons/fa'
 
 import { formatEventDate } from '../lib/events.utils'
 import type { EventSummaryResponse } from '../types/events.types'
@@ -12,10 +13,11 @@ interface EventCardProps {
 export function EventCard({ event }: EventCardProps) {
   const date = formatEventDate(event.event_date)
   const hasSpeaker = Boolean(event.speaker_name)
+  const hasLinkedin = Boolean(event.speaker_linkedin_url)
 
   return (
     <Link
-      href={`/events/${event.id}`}
+      href={`/events/${event.slug}`}
       className="group relative block h-full rounded-[22px] border border-[#d9e3f6]/70 bg-white p-2 shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 ring-[#004ac6]/5 transition hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(0,74,198,0.16)]"
     >
       <div className="relative h-44 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#eef4ff] via-[#dbe6ff] to-white sm:h-56">
@@ -76,6 +78,24 @@ export function EventCard({ event }: EventCardProps) {
             <span className="text-xs font-semibold text-slate-700">
               Featuring {event.speaker_name}
             </span>
+            {hasLinkedin && event.speaker_linkedin_url ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  window.open(
+                    event.speaker_linkedin_url ?? '',
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }}
+                aria-label={`View ${event.speaker_name ?? 'speaker'} on LinkedIn`}
+                className="ml-auto inline-flex size-6 cursor-pointer items-center justify-center rounded-full bg-[#e6eeff] text-[#0a66c2] transition hover:bg-[#0a66c2] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+              >
+                <FaLinkedin className="size-3" aria-hidden="true" />
+              </button>
+            ) : null}
           </div>
         ) : null}
 

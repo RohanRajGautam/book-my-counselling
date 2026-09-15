@@ -30,6 +30,39 @@ export async function getAdminMentors(params: {
   return res.data
 }
 
+/**
+ * Walk every page of `/admin/mentors` and return the flattened list of
+ * mentors whose user has an `avatar_url`. Used by the bulk welcome-card
+ * download — the admin wants one ZIP, not 20 mentors per page click.
+ *
+ * The backend paginates at 20 by default, so for ~hundreds of mentors this
+ * is a few round-trips at `pageSize=100`. Each call is independent; failures
+ * short-circuit and we surface whatever we got back so the caller can decide.
+ */
+export async function getAllMentorsWithAvatars(params: {
+  isVerified?: boolean
+  isRejected?: boolean
+}): Promise<AdminMentorProfile[]> {
+  const pageSize = 100
+  const collected: AdminMentorProfile[] = []
+  let page = 1
+  // Hard cap so a misconfigured backend can't loop us forever.
+  for (let safety = 0; safety < 50; safety += 1) {
+    const res = await getAdminMentors({
+      isVerified: params.isVerified,
+      isRejected: params.isRejected,
+      page,
+      pageSize,
+    })
+    for (const mentor of res.items) {
+      if (mentor.user.avatar_url) collected.push(mentor)
+    }
+    if (!res.has_next || res.items.length === 0) break
+    page += 1
+  }
+  return collected
+}
+
 export async function updateAdminUserProfile(
   userId: string,
   payload: AdminUserProfileUpdate

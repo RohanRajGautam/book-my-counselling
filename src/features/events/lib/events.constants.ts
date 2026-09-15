@@ -12,11 +12,12 @@ export const EVENT_PAGE_SIZE = 12
 export const ADMIN_EVENT_PAGE_SIZE = 20
 export const ADMIN_EVENT_BOOKINGS_PAGE_SIZE = 50
 
-// Tabs in the admin event list. Matches the integration guide's "All / Upcoming / Past" UI.
+// Tabs in the admin event list. "All" is the default — admins see every
+// event at once and narrow down via the upcoming/past tabs.
 export const ADMIN_EVENT_TABS = [
+  { id: 'all', label: 'All', filter: {} },
   { id: 'upcoming', label: 'Upcoming', filter: { is_completed: false } },
   { id: 'past', label: 'Past', filter: { is_completed: true } },
-  { id: 'all', label: 'All', filter: {} },
 ] as const
 
 export type AdminEventTabId = (typeof ADMIN_EVENT_TABS)[number]['id']
@@ -26,9 +27,12 @@ export function findAdminEventTab(id: string | null): (typeof ADMIN_EVENT_TABS)[
   return match ?? ADMIN_EVENT_TABS[0]
 }
 
-// Tabs in the admin event detail page.
+// Tabs in the admin event detail page. Mirrors the create wizard so the two
+// flows share a single section shape (Details, Speaker, Timeline, Gallery,
+// Companies, Testimonials), plus a Bookings tab the create flow doesn't have.
 export const ADMIN_EVENT_DETAIL_TABS = [
-  { id: 'overview', label: 'Overview' },
+  { id: 'details', label: 'Details' },
+  { id: 'speaker', label: 'Speaker' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'gallery', label: 'Gallery' },
   { id: 'companies', label: 'Companies' },
