@@ -81,7 +81,7 @@ export function BulkDownloadWelcomeCardsButton({
   }
 
   const showCount = typeof availableCount === 'number' && availableCount > 0
-  const label = showCount ? `Welcome cards (${availableCount})` : 'Welcome cards'
+  const label = showCount ? `Welcome cards ` : 'Welcome cards'
   const ariaLabel = showCount
     ? `Download welcome cards for ${availableCount} mentor${availableCount === 1 ? '' : 's'}`
     : 'Download welcome cards for all mentors with profile pictures'
