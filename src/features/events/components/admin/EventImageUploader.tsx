@@ -149,9 +149,6 @@ export function EventImageUploader(props: EventImageUploaderProps) {
               <span className="mt-3 text-xs font-extrabold tracking-wide uppercase">
                 {isCover ? 'Add a cover image' : 'Add image'}
               </span>
-              <span className="mt-1 text-[10px] font-medium text-slate-500">
-                Click to choose · JPG / PNG / WebP · 5 MB max
-              </span>
             </span>
           </span>
         )}

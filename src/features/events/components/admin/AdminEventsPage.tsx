@@ -35,7 +35,7 @@ export function AdminEventsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tabParam = searchParams?.get('tab')
-  const tabId: AdminEventTabId = isTabId(tabParam) ? tabParam : 'upcoming'
+  const tabId: AdminEventTabId = isTabId(tabParam) ? tabParam : 'all'
 
   // Page is derived from `?page=N`. Tab changes omit `page` so the URL
   // becomes `?tab=upcoming` and the parse yields 1 — no sync effect needed.
