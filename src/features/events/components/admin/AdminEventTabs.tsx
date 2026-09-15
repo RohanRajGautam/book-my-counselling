@@ -2,32 +2,41 @@
 
 import { cn } from '@/lib/utils'
 
-import {
-  ADMIN_EVENT_CREATE_TABS,
-  type AdminEventCreateTabId,
-} from '../../lib/events.constants'
-
-interface AdminCreateEventTabsProps {
-  value: AdminEventCreateTabId
-  onChange: (next: AdminEventCreateTabId) => void
-  /** Field-level errors keyed by dotted field path. Drives the red dot. */
-  errorsBySection: Record<AdminEventCreateTabId, number>
+interface AdminEventTab {
+  readonly id: string
+  readonly label: string
 }
 
-export function AdminCreateEventTabs({
+interface AdminEventTabsProps<T extends string> {
+  tabs: readonly (AdminEventTab & { id: T })[]
+  value: T
+  onChange: (next: T) => void
+  /** Optional per-tab error counts keyed by tab id — drives the red dot. */
+  errorsBySection?: Partial<Record<T, number>>
+  /** ARIA label for the tablist. */
+  ariaLabel?: string
+}
+
+/**
+ * Shared wizard-style pill tabs used by both the create and edit event
+ * flows. Keeps the visual treatment identical between pages.
+ */
+export function AdminEventTabs<T extends string>({
+  tabs,
   value,
   onChange,
   errorsBySection,
-}: AdminCreateEventTabsProps) {
+  ariaLabel = 'Event sections',
+}: AdminEventTabsProps<T>) {
   return (
     <div
       role="tablist"
-      aria-label="Event sections"
+      aria-label={ariaLabel}
       className="flex w-full max-w-full flex-nowrap gap-1 overflow-x-auto rounded-[22px] bg-slate-100 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      {ADMIN_EVENT_CREATE_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const active = tab.id === value
-        const errorCount = errorsBySection[tab.id] ?? 0
+        const errorCount = errorsBySection?.[tab.id] ?? 0
         return (
           <button
             key={tab.id}
