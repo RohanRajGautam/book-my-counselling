@@ -3,14 +3,14 @@ import { Suspense } from 'react'
 import { EventDetailPageContent } from '@/features/events/components/EventDetailPageContent'
 
 interface EventDetailPageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
-  const { id } = await params
+  const { slug } = await params
   return (
     <Suspense fallback={null}>
-      <EventDetailPageContent eventId={id} />
+      <EventDetailPageContent slug={slug} />
     </Suspense>
   )
 }

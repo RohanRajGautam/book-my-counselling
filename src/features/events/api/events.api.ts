@@ -46,6 +46,16 @@ export async function getPublicEvent(eventId: string): Promise<EventResponse> {
   return res.data
 }
 
+/**
+ * Fetch an event by its public URL slug. This is the route the public event
+ * detail page hits — internal UUID detail is still available via
+ * `getPublicEvent` for legacy deep links.
+ */
+export async function getPublicEventBySlug(slug: string): Promise<EventResponse> {
+  const res = await apiClient.get<EventResponse>(`/events/by-slug/${slug}`)
+  return res.data
+}
+
 export async function createEventBooking(
   eventId: string,
   payload: EventBookingCreate

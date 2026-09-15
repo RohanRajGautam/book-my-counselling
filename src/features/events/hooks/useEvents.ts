@@ -6,6 +6,7 @@ import {
   createEventBooking,
   getPastEvents,
   getPublicEvent,
+  getPublicEventBySlug,
   getUpcomingEvents,
 } from '../api/events.api'
 import {
@@ -43,6 +44,19 @@ export function usePublicEvent(eventId: string | undefined) {
     queryKey: [...EVENT_DETAIL_KEY, eventId],
     queryFn: () => getPublicEvent(eventId as string),
     enabled: !!eventId,
+    staleTime: 30 * 1000,
+  })
+}
+
+/**
+ * Public detail page hits this hook with the URL slug. The legacy
+ * `usePublicEvent` keeps the UUID-based deep link working.
+ */
+export function usePublicEventBySlug(slug: string | undefined) {
+  return useQuery<EventResponse>({
+    queryKey: [...EVENT_DETAIL_KEY, 'by-slug', slug],
+    queryFn: () => getPublicEventBySlug(slug as string),
+    enabled: !!slug,
     staleTime: 30 * 1000,
   })
 }
