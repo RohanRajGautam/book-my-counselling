@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { EventsPageContent } from '@/features/events/components/EventsPageContent'
+import { EventsListingPageContent } from '@/features/events/components/EventsListingPageContent'
 
 export const metadata: Metadata = {
   title: 'Events',
-  description: 'Explore upcoming Book Your Counselling events and mentor-led live sessions.',
+  description:
+    'Browse upcoming and past BYC events — fireside chats, intimate gatherings, and meetups across Kathmandu.',
 }
 
 export default function EventsPage() {
-  return <EventsPageContent />
+  return <EventsListingPageContent />
 }
