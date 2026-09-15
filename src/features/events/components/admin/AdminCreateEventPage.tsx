@@ -1,12 +1,18 @@
 'use client'
 
+import axios from 'axios'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
-import { extractValidationErrors, useCreateAdminEvent } from '../../hooks/useAdminEvents'
+import {
+  extractValidationErrors,
+  useAdminEvents,
+  useCreateAdminEvent,
+} from '../../hooks/useAdminEvents'
 import {
   ADMIN_EVENT_CREATE_TABS,
+  ADMIN_EVENT_PAGE_SIZE,
   findAdminEventCreateTab,
   type AdminEventCreateTabId,
 } from '../../lib/events.constants'
@@ -25,7 +31,7 @@ import type {
 } from '../../types/events.types'
 
 import { AdminCreateEventHeader } from './AdminCreateEventHeader'
-import { AdminCreateEventTabs } from './AdminCreateEventTabs'
+import { AdminEventTabs } from './AdminEventTabs'
 import { EventCompaniesSection } from './sections/EventCompaniesSection'
 import { EventDetailsSection } from './sections/EventDetailsSection'
 import { EventGallerySection } from './sections/EventGallerySection'
@@ -41,6 +47,17 @@ export function AdminCreateEventPage() {
   const [serverErrorsByField, setServerErrorsByField] = useState<Record<string, string>>({})
 
   const { mutate, isPending } = useCreateAdminEvent()
+
+  // Pull the first page of admin events so the slug input can flag collisions
+  // before submit. The list endpoint includes `slug` in the summary.
+  const { data: existingEvents } = useAdminEvents({}, 1, ADMIN_EVENT_PAGE_SIZE)
+  const takenSlugs = useMemo(() => {
+    const set = new Set<string>()
+    for (const ev of existingEvents?.items ?? []) {
+      if (ev.slug) set.add(ev.slug)
+    }
+    return set
+  }, [existingEvents])
 
   const errors = useMemo(
     () => validateEventCreateForm(form),
@@ -94,6 +111,14 @@ export function AdminCreateEventPage() {
       return
     }
 
+    if (takenSlugs.has(form.slug.trim())) {
+      const msg = 'This slug is already used by another event — try another.'
+      setServerErrorsByField({ 'details.slug': msg })
+      setActiveTab('details')
+      toast.error(msg)
+      return
+    }
+
     const payload = buildPayload(form)
 
     mutate(payload, {
@@ -102,6 +127,21 @@ export function AdminCreateEventPage() {
         router.push(`/admin/events/${event.id}`)
       },
       onError: (err) => {
+        // Treat a 409 on the create endpoint as a slug collision and surface
+        // it inline on the slug field instead of as a generic toast.
+        if (axios.isAxiosError(err) && err.response?.status === 409) {
+          const detail =
+            typeof err.response.data === 'object' &&
+            err.response.data &&
+            'detail' in err.response.data &&
+            typeof (err.response.data as { detail?: unknown }).detail === 'string'
+              ? ((err.response.data as { detail: string }).detail)
+              : 'This slug is already used by another event — try another.'
+          setServerErrorsByField({ 'details.slug': detail })
+          setActiveTab('details')
+          toast.error(detail)
+          return
+        }
         const serverErrors = extractValidationErrors(err)
         if (Object.keys(serverErrors).length > 0) {
           setServerErrorsByField(serverErrors)
@@ -125,7 +165,8 @@ export function AdminCreateEventPage() {
         />
 
         <div className="sticky top-16 z-10 -mx-3 bg-[#f8f9ff]/95 px-3 py-2 backdrop-blur md:static md:mx-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
-          <AdminCreateEventTabs
+          <AdminEventTabs
+            tabs={ADMIN_EVENT_CREATE_TABS}
             value={activeTab}
             onChange={setActiveTab}
             errorsBySection={errorsBySection}
@@ -136,7 +177,9 @@ export function AdminCreateEventPage() {
           <EventDetailsSection
             value={form}
             onChange={setForm}
+            takenSlugs={takenSlugs}
             errors={{
+              slug: fieldError('details.slug'),
               title: fieldError('details.title'),
               description: fieldError('details.description'),
               about: fieldError('details.about'),
@@ -159,6 +202,7 @@ export function AdminCreateEventPage() {
               title: fieldError('speaker.title'),
               description: fieldError('speaker.description'),
               imageUrl: fieldError('speaker.imageUrl'),
+              linkedinUrl: fieldError('speaker.linkedinUrl'),
             }}
           />
         ) : null}
@@ -247,6 +291,7 @@ function buildPayload(form: EventCreateForm): EventCreatePayload {
   }))
 
   return {
+    slug: form.slug.trim(),
     title: form.title.trim(),
     description: form.description.trim(),
     about: form.about.trim() || null,
@@ -260,6 +305,7 @@ function buildPayload(form: EventCreateForm): EventCreatePayload {
     speaker_title: form.speaker.title.trim() || null,
     speaker_description: form.speaker.description.trim() || null,
     speaker_image_url: form.speaker.imageUrl.trim() || null,
+    speaker_linkedin_url: form.speaker.linkedinUrl.trim() || null,
     timeline_items,
     gallery_images,
     companies,

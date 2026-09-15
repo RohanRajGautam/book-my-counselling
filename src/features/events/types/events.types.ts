@@ -1,6 +1,7 @@
 // Shape of an Event as it appears on list cards (no nested collections).
 export interface EventSummaryResponse {
   id: string
+  slug: string
   title: string
   description: string
   event_date: string
@@ -11,6 +12,7 @@ export interface EventSummaryResponse {
   youtube_link: string | null
   speaker_name: string | null
   speaker_image_url: string | null
+  speaker_linkedin_url: string | null
   is_completed: boolean
   created_at: string
   updated_at: string
@@ -57,6 +59,7 @@ export interface TestimonialResponse {
 
 export interface EventResponse {
   id: string
+  slug: string
   title: string
   description: string
   about: string | null
@@ -70,6 +73,7 @@ export interface EventResponse {
   speaker_title: string | null
   speaker_description: string | null
   speaker_image_url: string | null
+  speaker_linkedin_url: string | null
   is_completed: boolean
   completed_at: string | null
   completed_by_user_id: string | null
@@ -109,6 +113,7 @@ export interface TestimonialInput {
 }
 
 export interface EventCreatePayload {
+  slug: string
   title: string
   description: string
   event_date: string
@@ -122,6 +127,7 @@ export interface EventCreatePayload {
   speaker_title?: string | null
   speaker_description?: string | null
   speaker_image_url?: string | null
+  speaker_linkedin_url?: string | null
   timeline_items?: TimelineItemInput[]
   gallery_images?: GalleryImageInput[]
   companies?: CompanyInput[]

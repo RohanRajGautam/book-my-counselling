@@ -11,6 +11,32 @@ export type { ValidationError }
 export const EVENT_TITLE_MAX = 255
 export const EVENT_DESCRIPTION_MAX = 2000
 export const EVENT_ABOUT_MAX = 5000
+export const EVENT_SLUG_MIN = 3
+export const EVENT_SLUG_MAX = 255
+
+/**
+ * Server-enforced kebab-case slug regex:
+ *   - lowercase ASCII letters and digits only
+ *   - single hyphens between segments (no `--`)
+ *   - must start and end with `[a-z0-9]`
+ *   - length 3-255
+ *
+ * The frontend pre-validates with this regex so the admin gets an inline
+ * error before the round-trip; the server enforces the same shape.
+ */
+export const EVENT_SLUG_PATTERN = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{1,253}[a-z0-9])$/
+
+export function validateEventSlug(value: string): string | null {
+  const v = value.trim()
+  if (!v) return 'URL slug is required.'
+  if (v.length < EVENT_SLUG_MIN || v.length > EVENT_SLUG_MAX) {
+    return `URL slug must be ${EVENT_SLUG_MIN}–${EVENT_SLUG_MAX} characters.`
+  }
+  if (!EVENT_SLUG_PATTERN.test(v)) {
+    return 'Use lowercase letters, digits, and single hyphens (no leading/trailing or consecutive hyphens).'
+  }
+  return null
+}
 export const EVENT_TIME_MAX = 50
 export const EVENT_LOCATION_MAX = 500
 export const EVENT_PARTNER_MAX = 255
@@ -18,6 +44,27 @@ export const EVENT_URL_MAX = 1000
 export const EVENT_SPEAKER_NAME_MAX = 255
 export const EVENT_SPEAKER_TITLE_MAX = 255
 export const EVENT_SPEAKER_DESC_MAX = 2000
+export const EVENT_SPEAKER_LINKEDIN_MAX = 1000
+
+/**
+ * Frontend pre-validation for the speaker LinkedIn URL. We don't try to be
+ * exhaustive — Pydantic's HttpUrl on the backend is authoritative for the
+ * final 422 — but catching the obvious bad shapes ("not-a-url", "ftp://",
+ * bare "linkedin.com/x") before round-trip saves the admin a round-trip.
+ */
+export const EVENT_SPEAKER_LINKEDIN_PATTERN = /^https?:\/\/(www\.)?linkedin\.com\/.+/i
+
+export function validateEventSpeakerLinkedinUrl(value: string): string | null {
+  const v = value.trim()
+  if (!v) return null
+  if (v.length > EVENT_SPEAKER_LINKEDIN_MAX) {
+    return `LinkedIn URL must be ${EVENT_SPEAKER_LINKEDIN_MAX} characters or fewer.`
+  }
+  if (!EVENT_SPEAKER_LINKEDIN_PATTERN.test(v)) {
+    return 'Must start with https://www.linkedin.com/…'
+  }
+  return null
+}
 export const EVENT_TIMELINE_TIME_MAX = 50
 export const EVENT_TIMELINE_TITLE_MAX = 255
 export const EVENT_TIMELINE_DESC_MAX = 2000
@@ -67,6 +114,7 @@ export interface EventFormSpeaker {
   title: string
   description: string
   imageUrl: string
+  linkedinUrl: string
 }
 
 export interface EventFormTimelineRow {
@@ -99,6 +147,7 @@ export interface EventFormTestimonialRow {
 }
 
 export interface EventCreateForm {
+  slug: string
   title: string
   description: string
   about: string
@@ -116,6 +165,7 @@ export interface EventCreateForm {
 }
 
 export const EMPTY_EVENT_FORM: EventCreateForm = {
+  slug: '',
   title: '',
   description: '',
   about: '',
@@ -125,7 +175,7 @@ export const EMPTY_EVENT_FORM: EventCreateForm = {
   partner: '',
   coverImageUrl: '',
   youtubeLink: '',
-  speaker: { name: '', title: '', description: '', imageUrl: '' },
+  speaker: { name: '', title: '', description: '', imageUrl: '', linkedinUrl: '' },
   timeline: [],
   gallery: [],
   companies: [],
@@ -140,6 +190,12 @@ export const EMPTY_EVENT_FORM: EventCreateForm = {
  */
 export function validateEventCreateForm(form: EventCreateForm): ValidationError[] {
   const errors: ValidationError[] = []
+
+  const slug = form.slug.trim()
+  const slugError = validateEventSlug(slug)
+  if (slugError) {
+    errors.push({ field: 'details.slug', message: slugError })
+  }
 
   const title = form.title.trim()
   pushIfBlank(errors, title, 'details.title', 'Title')
@@ -184,6 +240,10 @@ export function validateEventCreateForm(form: EventCreateForm): ValidationError[
     'Speaker image',
     EVENT_URL_MAX
   )
+  const linkedinError = validateEventSpeakerLinkedinUrl(speaker.linkedinUrl)
+  if (linkedinError) {
+    errors.push({ field: 'speaker.linkedinUrl', message: linkedinError })
+  }
   // If speaker name is supplied, ask for at least one other identifying field.
   const hasAnySpeakerField =
     !!speaker.name.trim() ||

@@ -1,18 +1,30 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
+import { FaLinkedin } from 'react-icons/fa'
 
 import type { EventResponse } from '../types/events.types'
 
 interface EventSpeakerCardProps {
  speaker: Pick<
  EventResponse,
- 'speaker_name' | 'speaker_title' | 'speaker_description' | 'speaker_image_url'
+ | 'speaker_name'
+ | 'speaker_title'
+ | 'speaker_description'
+ | 'speaker_image_url'
+ | 'speaker_linkedin_url'
  >
 }
 
 /** Featured speaker block. Renders only when at least a name or image exists. */
 export function EventSpeakerCard({ speaker }: EventSpeakerCardProps) {
- const { speaker_name, speaker_title, speaker_description, speaker_image_url } = speaker
+ const {
+ speaker_name,
+ speaker_title,
+ speaker_description,
+ speaker_image_url,
+ speaker_linkedin_url,
+ } = speaker
  if (!speaker_name && !speaker_image_url) return null
 
  return (
@@ -50,9 +62,22 @@ export function EventSpeakerCard({ speaker }: EventSpeakerCardProps) {
  Featured speaker
  </p>
  {speaker_name ? (
- <h3 className="font-headline mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+ <div className="mt-3 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+ <h3 className="font-headline text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
  {speaker_name}
  </h3>
+ {speaker_linkedin_url ? (
+ <Link
+ href={speaker_linkedin_url}
+ target="_blank"
+ rel="noopener noreferrer"
+ aria-label={`View ${speaker_name ?? 'speaker'} on LinkedIn`}
+ className="inline-flex size-9 items-center justify-center rounded-full bg-[#e6eeff] text-[#0a66c2] transition hover:bg-[#0a66c2] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+ >
+ <FaLinkedin className="size-4" aria-hidden="true" />
+ </Link>
+ ) : null}
+ </div>
  ) : null}
  {speaker_title ? (
  <p className="mt-1.5 text-sm font-bold text-[#004ac6] sm:text-base">{speaker_title}</p>

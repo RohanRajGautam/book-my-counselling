@@ -17,6 +17,7 @@ import {
 } from '../../hooks/useAdminEvents'
 import { useAdminEventBookings } from '../../hooks/useAdminEventBookings'
 import {
+  ADMIN_EVENT_DETAIL_TABS,
   findAdminEventDetailTab,
   type AdminEventDetailTabId,
 } from '../../lib/events.constants'
@@ -24,14 +25,16 @@ import { formatLongDate, formatTime } from '../../lib/events.utils'
 
 import { AdminEventBookingsTab } from './AdminEventBookingsTab'
 import { AdminEventCompaniesTab } from './AdminEventCompaniesTab'
-import { AdminEventDetailTabs } from './AdminEventDetailTabs'
+import { AdminEventDetailsTab } from './AdminEventDetailsTab'
 import { AdminEventGalleryTab } from './AdminEventGalleryTab'
-import { AdminEventOverviewTab } from './AdminEventOverviewTab'
+import { AdminEventSpeakerTab } from './AdminEventSpeakerTab'
+import { AdminEventTabs } from './AdminEventTabs'
 import { AdminEventTestimonialsTab } from './AdminEventTestimonialsTab'
 import { AdminEventTimelineTab } from './AdminEventTimelineTab'
 
 const VALID_DETAIL_TAB_IDS = new Set<AdminEventDetailTabId>([
-  'overview',
+  'details',
+  'speaker',
   'timeline',
   'gallery',
   'companies',
@@ -51,7 +54,7 @@ export function AdminEventDetailPage({ eventId }: AdminEventDetailPageProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tabParam = searchParams?.get('tab')
-  const tabId: AdminEventDetailTabId = isDetailTabId(tabParam) ? tabParam : 'overview'
+  const tabId: AdminEventDetailTabId = isDetailTabId(tabParam) ? tabParam : 'details'
   // Touch findAdminEventDetailTab so a stray `?tab=foo` falls back to the first
   // entry in the config — keeps the tab config the single source of truth.
   findAdminEventDetailTab(tabId)
@@ -204,11 +207,16 @@ export function AdminEventDetailPage({ eventId }: AdminEventDetailPageProps) {
         ) : null}
 
         <div className="overflow-x-auto rounded-[22px] border border-[#d9e3f6] bg-white p-2 shadow-sm sm:p-3">
-          <AdminEventDetailTabs value={tabId} onChange={handleTabChange} />
+          <AdminEventTabs
+            tabs={ADMIN_EVENT_DETAIL_TABS}
+            value={tabId}
+            onChange={handleTabChange}
+          />
         </div>
 
         <section key={tabId} aria-label="Active event section">
-          {tabId === 'overview' && <AdminEventOverviewTab event={event} />}
+          {tabId === 'details' && <AdminEventDetailsTab event={event} />}
+          {tabId === 'speaker' && <AdminEventSpeakerTab event={event} />}
           {tabId === 'timeline' && <AdminEventTimelineTab eventId={event.id} items={event.timeline_items} />}
           {tabId === 'gallery' && <AdminEventGalleryTab eventId={event.id} images={event.gallery_images} />}
           {tabId === 'companies' && (

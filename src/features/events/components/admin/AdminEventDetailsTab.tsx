@@ -1,5 +1,6 @@
 'use client'
 
+import axios from 'axios'
 import { useMemo, useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
@@ -14,15 +15,19 @@ import {
   useUpdateAdminEvent,
 } from '../../hooks/useAdminEvents'
 import { EVENT_FORM_INPUT_CLASS } from '../../lib/events.constants'
+import {
+  validateEventSlug,
+} from '../../lib/events.validation'
 import type { EventResponse, EventUpdatePayload } from '../../types/events.types'
 
 import { EventImageUploader } from './EventImageUploader'
 
-interface AdminEventOverviewTabProps {
+interface AdminEventDetailsTabProps {
   event: EventResponse
 }
 
 interface OverviewForm {
+  slug: string
   title: string
   description: string
   about: string
@@ -36,6 +41,7 @@ interface OverviewForm {
 
 function buildForm(event: EventResponse): OverviewForm {
   return {
+    slug: event.slug,
     title: event.title,
     description: event.description,
     about: event.about ?? '',
@@ -48,10 +54,11 @@ function buildForm(event: EventResponse): OverviewForm {
   }
 }
 
-export function AdminEventOverviewTab({ event }: AdminEventOverviewTabProps) {
+export function AdminEventDetailsTab({ event }: AdminEventDetailsTabProps) {
   const [form, setForm] = useState<OverviewForm>(() => buildForm(event))
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({})
+  const [confirmSlugRepoint, setConfirmSlugRepoint] = useState(false)
   const { mutate, isPending } = useUpdateAdminEvent(event.id)
 
   const errors = useMemo(() => validateOverviewForm(form), [form])
@@ -66,6 +73,45 @@ export function AdminEventOverviewTab({ event }: AdminEventOverviewTabProps) {
     return serverErrors[key]
   }
 
+  const slugChanged = form.slug.trim() !== event.slug
+  const slugPreviewPath = form.slug.trim()
+    ? `/events/${form.slug.trim()}`
+    : `/events/${event.slug}`
+
+  const submit = () => {
+    const payload = buildPayload(form, event)
+    mutate(payload, {
+      onSuccess: () => {
+        setConfirmSlugRepoint(false)
+        toast.success('Event details saved.')
+      },
+      onError: (err) => {
+        // Treat 409 on PATCH as a slug collision — surface it inline instead of a generic toast.
+        if (axios.isAxiosError(err) && err.response?.status === 409) {
+          const detail =
+            typeof err.response.data === 'object' &&
+            err.response.data &&
+            'detail' in err.response.data &&
+            typeof (err.response.data as { detail?: unknown }).detail === 'string'
+              ? ((err.response.data as { detail: string }).detail)
+              : 'This slug is already used by another event.'
+          setServerErrors({ slug: detail })
+          toast.error(detail)
+          setConfirmSlugRepoint(false)
+          return
+        }
+        const serverErrors = extractValidationErrors(err)
+        if (Object.keys(serverErrors).length > 0) {
+          setServerErrors(serverErrors)
+          toast.error('Server rejected some fields.')
+        } else {
+          toast.error('Failed to save. Please try again.')
+        }
+        setConfirmSlugRepoint(false)
+      },
+    })
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitAttempted(true)
@@ -75,22 +121,17 @@ export function AdminEventOverviewTab({ event }: AdminEventOverviewTabProps) {
       return
     }
 
-    const payload = buildPayload(form, event)
-    mutate(payload, {
-      onSuccess: () => toast.success('Event details saved.'),
-      onError: (err) => {
-        const serverErrors = extractValidationErrors(err)
-        if (Object.keys(serverErrors).length > 0) {
-          setServerErrors(serverErrors)
-          toast.error('Server rejected some fields.')
-        } else {
-          toast.error('Failed to save. Please try again.')
-        }
-      },
-    })
+    // Re-pointing the slug moves the public URL — confirm before sending.
+    if (slugChanged) {
+      setConfirmSlugRepoint(true)
+      return
+    }
+
+    submit()
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
         <header className="mb-5">
@@ -103,6 +144,34 @@ export function AdminEventOverviewTab({ event }: AdminEventOverviewTabProps) {
         </header>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="URL slug"
+            required
+            error={showError('slug')}
+            hint={
+              <span className="break-all">
+                Public URL:{' '}
+                <span className="font-mono text-slate-700">{slugPreviewPath}</span>
+                {slugChanged ? (
+                  <span className="ml-2 font-semibold text-amber-700">
+                    Changing this will move the public URL — old links will stop working.
+                  </span>
+                ) : null}
+              </span>
+            }
+            input={
+              <Input
+                value={form.slug}
+                onChange={(e) => update('slug', e.target.value.toLowerCase())}
+                maxLength={255}
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                aria-invalid={!!showError('slug')}
+                className={`${EVENT_FORM_INPUT_CLASS} font-mono`}
+              />
+            }
+          />
           <Field
             label="Event title"
             required
@@ -244,6 +313,46 @@ export function AdminEventOverviewTab({ event }: AdminEventOverviewTabProps) {
         </Button>
       </div>
     </form>
+
+    {confirmSlugRepoint ? (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Re-point public URL"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4"
+      >
+        <div className="w-full max-w-md rounded-[22px] bg-white p-6 shadow-2xl">
+          <h2 className="font-headline text-lg font-extrabold text-slate-950">
+            Re-point the public URL?
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">
+            The event&rsquo;s public URL will move from{' '}
+            <span className="font-mono font-bold text-slate-800">/events/{event.slug}</span> to{' '}
+            <span className="font-mono font-bold text-slate-800">/events/{form.slug.trim()}</span>.
+            Old links will stop working.
+          </p>
+          <div className="mt-5 flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setConfirmSlugRepoint(false)}
+              disabled={isPending}
+              className="rounded-[22px]"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={submit}
+              disabled={isPending}
+              className="gap-1.5 rounded-[22px] bg-[#0755d8] font-bold text-white hover:bg-blue-700"
+            >
+              {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+              Re-point URL
+            </Button>
+          </div>
+        </div>
+      </div>
+    ) : null}
+  </>
   )
 }
 
@@ -263,6 +372,8 @@ function validateOverviewForm(form: OverviewForm): ValidationError[] {
     errors.push({ field: 'description', message: 'Description is required.' })
   if (!form.eventDate.trim())
     errors.push({ field: 'eventDate', message: 'Event date is required.' })
+  const slugError = validateEventSlug(form.slug)
+  if (slugError) errors.push({ field: 'slug', message: slugError })
   if (form.youtubeLink.trim() && !isValidUrl(form.youtubeLink)) {
     errors.push({ field: 'youtubeLink', message: 'YouTube link must start with http:// or https://' })
   }
@@ -282,6 +393,7 @@ function buildPayload(form: OverviewForm, current: EventResponse): EventUpdatePa
   const payload: EventUpdatePayload = {}
   const trim = (val: string) => val.trim()
 
+  if (trim(form.slug) !== current.slug) payload.slug = trim(form.slug)
   if (trim(form.title) !== current.title) payload.title = trim(form.title)
   if (trim(form.description) !== current.description) payload.description = trim(form.description)
 
@@ -320,12 +432,14 @@ function Field({
   label,
   required,
   error,
+  hint,
   input,
   className,
 }: {
   label: string
   required?: boolean
   error?: string
+  hint?: React.ReactNode
   input: React.ReactNode
   className?: string
 }) {
@@ -338,6 +452,9 @@ function Field({
         </Label>
       ) : null}
       <div className="mt-1.5">{input}</div>
+      {hint && !error ? (
+        <p className="mt-1.5 text-xs font-medium text-slate-500">{hint}</p>
+      ) : null}
       {error ? (
         <p className="mt-1.5 text-xs font-semibold text-red-700" role="alert">
           {error}

@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-import { usePublicEvent } from '../hooks/useEvents'
+import { usePublicEventBySlug } from '../hooks/useEvents'
 
 import { EventCoverBanner, EventHero } from './EventDetailSections'
 import { EventAboutSection } from './EventAboutSection'
@@ -19,11 +19,11 @@ import { EventTimeline } from './EventTimeline'
 import { EventYouTubeEmbed } from './EventYouTubeEmbed'
 
 interface EventDetailPageContentProps {
- eventId: string
+ slug: string
 }
 
-export function EventDetailPageContent({ eventId }: EventDetailPageContentProps) {
- const query = usePublicEvent(eventId)
+export function EventDetailPageContent({ slug }: EventDetailPageContentProps) {
+ const query = usePublicEventBySlug(slug)
  const event = query.data
 
  const sortedTimeline = useMemo(
@@ -63,6 +63,7 @@ export function EventDetailPageContent({ eventId }: EventDetailPageContentProps)
  speaker_title: event.speaker_title,
  speaker_description: event.speaker_description,
  speaker_image_url: event.speaker_image_url,
+            speaker_linkedin_url: event.speaker_linkedin_url,
  }}
  />
 

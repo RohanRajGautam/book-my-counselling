@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 import { EVENT_FORM_INPUT_CLASS } from '../../../lib/events.constants'
-import type { EventCreateForm } from '../../../lib/events.validation'
+import { EVENT_SLUG_MAX, EVENT_SLUG_MIN, type EventCreateForm } from '../../../lib/events.validation'
 
 import { EventImageUploader } from '../EventImageUploader'
 
@@ -13,6 +13,7 @@ interface EventDetailsSectionProps {
   value: EventCreateForm
   onChange: (next: EventCreateForm) => void
   errors: {
+    slug?: string
     title?: string
     description?: string
     about?: string
@@ -23,16 +24,60 @@ interface EventDetailsSectionProps {
     coverImageUrl?: string
     youtubeLink?: string
   }
+  /** Slugs already used by other events; used to surface "this slug is taken" inline. */
+  takenSlugs: Set<string>
 }
 
-export function EventDetailsSection({ value, onChange, errors }: EventDetailsSectionProps) {
+export function EventDetailsSection({
+  value,
+  onChange,
+  errors,
+  takenSlugs,
+}: EventDetailsSectionProps) {
   const update = <K extends keyof EventCreateForm>(key: K, next: EventCreateForm[K]) =>
     onChange({ ...value, [key]: next })
+
+  const slugValue = value.slug
+  const slugTrimmed = slugValue.trim()
+  const slugHasShape = new RegExp(`^[a-z0-9](?:[a-z0-9-]{${EVENT_SLUG_MIN - 2},${EVENT_SLUG_MAX - 2}}[a-z0-9])$`).test(
+    slugTrimmed
+  )
+  const slugTaken = slugHasShape && takenSlugs.has(slugTrimmed)
+  const slugPreviewPath = slugHasShape ? `/events/${slugTrimmed}` : '/events/…'
 
   return (
     <div className="space-y-6">
       <Section title="The essentials" subtitle="The bits visitors see first on the listing card.">
         <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="URL slug"
+            required
+            error={errors.slug}
+            hint={
+              <span className="break-all">
+                Public URL:{' '}
+                <span className="font-mono text-slate-700">{slugPreviewPath}</span>
+                {slugTaken ? (
+                  <span className="ml-2 font-semibold text-red-700">
+                    This slug is already used by another event — try another.
+                  </span>
+                ) : null}
+              </span>
+            }
+            input={
+              <Input
+                value={value.slug}
+                onChange={(e) => update('slug', e.target.value.toLowerCase())}
+                placeholder="byc-x-webpoint-fireside"
+                maxLength={EVENT_SLUG_MAX}
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                aria-invalid={!!errors.slug || slugTaken}
+                className={`${EVENT_FORM_INPUT_CLASS} font-mono`}
+              />
+            }
+          />
           <Field
             label="Event title"
             required
@@ -196,12 +241,14 @@ function Field({
   label,
   required,
   error,
+  hint,
   input,
   className,
 }: {
   label: string
   required?: boolean
   error?: string
+  hint?: React.ReactNode
   input: React.ReactNode
   className?: string
 }) {
@@ -214,6 +261,9 @@ function Field({
         </Label>
       ) : null}
       <div className="mt-1.5">{input}</div>
+      {hint && !error ? (
+        <p className="mt-1.5 text-xs font-medium text-slate-500">{hint}</p>
+      ) : null}
       {error ? (
         <p className="mt-1.5 text-xs font-semibold text-red-700" role="alert">
           {error}
