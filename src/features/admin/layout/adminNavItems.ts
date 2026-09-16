@@ -8,6 +8,7 @@ import {
   LifeBuoy,
   Tag,
   UserCheck,
+  Wallet,
 } from 'lucide-react'
 
 export type AdminNavItem = {
@@ -26,6 +27,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { icon: Inbox, href: '/admin/availability-requests', label: 'Availability Requests' },
   { icon: LifeBuoy, href: '/admin/mentor-match-requests', label: 'Mentor Match Requests' },
   { icon: Banknote, href: '/admin/refunds', label: 'Refunds' },
+  { icon: Wallet, href: '/admin/payouts', label: 'Mentor Payouts' },
   { icon: Tag, href: '/admin/promo-codes', label: 'Promo Codes' },
   { icon: Database, href: '/admin/maintenance', label: 'Maintenance', section: 'Maintenance' },
 ] as const
