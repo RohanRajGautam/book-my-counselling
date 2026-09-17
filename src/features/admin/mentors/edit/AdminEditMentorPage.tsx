@@ -45,6 +45,7 @@ import {
   type AdminCreateMentorBioForm,
 } from '../create/components/AdminCreateMentorBioCard'
 import {
+  MAX_HOURLY_RATE,
   fieldHasError,
   formatFieldErrors,
   validateUpdateMentorForm,
@@ -422,7 +423,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                     ? 'Years must be a whole number between 0 and 60.'
                     : undefined,
                   hourlyRate: showError('hourlyRate')
-                    ? 'Hourly rate must be between 0 and 10000 NPR.'
+                    ? `Hourly rate must be between 0 and ${MAX_HOURLY_RATE} NPR.`
                     : undefined,
                   mentorSharePct: showError('mentorSharePct')
                     ? 'Mentor share must be between 0 and 100.'
