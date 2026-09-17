@@ -75,6 +75,24 @@ export async function updateAdminUserProfile(
 }
 
 /**
+ * Updates the email address on any user account. The server normalizes the
+ * value to lowercase and rejects duplicates (409) or malformed addresses
+ * (422); sending the user's current email is a no-op 200.
+ *
+ * Returns the full `UserResponse` so callers can read the freshly-stored
+ * (normalized) email without a follow-up GET.
+ *
+ * Doc: `PATCH /api/v1/admin/users/{user_id}/email`.
+ */
+export async function updateAdminUserEmail(
+  userId: string,
+  payload: { email: string }
+): Promise<UserResponse> {
+  const res = await apiClient.patch<UserResponse>(`/admin/users/${userId}/email`, payload)
+  return res.data
+}
+
+/**
  * Uploads a new avatar file for any user (mentee, mentor, or admin) on the
  * user's behalf. Returns the full `UserResponse` so callers can read the
  * fresh `avatar_url` immediately.
