@@ -10,13 +10,14 @@ export interface AdminMentorProfile {
   id: string
   user_id: string
   /**
-   * Mentor user summary. Matches the backend's `UserPublic` schema — `email`
-   * is intentionally NOT included even though search matches on it, so the
-   * admin list renders name/avatar/role only.
+   * Mentor user summary. Matches the backend's admin-only `AdminMentorListUser`
+   * schema — `email` is included so the admin list can show, copy, or link to
+   * it directly. Public mentor endpoints still omit email.
    */
   user: {
     id: string
     full_name: string
+    email: string
     avatar_url: string | null
     role: string
   }
