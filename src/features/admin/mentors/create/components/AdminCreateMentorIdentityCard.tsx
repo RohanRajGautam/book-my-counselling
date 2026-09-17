@@ -1,4 +1,4 @@
-import { Lock, UserPlus } from 'lucide-react'
+import { Lock, Pencil, UserPlus } from 'lucide-react'
 
 type Props = {
   email: string
@@ -12,6 +12,13 @@ type Props = {
    * edit page can communicate that email is locked. Default `false`.
    */
   emailReadOnly?: boolean
+  /**
+   * When `emailReadOnly` is true and an `emailEditAction` is passed, the
+   * lock icon is replaced by an inline "Change" button that opens the email
+   * edit flow. The read-only input still shows the (now-stale) value until
+   * the parent reseeds it from the saved response.
+   */
+  emailEditAction?: { label: string; onClick: () => void }
   /**
    * Override the helper copy below the heading. Defaults to the create-flow
    * explanation; the edit page passes its own copy.
@@ -31,6 +38,7 @@ export function AdminCreateMentorIdentityCard({
   emailError,
   fullNameError,
   emailReadOnly = false,
+  emailEditAction,
   description = "Create the login account. We'll generate a temporary password and show it once after submission.",
   title = 'Account Identity',
   icon: Icon = UserPlus,
@@ -62,7 +70,21 @@ export function AdminCreateMentorIdentityCard({
           onChange={onEmailChange}
           error={emailError}
           readOnly={emailReadOnly}
-          readOnlyHint={emailReadOnly ? "Email can't be changed from this screen." : undefined}
+          readOnlyHint={
+            emailReadOnly
+              ? emailEditAction
+                ? `Locked here. Use “${emailEditAction.label}” to update it — it opens a confirmation step.`
+                : "Email can't be changed from this screen."
+              : undefined
+          }
+          action={
+            emailReadOnly && emailEditAction
+              ? {
+                  label: emailEditAction.label,
+                  onClick: emailEditAction.onClick,
+                }
+              : undefined
+          }
         />
       </div>
     </section>
@@ -78,6 +100,7 @@ function Field({
   error,
   readOnly = false,
   readOnlyHint,
+  action,
 }: {
   label: string
   value: string
@@ -87,6 +110,7 @@ function Field({
   error?: string
   readOnly?: boolean
   readOnlyHint?: string
+  action?: { label: string; onClick: () => void }
 }) {
   return (
     <label className="block">
@@ -106,7 +130,17 @@ function Field({
             (!readOnly && error ? ' ring-2 ring-red-200' : '')
           }
         />
-        {readOnly ? (
+        {action ? (
+          <button
+            type="button"
+            onClick={action.onClick}
+            className="absolute top-1/2 right-3 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-extrabold text-blue-700 shadow-sm ring-1 ring-blue-200 transition hover:bg-blue-50 hover:ring-blue-300"
+            aria-label={action.label}
+          >
+            <Pencil className="size-3" strokeWidth={2.6} />
+            {action.label}
+          </button>
+        ) : readOnly ? (
           <Lock
             className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 text-slate-400"
             strokeWidth={2.4}
