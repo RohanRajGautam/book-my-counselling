@@ -10,11 +10,13 @@ import {
   CalendarClock,
   Check,
   ChevronDown,
+  Copy,
   Download,
   Globe,
   GraduationCap,
   Link2,
   Loader2,
+  Mail,
   MessageSquare,
   Pencil,
   RotateCcw,
@@ -58,6 +60,7 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
   const { mutate: feature } = useFeatureMentor()
   const isActing = verifying || rejecting
   const [downloading, setDownloading] = useState(false)
+  const [emailCopied, setEmailCopied] = useState(false)
 
   const handleVerify = () => {
     verify(mentor.id, {
@@ -84,6 +87,13 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
   }
   const handleRemind = () => {
     onSendReminder?.(mentor.id)
+  }
+
+  const handleCopyEmail = () => {
+    if (!mentor.user.email) return
+    void navigator.clipboard.writeText(mentor.user.email)
+    setEmailCopied(true)
+    window.setTimeout(() => setEmailCopied(false), 1600)
   }
 
   const handleDownloadWelcomeCard = async () => {
@@ -168,6 +178,33 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
                 ) : null}
               </p>
             )}
+
+            {mentor.user.email ? (
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-600 sm:text-xs">
+                <Mail className="size-3.5 shrink-0 text-slate-400" aria-hidden />
+                <a
+                  href={`mailto:${mentor.user.email}`}
+                  className="truncate font-semibold text-slate-700 hover:text-blue-700 hover:underline"
+                  title={`Email ${mentor.user.email}`}
+                >
+                  {mentor.user.email}
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  title={emailCopied ? 'Copied!' : `Copy ${mentor.user.email}`}
+                  aria-label={emailCopied ? 'Email copied' : `Copy mentor email ${mentor.user.email}`}
+                  className="ml-0.5 inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-bold text-slate-500 transition hover:bg-slate-100 hover:text-blue-700 sm:text-[11px]"
+                >
+                  {emailCopied ? (
+                    <Check className="size-3" strokeWidth={2.6} />
+                  ) : (
+                    <Copy className="size-3" strokeWidth={2.4} />
+                  )}
+                  <span className="hidden sm:inline">{emailCopied ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+            ) : null}
 
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-slate-500 sm:text-xs">
               {mentor.years_of_experience > 0 ? (
