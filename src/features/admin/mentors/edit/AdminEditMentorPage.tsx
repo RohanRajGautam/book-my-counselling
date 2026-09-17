@@ -28,6 +28,7 @@ import {
   type AdminCreateMentorTab,
 } from '../create/components/AdminCreateMentorTabs'
 import { AdminCreateMentorIdentityCard } from '../create/components/AdminCreateMentorIdentityCard'
+import { AdminEditMentorEmailDialog } from './components/AdminEditMentorEmailDialog'
 import {
   AdminCreateMentorGeneralInfoCard,
   type AdminCreateMentorGeneralInfoForm,
@@ -103,7 +104,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
 
   const [activeTab, setActiveTab] = useState<AdminCreateMentorTab>('general-info')
 
-  const [email] = useState('')
+  const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [general, setGeneral] = useState<AdminCreateMentorGeneralInfoForm>(EMPTY_GENERAL)
   const [counselling, setCounselling] = useState<AdminCounsellingForm>(EMPTY_COUNSELLING)
@@ -111,6 +112,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
 
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [snapshot, setSnapshot] = useState<InitialSnapshot | null>(null)
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false)
 
   // Local override for the avatar preview. Updated immediately from the upload
   // response so the user sees their new photo without waiting for the mentor
@@ -161,6 +163,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
     )
 
     setFullName(cachedMentor.user.full_name)
+    setEmail(cachedMentor.user.email)
     setGeneral({
       title: cachedMentor.title,
       company: cachedMentor.company ?? '',
@@ -404,8 +407,9 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
                 }}
                 onFullNameChange={setFullName}
                 emailReadOnly
+                emailEditAction={{ label: 'Change', onClick: () => setEmailDialogOpen(true) }}
                 title="Profile Identity"
-                description="Update the mentor's display name. Email is locked here — manage it through the user's account settings."
+                description="Update the mentor's display name. Email is locked here — use Change to open the email-update flow."
                 emailError={showError('email') ? 'Please enter a valid email.' : undefined}
                 fullNameError={showError('fullName') ? 'Full name is required.' : undefined}
               />
@@ -499,6 +503,17 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
           )}
         </Button>
       </div>
+
+      {emailDialogOpen && cachedMentor ? (
+        <AdminEditMentorEmailDialog
+          key={`${email}-${cachedMentor.user_id}`}
+          userId={cachedMentor.user_id}
+          currentEmail={cachedMentor.user.email}
+          mentorName={cachedMentor.user.full_name}
+          onClose={() => setEmailDialogOpen(false)}
+          onSaved={(updated) => setEmail(updated.email)}
+        />
+      ) : null}
     </div>
   )
 }

@@ -13,6 +13,7 @@ import {
   rejectMentor,
   sendAvailabilityReminder,
   sendBulkAvailabilityReminder,
+  updateAdminUserEmail,
   updateAdminUserProfile,
   verifyMentor,
 } from '../api/mentors.api'
@@ -236,6 +237,44 @@ export function useUpdateAdminUserProfile(userId: string) {
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
     },
   })
+}
+
+/**
+ * Updates a user's email via `PATCH /admin/users/{userId}/email`. Walks every
+ * cached page of `ADMIN_MENTORS_KEY` and patches `user.email` in place so the
+ * admin list (which now exposes mentor email per card) reflects the new
+ * address immediately, then invalidates to reconcile anything the patcher
+ * missed. The endpoint is user-agnostic (mentee / mentor / admin) so the hook
+ * doesn't assume a mentor context. Does NOT toast — caller decides copy.
+ */
+export function useUpdateAdminUserEmail(userId: string) {
+  const qc = useQueryClient()
+  return useMutation<UserResponse, Error, { email: string }>({
+    mutationFn: (payload) => updateAdminUserEmail(userId, payload),
+    onSuccess: (data) => {
+      updateUserEmailInAdminCaches(qc, data)
+      void qc.invalidateQueries({ queryKey: ADMIN_MENTORS_KEY })
+    },
+  })
+}
+
+function updateUserEmailInAdminCaches(
+  qc: ReturnType<typeof useQueryClient>,
+  user: UserResponse
+) {
+  const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
+    queryKey: ADMIN_MENTORS_KEY,
+  })
+  for (const [key, data] of queries) {
+    if (!data) continue
+    let changed = false
+    const items = data.items.map((mentor) => {
+      if (mentor.user_id !== user.id) return mentor
+      changed = true
+      return { ...mentor, user: { ...mentor.user, email: user.email } }
+    })
+    if (changed) qc.setQueryData(key, { ...data, items })
+  }
 }
 
 /**
