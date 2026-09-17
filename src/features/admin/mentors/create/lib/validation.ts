@@ -149,7 +149,7 @@ export function validateCreateMentorForm(form: CreateMentorForm): ValidationErro
 }
 
 /** Maximum hourly rate allowed by the admin profile endpoint. */
-export const MAX_HOURLY_RATE = 10000
+export const MAX_HOURLY_RATE = 100000
 /** Maximum years of experience accepted by the admin profile endpoint. */
 export const MAX_YEARS_OF_EXPERIENCE = 60
 
