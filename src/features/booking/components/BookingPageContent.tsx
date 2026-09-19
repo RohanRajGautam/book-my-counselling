@@ -19,12 +19,28 @@ import {
 import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
-import { createGuestBooking } from '@/features/booking/api/bookingApi'
+import { createGuestBooking, type GuestBookingResult } from '@/features/booking/api/bookingApi'
 import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
 import { PromoCodeInput } from '@/features/promo-codes/components/PromoCodeInput'
 import { useValidatePromoCode } from '@/features/promo-codes/hooks/useValidatePromoCode'
 import { promoCodeErrorMessage } from '@/features/promo-codes/lib/promoCodeErrors'
 import type { PromoCodeValidationResponse } from '@/features/promo-codes/types/promo-codes.types'
+
+/**
+ * A booking is free only when a 100%-off promo was applied. Server
+ * guarantees this, but checking all three conditions keeps the client honest
+ * if the contract shifts (e.g. an admin $0 package path reviewed separately).
+ * The `promo_code !== null` check is what closes the degenerate $0-mentor
+ * loophole — server returns `promo_code: null` then, so this returns false
+ * and the page falls back to Fonepay (which server-side rejects with
+ * `PAYMENT_INVALID_AMOUNT`).
+ */
+function isFreeBooking(result: GuestBookingResult): boolean {
+  if (Number(result.agreed_price) !== 0) return false
+  if (result.promo_code == null) return false
+  if (Number(result.discount_amount) < Number(result.original_price)) return false
+  return true
+}
 
 export function BookingPageContent() {
   const searchParams = useSearchParams()
@@ -62,6 +78,7 @@ export function BookingPageContent() {
   const [bookingAmount, setBookingAmount] = useState<number>(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [bookingCompleteOpen, setBookingCompleteOpen] = useState(false)
+  const [isFree, setIsFree] = useState(false)
   const handlePaymentSuccess = useCallback(() => setBookingCompleteOpen(true), [])
 
   // Promo code state — one applied code per booking.
@@ -92,7 +109,7 @@ export function BookingPageContent() {
           setPromoError(msg)
           toast.error(msg)
         },
-      },
+      }
     )
   }, [promoInput, mentorId, packageId, isEvent, validatePromo])
 
@@ -124,17 +141,18 @@ export function BookingPageContent() {
   const handleSubmit = async () => {
     const allTouched = Object.keys(formData).reduce(
       (acc, key) => ({ ...acc, [key]: true }),
-      {} as Record<string, boolean>,
+      {} as Record<string, boolean>
     )
     setTouched(allTouched)
     setSubmitError(null)
+    setIsFree(false)
 
     const validationErrors = validateBookingForm(formData)
 
     if (validationErrors.length > 0) {
       const errorMap = validationErrors.reduce(
         (acc, e) => ({ ...acc, [e.field]: e.message }),
-        {} as Record<string, string>,
+        {} as Record<string, string>
       )
       setErrors(errorMap)
       const firstError = validationErrors[0]
@@ -170,7 +188,12 @@ export function BookingPageContent() {
       })
 
       setBookingId(result.booking_id)
-      setBookingAmount(parseFloat(result.agreed_price))
+      if (isFreeBooking(result)) {
+        setIsFree(true)
+        setBookingCompleteOpen(true)
+      } else {
+        setBookingAmount(parseFloat(result.agreed_price))
+      }
     } catch (err: unknown) {
       let msg = 'Failed to create booking. Please try again.'
       if (err && typeof err === 'object') {
@@ -243,7 +266,7 @@ export function BookingPageContent() {
       !sessionEnd)
   ) {
     return (
-      <main className="mx-auto min-h-dvh max-w-7xl flex flex-col justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
+      <main className="mx-auto flex min-h-dvh max-w-7xl flex-col justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
         <p className="text-lg font-semibold text-[#121c2a]">Missing booking details</p>
         <p className="mt-2 text-[#434655]">
           Please go back and select a mentor, package, and session time.
@@ -396,7 +419,23 @@ export function BookingPageContent() {
               />
             ) : null}
 
-            {bookingId ? (
+            {isFree ? (
+              <div className="rounded-[24px] bg-white p-5 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
+                <div className="rounded-2xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200">
+                  <p className="text-sm font-bold text-emerald-700">Booking confirmed</p>
+                  <p className="mt-1 text-xs font-medium text-emerald-700/80">
+                    No payment required — 100% off promo applied.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setBookingCompleteOpen(true)}
+                  className="mt-4 w-full rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] py-3 font-[family-name:var(--font-headline)] text-sm font-bold text-white shadow-sm transition hover:shadow-md"
+                >
+                  View confirmation
+                </button>
+              </div>
+            ) : bookingId ? (
               <>
                 <FonepayPaymentSection
                   bookingId={bookingId}
@@ -454,6 +493,7 @@ export function BookingPageContent() {
         session={orderSummarySession}
         price={appliedPromo ? Number(appliedPromo.final_amount) : orderSummaryPrice}
         breakdown={promoBreakdown}
+        freeBooking={isFree}
       />
     </main>
   )

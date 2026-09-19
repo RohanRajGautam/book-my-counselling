@@ -35,6 +35,8 @@ interface BookingCompleteModalProps {
     final: string
     code: string
   }
+  /** True when the booking was confirmed for free via a 100%-off promo. */
+  freeBooking?: boolean
 }
 
 const overlayVariants: Variants = {
@@ -109,6 +111,7 @@ export function BookingCompleteModal({
   price,
   priceLabel,
   breakdown,
+  freeBooking = false,
 }: BookingCompleteModalProps) {
   const router = useRouter()
 
@@ -129,7 +132,8 @@ export function BookingCompleteModal({
   const sessionDateTime = session ? buildSessionDateTime(session) : null
   const initials = mentor ? getInitials(mentor.name) : ''
   const imageSrc = mentor?.imageUrl?.trim() || null
-  const formattedPrice = priceLabel ?? `NPR ${price.toLocaleString('en-NP', { minimumFractionDigits: 2 })}`
+  const formattedPrice =
+    priceLabel ?? `NPR ${price.toLocaleString('en-NP', { minimumFractionDigits: 2 })}`
 
   const handleCopyBookingId = async () => {
     if (!bookingId) return
@@ -173,7 +177,7 @@ export function BookingCompleteModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="absolute right-3 top-3 z-10 grid size-8 place-items-center rounded-[24px] text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              className="absolute top-3 right-3 z-10 grid size-8 place-items-center rounded-[24px] text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
             >
               <X className="size-4" />
             </button>
@@ -212,7 +216,9 @@ export function BookingCompleteModal({
                   Booking Confirmed
                 </h2>
                 <p className="mt-1 text-sm font-medium text-slate-500">
-                  You&rsquo;re all set &mdash; see you in your session.
+                  {freeBooking
+                    ? '100% off promo applied — see you in your session.'
+                    : 'You’re all set — see you in your session.'}
                 </p>
               </div>
             </div>
@@ -319,8 +325,16 @@ export function BookingCompleteModal({
                     </div>
                     <div className="flex items-center justify-between border-t border-[var(--brand-blue-soft)] pt-2">
                       <span className="text-sm font-semibold text-[#434655]">Total paid</span>
-                      <span className="font-[family-name:var(--font-headline)] text-lg font-extrabold text-[var(--brand-blue)]">
-                        NPR {Number(breakdown.final).toLocaleString()}
+                      <span className="font-[family-name:var(--font-headline)] text-lg font-extrabold">
+                        {freeBooking ? (
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold tracking-wide text-emerald-700 uppercase ring-1 ring-emerald-200">
+                            Free
+                          </span>
+                        ) : (
+                          <span className="text-[var(--brand-blue)]">
+                            NPR {Number(breakdown.final).toLocaleString()}
+                          </span>
+                        )}
                       </span>
                     </div>
                   </div>
