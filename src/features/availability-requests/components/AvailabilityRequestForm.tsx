@@ -1,12 +1,14 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AxiosError } from 'axios'
-import { Loader2 } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
 import { FormInput } from '@/features/booking/components/FormInput'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
 
@@ -16,6 +18,10 @@ import {
 } from '../types/availability-requests.types'
 import { useCreateAvailabilityRequest } from '../hooks/useAvailabilityRequests'
 import { DurationPicker } from './DurationPicker'
+import {
+  findConflictingSlot,
+  formatTimeRange,
+} from '../lib/datetime'
 import {
   datetimeLocalToDate,
   isFutureDate,
@@ -77,6 +83,7 @@ export function AvailabilityRequestForm({
 }: AvailabilityRequestFormProps) {
   const router = useRouter()
   const createMutation = useCreateAvailabilityRequest()
+  const { data: slots, isPending: slotsPending } = useMentorAvailability(mentorId)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -87,6 +94,13 @@ export function AvailabilityRequestForm({
   const [touched, setTouched] = useState<Partial<Record<keyof FieldErrors, boolean>>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState<AvailabilityRequestResponse | null>(null)
+
+  const conflict = useMemo(() => {
+    if (slotsPending || !slots) return null
+    const startDate = datetimeLocalToDate(requestedStart)
+    if (!startDate) return null
+    return findConflictingSlot(slots, startDate, duration)
+  }, [slots, slotsPending, requestedStart, duration])
 
   const minStart = useMemo(() => {
     const d = new Date()
@@ -121,6 +135,9 @@ export function AvailabilityRequestForm({
   async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault()
     setSubmitError(null)
+
+    if (conflict) return
+
     const allErrors = validate()
     setErrors(allErrors)
     setTouched({ name: true, email: true, requested_start: true, message: true })
@@ -246,6 +263,31 @@ export function AvailabilityRequestForm({
         />
       </Field>
 
+      {conflict ? (
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-900"
+        >
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" strokeWidth={2.4} />
+          <div className="min-w-0 flex-1">
+            <p className="font-bold">
+              {mentorName.split(' ')[0]} already has a{' '}
+              {formatTimeRange(conflict.start_time, conflict.end_time)} slot open.
+            </p>
+            <p className="mt-0.5 font-medium text-amber-800">
+              Want to skip the wait and book it directly?
+            </p>
+            <Link
+              href={`/academic-counsellor/${mentorId}`}
+              className="mt-2 inline-flex items-center gap-1 font-bold text-amber-900 underline-offset-2 hover:underline"
+            >
+              Book this slot instead
+              <ArrowRight className="size-3.5" strokeWidth={2.6} />
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       {/* Optional note */}
       <Field label="Note to the mentor (optional)" help={`${message.length} / 2000`}>
         <FormTextarea
@@ -285,7 +327,7 @@ export function AvailabilityRequestForm({
         </p>
         <Button
           type="submit"
-          disabled={createMutation.isPending}
+          disabled={createMutation.isPending || !!conflict}
           className="h-12 shrink-0 rounded-2xl bg-[#0755d8] px-6 font-bold text-white shadow-[0_10px_22px_rgba(7,85,216,0.22)] hover:bg-blue-700 disabled:opacity-60"
         >
           {createMutation.isPending ? (
