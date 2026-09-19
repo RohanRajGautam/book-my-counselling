@@ -57,6 +57,33 @@ export function formatTimeRange(startIso: string, endIso: string): string {
   return `${fmt(start)} – ${fmt(end)}`
 }
 
+/**
+ * Returns the first open slot whose window contains the requested start time —
+ * i.e. the mentee picked a start that already falls inside a bookable slot.
+ * Adjacent picks (request starts at or after `slotEnd`) and picks before the
+ * slot are not flagged, even if the requested session would overlap or extend
+ * past the slot — that's a separate concern the backend handles.
+ */
+export function findConflictingSlot<
+  T extends { start_time: string; end_time: string; is_booked: boolean },
+>(
+  slots: readonly T[],
+  requestedStart: Date,
+  durationMinutes: number,
+): T | null {
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) return null
+  const startMs = requestedStart.getTime()
+  if (Number.isNaN(startMs)) return null
+  for (const slot of slots) {
+    if (slot.is_booked) continue
+    const slotStart = new Date(slot.start_time).getTime()
+    const slotEnd = new Date(slot.end_time).getTime()
+    if (Number.isNaN(slotStart) || Number.isNaN(slotEnd)) continue
+    if (slotStart <= startMs && startMs < slotEnd) return slot
+  }
+  return null
+}
+
 /** Initial-capped first letter of the first name (or email if no name). */
 export function getRequesterInitials(name: string | null, email: string): string {
   const source = (name || email).trim()
