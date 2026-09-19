@@ -43,6 +43,7 @@ export function PromoCodeInput({
 }: PromoCodeInputProps) {
   if (applied) {
     const discountPct = Number(applied.discount_percent)
+    const isFullPromo = Number.isFinite(discountPct) && discountPct >= 100
     return (
       <div
         className="flex items-center justify-between gap-3 rounded-2xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200"
@@ -56,11 +57,15 @@ export function PromoCodeInput({
             <p className="truncate text-sm font-bold text-emerald-700">
               {applied.code}: {Number.isFinite(discountPct) ? `${discountPct}% off` : 'applied'}
               <span className="ml-2 font-semibold text-emerald-600">
-                — save {formatNpr(applied.discount_amount)}
+                {isFullPromo
+                  ? '— This session is free'
+                  : `— save ${formatNpr(applied.discount_amount)}`}
               </span>
             </p>
             <p className="text-xs font-medium text-emerald-600/80">
-              You&apos;ll pay {formatNpr(applied.final_amount)}
+              {isFullPromo
+                ? '100% off — mentor is paid by BYC'
+                : `You'll pay ${formatNpr(applied.final_amount)}`}
             </p>
           </div>
         </div>
