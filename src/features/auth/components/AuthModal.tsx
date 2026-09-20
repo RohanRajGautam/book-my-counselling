@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react'
+import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '../hooks/useAuth'
 import { ResetPasswordFlow } from './ResetPasswordFlow'
@@ -203,9 +203,17 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  const hasMinLength = password.length >= 8
+  const hasUpper = /[A-Z]/.test(password)
+  const hasDigit = /\d/.test(password)
+  const passwordValid = hasMinLength && hasUpper && hasDigit
+  const showRules = password.length > 0
+  const canSubmit =
+    !!fullName.trim() && !!email.trim() && passwordValid && !registerMutation.isPending
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!fullName.trim() || !email.trim() || !password) return
+    if (!canSubmit) return
 
     registerMutation.mutate(
       { full_name: fullName.trim(), email: email.trim(), password, role: 'mentor' },
@@ -257,9 +265,10 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min. 8 characters"
               autoComplete="new-password"
-              minLength={8}
               required
-              className="h-12 w-full rounded-2xl bg-[#f0f4ff] pl-11 pr-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200"
+              aria-invalid={showRules && !passwordValid}
+              aria-describedby="register-password-rules"
+              className="h-12 w-full rounded-2xl bg-[#f0f4ff] pl-11 pr-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-rose-200"
             />
             <button
               type="button"
@@ -271,11 +280,19 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
             </button>
           </div>
         </label>
+
+        {showRules && (
+          <ul id="register-password-rules" className="mt-2 space-y-1 text-xs font-medium">
+            <Rule ok={hasMinLength}>At least 8 characters</Rule>
+            <Rule ok={hasUpper}>One uppercase letter</Rule>
+            <Rule ok={hasDigit}>One digit</Rule>
+          </ul>
+        )}
       </div>
 
       <button
         type="submit"
-        disabled={registerMutation.isPending || !fullName || !email || !password}
+        disabled={!canSubmit}
         className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 text-sm font-extrabold text-white shadow-md shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {registerMutation.isPending ? (
@@ -361,4 +378,19 @@ function extractErrorMessage(err: unknown): string | null {
   const data = response?.['data'] as Record<string, unknown> | undefined
   if (typeof data?.['detail'] === 'string') return data['detail']
   return null
+}
+
+function Rule({ ok, children }: { ok: boolean; children: React.ReactNode }) {
+  return (
+    <li
+      className={`flex items-center gap-2 ${
+        ok ? 'text-emerald-600' : 'text-slate-400'
+      }`}
+    >
+      <CheckCircle2
+        className={`size-3.5 ${ok ? 'text-emerald-500' : 'text-slate-300'}`}
+      />
+      <span>{children}</span>
+    </li>
+  )
 }
