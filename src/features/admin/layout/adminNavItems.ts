@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Banknote,
+  Briefcase,
   CalendarDays,
   CalendarSearch,
   Database,
@@ -29,6 +30,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { icon: Banknote, href: '/admin/refunds', label: 'Refunds' },
   { icon: Wallet, href: '/admin/payouts', label: 'Mentor Payouts' },
   { icon: Tag, href: '/admin/promo-codes', label: 'Promo Codes' },
+  { icon: Briefcase, href: '/admin/industries', label: 'Industries' },
   { icon: Database, href: '/admin/maintenance', label: 'Maintenance', section: 'Maintenance' },
 ] as const
 
