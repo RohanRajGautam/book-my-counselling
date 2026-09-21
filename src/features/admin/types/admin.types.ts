@@ -98,6 +98,40 @@ export interface AdminStats {
   total_bookings: number
   // Pydantic serializes Decimal as a JSON string; coerce at the consumer.
   total_revenue: string
+  /** Bookings created at or after today's UTC midnight. Includes cancelled,
+   *  refunded, and pending-payment rows — every `Booking` row, regardless of
+   *  status. */
+  todays_bookings: number
+  /** MentorProfile rows with `is_verified=true` AND `created_at` at or after
+   *  today's UTC midnight. Bucketed by profile creation date, not approval
+   *  time — there is no separate `approved_at` column. */
+  todays_onboarded_mentors: number
+  /** Bookings created during yesterday's UTC day (yesterday midnight
+   *  inclusive, today midnight exclusive). Echoed alongside
+   *  `todays_bookings` so the dashboard can render a delta without an extra
+   *  request. */
+  yesterdays_bookings: number
+  /** Approved mentors (`is_verified=true`) created during yesterday's UTC
+   *  day. Same delta-against-yesterday pattern as `yesterdays_bookings`. */
+  yesterdays_onboarded_mentors: number
+}
+
+/**
+ * Response from GET /admin/mentors/onboarding-stats.
+ *
+ * Two pre-zero-filled, oldest-first series of approved-mentor counts
+ * (MentorProfile.is_verified=true, bucketed by MentorProfile.created_at):
+ *
+ *   - `weekly`  — 7 entries, last entry is today (UTC).
+ *   - `monthly` — 12 entries, last entry is the current UTC month.
+ *
+ * Both series are contiguous and zero-filled server-side — every bucket in
+ * the window appears in the array even when the count is 0. Render them
+ * as-is; do not re-derive buckets client-side.
+ */
+export interface MentorOnboardingStats {
+  weekly: Array<{ date: string; count: number }>
+  monthly: Array<{ month: string; count: number }>
 }
 
 // ── Bookings ──────────────────────────────────────────────────────────────

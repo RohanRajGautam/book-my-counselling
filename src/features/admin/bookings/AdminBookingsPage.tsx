@@ -5,6 +5,7 @@ import { CalendarClock } from 'lucide-react'
 
 import { AdminPageHeader } from '../layout/AdminPageHeader'
 import { useAdminBookings } from './hooks/useAdminBookings'
+import { useAdminStats } from '../analytics/hooks/useAdminStats'
 import { AdminBookingFiltersBar } from './components/AdminBookingFiltersBar'
 import { AdminBookingCard } from './components/AdminBookingCard'
 import { AdminMentorPagination } from '../mentors/components/AdminMentorPagination'
@@ -29,9 +30,15 @@ export function AdminBookingsPage() {
   const [paymentStatus, setPaymentStatus] = useState<AdminPaymentStatus | 'all'>('all')
   const [page, setPage] = useState(1)
 
-  useEffect(() => {
+  // Reset to page 1 whenever any filter changes. Doing this during render
+  // (instead of in an effect) avoids a cascading re-render — the standard
+  // pattern for "reset state when a prop/state changes".
+  const filtersSignature = `${debouncedQ}|${status}|${paymentStatus}`
+  const [prevFilters, setPrevFilters] = useState(filtersSignature)
+  if (prevFilters !== filtersSignature) {
+    setPrevFilters(filtersSignature)
     setPage(1)
-  }, [debouncedQ, status, paymentStatus])
+  }
 
   const { data, isLoading, isFetching } = useAdminBookings({
     q: debouncedQ.trim() || undefined,
@@ -40,8 +47,12 @@ export function AdminBookingsPage() {
     page,
   })
 
+  const { data: stats, isLoading: statsLoading } = useAdminStats()
+
   const rows = data?.items ?? []
   const hasFilters = !!debouncedQ || status !== 'all' || paymentStatus !== 'all'
+  const lifetimeTotal = stats?.total_bookings ?? 0
+  const filteredTotal = data?.total
 
   return (
     <div className="min-h-svh overflow-x-hidden bg-[#f8f9ff] text-slate-950">
@@ -50,9 +61,17 @@ export function AdminBookingsPage() {
           title="Bookings"
           subtitle="Search, filter, and cancel bookings across the platform."
           action={
-            <span className="hidden self-start rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700 sm:inline-flex">
-              {data?.total ?? 0} total
-            </span>
+            <div className="hidden flex-col items-end gap-0.5 self-start sm:flex">
+              <span className="text-xs font-extrabold text-slate-700">
+                {statsLoading ? '…' : lifetimeTotal.toLocaleString('en-US')} total
+                bookings
+              </span>
+              {hasFilters ? (
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {filteredTotal?.toLocaleString('en-US') ?? '…'} matching filters
+                </span>
+              ) : null}
+            </div>
           }
         />
 

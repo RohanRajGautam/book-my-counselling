@@ -4,11 +4,19 @@ import {
   AdminRevenueMulti,
   AdminRevenueResponse,
   AdminStats,
+  MentorOnboardingStats,
   RevenuePeriod,
 } from '../../types/admin.types'
 
 export async function getAdminStats(): Promise<AdminStats> {
   const res = await apiClient.get<AdminStats>('/admin/stats')
+  return res.data
+}
+
+export async function getMentorOnboardingStats(): Promise<MentorOnboardingStats> {
+  const res = await apiClient.get<MentorOnboardingStats>(
+    '/admin/mentors/onboarding-stats',
+  )
   return res.data
 }
 
