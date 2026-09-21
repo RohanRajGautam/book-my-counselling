@@ -1,16 +1,11 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import {
-  Banknote,
-  CalendarSearch,
-  Sparkles,
-  Users,
-  UserCheck,
-} from 'lucide-react'
+import { Banknote, CalendarSearch, Sparkles, UserCheck, UserPlus } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 import { AdminPageHeader } from '../layout/AdminPageHeader'
-import { useAdminStats } from './hooks/useAdminStats'
+import { useAdminStats, useMentorOnboardingStats } from './hooks/useAdminStats'
 import {
   useAdminRevenue,
   useAdminRevenueAll,
@@ -18,11 +13,7 @@ import {
 } from './hooks/useAdminRevenue'
 import { fillBreakdownGaps, formatCoverageWindow } from './lib/dateRanges'
 import { formatNPR, formatNPRCompact } from '../lib/format'
-import type {
-  AdminRevenue,
-  PresetRevenuePeriod,
-  RevenuePeriod,
-} from '../types/admin.types'
+import type { AdminRevenue, PresetRevenuePeriod, RevenuePeriod } from '../types/admin.types'
 
 import { AdminStatCard } from './components/AdminStatCard'
 import { AdminRevenueChart } from './components/AdminRevenueChart'
@@ -30,6 +21,7 @@ import { AdminRevenuePeriodSelector } from './components/AdminRevenuePeriodSelec
 import { AdminCustomRangeForm } from './components/AdminCustomRangeForm'
 import { AdminQuickActions } from './components/AdminQuickActions'
 import { AdminRecentBookingsCard } from './components/AdminRecentBookingsCard'
+import { AdminMentorOnboardingChart } from './components/AdminMentorOnboardingChart'
 
 /** Convert a `YYYY-MM-DD` from a native `<input type="date">` to the ISO datetime the API expects. */
 function utcIsoFromDateInput(value: string, edge: 'start' | 'end'): string | undefined {
@@ -52,15 +44,15 @@ function shiftIsoDay(iso: string, days: number): string {
 
 export function AdminAnalyticsPage() {
   const [period, setPeriod] = useState<RevenuePeriod>('weekly')
+  const [onboardingWindow, setOnboardingWindow] = useState<'weekly' | 'monthly'>(
+    'weekly',
+  )
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
 
   // Bundled fetch: one round-trip loads weekly + monthly + yearly so the
   // period selector switches instantly without re-hitting the server.
-  const {
-    data: revenueAll,
-    isLoading: revenueAllLoading,
-  } = useAdminRevenueAll()
+  const { data: revenueAll, isLoading: revenueAllLoading } = useAdminRevenueAll()
 
   // Custom range uses its own request (the bundled endpoint doesn't accept dates).
   // Fetch fires the moment the admin sets an end date — if they haven't picked
@@ -95,9 +87,7 @@ export function AdminAnalyticsPage() {
   }, [period, revenueAll, customRevenue])
 
   const isLoading =
-    period === 'custom'
-      ? customFetching && !activeRevenue
-      : revenueAllLoading && !activeRevenue
+    period === 'custom' ? customFetching && !activeRevenue : revenueAllLoading && !activeRevenue
 
   const filledData = useMemo(() => {
     if (!activeRevenue) return undefined
@@ -105,20 +95,17 @@ export function AdminAnalyticsPage() {
       activeRevenue.breakdown,
       activeRevenue.period,
       activeRevenue.start_date,
-      activeRevenue.end_date,
+      activeRevenue.end_date
     )
   }, [activeRevenue])
 
   const { data: stats, isLoading: statsLoading } = useAdminStats()
+  const { data: onboarding, isLoading: onboardingLoading } = useMentorOnboardingStats()
 
   const totalRevenue = Number(stats?.total_revenue ?? 0)
   const isFreshData = !statsLoading && !revenueAllLoading
   const coverageLabel = activeRevenue
-    ? formatCoverageWindow(
-        activeRevenue.start_date,
-        activeRevenue.end_date,
-        activeRevenue.period,
-      )
+    ? formatCoverageWindow(activeRevenue.start_date, activeRevenue.end_date, activeRevenue.period)
     : null
 
   return (
@@ -158,18 +145,18 @@ export function AdminAnalyticsPage() {
           />
           <AdminStatCard
             icon={<CalendarSearch size={20} strokeWidth={2.2} />}
-            label="Total Bookings"
-            value={(stats?.total_bookings ?? 0).toLocaleString('en-US')}
+            label="Today's bookings"
+            value={(stats?.todays_bookings ?? 0).toLocaleString('en-US')}
             tone="amber"
-            helper="Lifetime"
+            helper="Today"
             loading={statsLoading}
           />
           <AdminStatCard
-            icon={<Users size={20} strokeWidth={2.2} />}
-            label="Total Users"
-            value={(stats?.total_users ?? 0).toLocaleString('en-US')}
-            tone="slate"
-            helper="Lifetime registrations"
+            icon={<UserPlus size={20} strokeWidth={2.2} />}
+            label="Today’s onboarded mentors"
+            value={(stats?.todays_onboarded_mentors ?? 0).toLocaleString('en-US')}
+            tone="emerald"
+            helper="Today"
             loading={statsLoading}
           />
         </section>
@@ -218,9 +205,7 @@ export function AdminAnalyticsPage() {
               <AdminRevenueChart
                 data={filledData}
                 isLoading={isLoading}
-                totalRevenue={
-                  activeRevenue ? Number(activeRevenue.total_revenue) : 0
-                }
+                totalRevenue={activeRevenue ? Number(activeRevenue.total_revenue) : 0}
                 totalBookings={activeRevenue?.total_paid_bookings ?? 0}
               />
             </div>
@@ -230,6 +215,63 @@ export function AdminAnalyticsPage() {
             <AdminQuickActions />
             <AdminSparklesCard />
           </aside>
+        </section>
+
+        {/* ── Mentor onboarding ─────────────────────────────── */}
+        <section
+          aria-label="Mentor onboarding"
+          className="rounded-2xl bg-white p-5 shadow-sm sm:p-6"
+        >
+          <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="font-headline text-base font-extrabold text-slate-950 sm:text-lg">
+                Mentor onboarding
+              </h2>
+              <p className="mt-1 text-xs font-medium text-slate-500">
+                Approved mentor profiles by calendar window. Bucketed by
+                <span className="font-bold text-slate-700"> is_verified=true</span>
+                {' '}+ <span className="font-bold text-slate-700">created_at</span>.
+              </p>
+            </div>
+            <OnboardingWindowToggle
+              value={onboardingWindow}
+              onChange={setOnboardingWindow}
+            />
+          </header>
+
+          <div className="mt-5">
+            {onboardingWindow === 'weekly' ? (
+              <AdminMentorOnboardingChart
+                title="Approved last 7 days"
+                subtitle="Last 7 UTC days · last point is today"
+                data={
+                  onboarding
+                    ? onboarding.weekly.map((w) => ({
+                        xLabel: formatWeekday(w.date),
+                        rawLabel: w.date,
+                        count: w.count,
+                      }))
+                    : undefined
+                }
+                isLoading={onboardingLoading}
+              />
+            ) : (
+              <AdminMentorOnboardingChart
+                title="Approved last 12 months"
+                subtitle="Current UTC month + previous 11"
+                data={
+                  onboarding
+                    ? onboarding.monthly.map((m) => ({
+                        xLabel: formatMonthAbbr(m.month),
+                        rawLabel: m.month,
+                        count: m.count,
+                      }))
+                    : undefined
+                }
+                isLoading={onboardingLoading}
+              />
+            )}
+          </div>
         </section>
 
         <AdminRecentBookingsCard />
@@ -244,11 +286,76 @@ function AdminSparklesCard() {
       <div className="inline-flex size-10 items-center justify-center rounded-xl bg-white/10">
         <Sparkles className="size-5 text-amber-300" />
       </div>
-      <h2 className="mt-4 font-headline text-base font-extrabold sm:text-lg">Pro Tip</h2>
+      <h2 className="font-headline mt-4 text-base font-extrabold sm:text-lg">Pro Tip</h2>
       <p className="mt-2 text-xs leading-5 text-slate-200 sm:text-sm">
-        Featured mentors get <strong className="font-extrabold text-white">3× more profile views</strong>.
-        Toggle a mentor&apos;s featured flag on the Mentors page to surface them on the public listing.
+        Featured mentors get{' '}
+        <strong className="font-extrabold text-white">3× more profile views</strong>. Toggle a
+        mentor&apos;s featured flag on the Mentors page to surface them on the public listing.
       </p>
     </section>
   )
+}
+
+const ONBOARDING_WINDOW_OPTIONS = [
+  { id: 'weekly', label: 'Last 7 days' },
+  { id: 'monthly', label: 'Last 12 months' },
+] as const
+
+type OnboardingWindow = (typeof ONBOARDING_WINDOW_OPTIONS)[number]['id']
+
+function OnboardingWindowToggle({
+  value,
+  onChange,
+}: {
+  value: OnboardingWindow
+  onChange: (next: OnboardingWindow) => void
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Onboarding window"
+      className="inline-flex self-start rounded-2xl bg-slate-100 p-1 sm:self-auto"
+    >
+      {ONBOARDING_WINDOW_OPTIONS.map((opt) => {
+        const active = opt.id === value
+        return (
+          <button
+            key={opt.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(opt.id)}
+            className={cn(
+              'rounded-xl px-4 py-1.5 text-xs font-extrabold transition',
+              active
+                ? 'bg-white text-slate-950 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800',
+            )}
+          >
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** "2026-09-21" → "Mon". Display-only — the bucketing is server-side. */
+function formatWeekday(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    timeZone: 'UTC',
+  })
+}
+
+/** "2026-09" → "Sep". Display-only — the bucketing is server-side. */
+function formatMonthAbbr(yearMonth: string): string {
+  const d = new Date(`${yearMonth}-01T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return yearMonth
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    timeZone: 'UTC',
+  })
 }
