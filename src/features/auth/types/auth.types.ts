@@ -1,3 +1,5 @@
+export type OAuthProvider = 'google' | 'linkedin'
+
 export interface UserResponse {
   id: string
   email: string
@@ -7,6 +9,10 @@ export interface UserResponse {
   is_verified: boolean
   avatar_url: string | null
   created_at: string
+  // Populated when the backend includes the OAuth accounts linked to this
+  // user (e.g. on /auth/me). Optional because the field is added by the
+  // OAuth endpoints and isn't part of every legacy user payload.
+  oauth_providers?: OAuthProvider[]
 }
 
 export interface LoginResponse {
@@ -14,6 +20,12 @@ export interface LoginResponse {
   refresh_token: string
   token_type: string
   user: UserResponse
+}
+
+export interface OAuthLinkPayload {
+  provider: OAuthProvider
+  code: string
+  redirect_uri: string
 }
 
 export interface RegisterPayload {

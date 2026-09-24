@@ -5,6 +5,7 @@ import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-rea
 import { toast } from 'sonner'
 import { useAuth } from '../hooks/useAuth'
 import { ResetPasswordFlow } from './ResetPasswordFlow'
+import { OAuthButtons } from './OAuthButtons'
 
 type Tab = 'login' | 'register' | 'reset'
 
@@ -179,6 +180,8 @@ function LoginForm({
         )}
       </button>
 
+      <OAuthButtons variant="login" audience="mentor" />
+
       <div className="text-center">
         <button
           type="button"
@@ -304,6 +307,8 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
           'Create Account'
         )}
       </button>
+
+      <OAuthButtons variant="register" audience="mentor" />
 
       <p className="text-center text-xs font-medium text-slate-400">
         Already have an account?{' '}
