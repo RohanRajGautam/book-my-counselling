@@ -4,14 +4,25 @@ import { useEffect, useRef, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { useRejectAvailabilityRequest } from '../hooks/useAvailabilityRequests'
+import {
+  useAdminRejectAvailabilityRequest,
+  useRejectAvailabilityRequest,
+} from '../hooks/useAvailabilityRequests'
 import type { AvailabilityRequestResponse } from '../types/availability-requests.types'
 import { formatRequestDateTimeRelative } from '../lib/datetime'
+
+type Actor = 'mentor' | 'admin'
 
 interface RejectRequestModalProps {
   request: AvailabilityRequestResponse
   onClose: () => void
   onRejected: () => void
+  /**
+   * Which actor's reject endpoint to hit. `'mentor'` (default) hits the
+   * mentor-only endpoint with ownership checks. `'admin'` hits the admin
+   * endpoint, which acts on any mentor's pending request.
+   */
+  actor?: Actor
 }
 
 /**
@@ -23,12 +34,18 @@ export function RejectRequestModal({
   request,
   onClose,
   onRejected,
+  actor = 'mentor',
 }: RejectRequestModalProps) {
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const { mutate, isPending } = useRejectAvailabilityRequest()
+  const { mutate: rejectAsMentor, isPending: pendingAsMentor } = useRejectAvailabilityRequest()
+  const { mutate: rejectAsAdmin, isPending: pendingAsAdmin } = useAdminRejectAvailabilityRequest()
+  const { mutate, isPending } =
+    actor === 'admin'
+      ? { mutate: rejectAsAdmin, isPending: pendingAsAdmin }
+      : { mutate: rejectAsMentor, isPending: pendingAsMentor }
   const canSubmit = !isPending
 
   useEffect(() => {
@@ -61,7 +78,7 @@ export function RejectRequestModal({
         onError: () => {
           setError('We could not send the rejection. Please try again.')
         },
-      },
+      }
     )
   }
 
@@ -106,8 +123,8 @@ export function RejectRequestModal({
           <p className="font-bold text-slate-800">{request.requester_name}</p>
           <p className="text-slate-500">{request.requester_email}</p>
           <p className="mt-1.5 text-xs font-semibold text-slate-500">
-            {formatRequestDateTimeRelative(request.requested_start)} ·{' '}
-            {request.duration_minutes} min
+            {formatRequestDateTimeRelative(request.requested_start)} · {request.duration_minutes}{' '}
+            min
           </p>
         </div>
 

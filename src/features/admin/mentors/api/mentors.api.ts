@@ -151,6 +151,46 @@ export async function reindexElasticsearch(): Promise<{ message: string }> {
   return res.data
 }
 
+/**
+ * Returns the parsed `filename="..."` value from a `Content-Disposition`
+ * header. Falls back to a UTC-dated `approved_mentors_YYYYMMDD.csv` when
+ * the header is missing or unparseable — matches the backend's default.
+ */
+function filenameFromDisposition(disposition: string | null | undefined): string {
+  if (disposition) {
+    const match = disposition.match(/filename="?([^";]+)"?/i)
+    if (match?.[1]) return match[1]
+  }
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+  return `approved_mentors_${today}.csv`
+}
+
+export interface ApprovedMentorsCsv {
+  blob: Blob
+  filename: string
+}
+
+/**
+ * Downloads every approved mentor as a single CSV file. The backend streams
+ * it back with `Content-Type: text/csv; charset=utf-8` and a
+ * `Content-Disposition: attachment; filename="approved_mentors_<date>.csv"`
+ * header, so we read the filename from the header instead of fabricating one.
+ *
+ * `responseType: 'blob'` keeps axios from trying to JSON-parse the body. A
+ * non-2xx still rejects so the caller can surface 401/403 via toast.
+ *
+ * Doc: `GET /api/v1/admin/mentors/export`.
+ */
+export async function downloadApprovedMentorsCsv(): Promise<ApprovedMentorsCsv> {
+  const res = await apiClient.get<Blob>('/admin/mentors/export', {
+    responseType: 'blob',
+  })
+  return {
+    blob: res.data,
+    filename: filenameFromDisposition(res.headers['content-disposition']),
+  }
+}
+
 export async function getMentorsWithoutAvailability(params: {
   isVerified?: boolean
   page?: number

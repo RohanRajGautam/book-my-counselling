@@ -16,6 +16,7 @@ import { AdminMentorSearchBar } from './components/AdminMentorSearchBar'
 import { AdminMentorCard } from './components/AdminMentorCard'
 import { AdminMentorPagination } from './components/AdminMentorPagination'
 import { BulkDownloadWelcomeCardsButton } from './components/BulkDownloadWelcomeCardsButton'
+import { DownloadApprovedMentorsCsvButton } from './components/DownloadApprovedMentorsCsvButton'
 
 const VALID_TAB_IDS = ADMIN_MENTOR_TABS.map((t) => t.id) as readonly AdminMentorTabId[]
 
@@ -129,6 +130,7 @@ export function AdminMentorsPage() {
           subtitle="Review applications, approve mentors, feature the best, and nudge anyone missing availability."
           action={
             <>
+              <DownloadApprovedMentorsCsvButton />
               <BulkDownloadWelcomeCardsButton availableCount={avatarsOnPage} />
               {showRemindAll && total > 0 ? (
                 <Button

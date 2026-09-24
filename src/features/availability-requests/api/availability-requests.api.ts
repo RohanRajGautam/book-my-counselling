@@ -14,11 +14,11 @@ import {
  * Backend lowercases the email and trims name + message server-side.
  */
 export async function createAvailabilityRequest(
-  payload: AvailabilityRequestCreate,
+  payload: AvailabilityRequestCreate
 ): Promise<AvailabilityRequestResponse> {
   const response = await apiClient.post<AvailabilityRequestResponse>(
     '/availability-requests',
-    payload,
+    payload
   )
   return response.data
 }
@@ -32,7 +32,7 @@ export interface ListAvailabilityRequestsParams {
 }
 
 export async function listMyAvailabilityRequests(
-  params: ListAvailabilityRequestsParams = {},
+  params: ListAvailabilityRequestsParams = {}
 ): Promise<PaginatedResponse<AvailabilityRequestResponse>> {
   const response = await apiClient.get<PaginatedResponse<AvailabilityRequestResponse>>(
     '/availability-requests',
@@ -42,28 +42,26 @@ export async function listMyAvailabilityRequests(
         page: params.page ?? 1,
         page_size: params.pageSize ?? 20,
       },
-    },
+    }
   )
   return response.data
 }
 
-export async function confirmAvailabilityRequest(
-  id: string,
-): Promise<AvailabilityRequestResponse> {
+export async function confirmAvailabilityRequest(id: string): Promise<AvailabilityRequestResponse> {
   const response = await apiClient.post<AvailabilityRequestResponse>(
     `/availability-requests/${id}/confirm`,
-    {},
+    {}
   )
   return response.data
 }
 
 export async function rejectAvailabilityRequest(
   id: string,
-  payload: AvailabilityRequestReject = {},
+  payload: AvailabilityRequestReject = {}
 ): Promise<AvailabilityRequestResponse> {
   const response = await apiClient.post<AvailabilityRequestResponse>(
     `/availability-requests/${id}/reject`,
-    payload,
+    payload
   )
   return response.data
 }
@@ -71,7 +69,7 @@ export async function rejectAvailabilityRequest(
 // ── Admin ─────────────────────────────────────────────────────────────────
 
 export async function listAllAvailabilityRequests(
-  params: ListAvailabilityRequestsParams = {},
+  params: ListAvailabilityRequestsParams = {}
 ): Promise<PaginatedResponse<AvailabilityRequestResponse>> {
   const response = await apiClient.get<PaginatedResponse<AvailabilityRequestResponse>>(
     '/availability-requests/admin',
@@ -81,7 +79,36 @@ export async function listAllAvailabilityRequests(
         page: params.page ?? 1,
         page_size: params.pageSize ?? 20,
       },
-    },
+    }
+  )
+  return response.data
+}
+
+/**
+ * Admin acts on a request regardless of which mentor owns it. There is no
+ * mentor-ownership check — the mentor is resolved server-side from
+ * `request.mentor_id`. `confirm` opens a slot under that mentor; `reject`
+ * flips the status only. Both return the updated `AvailabilityRequestResponse`.
+ *
+ * Doc: `POST /api/v1/admin/availability-requests/{id}/{confirm,reject}`.
+ */
+export async function adminConfirmAvailabilityRequest(
+  id: string
+): Promise<AvailabilityRequestResponse> {
+  const response = await apiClient.post<AvailabilityRequestResponse>(
+    `/admin/availability-requests/${id}/confirm`,
+    {}
+  )
+  return response.data
+}
+
+export async function adminRejectAvailabilityRequest(
+  id: string,
+  payload: AvailabilityRequestReject = {}
+): Promise<AvailabilityRequestResponse> {
+  const response = await apiClient.post<AvailabilityRequestResponse>(
+    `/admin/availability-requests/${id}/reject`,
+    payload
   )
   return response.data
 }
