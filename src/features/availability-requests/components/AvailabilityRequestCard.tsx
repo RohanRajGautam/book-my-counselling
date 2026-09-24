@@ -97,14 +97,20 @@ export function AvailabilityRequestCard({
           if (msg) {
             setActionError(msg)
             toast.error(msg)
-          } else {
-            const fallback =
-              actor === 'admin'
-                ? 'Could not confirm — the request may no longer be pending.'
-                : 'We could not confirm the request.'
-            setActionError(fallback)
-            toast.error(fallback)
+            return
           }
+          const adminMsg = actor === 'admin' ? parseAdminConfirmError(err) : null
+          if (adminMsg) {
+            setActionError(adminMsg)
+            toast.error(adminMsg)
+            return
+          }
+          const fallback =
+            actor === 'admin'
+              ? 'Could not confirm — the request may no longer be pending.'
+              : 'We could not confirm the request.'
+          setActionError(fallback)
+          toast.error(fallback)
         },
       }
     )
@@ -348,5 +354,20 @@ function parseSlotOverlap(err: unknown, actor: Actor): string | null {
         : 'The mentor will need to open a slot manually before this can be confirmed.'
     return `${detail} ${hint}`
   }
+  return null
+}
+
+/**
+ * Map a confirm HTTP error to an admin-friendly toast message per the
+ * admin-availability-request-actions spec. 404 means the request was deleted
+ * or moved out from under us — refresh and try again. 403 means the JWT is no
+ * longer an admin session; the user should sign in again. Anything else
+ * (including a 400 without overlap keyword) is treated as "no longer pending".
+ */
+function parseAdminConfirmError(err: unknown): string | null {
+  if (!(err instanceof AxiosError)) return null
+  const status = err.response?.status
+  if (status === 404) return 'Request not found — refresh and try again.'
+  if (status === 403) return 'Admin session expired — please sign in again.'
   return null
 }
