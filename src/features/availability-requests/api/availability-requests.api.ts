@@ -90,13 +90,17 @@ export async function listAllAvailabilityRequests(
  * `request.mentor_id`. `confirm` opens a slot under that mentor; `reject`
  * flips the status only. Both return the updated `AvailabilityRequestResponse`.
  *
- * Doc: `POST /api/v1/admin/availability-requests/{id}/{confirm,reject}`.
+ * Doc: `POST /api/v1/availability-requests/admin/{id}/{confirm,reject}`.
+ * The `admin` segment is a literal path inside the
+ * `/availability-requests` prefix, so it must come *after* `availability-requests`,
+ * not before. The original `admin-availability-request-actions.md` doc had the
+ * segment in the wrong position; this URL is the corrected one.
  */
 export async function adminConfirmAvailabilityRequest(
   id: string
 ): Promise<AvailabilityRequestResponse> {
   const response = await apiClient.post<AvailabilityRequestResponse>(
-    `/admin/availability-requests/${id}/confirm`,
+    `/availability-requests/admin/${id}/confirm`,
     {}
   )
   return response.data
@@ -107,7 +111,7 @@ export async function adminRejectAvailabilityRequest(
   payload: AvailabilityRequestReject = {}
 ): Promise<AvailabilityRequestResponse> {
   const response = await apiClient.post<AvailabilityRequestResponse>(
-    `/admin/availability-requests/${id}/reject`,
+    `/availability-requests/admin/${id}/reject`,
     payload
   )
   return response.data
