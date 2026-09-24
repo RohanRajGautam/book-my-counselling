@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { AxiosError } from 'axios'
 import { Loader2, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -75,8 +76,8 @@ export function RejectRequestModal({
           onRejected()
           onClose()
         },
-        onError: () => {
-          setError('We could not send the rejection. Please try again.')
+        onError: (err) => {
+          setError(parseAdminRejectError(err, actor))
         },
       }
     )
@@ -181,4 +182,20 @@ export function RejectRequestModal({
       </div>
     </div>
   )
+}
+
+/**
+ * Distinguish admin-specific reject errors per the
+ * admin-availability-request-actions spec. 404 means the request was deleted
+ * or moved out from under us — refresh and try again. 403 means the JWT is no
+ * longer an admin session. Falls through to a generic "try again" for mentor
+ * actors and other status codes.
+ */
+function parseAdminRejectError(err: unknown, actor: Actor): string {
+  if (actor !== 'admin') return 'We could not send the rejection. Please try again.'
+  if (!(err instanceof AxiosError)) return 'We could not send the rejection. Please try again.'
+  const status = err.response?.status
+  if (status === 404) return 'Request not found — refresh and try again.'
+  if (status === 403) return 'Admin session expired — please sign in again.'
+  return 'We could not send the rejection. Please try again.'
 }
