@@ -1,13 +1,10 @@
 'use client'
 
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
+  adminConfirmAvailabilityRequest,
+  adminRejectAvailabilityRequest,
   confirmAvailabilityRequest,
   createAvailabilityRequest,
   listAllAvailabilityRequests,
@@ -22,22 +19,15 @@ import {
 } from '../types/availability-requests.types'
 
 // Stable query-key namespaces for cache invalidation.
-export const MENTOR_AVAILABILITY_REQUESTS_KEY = [
-  'mentor',
-  'availability-requests',
-] as const
+export const MENTOR_AVAILABILITY_REQUESTS_KEY = ['mentor', 'availability-requests'] as const
 
-export const ADMIN_AVAILABILITY_REQUESTS_KEY = [
-  'admin',
-  'availability-requests',
-] as const
+export const ADMIN_AVAILABILITY_REQUESTS_KEY = ['admin', 'availability-requests'] as const
 
 // ── Public ────────────────────────────────────────────────────────────────
 
 export function useCreateAvailabilityRequest() {
   return useMutation({
-    mutationFn: (payload: AvailabilityRequestCreate) =>
-      createAvailabilityRequest(payload),
+    mutationFn: (payload: AvailabilityRequestCreate) => createAvailabilityRequest(payload),
   })
 }
 
@@ -99,5 +89,27 @@ export function useAllAvailabilityRequests(params: ListAvailabilityRequestsParam
     queryFn: () => listAllAvailabilityRequests({ status, page, pageSize }),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
+  })
+}
+
+/**
+ * Admin acts on any mentor's pending request — confirm creates a slot under
+ * that mentor (so we refresh the mentor-side availability caches too) and
+ * flips the request to `confirmed`. Mentor-side request lists also refetch
+ * because the affected mentor's pending count drops by one.
+ */
+export function useAdminConfirmAvailabilityRequest() {
+  const qc = useQueryClient()
+  return useMutation<AvailabilityRequestResponse, Error, ConfirmVars, ConfirmContext>({
+    mutationFn: ({ id }) => adminConfirmAvailabilityRequest(id),
+    onSuccess: () => invalidateRequestLists(qc),
+  })
+}
+
+export function useAdminRejectAvailabilityRequest() {
+  const qc = useQueryClient()
+  return useMutation<AvailabilityRequestResponse, Error, RejectVars, ConfirmContext>({
+    mutationFn: ({ id, payload }) => adminRejectAvailabilityRequest(id, payload),
+    onSuccess: () => invalidateRequestLists(qc),
   })
 }

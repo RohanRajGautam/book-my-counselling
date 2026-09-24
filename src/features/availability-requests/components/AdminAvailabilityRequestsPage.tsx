@@ -40,7 +40,7 @@ export function AdminAvailabilityRequestsPage() {
       <div className="mx-auto w-full max-w-[1280px] space-y-6 px-3 py-5 sm:space-y-8 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <AdminPageHeader
           title="Availability requests"
-          subtitle="A watchdog view across every mentor. Filter by status to spot mentors slow to respond — confirm/reject stays with the mentor."
+          subtitle="A watchdog view across every mentor. Filter by status to spot mentors slow to respond — you can also confirm or reject on their behalf."
           action={
             <span className="hidden self-start rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700 sm:inline-flex">
               {data?.total ?? 0} total
@@ -106,7 +106,7 @@ export function AdminAvailabilityRequestsPage() {
                 <AvailabilityRequestCard
                   key={request.id}
                   request={request}
-                  readOnly
+                  actor="admin"
                   showCreatedSlot
                   showMentor
                 />

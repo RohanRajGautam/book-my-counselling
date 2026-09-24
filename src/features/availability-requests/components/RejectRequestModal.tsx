@@ -1,17 +1,29 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { AxiosError } from 'axios'
 import { Loader2, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { useRejectAvailabilityRequest } from '../hooks/useAvailabilityRequests'
+import {
+  useAdminRejectAvailabilityRequest,
+  useRejectAvailabilityRequest,
+} from '../hooks/useAvailabilityRequests'
 import type { AvailabilityRequestResponse } from '../types/availability-requests.types'
 import { formatRequestDateTimeRelative } from '../lib/datetime'
+
+type Actor = 'mentor' | 'admin'
 
 interface RejectRequestModalProps {
   request: AvailabilityRequestResponse
   onClose: () => void
   onRejected: () => void
+  /**
+   * Which actor's reject endpoint to hit. `'mentor'` (default) hits the
+   * mentor-only endpoint with ownership checks. `'admin'` hits the admin
+   * endpoint, which acts on any mentor's pending request.
+   */
+  actor?: Actor
 }
 
 /**
@@ -23,12 +35,18 @@ export function RejectRequestModal({
   request,
   onClose,
   onRejected,
+  actor = 'mentor',
 }: RejectRequestModalProps) {
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const { mutate, isPending } = useRejectAvailabilityRequest()
+  const { mutate: rejectAsMentor, isPending: pendingAsMentor } = useRejectAvailabilityRequest()
+  const { mutate: rejectAsAdmin, isPending: pendingAsAdmin } = useAdminRejectAvailabilityRequest()
+  const { mutate, isPending } =
+    actor === 'admin'
+      ? { mutate: rejectAsAdmin, isPending: pendingAsAdmin }
+      : { mutate: rejectAsMentor, isPending: pendingAsMentor }
   const canSubmit = !isPending
 
   useEffect(() => {
@@ -58,10 +76,10 @@ export function RejectRequestModal({
           onRejected()
           onClose()
         },
-        onError: () => {
-          setError('We could not send the rejection. Please try again.')
+        onError: (err) => {
+          setError(parseAdminRejectError(err, actor))
         },
-      },
+      }
     )
   }
 
@@ -106,8 +124,8 @@ export function RejectRequestModal({
           <p className="font-bold text-slate-800">{request.requester_name}</p>
           <p className="text-slate-500">{request.requester_email}</p>
           <p className="mt-1.5 text-xs font-semibold text-slate-500">
-            {formatRequestDateTimeRelative(request.requested_start)} ·{' '}
-            {request.duration_minutes} min
+            {formatRequestDateTimeRelative(request.requested_start)} · {request.duration_minutes}{' '}
+            min
           </p>
         </div>
 
@@ -164,4 +182,20 @@ export function RejectRequestModal({
       </div>
     </div>
   )
+}
+
+/**
+ * Distinguish admin-specific reject errors per the
+ * admin-availability-request-actions spec. 404 means the request was deleted
+ * or moved out from under us — refresh and try again. 403 means the JWT is no
+ * longer an admin session. Falls through to a generic "try again" for mentor
+ * actors and other status codes.
+ */
+function parseAdminRejectError(err: unknown, actor: Actor): string {
+  if (actor !== 'admin') return 'We could not send the rejection. Please try again.'
+  if (!(err instanceof AxiosError)) return 'We could not send the rejection. Please try again.'
+  const status = err.response?.status
+  if (status === 404) return 'Request not found — refresh and try again.'
+  if (status === 403) return 'Admin session expired — please sign in again.'
+  return 'We could not send the rejection. Please try again.'
 }

@@ -18,24 +18,31 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
-import { useConfirmAvailabilityRequest } from '../hooks/useAvailabilityRequests'
+import {
+  useConfirmAvailabilityRequest,
+  useAdminConfirmAvailabilityRequest,
+} from '../hooks/useAvailabilityRequests'
 import type { AvailabilityRequestResponse } from '../types/availability-requests.types'
 import { DURATION_BADGE, STATUS_BADGE, STATUS_LABEL } from '../lib/requestBadges'
 import {
+  formatRequestDateTime,
   formatRequestDateTimeRelative,
   formatTimeRange,
   getRequesterInitials,
 } from '../lib/datetime'
 import { RejectRequestModal } from './RejectRequestModal'
 
+type Actor = 'mentor' | 'admin'
+
 interface AvailabilityRequestCardProps {
   request: AvailabilityRequestResponse
   /**
-   * Disable the action buttons. The mentor dashboard always sets this true
-   * once the request leaves `pending`; the admin view always sets it true
-   * because admins can't action on requests.
+   * Which actor the buttons act as. `'mentor'` (default) hits the mentor-side
+   * `/availability-requests/{id}/...` endpoints with mentor-only ownership
+   * checks. `'admin'` hits the admin endpoints, which act on any mentor's
+   * request. Toast copy and slot-overlap hints switch accordingly.
    */
-  readOnly?: boolean
+  actor?: Actor
   /**
    * Render a `created_slot_id` chip when status is confirmed. Admin only.
    */
@@ -48,7 +55,7 @@ interface AvailabilityRequestCardProps {
 
 export function AvailabilityRequestCard({
   request,
-  readOnly = false,
+  actor = 'mentor',
   showCreatedSlot = false,
   showMentor = false,
 }: AvailabilityRequestCardProps) {
@@ -57,12 +64,18 @@ export function AvailabilityRequestCard({
   const [actionError, setActionError] = useState<string | null>(null)
   const [mentorCopied, setMentorCopied] = useState(false)
 
-  const { mutate: confirm, isPending: confirming } = useConfirmAvailabilityRequest()
+  const { mutate: confirmAsMentor, isPending: confirmingAsMentor } = useConfirmAvailabilityRequest()
+  const { mutate: confirmAsAdmin, isPending: confirmingAsAdmin } =
+    useAdminConfirmAvailabilityRequest()
+  const { mutate: confirm, isPending: confirming } =
+    actor === 'admin'
+      ? { mutate: confirmAsAdmin, isPending: confirmingAsAdmin }
+      : { mutate: confirmAsMentor, isPending: confirmingAsMentor }
   const actionInFlight = confirming
 
   const status = optimisticStatus
   const isPending = status === 'pending'
-  const canAct = isPending && !readOnly && !actionInFlight
+  const canAct = isPending && !actionInFlight
 
   function handleConfirm() {
     setActionError(null)
@@ -70,17 +83,34 @@ export function AvailabilityRequestCard({
     confirm(
       { id: request.id },
       {
-        onSuccess: () => toast.success('Confirmed — we emailed the requester with a booking link.'),
+        onSuccess: (updated) => {
+          const slotWhen = actor === 'admin' ? formatRequestDateTime(updated.requested_start) : null
+          toast.success(
+            slotWhen
+              ? `Confirmed — slot created for ${slotWhen}.`
+              : 'Confirmed — we emailed the requester with a booking link.'
+          )
+        },
         onError: (err) => {
           setOptimisticStatus('pending')
-          const msg = parseSlotOverlap(err)
+          const msg = parseSlotOverlap(err, actor)
           if (msg) {
             setActionError(msg)
             toast.error(msg)
-          } else {
-            setActionError('We could not confirm the request.')
-            toast.error('We could not confirm the request.')
+            return
           }
+          const adminMsg = actor === 'admin' ? parseAdminConfirmError(err) : null
+          if (adminMsg) {
+            setActionError(adminMsg)
+            toast.error(adminMsg)
+            return
+          }
+          const fallback =
+            actor === 'admin'
+              ? 'Could not confirm — the request may no longer be pending.'
+              : 'We could not confirm the request.'
+          setActionError(fallback)
+          toast.error(fallback)
         },
       }
     )
@@ -296,6 +326,7 @@ export function AvailabilityRequestCard({
           request={request}
           onClose={() => setRejectOpen(false)}
           onRejected={handleRejected}
+          actor={actor}
         />
       ) : null}
     </>
@@ -304,10 +335,11 @@ export function AvailabilityRequestCard({
 
 /**
  * Distinguish a slot-overlap 400 (the most useful message) from any other 4xx
- * the backend might return on confirm. Slot overlap means the mentor must
- * manually open a slot from the availability page.
+ * the backend might return on confirm. Slot overlap means the affected mentor
+ * must manually open a slot before the request can be confirmed — the hint
+ * is worded for whichever actor triggered the call.
  */
-function parseSlotOverlap(err: unknown): string | null {
+function parseSlotOverlap(err: unknown, actor: Actor): string | null {
   if (!(err instanceof AxiosError)) return null
   const status = err.response?.status
   if (status !== 400 && status !== 422 && status !== 409) return null
@@ -316,7 +348,26 @@ function parseSlotOverlap(err: unknown): string | null {
   if (typeof detail !== 'string') return null
   const lower = detail.toLowerCase()
   if (lower.includes('overlap') || lower.includes('conflict') || lower.includes('slot')) {
-    return `${detail} Open the slot manually from your Availability page if you'd still like to host this session.`
+    const hint =
+      actor === 'mentor'
+        ? "Open the slot manually from your Availability page if you'd still like to host this session."
+        : 'The mentor will need to open a slot manually before this can be confirmed.'
+    return `${detail} ${hint}`
   }
+  return null
+}
+
+/**
+ * Map a confirm HTTP error to an admin-friendly toast message per the
+ * admin-availability-request-actions spec. 404 means the request was deleted
+ * or moved out from under us — refresh and try again. 403 means the JWT is no
+ * longer an admin session; the user should sign in again. Anything else
+ * (including a 400 without overlap keyword) is treated as "no longer pending".
+ */
+function parseAdminConfirmError(err: unknown): string | null {
+  if (!(err instanceof AxiosError)) return null
+  const status = err.response?.status
+  if (status === 404) return 'Request not found — refresh and try again.'
+  if (status === 403) return 'Admin session expired — please sign in again.'
   return null
 }
