@@ -29,7 +29,6 @@ type OAuthButtonsProps = {
 
 const PROVIDERS: Array<{ id: OAuthProvider; label: string }> = [
   { id: 'google', label: 'Google' },
-  { id: 'linkedin', label: 'LinkedIn' },
 ]
 
 /**
