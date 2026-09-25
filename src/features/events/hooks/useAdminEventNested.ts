@@ -102,13 +102,49 @@ export function useDeleteTimelineItem(eventId: string) {
 
 export function useAppendGalleryImage(eventId: string) {
   const qc = useQueryClient()
-  return useMutation<GalleryImageResponse, Error, GalleryImageInput>({
+  return useMutation<
+    GalleryImageResponse,
+    Error,
+    GalleryImageInput,
+    { tempId: string; previous: EventResponse | undefined }
+  >({
     mutationFn: (payload) => appendGalleryImage(eventId, payload),
-    onSuccess: (row) => {
+    // Optimistic insert so the new URL stays visible in the uploader while the
+    // POST is in flight. The uploader is controlled by `gallery_images`, so
+    // without this the URL would briefly vanish on the next render.
+    onMutate: async (payload) => {
+      const key = [...ADMIN_EVENT_DETAIL_KEY, eventId]
+      await qc.cancelQueries({ queryKey: key })
+      const previous = qc.getQueryData<EventResponse>(key)
+      const tempId = `temp-${crypto.randomUUID()}`
+      if (previous) {
+        qc.setQueryData<EventResponse>(key, {
+          ...previous,
+          gallery_images: [
+            ...previous.gallery_images,
+            {
+              id: tempId,
+              image_url: payload.image_url,
+              order_index: payload.order_index,
+              created_at: new Date().toISOString(),
+            },
+          ].sort((a, b) => a.order_index - b.order_index),
+        })
+      }
+      return { tempId, previous }
+    },
+    onError: (_err, _payload, context) => {
+      if (context?.previous) {
+        qc.setQueryData([...ADMIN_EVENT_DETAIL_KEY, eventId], context.previous)
+      }
+      toast.error('Failed to add image.')
+    },
+    onSuccess: (row, _payload, context) => {
+      if (!context) return
       patchDetail(qc, eventId, (event) => ({
         ...event,
-        gallery_images: [...event.gallery_images, row].sort(
-          (a, b) => a.order_index - b.order_index
+        gallery_images: event.gallery_images.map((img) =>
+          img.id === context.tempId ? row : img
         ),
       }))
     },
