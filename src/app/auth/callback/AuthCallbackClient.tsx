@@ -143,7 +143,8 @@ function AccountExistsFlow({
   onCancel: () => void
 }) {
   const queryClient = useQueryClient()
-  const { loginMutation } = useAuth()
+  const router = useRouter()
+  const { loginMutation, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [linkInProgress, setLinkInProgress] = useState(false)
   const pendingLinkRef = useRef<Window | null>(null)
@@ -178,13 +179,19 @@ function AccountExistsFlow({
       if (data.status === 'success') {
         toast.success(`${providerName} linked to your account.`)
         queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+        // loginMutation already authenticated the user before the popup
+        // opened; take them to their dashboard instead of leaving them on
+        // the auth callback page.
+        const target = user?.role === 'admin' ? '/admin' : '/mentor'
+        window.history.replaceState(null, '', '/auth/callback')
+        router.replace(target)
       } else if (data.status === 'error') {
         toast.error(data.message || `Couldn't link ${providerName}.`)
       }
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
-  }, [providerName, queryClient])
+  }, [providerName, queryClient, router, user?.role])
 
   useEffect(() => {
     const id = window.setInterval(() => {

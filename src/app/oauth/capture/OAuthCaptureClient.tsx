@@ -20,8 +20,18 @@ type CaptureState =
 
 export function OAuthCaptureClient() {
   const searchParams = useSearchParams()
-  const [state, setState] = useState<CaptureState>(() => readCaptureState(searchParams))
+  // Always start in 'verifying' — matches the SSR render and the Suspense
+  // fallback so hydration sees the same markup. The real state (linking,
+  // success, error, etc.) is computed on the client in the effect below.
+  const [state, setState] = useState<CaptureState>({ kind: 'verifying' })
   const linkingRef = useRef(false)
+
+  // Compute the real capture state on mount. Side effects (posting to the
+  // opener) happen here too, gated to the client by the `typeof window` check
+  // inside readCaptureState.
+  useEffect(() => {
+    setState(readCaptureState(searchParams))
+  }, [searchParams])
 
   // Drive the popup-side accounting: tell the opener we're closing, then
   // close ourselves. Only runs after we transition out of the initial state.
