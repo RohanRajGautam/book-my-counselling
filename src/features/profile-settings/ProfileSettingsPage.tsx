@@ -17,6 +17,7 @@ import { ProfileSettingsHeader } from './components/ProfileSettingsHeader'
 import { ProfileSessionAvailabilityCard } from './components/ProfileSessionAvailabilityCard'
 import { ProfileSettingsTabs, type ProfileSettingsTab } from './components/ProfileSettingsTabs'
 import { ProfileStatusCard } from './components/ProfileStatusCard'
+import { ProfileConnectedAccountsCard } from './components/ProfileConnectedAccountsCard'
 import { ProfileCounsellingCard, type CounsellingType } from './components/ProfileCounsellingCard'
 import {
   ProfilePackagesCard,
@@ -395,6 +396,7 @@ export function ProfileSettingsPage() {
                 companyName={generalInfo.currentCompany}
               />
               <ProfileStatusCard />
+              <ProfileConnectedAccountsCard />
             </aside>
           </div>
         )}

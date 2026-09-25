@@ -7,6 +7,8 @@ import {
   VerifyResetCodePayload,
   ResetPasswordPayload,
   MessageResponse,
+  OAuthLinkPayload,
+  OAuthProvider,
 } from '../types/auth.types'
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
@@ -57,6 +59,34 @@ export async function resetPassword(
   const response = await apiClient.post<MessageResponse>(
     '/auth/reset-password',
     payload,
+  )
+  return response.data
+}
+
+// ---------------------------------------------------------------------------
+// OAuth
+// ---------------------------------------------------------------------------
+
+/**
+ * Exchange an OAuth provider authorization code for a linked account.
+ * Requires an authenticated session — the apiClient interceptor attaches the
+ * Bearer token automatically. The backend will refuse if the user has no other
+ * way to sign in (no password, no other linked provider) on the subsequent
+ * unlink, but link is unconstrained here.
+ */
+export async function linkOAuthProvider(payload: OAuthLinkPayload): Promise<MessageResponse> {
+  const response = await apiClient.post<MessageResponse>('/auth/oauth/link', payload)
+  return response.data
+}
+
+/**
+ * Unlink a previously linked OAuth provider from the current user. Returns
+ * 200 with a human-readable message on success; the backend returns 409 if
+ * the user would be left without any sign-in method.
+ */
+export async function unlinkOAuthProvider(provider: OAuthProvider): Promise<MessageResponse> {
+  const response = await apiClient.delete<MessageResponse>(
+    `/auth/oauth/link/${provider}`,
   )
   return response.data
 }
