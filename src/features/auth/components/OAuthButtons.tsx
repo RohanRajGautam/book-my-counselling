@@ -27,7 +27,9 @@ type OAuthButtonsProps = {
   audience?: Audience
 }
 
-const PROVIDERS: Array<{ id: OAuthProvider; label: string }> = []
+const PROVIDERS: Array<{ id: OAuthProvider; label: string }> = [
+  { id: 'google', label: 'Google' },
+]
 
 /**
  * OAuth entrypoint buttons for the password auth screen. Each button is a
