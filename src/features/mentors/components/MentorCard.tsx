@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Building2, Check, Clock } from 'lucide-react'
+import { Building2, Check, Clock, Star } from 'lucide-react'
 
 import {
   COACH_FOR_FRESHERS_GROUP_TAG,
@@ -38,7 +38,14 @@ interface MentorCardProps {
   company: string
   tags: string[]
   description?: string
-  totalSessions?: number
+  totalCompletedSessions?: number
+  /**
+   * Average star rating on a 0–5 scale. Renders as a star + value next to the
+   * session count. When zero or missing, only the session count is shown.
+   */
+  averageRating?: number
+  /** Total reviews behind the rating. Rendered muted next to the value. */
+  totalReviews?: number
   price: number
   packageTiers?: PackageTier[]
   imageUrl?: string | null
@@ -101,7 +108,8 @@ export function MentorCard({
   role,
   company,
   tags,
-  totalSessions,
+  averageRating,
+  totalReviews,
   price,
   packageTiers,
   imageUrl,
@@ -132,6 +140,8 @@ export function MentorCard({
   const services = filteredTags
     .map((tag) => COACH_FOR_FRESHERS_TAG_LABELS[tag] ?? formatServiceTag(tag))
     .slice(0, 4)
+
+  const hasRating = typeof averageRating === 'number' && averageRating > 0
 
   // Show the 3 standard tiers if available, otherwise fall back to "Starting at"
   const hasTiers = packageTiers && packageTiers.length > 0
@@ -235,15 +245,23 @@ export function MentorCard({
 
       <div className="flex-1" />
 
-      <div className="mb-4 flex h-[24px] items-center gap-2">
-        <span
-          className={`text-sm font-medium text-[var(--color-outline)] ${
-            typeof totalSessions === 'number' ? '' : 'invisible'
-          }`}
-        >
-          {typeof totalSessions === 'number' ? `${totalSessions} total sessions` : '0 total sessions'}
-        </span>
-      </div>
+      {hasRating && (
+        <div className="mt-4 mb-4 flex h-[24px] items-center text-sm font-medium text-[var(--color-outline)]">
+          <span className="inline-flex items-center gap-1">
+            <Star
+              className="size-3.5 fill-amber-500 stroke-amber-500"
+              strokeWidth={2.2}
+              aria-hidden
+            />
+            <span className="font-[family-name:var(--font-headline)] font-extrabold text-[var(--foreground)]">
+              {averageRating.toFixed(1)}
+            </span>
+            {typeof totalReviews === 'number' && totalReviews > 0 ? (
+              <span>({totalReviews})</span>
+            ) : null}
+          </span>
+        </div>
+      )}
 
       <div className="border-t border-[var(--color-surface-container-high)] pt-4">
         <div className="min-h-[88px]">

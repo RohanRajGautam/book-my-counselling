@@ -22,6 +22,7 @@ export interface FeaturedMentor {
   average_rating: number
   total_reviews: number
   total_sessions: number
+  total_completed_sessions?: number
   is_accepting_bookings: boolean
   is_verified: boolean
   booking_mode: 'instant' | 'approval_required'
