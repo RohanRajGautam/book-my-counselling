@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Building2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, Building2, ChevronLeft, ChevronRight, Star } from 'lucide-react'
 
 import { getFeaturedMentors, type FeaturedMentor } from '@/features/mentors/api/featuredMentors.api'
 import { getMentorProfileSlug } from '@/features/mentors/utils/mentors.utils'
@@ -49,6 +49,7 @@ function FeaturedMentorCard({ mentor, onOpen }: { mentor: FeaturedMentor; onOpen
   const companyLogo = mentor.company_logo_url
   const visibleTags = mentor.tags.slice(0, 2)
   const sessionPrice = Math.round(Number(mentor.hourly_rate) / 2).toLocaleString('en-US')
+  const hasRating = mentor.average_rating > 0
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(18,28,42,0.16)]">
@@ -104,6 +105,22 @@ function FeaturedMentorCard({ mentor, onOpen }: { mentor: FeaturedMentor; onOpen
         ) : null}
 
         <div className="mt-auto pt-6">
+          {hasRating && (
+            <div className="mt-3 mb-3 flex items-center text-sm font-medium text-[var(--color-outline)]">
+              <span className="inline-flex items-center gap-1">
+                <Star
+                  className="size-3.5 fill-amber-500 stroke-amber-500"
+                  strokeWidth={2.2}
+                  aria-hidden
+                />
+                <span className="font-[family-name:var(--font-headline)] font-extrabold text-slate-950">
+                  {mentor.average_rating.toFixed(1)}
+                </span>
+                {mentor.total_reviews > 0 ? <span>({mentor.total_reviews})</span> : null}
+              </span>
+            </div>
+          )}
+
           <p className="text-[11px] font-extrabold tracking-[0.1em] text-[#737686] uppercase">
             Starting at
           </p>

@@ -16,6 +16,7 @@ export interface Mentor {
   average_rating: number
   total_reviews: number
   total_sessions: number
+  total_completed_sessions?: number
   is_accepting_bookings: boolean
   is_verified: boolean
   is_featured: boolean
@@ -45,6 +46,7 @@ export interface MentorListResponse {
   average_rating: number
   total_reviews: number
   total_sessions: number
+  total_completed_sessions?: number
   is_accepting_bookings: boolean
   is_verified: boolean
   booking_mode: string
@@ -67,6 +69,7 @@ export interface MentorResponse {
   average_rating: number
   total_reviews: number
   total_sessions: number
+  total_completed_sessions?: number
   is_accepting_bookings: boolean
   is_featured: boolean
   is_verified: boolean

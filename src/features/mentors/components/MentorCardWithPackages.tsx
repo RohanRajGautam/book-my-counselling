@@ -16,6 +16,9 @@ interface MentorCardWithPackagesProps {
   verified?: boolean
   onClick?: () => void
   context?: 'academic' | 'coach-for-freshers'
+  totalCompletedSessions?: number
+  averageRating?: number
+  totalReviews?: number
 }
 
 export function MentorCardWithPackages({

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { X, Check, Link, Globe, ChevronRight, CalendarPlus, Building2 } from 'lucide-react'
+import { X, Check, Link, Globe, ChevronRight, CalendarPlus, Building2, Star, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ProfileModalSkeleton } from '@/components/ui/skeleton'
 import { useMentorProfile } from '@/features/mentors/hooks/useMentorProfile'
@@ -178,6 +178,10 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
     )
   }
 
+  const completedSessionsCount = mentor.total_completed_sessions ?? mentor.total_sessions ?? 0
+  const hasRating = mentor.total_reviews > 0
+  const hasCompletedSessions = completedSessionsCount > 0
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#27313f]/40 p-3 backdrop-blur-[12px] sm:p-4"
@@ -267,6 +271,42 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
                   Portfolio
                 </a>
               </div>
+
+              {/* Stats strip */}
+              {(hasRating || hasCompletedSessions) && (
+                <div className="mt-5 flex items-stretch divide-x divide-[#dee9fc] overflow-hidden rounded-2xl border border-[#dee9fc] bg-[#eff4ff]">
+                  {hasRating && (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-0.5 px-3 py-2.5">
+                      <span className="inline-flex items-center gap-1 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                        <Star
+                          className="size-4 fill-amber-500 stroke-amber-500"
+                          strokeWidth={2.2}
+                          aria-hidden
+                        />
+                        {mentor.average_rating.toFixed(1)}
+                      </span>
+                      <span className="text-[11px] font-bold tracking-wider text-[#737686] uppercase">
+                        {mentor.total_reviews} review{mentor.total_reviews === 1 ? '' : 's'}
+                      </span>
+                    </div>
+                  )}
+                  {hasCompletedSessions && (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-0.5 px-3 py-2.5">
+                      <span className="inline-flex items-center gap-1 font-[family-name:var(--font-headline)] text-lg font-extrabold text-[#121c2a]">
+                        <CheckCircle2
+                          className="size-4 text-[#004ac6]"
+                          strokeWidth={2.2}
+                          aria-hidden
+                        />
+                        {completedSessionsCount.toLocaleString('en-US')}
+                      </span>
+                      <span className="text-[11px] font-bold tracking-wider text-[#737686] uppercase">
+                        completed session{completedSessionsCount === 1 ? '' : 's'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Company — inline block, no card wrapper */}

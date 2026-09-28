@@ -1,6 +1,8 @@
 // Public events API. All calls go through the shared axios client so they
 // pick up the same baseURL + interceptor as everything else.
 
+import { cache } from 'react'
+
 import apiClient from '@/lib/api/api-client'
 import { PaginatedResponse } from '@/lib/api/api.types'
 
@@ -50,11 +52,16 @@ export async function getPublicEvent(eventId: string): Promise<EventResponse> {
  * Fetch an event by its public URL slug. This is the route the public event
  * detail page hits — internal UUID detail is still available via
  * `getPublicEvent` for legacy deep links.
+ *
+ * Wrapped with `React.cache` so the same request is shared between
+ * `generateMetadata` and the page render. Next.js auto-memoizes `fetch` calls
+ * across these two phases, but this hits axios — without the cache wrap the
+ * slug is requested twice per page view.
  */
-export async function getPublicEventBySlug(slug: string): Promise<EventResponse> {
+export const getPublicEventBySlug = cache(async (slug: string): Promise<EventResponse> => {
   const res = await apiClient.get<EventResponse>(`/events/by-slug/${slug}`)
   return res.data
-}
+})
 
 export async function createEventBooking(
   eventId: string,

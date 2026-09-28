@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -20,6 +21,15 @@ export function AcademicCounsellorResults() {
 
   const totalPages = data?.total_pages ?? 1
   const currentMentors = data?.items ?? []
+
+  // The backend already sorts by rating when `sortBy === 'rating'`, but the
+  // order returned isn't always reliable (paginated ordering can drift when
+  // reviews land between requests). Re-sort on the client to guarantee the
+  // displayed order matches the selected sort regardless of what came back.
+  const displayMentors = useMemo(() => {
+    if (filters.sortBy !== 'rating') return currentMentors
+    return [...currentMentors].sort((a, b) => b.average_rating - a.average_rating)
+  }, [currentMentors, filters.sortBy])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -86,7 +96,7 @@ export function AcademicCounsellorResults() {
     )
   }
 
-  if (currentMentors.length === 0) {
+  if (displayMentors.length === 0) {
     return <RequestMentorEmptyState context="mentor" />
   }
 
@@ -97,7 +107,7 @@ export function AcademicCounsellorResults() {
           isFetching ? 'opacity-60' : 'opacity-100'
         }`}
       >
-        {currentMentors.map((mentor) => (
+        {displayMentors.map((mentor) => (
           <MentorCardWithPackages
             key={mentor.id}
             mentorId={mentor.id}
@@ -107,10 +117,13 @@ export function AcademicCounsellorResults() {
             tags={mentor.tags?.length ? mentor.tags : (mentor.industries ?? [])}
             description={
               mentor.industries?.length
-                ? `Mentor in ${mentor.industries.slice(0, 2).join(' and ')} with ${mentor.total_sessions} sessions`
-                : `${mentor.title} with ${mentor.total_sessions} sessions`
+                ? `Mentor in ${mentor.industries.slice(0, 2).join(' and ')} with ${mentor.total_completed_sessions ?? mentor.total_sessions} completed sessions`
+                : `${mentor.title} with ${mentor.total_completed_sessions ?? mentor.total_sessions} completed sessions`
             }
             fallbackPrice={Number(mentor.hourly_rate)}
+            totalCompletedSessions={mentor.total_completed_sessions ?? mentor.total_sessions}
+            averageRating={mentor.average_rating}
+            totalReviews={mentor.total_reviews}
             imageUrl={mentor.avatar_url}
             companyLogoUrl={mentor.company_logo_url ?? null}
             verified={mentor.is_verified}
