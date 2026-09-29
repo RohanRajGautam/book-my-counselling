@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, ArrowLeft, Loader2, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, CalendarPlus, Loader2, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -40,6 +40,7 @@ import {
 import { AdminCreateMentorPhotoCard } from '../create/components/AdminCreateMentorPhotoCard'
 import { AdminCreateMentorLogoCard } from '../create/components/AdminCreateMentorLogoCard'
 import { AdminEditMentorFeaturedCard } from './components/AdminEditMentorFeaturedCard'
+import { AdminRecordSessionModal } from '@/features/admin/bookings/components/AdminRecordSessionModal'
 import {
   AdminCreateMentorBioCard,
   type AdminCreateMentorBioForm,
@@ -114,6 +115,7 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [snapshot, setSnapshot] = useState<InitialSnapshot | null>(null)
   const [emailDialogOpen, setEmailDialogOpen] = useState(false)
+  const [recordSessionOpen, setRecordSessionOpen] = useState(false)
 
   // Local override for the avatar preview. Updated immediately from the upload
   // response so the user sees their new photo without waiting for the mentor
@@ -380,6 +382,27 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
       <div className="mx-auto w-full max-w-[1180px] space-y-3 px-3 py-5 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <AdminCreateMentorHeader mode="edit" onSubmit={handleSubmit} isSubmitting={isPending} />
 
+        {cachedMentor ? (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200/60 bg-white px-3 py-2 shadow-sm sm:px-4">
+            <p className="text-xs font-medium text-slate-500">
+              Need to record a session for{' '}
+              <span className="font-bold text-slate-700">
+                {cachedMentor.user.full_name}
+              </span>
+              ?
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              className="gap-1.5 rounded-lg bg-[#0755d8] px-4 py-5 font-bold text-white shadow-sm hover:bg-blue-700"
+              onClick={() => setRecordSessionOpen(true)}
+            >
+              <CalendarPlus className="size-3.5" strokeWidth={2.6} />
+              Record session for this mentor
+            </Button>
+          </div>
+        ) : null}
+
         <div className="sticky top-16 z-10 -mx-3 bg-[#f8f9ff]/95 px-3 py-2 backdrop-blur md:static md:mx-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
           <AdminCreateMentorTabs
             activeTab={activeTab}
@@ -513,6 +536,21 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
           mentorName={cachedMentor.user.full_name}
           onClose={() => setEmailDialogOpen(false)}
           onSaved={(updated) => setEmail(updated.email)}
+        />
+      ) : null}
+
+      {recordSessionOpen && cachedMentor ? (
+        <AdminRecordSessionModal
+          open={recordSessionOpen}
+          onClose={() => setRecordSessionOpen(false)}
+          initialMentor={{
+            id: cachedMentor.id,
+            full_name: cachedMentor.user.full_name,
+            email: cachedMentor.user.email,
+            title: cachedMentor.title,
+            mentor_share_pct: cachedMentor.mentor_share_pct,
+            hourly_rate: cachedMentor.hourly_rate ?? null,
+          }}
         />
       ) : null}
     </div>

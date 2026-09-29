@@ -186,6 +186,61 @@ export interface AdminBookingRow {
   refund: AdminBookingRefundSummary | null
 }
 
+// ── Record offline session ────────────────────────────────────────────────
+
+/**
+ * Request body for `POST /api/v1/admin/bookings/on-behalf`.
+ *
+ * Lets an admin write a booking record for a session that didn't go through
+ * the normal mentee funnel (e.g. mentee paid offline, payment crashed, session
+ * arranged out-of-band). The booking is indistinguishable from a normal one —
+ * the mentor is paid their share, payout reports pick it up, and (for past
+ * sessions) the mentee gets a review link.
+ *
+ * Note: `status` is NOT in this schema — it's auto-derived from `session_start`
+ * on the backend (past → COMPLETED, future → CONFIRMED). The UI previews the
+ * derived status below the date picker; this is the single most important
+ * thing the form has to get right.
+ */
+export interface AdminCreateBookingRequest {
+  mentor_id: string
+  mentee_email: string
+  mentee_full_name: string
+  slot_id?: string | null
+  package_id?: string | null
+  session_start: string
+  session_end: string
+  topic?: string | null
+  notes?: string | null
+  goals: string
+  current_school?: string | null
+  guardian_phone?: string | null
+  preparation_notes?: string | null
+  mentee_timezone?: string | null
+  /** Decimal as string, e.g. "100.00". Bounded 0–100000 server-side. */
+  agreed_price: string
+  promo_code?: string | null
+}
+
+/**
+ * Lightweight mentor option used by the admin record-session mentor picker.
+ * We pull from `/admin/mentors?q=...` and project to what the form needs:
+ * `id` (MentorProfile id, used as `mentor_id`) plus the human label
+ * (`full_name (email) — title`) and `mentor_share_pct` for the live earnings
+ * preview.
+ */
+export interface AdminMentorPickerOption {
+  id: string
+  full_name: string
+  email: string | null
+  title: string | null
+  /** Numeric 0–100, JSON string per the backend's Decimal convention. */
+  mentor_share_pct: string
+  /** Mentor's hourly_rate — used as the gross anchor for 100%-off promos in
+   *  the live pricing preview. Numeric string per the Decimal convention. */
+  hourly_rate: string | null
+}
+
 // ── Refunds ───────────────────────────────────────────────────────────────
 
 export type RefundStatus = 'requested' | 'approved' | 'rejected' | 'processed'

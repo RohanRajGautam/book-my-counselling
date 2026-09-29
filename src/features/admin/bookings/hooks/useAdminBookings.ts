@@ -1,6 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { adminCancelBooking, searchAdminBookings } from '../api/bookings.api'
-import { AdminBookingStatus, AdminPaymentStatus } from '../../types/admin.types'
+import {
+  adminCancelBooking,
+  adminCreateBookingOnBehalf,
+  searchAdminBookings,
+} from '../api/bookings.api'
+import {
+  AdminBookingStatus,
+  AdminCreateBookingRequest,
+  AdminPaymentStatus,
+} from '../../types/admin.types'
 
 export interface UseAdminBookingsParams {
   q?: string
@@ -37,6 +45,27 @@ export function useAdminCancelBooking() {
       void qc.invalidateQueries({ queryKey: ['admin', 'refunds'] })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'revenue'] })
+    },
+  })
+}
+
+/**
+ * Records an offline session through `POST /admin/bookings/on-behalf`.
+ *
+ * Invalidates the admin bookings list + analytics so the new row + the
+ * updated totals show up everywhere. Does NOT toast — the modal shows its own
+ * success detail panel and offers "Record another".
+ */
+export function useAdminCreateBookingOnBehalf() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: AdminCreateBookingRequest) =>
+      adminCreateBookingOnBehalf(payload),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ADMIN_BOOKINGS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'revenue'] })
+      void qc.invalidateQueries({ queryKey: ['admin', 'payouts'] })
     },
   })
 }
