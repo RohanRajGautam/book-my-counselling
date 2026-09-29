@@ -186,6 +186,136 @@ export interface AdminBookingRow {
   refund: AdminBookingRefundSummary | null
 }
 
+// ── Record offline session ────────────────────────────────────────────────
+
+/**
+ * Request body for `POST /api/v1/admin/bookings/on-behalf`.
+ *
+ * Lets an admin write a booking record for a session that didn't go through
+ * the normal mentee funnel (e.g. mentee paid offline, payment crashed, session
+ * arranged out-of-band). The booking is indistinguishable from a normal one —
+ * the mentor is paid their share, payout reports pick it up, and (for past
+ * sessions) the mentee gets a review link.
+ *
+ * Note: `status` is NOT in this schema — it's auto-derived from `session_start`
+ * on the backend (past → COMPLETED, future → CONFIRMED). The UI previews the
+ * derived status below the date picker; this is the single most important
+ * thing the form has to get right.
+ */
+export interface AdminCreateBookingRequest {
+  mentor_id: string
+  mentee_email: string
+  mentee_full_name: string
+  slot_id?: string | null
+  package_id?: string | null
+  session_start: string
+  session_end: string
+  topic?: string | null
+  notes?: string | null
+  goals: string
+  current_school?: string | null
+  guardian_phone?: string | null
+  preparation_notes?: string | null
+  mentee_timezone?: string | null
+  /** Decimal as string, e.g. "100.00". Bounded 0–100000 server-side. */
+  agreed_price: string
+  promo_code?: string | null
+}
+
+/**
+ * Lightweight mentor option used by the admin record-session mentor picker.
+ * We pull from `/admin/mentors?q=...` and project to what the form needs:
+ * `id` (MentorProfile id, used as `mentor_id`) plus the human label
+ * (`full_name (email) — title`) and `mentor_share_pct` for the live earnings
+ * preview.
+ */
+export interface AdminMentorPickerOption {
+  id: string
+  full_name: string
+  email: string | null
+  title: string | null
+  /** Numeric 0–100, JSON string per the backend's Decimal convention. */
+  mentor_share_pct: string
+  /** Mentor's hourly_rate — used as the gross anchor for 100%-off promos in
+   *  the live pricing preview. Numeric string per the Decimal convention. */
+  hourly_rate: string | null
+}
+
+// ── Outside Sessions ──────────────────────────────────────────────────────
+
+/**
+ * Lifecycle of an outside-session row. The backend auto-derives this from
+ * `session_start` at write time: past → COMPLETED, future → SCHEDULED. There
+ * is no PENDING or CANCELLED — outside sessions are always either in the
+ * books (scheduled) or already done (completed).
+ *
+ * Deliberately distinct from `AdminBookingStatus` (pending/confirmed/completed
+ * /cancelled): outside sessions are a separate table and never appear in the
+ * Bookings list, the revenue dashboard, or the payout queue.
+ */
+export type OutsideSessionStatus = 'scheduled' | 'completed'
+
+/**
+ * One row from `GET /admin/outside-sessions` (or `POST`/`PATCH` — same shape).
+ * Field names mirror the backend's `OutsideSessionResponse` Pydantic model
+ * verbatim so the API client can `response.data` directly without renaming.
+ */
+export interface OutsideSessionRow {
+  id: string
+  status: OutsideSessionStatus
+  session_start: string
+  session_end: string
+  /** What the mentee paid. Decimal as string per the backend convention. */
+  cost: string
+  /** Mentor's cut, snapshotted at write time. Can be negative (BYC absorbs a loss). */
+  mentor_share: string
+  /** Platform's cut. Can be negative when discount > platform share (BYC absorbs the loss). */
+  platform_share: string
+  promo_code: string | null
+  /** Internal admin notes. Never surfaced to mentor or mentee in any email. */
+  notes: string | null
+  mentee_timezone: string | null
+  created_at: string
+  updated_at: string
+  /** Set when status flips to 'completed' via the PATCH `/complete` endpoint. */
+  completed_at: string | null
+  /** Token for the post-session review email. Surfaced for the detail modal only. */
+  review_token: string | null
+  review_token_expires_at: string | null
+  review_token_used_at: string | null
+  mentor_id: string
+  mentor_name: string
+  mentor_email: string | null
+  mentee_id: string
+  mentee_name: string
+  mentee_email: string
+  created_by_admin_id: string
+}
+
+/**
+ * Request body for `POST /admin/outside-sessions`. All money fields are
+ * verbatim strings (Decimal); mentor_share and platform_share may be
+ * negative (-100000…100000 server-side) — cost is bounded 0…100000.
+ *
+ * Distinct from `AdminCreateBookingRequest`: no `slot_id`, `package_id`,
+ * `topic`, `goals`, `current_school`, `guardian_phone`, or `preparation_notes`,
+ * since outside sessions don't go through the mentee funnel. The promo code
+ * here is free text — the server does not validate it.
+ */
+export interface OutsideSessionCreate {
+  mentor_id: string
+  mentee_email: string
+  mentee_full_name: string
+  session_start: string
+  session_end: string
+  cost: string
+  mentor_share: string
+  platform_share: string
+  promo_code?: string | null
+  notes?: string | null
+  mentee_timezone?: string | null
+}
+
 // ── Refunds ───────────────────────────────────────────────────────────────
 
 export type RefundStatus = 'requested' | 'approved' | 'rejected' | 'processed'

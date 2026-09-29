@@ -3,10 +3,12 @@ import {
   Banknote,
   Briefcase,
   CalendarDays,
+  CalendarPlus,
   CalendarSearch,
   Database,
   Inbox,
   LifeBuoy,
+  ScrollText,
   Tag,
   UserCheck,
   Wallet,
@@ -31,6 +33,8 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { icon: Wallet, href: '/admin/payouts', label: 'Mentor Payouts' },
   { icon: Tag, href: '/admin/promo-codes', label: 'Promo Codes' },
   { icon: Briefcase, href: '/admin/industries', label: 'Industries' },
+  { icon: CalendarPlus, href: '/admin/sessions', label: 'Offline Sessions' },
+  { icon: ScrollText, href: '/admin/outside-sessions', label: 'Outside Sessions' },
   { icon: Database, href: '/admin/maintenance', label: 'Maintenance', section: 'Maintenance' },
 ] as const
 
