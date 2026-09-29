@@ -18,7 +18,7 @@ import {
 import { PAYMENT_BADGE, STATUS_BADGE } from '../lib/bookingBadges'
 import { useAdminCreateBookingOnBehalf } from '../hooks/useAdminBookings'
 import { validatePromoCode } from '@/features/promo-codes/api/promo-codes.api'
-import { MentorPickerCombobox } from './MentorPickerCombobox'
+import { MentorPickerCombobox } from '../../mentors/_shared/MentorPickerCombobox'
 import { cn } from '@/lib/utils'
 import {
   combineDateTime,
