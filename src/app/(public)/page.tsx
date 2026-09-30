@@ -14,10 +14,11 @@ export default function Home() {
       <FilterProvider>
         <HeroSection />
         <MentorCompaniesMarquee />
-        <ThreePillarsSection />
-        <Statistics />
         <FeaturedMentorsSection />
+        <ThreePillarsSection />
         <TestimonialsSection />
+        <Statistics />
+
         <BecomeCounsellorSection />
         <HowItWorksFaq />
       </FilterProvider>
