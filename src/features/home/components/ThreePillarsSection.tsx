@@ -5,7 +5,7 @@ import { HOME_PILLARS } from '../lib/home.constants'
 
 export function ThreePillarsSection() {
   return (
-    <section className="px-6 py-14 sm:px-8 sm:py-20 lg:py-24">
+    <section className="px-6 pb-14 sm:px-8 sm:pb-20 lg:pb-24">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           {/* <div className="inline-flex items-center gap-2 rounded-full border border-[#c9d7f4] bg-white px-4 py-2 text-xs font-extrabold tracking-[0.12em] text-[#003ea8] uppercase shadow-[0_14px_40px_rgba(18,28,42,0.07)]">

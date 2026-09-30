@@ -195,7 +195,7 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="relative isolate bg-[#f8fafc] px-6 pt-0 pb-4 sm:px-8">
+    <section className="relative isolate mb-18 bg-[#f8fafc] px-6 pt-0 pb-4 sm:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <h2 className="mt-4 font-[family-name:var(--font-headline)] text-3xl leading-[1.05] font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
@@ -205,7 +205,7 @@ export function TestimonialsSection() {
 
         <div
           ref={mobileTrackRef}
-          className="mt-12 flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] sm:hidden [&::-webkit-scrollbar]:hidden"
+          className="mt-12 flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] sm:hidden [&::-webkit-scrollbar]:hidden"
         >
           {HOME_TESTIMONIALS.map((testimonial) => (
             <TestimonialCard key={testimonial.name} testimonial={testimonial} />
@@ -240,15 +240,12 @@ export function TestimonialsSection() {
             type="button"
             aria-label="Previous testimonial"
             onClick={handlePrev}
-            className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+            className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none active:scale-95"
           >
             <ChevronLeft className="size-5" strokeWidth={2.2} />
           </button>
 
-          <div
-            className="flex items-center gap-2"
-            aria-label="Choose testimonial"
-          >
+          <div className="flex items-center gap-2" aria-label="Choose testimonial">
             {HOME_TESTIMONIALS.map((testimonial, index) => (
               <button
                 key={testimonial.name}
@@ -256,7 +253,7 @@ export function TestimonialsSection() {
                 aria-label={`Show testimonial from ${testimonial.name}`}
                 aria-current={activeIndex === index}
                 onClick={() => handleDotClick(index)}
-                className="h-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 aria-current:w-7 aria-current:bg-[#004ac6] aria-[current=false]:w-1.5 aria-[current=false]:bg-slate-300"
+                className="h-1.5 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-current:w-7 aria-current:bg-[#004ac6] aria-[current=false]:w-1.5 aria-[current=false]:bg-slate-300"
               />
             ))}
           </div>
@@ -265,7 +262,7 @@ export function TestimonialsSection() {
             type="button"
             aria-label="Next testimonial"
             onClick={handleNext}
-            className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+            className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none active:scale-95"
           >
             <ChevronRight className="size-5" strokeWidth={2.2} />
           </button>
