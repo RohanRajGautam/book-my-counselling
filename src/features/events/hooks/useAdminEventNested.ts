@@ -7,14 +7,17 @@ import { toast } from 'sonner'
 
 import {
   appendCompany,
+  appendEventSpeaker,
   appendGalleryImage,
   appendTestimonial,
   appendTimelineItem,
   deleteCompany,
+  deleteEventSpeaker,
   deleteGalleryImage,
   deleteTestimonial,
   deleteTimelineItem,
   updateCompany,
+  updateEventSpeaker,
   updateGalleryImage,
   updateTestimonial,
   updateTimelineItem,
@@ -23,6 +26,9 @@ import {
   CompanyInput,
   CompanyResponse,
   EventResponse,
+  EventSpeakerInput,
+  EventSpeakerResponse,
+  EventSpeakerUpdate,
   GalleryImageInput,
   GalleryImageResponse,
   TestimonialInput,
@@ -143,9 +149,7 @@ export function useAppendGalleryImage(eventId: string) {
       if (!context) return
       patchDetail(qc, eventId, (event) => ({
         ...event,
-        gallery_images: event.gallery_images.map((img) =>
-          img.id === context.tempId ? row : img
-        ),
+        gallery_images: event.gallery_images.map((img) => (img.id === context.tempId ? row : img)),
       }))
     },
   })
@@ -204,17 +208,19 @@ export function useAppendCompany(eventId: string) {
 
 export function useUpdateCompany(eventId: string) {
   const qc = useQueryClient()
-  return useMutation<CompanyResponse, Error, { companyId: string; payload: Partial<CompanyInput> }>({
-    mutationFn: ({ companyId, payload }) => updateCompany(eventId, companyId, payload),
-    onSuccess: (row, { companyId }) => {
-      patchDetail(qc, eventId, (event) => ({
-        ...event,
-        companies: event.companies
-          .map((c) => (c.id === companyId ? row : c))
-          .sort((a, b) => a.order_index - b.order_index),
-      }))
-    },
-  })
+  return useMutation<CompanyResponse, Error, { companyId: string; payload: Partial<CompanyInput> }>(
+    {
+      mutationFn: ({ companyId, payload }) => updateCompany(eventId, companyId, payload),
+      onSuccess: (row, { companyId }) => {
+        patchDetail(qc, eventId, (event) => ({
+          ...event,
+          companies: event.companies
+            .map((c) => (c.id === companyId ? row : c))
+            .sort((a, b) => a.order_index - b.order_index),
+        }))
+      },
+    }
+  )
 }
 
 export function useDeleteCompany(eventId: string) {
@@ -256,14 +262,11 @@ export function useUpdateTestimonial(eventId: string) {
     Error,
     { testimonialId: string; payload: Partial<TestimonialInput> }
   >({
-    mutationFn: ({ testimonialId, payload }) =>
-      updateTestimonial(eventId, testimonialId, payload),
+    mutationFn: ({ testimonialId, payload }) => updateTestimonial(eventId, testimonialId, payload),
     onSuccess: (row, { testimonialId }) => {
       patchDetail(qc, eventId, (event) => ({
         ...event,
-        testimonials: event.testimonials.map((t) =>
-          t.id === testimonialId ? row : t
-        ),
+        testimonials: event.testimonials.map((t) => (t.id === testimonialId ? row : t)),
       }))
     },
   })
@@ -281,5 +284,56 @@ export function useDeleteTestimonial(eventId: string) {
       toast.success('Testimonial removed.')
     },
     onError: () => toast.error('Failed to remove testimonial.'),
+  })
+}
+
+// ── Speakers ────────────────────────────────────────────────────────────
+
+export function useAppendEventSpeaker(eventId: string) {
+  const qc = useQueryClient()
+  return useMutation<EventSpeakerResponse, Error, EventSpeakerInput>({
+    mutationFn: (payload) => appendEventSpeaker(eventId, payload),
+    onSuccess: (row) => {
+      patchDetail(qc, eventId, (event) => ({
+        ...event,
+        speakers: [...event.speakers, row].sort((a, b) => a.order_index - b.order_index),
+      }))
+    },
+  })
+}
+
+export function useUpdateEventSpeaker(eventId: string) {
+  const qc = useQueryClient()
+  return useMutation<
+    EventSpeakerResponse,
+    Error,
+    { speakerId: string; payload: EventSpeakerUpdate }
+  >({
+    mutationFn: ({ speakerId, payload }) => updateEventSpeaker(eventId, speakerId, payload),
+    onSuccess: (row, { speakerId }) => {
+      patchDetail(qc, eventId, (event) => ({
+        ...event,
+        speakers: event.speakers
+          .map((s) => (s.id === speakerId ? row : s))
+          .sort((a, b) => a.order_index - b.order_index),
+      }))
+    },
+  })
+}
+
+export function useDeleteEventSpeaker(eventId: string) {
+  const qc = useQueryClient()
+  return useMutation<void, Error, string>({
+    mutationFn: (speakerId) => deleteEventSpeaker(eventId, speakerId),
+    onSuccess: (_void, speakerId) => {
+      patchDetail(qc, eventId, (event) => ({
+        ...event,
+        speakers: event.speakers
+          .filter((s) => s.id !== speakerId)
+          .map((s, idx) => ({ ...s, order_index: idx })),
+      }))
+      toast.success('Speaker removed.')
+    },
+    onError: () => toast.error('Failed to remove speaker.'),
   })
 }

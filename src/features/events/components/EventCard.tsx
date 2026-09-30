@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { CalendarDays, MapPin } from 'lucide-react'
-import { FaLinkedin } from 'react-icons/fa'
+import { CalendarDays, MapPin, Plus } from 'lucide-react'
 
 import { formatEventDate } from '../lib/events.utils'
 import type { EventSummaryResponse } from '../types/events.types'
@@ -12,8 +11,10 @@ interface EventCardProps {
 
 export function EventCard({ event }: EventCardProps) {
   const date = formatEventDate(event.event_date)
-  const hasSpeaker = Boolean(event.speaker_name)
-  const hasLinkedin = Boolean(event.speaker_linkedin_url)
+  // The list endpoint returns speakers sorted by order_index ascending — use
+  // the first one as the headline. A +N badge appears if there are more.
+  const headline = event.speakers[0]
+  const extraCount = event.speakers.length - 1
 
   return (
     <Link
@@ -40,7 +41,10 @@ export function EventCard({ event }: EventCardProps) {
 
       <div className="flex h-full flex-col px-4 pt-3.5 pb-4 sm:px-5 sm:pt-5">
         <div className="flex items-start gap-1.5">
-          <CalendarDays className="mt-0.5 size-3.5 shrink-0 text-[#004ac6] sm:size-4" aria-hidden="true" />
+          <CalendarDays
+            className="mt-0.5 size-3.5 shrink-0 text-[#004ac6] sm:size-4"
+            aria-hidden="true"
+          />
           <p className="text-[11px] font-extrabold tracking-wide text-[#004ac6] uppercase sm:text-xs">
             {date}
             {event.event_time ? ` · ${event.event_time}` : ''}
@@ -58,44 +62,32 @@ export function EventCard({ event }: EventCardProps) {
           </p>
         ) : null}
 
-        {hasSpeaker ? (
+        {headline ? (
           <div className="mt-3 flex items-center gap-2">
-            <div className="relative size-6 overflow-hidden rounded-[22px] bg-[#e6eeff] ring-1 ring-[#c9d7f4]">
-              {event.speaker_image_url ? (
+            <div className="relative size-6 overflow-hidden rounded-full bg-[#e6eeff] ring-1 ring-[#c9d7f4]">
+              {headline.image_url ? (
                 <Image
-                  src={event.speaker_image_url}
-                  alt={event.speaker_name ?? ''}
+                  src={headline.image_url}
+                  alt={headline.name}
                   fill
                   sizes="24px"
                   className="object-cover"
                 />
               ) : (
                 <span className="absolute inset-0 grid place-items-center text-[10px] font-extrabold text-[#004ac6]">
-                  {(event.speaker_name ?? '?').charAt(0).toUpperCase()}
+                  {headline.name.charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
             <span className="text-xs font-semibold text-slate-700">
-              Featuring {event.speaker_name}
+              Featuring <span className="text-slate-900">{headline.name}</span>
+              {extraCount > 0 ? (
+                <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] font-extrabold tracking-wide text-[#004ac6] uppercase">
+                  <Plus className="size-2.5" aria-hidden="true" />
+                  {extraCount} more
+                </span>
+              ) : null}
             </span>
-            {hasLinkedin && event.speaker_linkedin_url ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  window.open(
-                    event.speaker_linkedin_url ?? '',
-                    '_blank',
-                    'noopener,noreferrer'
-                  )
-                }}
-                aria-label={`View ${event.speaker_name ?? 'speaker'} on LinkedIn`}
-                className="ml-auto inline-flex size-6 cursor-pointer items-center justify-center rounded-full bg-[#e6eeff] text-[#0a66c2] transition hover:bg-[#0a66c2] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
-              >
-                <FaLinkedin className="size-3" aria-hidden="true" />
-              </button>
-            ) : null}
           </div>
         ) : null}
 

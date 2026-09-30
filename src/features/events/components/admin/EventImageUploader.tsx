@@ -19,6 +19,12 @@ interface BaseProps {
   onChange: (url: string | null) => void
   /** Disable the upload button while a parent is busy. */
   disabled?: boolean
+  /**
+   * Render a smaller empty-state placeholder + a less tall aspect ratio. Use
+   * when the uploader sits alongside a preview (e.g. a speaker avatar) and the
+   * full-size dashed box would feel oversized.
+   */
+  compact?: boolean
 }
 
 interface CoverUploaderProps extends BaseProps {
@@ -80,8 +86,11 @@ export function EventImageUploader(props: EventImageUploaderProps) {
   }
 
   const isCover = props.variant === 'cover'
-  const aspectClass = isCover ? 'aspect-[16/9]' : 'aspect-square'
-  const iconSize = isCover ? 'size-12' : 'size-10'
+  const compact = !!props.compact
+  const aspectClass = isCover ? 'aspect-[16/9]' : compact ? 'aspect-[3/2]' : 'aspect-square'
+  const iconSize = isCover ? 'size-12' : compact ? 'size-8' : 'size-10'
+  const iconInner = isCover ? 'size-5' : compact ? 'size-4' : 'size-5'
+  const placeholderText = compact ? 'text-[10px]' : 'text-xs font-extrabold tracking-wide uppercase'
 
   return (
     <div className="space-y-2">
@@ -100,7 +109,7 @@ export function EventImageUploader(props: EventImageUploaderProps) {
         type="button"
         onClick={openPicker}
         disabled={props.disabled || pending}
-        className={`group relative block w-full overflow-hidden rounded-[22px] border-2 border-dashed border-[#c9d7f4] bg-[#eef4ff] text-left transition hover:border-[#004ac6]/40 hover:bg-[#dbe6ff]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 disabled:cursor-not-allowed disabled:opacity-60 ${aspectClass}`}
+        className={`group relative block w-full overflow-hidden rounded-[22px] border-2 border-dashed border-[#c9d7f4] bg-[#eef4ff] text-left transition hover:border-[#004ac6]/40 hover:bg-[#dbe6ff]/60 focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${aspectClass}`}
         aria-label={props.value ? 'Replace image' : 'Upload image'}
       >
         {props.value ? (
@@ -109,11 +118,11 @@ export function EventImageUploader(props: EventImageUploaderProps) {
               src={props.value}
               alt={props.label ?? 'Uploaded image'}
               fill
-              sizes={isCover ? '320px' : '160px'}
+              sizes={isCover ? '320px' : compact ? '200px' : '160px'}
               className="object-cover"
             />
             <span className="absolute inset-0 grid place-items-center bg-slate-900/0 transition group-hover:bg-slate-900/35">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-extrabold tracking-wide text-slate-800 opacity-0 uppercase shadow group-hover:opacity-100">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-extrabold tracking-wide text-slate-800 uppercase opacity-0 shadow group-hover:opacity-100">
                 <Pencil className="size-3.5" aria-hidden="true" />
                 Replace
               </span>
@@ -144,9 +153,9 @@ export function EventImageUploader(props: EventImageUploaderProps) {
               <span
                 className={`grid place-items-center rounded-[22px] bg-white shadow ${iconSize}`}
               >
-                <ImagePlus className="size-5" aria-hidden="true" />
+                <ImagePlus className={iconInner} aria-hidden="true" />
               </span>
-              <span className="mt-3 text-xs font-extrabold tracking-wide uppercase">
+              <span className={`mt-3 text-[#004ac6] ${placeholderText}`}>
                 {isCover ? 'Add a cover image' : 'Add image'}
               </span>
             </span>

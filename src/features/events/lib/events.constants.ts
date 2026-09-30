@@ -28,11 +28,11 @@ export function findAdminEventTab(id: string | null): (typeof ADMIN_EVENT_TABS)[
 }
 
 // Tabs in the admin event detail page. Mirrors the create wizard so the two
-// flows share a single section shape (Details, Speaker, Timeline, Gallery,
+// flows share a single section shape (Details, Speakers, Timeline, Gallery,
 // Companies, Testimonials), plus a Bookings tab the create flow doesn't have.
 export const ADMIN_EVENT_DETAIL_TABS = [
   { id: 'details', label: 'Details' },
-  { id: 'speaker', label: 'Speaker' },
+  { id: 'speaker', label: 'Speakers' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'gallery', label: 'Gallery' },
   { id: 'companies', label: 'Companies' },
@@ -50,10 +50,10 @@ export function findAdminEventDetailTab(
 }
 
 // Tabs in the admin create wizard. The integration guide lists five sections
-// in order; we expose six (splitting details + speaker for cleaner editing).
+// in order; we expose six (splitting details + speakers for cleaner editing).
 export const ADMIN_EVENT_CREATE_TABS = [
   { id: 'details', label: 'Details' },
-  { id: 'speaker', label: 'Speaker' },
+  { id: 'speaker', label: 'Speakers' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'gallery', label: 'Gallery' },
   { id: 'companies', label: 'Companies' },
