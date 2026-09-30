@@ -41,6 +41,29 @@ export const EVENT_TIME_MAX = 50
 export const EVENT_LOCATION_MAX = 500
 export const EVENT_PARTNER_MAX = 255
 export const EVENT_URL_MAX = 1000
+export const EVENT_FORM_LINK_MAX = 1000
+
+/**
+ * Frontend pre-validation for the optional external form link. Mirrors the
+ * Pydantic `HttpUrl` shape on the backend — http(s) only, with a length cap.
+ * Empty input is treated as "no form attached" and skips validation.
+ */
+export function validateEventFormLink(value: string): string | null {
+  const v = value.trim()
+  if (!v) return null
+  if (v.length > EVENT_FORM_LINK_MAX) {
+    return `Form link must be ${EVENT_FORM_LINK_MAX} characters or fewer.`
+  }
+  try {
+    const u = new URL(v)
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      return 'Form link must start with http:// or https://'
+    }
+    return null
+  } catch {
+    return 'Form link must be a valid http(s) URL.'
+  }
+}
 export const EVENT_SPEAKER_NAME_MAX = 255
 export const EVENT_SPEAKER_TITLE_MAX = 255
 export const EVENT_SPEAKER_DESC_MAX = 2000
@@ -84,12 +107,7 @@ function isValidUrl(value: string): boolean {
   }
 }
 
-function pushIfBlank(
-  errors: ValidationError[],
-  value: string,
-  field: string,
-  label: string
-): void {
+function pushIfBlank(errors: ValidationError[], value: string, field: string, label: string): void {
   if (!value.trim()) {
     errors.push({ field, message: `${label} is required.` })
   }
@@ -109,7 +127,9 @@ function pushIfTooLong(
 
 // ── Create form ──────────────────────────────────────────────────────────
 
-export interface EventFormSpeaker {
+export interface EventFormSpeakerRow {
+  /** Stable key the section uses for React keys. Not part of the API payload. */
+  id: string
   name: string
   title: string
   description: string
@@ -157,7 +177,8 @@ export interface EventCreateForm {
   partner: string
   coverImageUrl: string
   youtubeLink: string
-  speaker: EventFormSpeaker
+  formLink: string
+  speakers: EventFormSpeakerRow[]
   timeline: EventFormTimelineRow[]
   gallery: EventFormGalleryRow[]
   companies: EventFormCompanyRow[]
@@ -175,7 +196,8 @@ export const EMPTY_EVENT_FORM: EventCreateForm = {
   partner: '',
   coverImageUrl: '',
   youtubeLink: '',
-  speaker: { name: '', title: '', description: '', imageUrl: '', linkedinUrl: '' },
+  formLink: '',
+  speakers: [],
   timeline: [],
   gallery: [],
   companies: [],
@@ -184,7 +206,7 @@ export const EMPTY_EVENT_FORM: EventCreateForm = {
 
 /**
  * Validate the full create form.
- * Returns errors in field-name form; section keys are exposed as `details`, `speaker`,
+ * Returns errors in field-name form; section keys are exposed as `details`, `speakers`,
  * `timeline`, `gallery`, `companies`, `testimonials` so the wizard can attach each
  * error back to its tab.
  */
@@ -222,42 +244,66 @@ export function validateEventCreateForm(form: EventCreateForm): ValidationError[
     })
   }
 
-  // Speaker — all four optional, just enforce length caps.
-  const speaker = form.speaker
-  pushIfTooLong(errors, speaker.name, 'speaker.name', 'Speaker name', EVENT_SPEAKER_NAME_MAX)
-  pushIfTooLong(errors, speaker.title, 'speaker.title', 'Speaker title', EVENT_SPEAKER_TITLE_MAX)
-  pushIfTooLong(
-    errors,
-    speaker.description,
-    'speaker.description',
-    'Speaker description',
-    EVENT_SPEAKER_DESC_MAX
-  )
-  pushIfTooLong(
-    errors,
-    speaker.imageUrl,
-    'speaker.imageUrl',
-    'Speaker image',
-    EVENT_URL_MAX
-  )
-  const linkedinError = validateEventSpeakerLinkedinUrl(speaker.linkedinUrl)
-  if (linkedinError) {
-    errors.push({ field: 'speaker.linkedinUrl', message: linkedinError })
+  const formLink = form.formLink.trim()
+  const formLinkError = validateEventFormLink(formLink)
+  if (formLinkError) {
+    errors.push({ field: 'details.formLink', message: formLinkError })
   }
-  // If speaker name is supplied, ask for at least one other identifying field.
-  const hasAnySpeakerField =
-    !!speaker.name.trim() ||
-    !!speaker.title.trim() ||
-    !!speaker.description.trim() ||
-    !!speaker.imageUrl.trim()
-  if (speaker.name.trim() && !speaker.title.trim() && !speaker.description.trim()) {
-    errors.push({
-      field: 'speaker.title',
-      message: 'Add a speaker title or description.',
-    })
-  }
-  // Suppress unused-warning when no speaker fields are filled (valid case).
-  void hasAnySpeakerField
+
+  // Speakers — array of rows. Each row's fields are individually optional, but
+  // if `name` is provided we require at least one identifying field (title,
+  // description, image, or LinkedIn) so the row actually renders.
+  form.speakers.forEach((row, idx) => {
+    const base = `speakers.${idx}`
+    const name = row.name.trim()
+    const title = row.title.trim()
+    const description = row.description.trim()
+    const imageUrl = row.imageUrl.trim()
+    const linkedinUrl = row.linkedinUrl.trim()
+
+    if (!name) {
+      errors.push({ field: `${base}.name`, message: 'Speaker name is required.' })
+    } else if (name.length > EVENT_SPEAKER_NAME_MAX) {
+      errors.push({
+        field: `${base}.name`,
+        message: `Speaker name must be ${EVENT_SPEAKER_NAME_MAX} characters or fewer.`,
+      })
+    }
+
+    if (title.length > EVENT_SPEAKER_TITLE_MAX) {
+      errors.push({
+        field: `${base}.title`,
+        message: `Speaker title must be ${EVENT_SPEAKER_TITLE_MAX} characters or fewer.`,
+      })
+    }
+
+    if (description.length > EVENT_SPEAKER_DESC_MAX) {
+      errors.push({
+        field: `${base}.description`,
+        message: `Speaker description must be ${EVENT_SPEAKER_DESC_MAX} characters or fewer.`,
+      })
+    }
+
+    if (imageUrl.length > EVENT_URL_MAX) {
+      errors.push({
+        field: `${base}.imageUrl`,
+        message: `Speaker image must be ${EVENT_URL_MAX} characters or fewer.`,
+      })
+    }
+
+    const linkedinError = validateEventSpeakerLinkedinUrl(linkedinUrl)
+    if (linkedinError) {
+      errors.push({ field: `${base}.linkedinUrl`, message: linkedinError })
+    }
+
+    // If a name is set, at least one other identifying field must be set too.
+    if (name && !title && !description && !imageUrl && !linkedinUrl) {
+      errors.push({
+        field: `${base}.title`,
+        message: 'Add a title, description, image, or LinkedIn URL.',
+      })
+    }
+  })
 
   // Timeline — at most length caps per row.
   form.timeline.forEach((row, idx) => {

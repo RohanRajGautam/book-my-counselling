@@ -5,7 +5,11 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 import { EVENT_FORM_INPUT_CLASS } from '../../../lib/events.constants'
-import { EVENT_SLUG_MAX, EVENT_SLUG_MIN, type EventCreateForm } from '../../../lib/events.validation'
+import {
+  EVENT_SLUG_MAX,
+  EVENT_SLUG_MIN,
+  type EventCreateForm,
+} from '../../../lib/events.validation'
 
 import { EventImageUploader } from '../EventImageUploader'
 
@@ -23,6 +27,7 @@ interface EventDetailsSectionProps {
     partner?: string
     coverImageUrl?: string
     youtubeLink?: string
+    formLink?: string
   }
   /** Slugs already used by other events; used to surface "this slug is taken" inline. */
   takenSlugs: Set<string>
@@ -39,9 +44,9 @@ export function EventDetailsSection({
 
   const slugValue = value.slug
   const slugTrimmed = slugValue.trim()
-  const slugHasShape = new RegExp(`^[a-z0-9](?:[a-z0-9-]{${EVENT_SLUG_MIN - 2},${EVENT_SLUG_MAX - 2}}[a-z0-9])$`).test(
-    slugTrimmed
-  )
+  const slugHasShape = new RegExp(
+    `^[a-z0-9](?:[a-z0-9-]{${EVENT_SLUG_MIN - 2},${EVENT_SLUG_MAX - 2}}[a-z0-9])$`
+  ).test(slugTrimmed)
   const slugTaken = slugHasShape && takenSlugs.has(slugTrimmed)
   const slugPreviewPath = slugHasShape ? `/events/${slugTrimmed}` : '/events/…'
 
@@ -55,8 +60,7 @@ export function EventDetailsSection({
             error={errors.slug}
             hint={
               <span className="break-all">
-                Public URL:{' '}
-                <span className="font-mono text-slate-700">{slugPreviewPath}</span>
+                Public URL: <span className="font-mono text-slate-700">{slugPreviewPath}</span>
                 {slugTaken ? (
                   <span className="ml-2 font-semibold text-red-700">
                     This slug is already used by another event — try another.
@@ -175,6 +179,29 @@ export function EventDetailsSection({
               />
             }
           />
+          <Field
+            label="Registration / feedback form URL"
+            error={errors.formLink}
+            hint={
+              value.formLink.trim() ? (
+                <span className="break-all">
+                  Opens in a new tab on the public page:{' '}
+                  <span className="font-mono text-slate-700">{value.formLink.trim()}</span>
+                </span>
+              ) : (
+                <span>Leave blank to keep the in-app booking form.</span>
+              )
+            }
+            input={
+              <Input
+                type="url"
+                value={value.formLink}
+                onChange={(e) => update('formLink', e.target.value)}
+                placeholder="https://forms.gle/… or https://form.typeform.com/to/…"
+                className={EVENT_FORM_INPUT_CLASS}
+              />
+            }
+          />
         </div>
       </Section>
 
@@ -204,7 +231,7 @@ export function EventDetailsSection({
               onChange={(e) => update('about', e.target.value)}
               placeholder="A few paragraphs about the gathering, what to expect, and who it's for."
               rows={6}
-              className={`${EVENT_FORM_INPUT_CLASS} h-auto min-h-[200px] max-h-[420px] overflow-y-auto py-3 leading-6`}
+              className={`${EVENT_FORM_INPUT_CLASS} h-auto max-h-[420px] min-h-[200px] overflow-y-auto py-3 leading-6`}
             />
           }
         />
@@ -228,9 +255,7 @@ function Section({
         <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
           {title}
         </h2>
-        {subtitle ? (
-          <p className="mt-1 text-sm font-medium text-slate-500">{subtitle}</p>
-        ) : null}
+        {subtitle ? <p className="mt-1 text-sm font-medium text-slate-500">{subtitle}</p> : null}
       </header>
       {children}
     </section>
@@ -261,9 +286,7 @@ function Field({
         </Label>
       ) : null}
       <div className="mt-1.5">{input}</div>
-      {hint && !error ? (
-        <p className="mt-1.5 text-xs font-medium text-slate-500">{hint}</p>
-      ) : null}
+      {hint && !error ? <p className="mt-1.5 text-xs font-medium text-slate-500">{hint}</p> : null}
       {error ? (
         <p className="mt-1.5 text-xs font-semibold text-red-700" role="alert">
           {error}

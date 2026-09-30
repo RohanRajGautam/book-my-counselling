@@ -9,6 +9,9 @@ import {
   EventBookingResponse,
   EventCreatePayload,
   EventResponse,
+  EventSpeakerInput,
+  EventSpeakerResponse,
+  EventSpeakerUpdate,
   EventSummaryResponse,
   EventUpdatePayload,
   GalleryImageInput,
@@ -181,6 +184,35 @@ export async function updateTestimonial(
 
 export async function deleteTestimonial(eventId: string, testimonialId: string): Promise<void> {
   await apiClient.delete(`/events/admin/${eventId}/testimonials/${testimonialId}`)
+}
+
+// ── Nested speakers ─────────────────────────────────────────────────────
+
+export async function appendEventSpeaker(
+  eventId: string,
+  payload: EventSpeakerInput
+): Promise<EventSpeakerResponse> {
+  const res = await apiClient.post<EventSpeakerResponse>(
+    `/events/admin/${eventId}/speakers`,
+    payload
+  )
+  return res.data
+}
+
+export async function updateEventSpeaker(
+  eventId: string,
+  speakerId: string,
+  payload: EventSpeakerUpdate
+): Promise<EventSpeakerResponse> {
+  const res = await apiClient.patch<EventSpeakerResponse>(
+    `/events/admin/${eventId}/speakers/${speakerId}`,
+    payload
+  )
+  return res.data
+}
+
+export async function deleteEventSpeaker(eventId: string, speakerId: string): Promise<void> {
+  await apiClient.delete(`/events/admin/${eventId}/speakers/${speakerId}`)
 }
 
 // ── Per-event bookings inbox ─────────────────────────────────────────────

@@ -1,3 +1,12 @@
+// Slim speaker summary — returned on list cards where description/linkedin
+// would inflate payloads. Sorted by order_index ascending.
+export interface EventSpeakerSummary {
+  id: string
+  name: string
+  title: string | null
+  image_url: string | null
+}
+
 // Shape of an Event as it appears on list cards (no nested collections).
 export interface EventSummaryResponse {
   id: string
@@ -10,9 +19,15 @@ export interface EventSummaryResponse {
   partner: string | null
   cover_image_url: string | null
   youtube_link: string | null
+  form_link: string | null
+  // Legacy single-speaker fields — still populated by the service from
+  // speakers[0] when the admin used the old create form. New code should
+  // read `speakers[]` below instead.
   speaker_name: string | null
   speaker_image_url: string | null
   speaker_linkedin_url: string | null
+  // Authoritative multi-speaker list. Empty when the event has no speakers.
+  speakers: EventSpeakerSummary[]
   is_completed: boolean
   created_at: string
   updated_at: string
@@ -57,6 +72,19 @@ export interface TestimonialResponse {
   created_at: string
 }
 
+// Full speaker detail — returned on /events/{id}, /events/by-slug/{slug},
+// and the admin detail endpoint.
+export interface EventSpeakerResponse {
+  id: string
+  name: string
+  title: string | null
+  description: string | null
+  image_url: string | null
+  linkedin_url: string | null
+  order_index: number
+  created_at: string
+}
+
 export interface EventResponse {
   id: string
   slug: string
@@ -69,11 +97,17 @@ export interface EventResponse {
   partner: string | null
   cover_image_url: string | null
   youtube_link: string | null
+  form_link: string | null
+  // Legacy single-speaker fields — denormalized cache of speakers[0]. Kept
+  // on the wire for backwards-compatible reads; new code should ignore them
+  // in favour of `speakers[]` below.
   speaker_name: string | null
   speaker_title: string | null
   speaker_description: string | null
   speaker_image_url: string | null
   speaker_linkedin_url: string | null
+  // Authoritative multi-speaker list, sorted by order_index ascending.
+  speakers: EventSpeakerResponse[]
   is_completed: boolean
   completed_at: string | null
   completed_by_user_id: string | null
@@ -112,6 +146,28 @@ export interface TestimonialInput {
   image_url?: string | null
 }
 
+// Speaker create input — sent to POST /events/admin (nested) or
+// POST /events/admin/{event_id}/speakers.
+export interface EventSpeakerInput {
+  name: string
+  title?: string | null
+  description?: string | null
+  image_url?: string | null
+  linkedin_url?: string | null
+  order_index: number
+}
+
+// Speaker PATCH input — every field optional. To clear a string field,
+// send null. Order_index can be set to renumber.
+export type EventSpeakerUpdate = {
+  name?: string
+  title?: string | null
+  description?: string | null
+  image_url?: string | null
+  linkedin_url?: string | null
+  order_index?: number
+}
+
 export interface EventCreatePayload {
   slug: string
   title: string
@@ -123,11 +179,11 @@ export interface EventCreatePayload {
   partner?: string | null
   cover_image_url?: string | null
   youtube_link?: string | null
-  speaker_name?: string | null
-  speaker_title?: string | null
-  speaker_description?: string | null
-  speaker_image_url?: string | null
-  speaker_linkedin_url?: string | null
+  form_link?: string | null
+  // Multi-speaker array. When supplied, replaces any speakers the admin
+  // would have materialised from the legacy speaker_* fields. Omit to
+  // send no speakers; send [] to explicitly create an event with none.
+  speakers?: EventSpeakerInput[]
   timeline_items?: TimelineItemInput[]
   gallery_images?: GalleryImageInput[]
   companies?: CompanyInput[]

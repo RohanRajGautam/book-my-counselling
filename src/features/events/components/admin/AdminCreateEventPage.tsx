@@ -25,6 +25,7 @@ import {
 import type {
   CompanyInput,
   EventCreatePayload,
+  EventSpeakerInput,
   GalleryImageInput,
   TestimonialInput,
   TimelineItemInput,
@@ -59,10 +60,7 @@ export function AdminCreateEventPage() {
     return set
   }, [existingEvents])
 
-  const errors = useMemo(
-    () => validateEventCreateForm(form),
-    [form]
-  )
+  const errors = useMemo(() => validateEventCreateForm(form), [form])
 
   // Count errors per section so the tab strip can show a red dot.
   const errorsBySection = useMemo(() => {
@@ -76,7 +74,10 @@ export function AdminCreateEventPage() {
     }
     for (const err of errors) {
       const section = err.field.split('.')[0]
-      if (section && section in counts) {
+      // The "speakers" array maps to the "Speaker" tab in the create wizard.
+      if (section === 'speakers') {
+        counts.speaker += 1
+      } else if (section && section in counts) {
         counts[section as AdminEventCreateTabId] += 1
       }
     }
@@ -98,7 +99,9 @@ export function AdminCreateEventPage() {
 
   const switchToTabForField = (field: string) => {
     const section = field.split('.')[0]
-    const tab = findAdminEventCreateTab(section ?? null)
+    // "speakers" is the create-form section key; the tab id remains "speaker".
+    const lookupId = section === 'speakers' ? 'speaker' : (section ?? null)
+    const tab = findAdminEventCreateTab(lookupId)
     setActiveTab(tab.id)
   }
 
@@ -135,7 +138,7 @@ export function AdminCreateEventPage() {
             err.response.data &&
             'detail' in err.response.data &&
             typeof (err.response.data as { detail?: unknown }).detail === 'string'
-              ? ((err.response.data as { detail: string }).detail)
+              ? (err.response.data as { detail: string }).detail
               : 'This slug is already used by another event — try another.'
           setServerErrorsByField({ 'details.slug': detail })
           setActiveTab('details')
@@ -147,7 +150,9 @@ export function AdminCreateEventPage() {
           setServerErrorsByField(serverErrors)
           const firstField = Object.keys(serverErrors)[0]
           if (firstField) switchToTabForField(firstField)
-          toast.error(formatFieldErrors(Object.values(serverErrors).map((m) => ({ field: '', message: m }))))
+          toast.error(
+            formatFieldErrors(Object.values(serverErrors).map((m) => ({ field: '', message: m })))
+          )
         } else {
           toast.error('Failed to publish event. Please try again.')
         }
@@ -189,21 +194,22 @@ export function AdminCreateEventPage() {
               partner: fieldError('details.partner'),
               coverImageUrl: fieldError('details.coverImageUrl'),
               youtubeLink: fieldError('details.youtubeLink'),
+              formLink: fieldError('details.formLink'),
             }}
           />
         ) : null}
 
         {activeTab === 'speaker' ? (
           <EventSpeakerSection
-            value={form.speaker}
-            onChange={(speaker) => setForm({ ...form, speaker })}
-            errors={{
-              name: fieldError('speaker.name'),
-              title: fieldError('speaker.title'),
-              description: fieldError('speaker.description'),
-              imageUrl: fieldError('speaker.imageUrl'),
-              linkedinUrl: fieldError('speaker.linkedinUrl'),
-            }}
+            value={form.speakers}
+            onChange={(speakers) => setForm({ ...form, speakers })}
+            errorsByIndex={collectIndexedErrors(errors, 'speakers', [
+              'name',
+              'title',
+              'description',
+              'imageUrl',
+              'linkedinUrl',
+            ])}
           />
         ) : null}
 
@@ -211,7 +217,11 @@ export function AdminCreateEventPage() {
           <EventTimelineSection
             value={form.timeline}
             onChange={(rows) => setForm({ ...form, timeline: rows })}
-            errorsByIndex={collectIndexedErrors(errors, 'timeline', ['time', 'title', 'description'])}
+            errorsByIndex={collectIndexedErrors(errors, 'timeline', [
+              'time',
+              'title',
+              'description',
+            ])}
           />
         ) : null}
 
@@ -240,7 +250,11 @@ export function AdminCreateEventPage() {
           <EventTestimonialsSection
             value={form.testimonials}
             onChange={(rows) => setForm({ ...form, testimonials: rows })}
-            errorsByIndex={collectIndexedErrors(errors, 'testimonials', ['name', 'content', 'imageUrl'])}
+            errorsByIndex={collectIndexedErrors(errors, 'testimonials', [
+              'name',
+              'content',
+              'imageUrl',
+            ])}
           />
         ) : null}
       </div>
@@ -290,6 +304,27 @@ function buildPayload(form: EventCreateForm): EventCreatePayload {
     image_url: row.imageUrl.trim() || null,
   }))
 
+  // Skip rows that have no name at all — Pydantic rejects blank names with 422.
+  // Rows with only a name are allowed (the server materialises a partial record
+  // with the supplied fields); we send them through with their trimmed values.
+  const speakers: EventSpeakerInput[] = form.speakers
+    .filter(
+      (row) =>
+        row.name.trim() ||
+        row.imageUrl.trim() ||
+        row.title.trim() ||
+        row.description.trim() ||
+        row.linkedinUrl.trim()
+    )
+    .map((row, idx) => ({
+      name: row.name.trim(),
+      title: row.title.trim() || null,
+      description: row.description.trim() || null,
+      image_url: row.imageUrl.trim() || null,
+      linkedin_url: row.linkedinUrl.trim() || null,
+      order_index: idx,
+    }))
+
   return {
     slug: form.slug.trim(),
     title: form.title.trim(),
@@ -301,11 +336,8 @@ function buildPayload(form: EventCreateForm): EventCreatePayload {
     partner: form.partner.trim() || null,
     cover_image_url: form.coverImageUrl.trim() || null,
     youtube_link: form.youtubeLink.trim() || null,
-    speaker_name: form.speaker.name.trim() || null,
-    speaker_title: form.speaker.title.trim() || null,
-    speaker_description: form.speaker.description.trim() || null,
-    speaker_image_url: form.speaker.imageUrl.trim() || null,
-    speaker_linkedin_url: form.speaker.linkedinUrl.trim() || null,
+    form_link: form.formLink.trim() || null,
+    speakers,
     timeline_items,
     gallery_images,
     companies,

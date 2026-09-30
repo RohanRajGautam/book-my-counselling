@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { useMemo, useState } from 'react'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, Save, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -10,14 +10,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-import {
-  extractValidationErrors,
-  useUpdateAdminEvent,
-} from '../../hooks/useAdminEvents'
+import { extractValidationErrors, useUpdateAdminEvent } from '../../hooks/useAdminEvents'
 import { EVENT_FORM_INPUT_CLASS } from '../../lib/events.constants'
-import {
-  validateEventSlug,
-} from '../../lib/events.validation'
+import { validateEventFormLink, validateEventSlug } from '../../lib/events.validation'
 import type { EventResponse, EventUpdatePayload } from '../../types/events.types'
 
 import { EventImageUploader } from './EventImageUploader'
@@ -37,6 +32,7 @@ interface OverviewForm {
   partner: string
   coverImageUrl: string
   youtubeLink: string
+  formLink: string
 }
 
 function buildForm(event: EventResponse): OverviewForm {
@@ -51,6 +47,7 @@ function buildForm(event: EventResponse): OverviewForm {
     partner: event.partner ?? '',
     coverImageUrl: event.cover_image_url ?? '',
     youtubeLink: event.youtube_link ?? '',
+    formLink: event.form_link ?? '',
   }
 }
 
@@ -74,9 +71,7 @@ export function AdminEventDetailsTab({ event }: AdminEventDetailsTabProps) {
   }
 
   const slugChanged = form.slug.trim() !== event.slug
-  const slugPreviewPath = form.slug.trim()
-    ? `/events/${form.slug.trim()}`
-    : `/events/${event.slug}`
+  const slugPreviewPath = form.slug.trim() ? `/events/${form.slug.trim()}` : `/events/${event.slug}`
 
   const submit = () => {
     const payload = buildPayload(form, event)
@@ -93,7 +88,7 @@ export function AdminEventDetailsTab({ event }: AdminEventDetailsTabProps) {
             err.response.data &&
             'detail' in err.response.data &&
             typeof (err.response.data as { detail?: unknown }).detail === 'string'
-              ? ((err.response.data as { detail: string }).detail)
+              ? (err.response.data as { detail: string }).detail
               : 'This slug is already used by another event.'
           setServerErrors({ slug: detail })
           toast.error(detail)
@@ -132,227 +127,269 @@ export function AdminEventDetailsTab({ event }: AdminEventDetailsTabProps) {
 
   return (
     <>
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-      <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
-        <header className="mb-5">
-          <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
-            The essentials
-          </h2>
-          <p className="mt-1 text-sm font-medium text-slate-500">
-            Past events stay editable — these fields are never locked.
-          </p>
-        </header>
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
+          <header className="mb-5">
+            <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
+              The essentials
+            </h2>
+            <p className="mt-1 text-sm font-medium text-slate-500">
+              Past events stay editable — these fields are never locked.
+            </p>
+          </header>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            label="URL slug"
-            required
-            error={showError('slug')}
-            hint={
-              <span className="break-all">
-                Public URL:{' '}
-                <span className="font-mono text-slate-700">{slugPreviewPath}</span>
-                {slugChanged ? (
-                  <span className="ml-2 font-semibold text-amber-700">
-                    Changing this will move the public URL — old links will stop working.
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label="URL slug"
+              required
+              error={showError('slug')}
+              hint={
+                <span className="break-all">
+                  Public URL: <span className="font-mono text-slate-700">{slugPreviewPath}</span>
+                  {slugChanged ? (
+                    <span className="ml-2 font-semibold text-amber-700">
+                      Changing this will move the public URL — old links will stop working.
+                    </span>
+                  ) : null}
+                </span>
+              }
+              input={
+                <Input
+                  value={form.slug}
+                  onChange={(e) => update('slug', e.target.value.toLowerCase())}
+                  maxLength={255}
+                  spellCheck={false}
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  aria-invalid={!!showError('slug')}
+                  className={`${EVENT_FORM_INPUT_CLASS} font-mono`}
+                />
+              }
+            />
+            <Field
+              label="Event title"
+              required
+              error={showError('title')}
+              input={
+                <Input
+                  value={form.title}
+                  onChange={(e) => update('title', e.target.value)}
+                  maxLength={255}
+                  aria-invalid={!!showError('title')}
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="Event date"
+              required
+              error={showError('eventDate')}
+              input={
+                <Input
+                  type="date"
+                  value={form.eventDate}
+                  onChange={(e) => update('eventDate', e.target.value)}
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="Short description"
+              required
+              error={showError('description')}
+              className="sm:col-span-2"
+              input={
+                <Textarea
+                  value={form.description}
+                  onChange={(e) => update('description', e.target.value)}
+                  rows={3}
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="Event time"
+              error={showError('eventTime')}
+              input={
+                <Input
+                  value={form.eventTime}
+                  onChange={(e) => update('eventTime', e.target.value)}
+                  maxLength={50}
+                  placeholder="6:00 PM"
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="Location"
+              error={showError('location')}
+              input={
+                <Input
+                  value={form.location}
+                  onChange={(e) => update('location', e.target.value)}
+                  maxLength={500}
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="Partner"
+              error={showError('partner')}
+              input={
+                <Input
+                  value={form.partner}
+                  onChange={(e) => update('partner', e.target.value)}
+                  maxLength={255}
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="YouTube link"
+              error={showError('youtubeLink')}
+              input={
+                <Input
+                  type="url"
+                  value={form.youtubeLink}
+                  onChange={(e) => update('youtubeLink', e.target.value)}
+                  className={EVENT_FORM_INPUT_CLASS}
+                />
+              }
+            />
+            <Field
+              label="Registration / feedback form URL"
+              error={showError('formLink')}
+              className="sm:col-span-2"
+              hint={
+                form.formLink.trim() ? (
+                  <span className="break-all">
+                    Visitors will see a &ldquo;Save your seat&rdquo; CTA that opens this URL in a
+                    new tab.
                   </span>
-                ) : null}
-              </span>
-            }
-            input={
-              <Input
-                value={form.slug}
-                onChange={(e) => update('slug', e.target.value.toLowerCase())}
-                maxLength={255}
-                spellCheck={false}
-                autoCapitalize="off"
-                autoCorrect="off"
-                aria-invalid={!!showError('slug')}
-                className={`${EVENT_FORM_INPUT_CLASS} font-mono`}
-              />
-            }
+                ) : (
+                  <span>Blank keeps the in-app booking form on the public page.</span>
+                )
+              }
+              input={
+                <div className="flex items-stretch gap-2">
+                  <Input
+                    type="url"
+                    value={form.formLink}
+                    onChange={(e) => update('formLink', e.target.value)}
+                    placeholder="https://forms.gle/… or https://form.typeform.com/to/…"
+                    className={`${EVENT_FORM_INPUT_CLASS} flex-1`}
+                  />
+                  {form.formLink.trim() ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => update('formLink', '')}
+                      disabled={isPending}
+                      className="h-11 shrink-0 rounded-xl border-slate-300 px-3 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                    >
+                      <X className="mr-1 size-3.5" aria-hidden="true" />
+                      Clear
+                    </Button>
+                  ) : null}
+                </div>
+              }
+            />
+          </div>
+        </section>
+
+        <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
+          <header className="mb-5">
+            <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
+              Cover image
+            </h2>
+            <p className="mt-1 text-sm font-medium text-slate-500">
+              Click the area to upload or replace. 16:9 works best.
+            </p>
+          </header>
+          <EventImageUploader
+            variant="cover"
+            value={form.coverImageUrl || null}
+            onChange={(url) => update('coverImageUrl', url ?? '')}
           />
+        </section>
+
+        <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
+          <header className="mb-5">
+            <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
+              About this event
+            </h2>
+          </header>
           <Field
-            label="Event title"
-            required
-            error={showError('title')}
-            input={
-              <Input
-                value={form.title}
-                onChange={(e) => update('title', e.target.value)}
-                maxLength={255}
-                aria-invalid={!!showError('title')}
-                className={EVENT_FORM_INPUT_CLASS}
-              />
-            }
-          />
-          <Field
-            label="Event date"
-            required
-            error={showError('eventDate')}
-            input={
-              <Input
-                type="date"
-                value={form.eventDate}
-                onChange={(e) => update('eventDate', e.target.value)}
-                className={EVENT_FORM_INPUT_CLASS}
-              />
-            }
-          />
-          <Field
-            label="Short description"
-            required
-            error={showError('description')}
-            className="sm:col-span-2"
+            label=""
+            error={showError('about')}
             input={
               <Textarea
-                value={form.description}
-                onChange={(e) => update('description', e.target.value)}
-                rows={3}
-                className={EVENT_FORM_INPUT_CLASS}
+                value={form.about}
+                onChange={(e) => update('about', e.target.value)}
+                placeholder="A few paragraphs about the gathering."
+                rows={6}
+                className={`${EVENT_FORM_INPUT_CLASS} h-auto max-h-[420px] min-h-[200px] overflow-y-auto py-3 leading-6`}
               />
             }
           />
-          <Field
-            label="Event time"
-            error={showError('eventTime')}
-            input={
-              <Input
-                value={form.eventTime}
-                onChange={(e) => update('eventTime', e.target.value)}
-                maxLength={50}
-                placeholder="6:00 PM"
-                className={EVENT_FORM_INPUT_CLASS}
-              />
-            }
-          />
-          <Field
-            label="Location"
-            error={showError('location')}
-            input={
-              <Input
-                value={form.location}
-                onChange={(e) => update('location', e.target.value)}
-                maxLength={500}
-                className={EVENT_FORM_INPUT_CLASS}
-              />
-            }
-          />
-          <Field
-            label="Partner"
-            error={showError('partner')}
-            input={
-              <Input
-                value={form.partner}
-                onChange={(e) => update('partner', e.target.value)}
-                maxLength={255}
-                className={EVENT_FORM_INPUT_CLASS}
-              />
-            }
-          />
-          <Field
-            label="YouTube link"
-            error={showError('youtubeLink')}
-            input={
-              <Input
-                type="url"
-                value={form.youtubeLink}
-                onChange={(e) => update('youtubeLink', e.target.value)}
-                className={EVENT_FORM_INPUT_CLASS}
-              />
-            }
-          />
+        </section>
+
+        <div className="flex items-center justify-end gap-3">
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="gap-1.5 rounded-[22px] bg-[#0755d8] px-5 py-3 font-bold text-white shadow-sm hover:bg-blue-700"
+          >
+            {isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" strokeWidth={2.4} />
+            )}
+            {isPending ? 'Saving…' : 'Save changes'}
+          </Button>
         </div>
-      </section>
+      </form>
 
-      <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
-        <header className="mb-5">
-          <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
-            Cover image
-          </h2>
-          <p className="mt-1 text-sm font-medium text-slate-500">
-            Click the area to upload or replace. 16:9 works best.
-          </p>
-        </header>
-        <EventImageUploader
-          variant="cover"
-          value={form.coverImageUrl || null}
-          onChange={(url) => update('coverImageUrl', url ?? '')}
-        />
-      </section>
-
-      <section className="rounded-[22px] border border-[#d9e3f6] bg-white p-5 shadow-sm sm:p-6">
-        <header className="mb-5">
-          <h2 className="font-headline text-lg font-extrabold tracking-tight text-slate-900">
-            About this event
-          </h2>
-        </header>
-        <Field
-          label=""
-          error={showError('about')}
-          input={
-            <Textarea
-              value={form.about}
-              onChange={(e) => update('about', e.target.value)}
-              placeholder="A few paragraphs about the gathering."
-              rows={6}
-              className={`${EVENT_FORM_INPUT_CLASS} h-auto min-h-[200px] max-h-[420px] overflow-y-auto py-3 leading-6`}
-            />
-          }
-        />
-      </section>
-
-      <div className="flex items-center justify-end gap-3">
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="gap-1.5 rounded-[22px] bg-[#0755d8] px-5 py-3 font-bold text-white shadow-sm hover:bg-blue-700"
+      {confirmSlugRepoint ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Re-point public URL"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4"
         >
-          {isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" strokeWidth={2.4} />}
-          {isPending ? 'Saving…' : 'Save changes'}
-        </Button>
-      </div>
-    </form>
-
-    {confirmSlugRepoint ? (
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Re-point public URL"
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4"
-      >
-        <div className="w-full max-w-md rounded-[22px] bg-white p-6 shadow-2xl">
-          <h2 className="font-headline text-lg font-extrabold text-slate-950">
-            Re-point the public URL?
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            The event&rsquo;s public URL will move from{' '}
-            <span className="font-mono font-bold text-slate-800">/events/{event.slug}</span> to{' '}
-            <span className="font-mono font-bold text-slate-800">/events/{form.slug.trim()}</span>.
-            Old links will stop working.
-          </p>
-          <div className="mt-5 flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setConfirmSlugRepoint(false)}
-              disabled={isPending}
-              className="rounded-[22px]"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={submit}
-              disabled={isPending}
-              className="gap-1.5 rounded-[22px] bg-[#0755d8] font-bold text-white hover:bg-blue-700"
-            >
-              {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              Re-point URL
-            </Button>
+          <div className="w-full max-w-md rounded-[22px] bg-white p-6 shadow-2xl">
+            <h2 className="font-headline text-lg font-extrabold text-slate-950">
+              Re-point the public URL?
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              The event&rsquo;s public URL will move from{' '}
+              <span className="font-mono font-bold text-slate-800">/events/{event.slug}</span> to{' '}
+              <span className="font-mono font-bold text-slate-800">/events/{form.slug.trim()}</span>
+              . Old links will stop working.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmSlugRepoint(false)}
+                disabled={isPending}
+                className="rounded-[22px]"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={submit}
+                disabled={isPending}
+                className="gap-1.5 rounded-[22px] bg-[#0755d8] font-bold text-white hover:bg-blue-700"
+              >
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+                Re-point URL
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    ) : null}
-  </>
+      ) : null}
+    </>
   )
 }
 
@@ -375,8 +412,13 @@ function validateOverviewForm(form: OverviewForm): ValidationError[] {
   const slugError = validateEventSlug(form.slug)
   if (slugError) errors.push({ field: 'slug', message: slugError })
   if (form.youtubeLink.trim() && !isValidUrl(form.youtubeLink)) {
-    errors.push({ field: 'youtubeLink', message: 'YouTube link must start with http:// or https://' })
+    errors.push({
+      field: 'youtubeLink',
+      message: 'YouTube link must start with http:// or https://',
+    })
   }
+  const formLinkError = validateEventFormLink(form.formLink)
+  if (formLinkError) errors.push({ field: 'formLink', message: formLinkError })
   return errors
 }
 
@@ -423,6 +465,10 @@ function buildPayload(form: OverviewForm, current: EventResponse): EventUpdatePa
   const currentYoutube = current.youtube_link ?? ''
   if (youtubeVal !== currentYoutube) payload.youtube_link = youtubeVal || null
 
+  const formLinkVal = trim(form.formLink)
+  const currentFormLink = current.form_link ?? ''
+  if (formLinkVal !== currentFormLink) payload.form_link = formLinkVal || null
+
   return payload
 }
 
@@ -452,9 +498,7 @@ function Field({
         </Label>
       ) : null}
       <div className="mt-1.5">{input}</div>
-      {hint && !error ? (
-        <p className="mt-1.5 text-xs font-medium text-slate-500">{hint}</p>
-      ) : null}
+      {hint && !error ? <p className="mt-1.5 text-xs font-medium text-slate-500">{hint}</p> : null}
       {error ? (
         <p className="mt-1.5 text-xs font-semibold text-red-700" role="alert">
           {error}

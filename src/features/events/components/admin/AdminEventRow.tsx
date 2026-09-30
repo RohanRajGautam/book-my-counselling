@@ -20,7 +20,7 @@ export function AdminEventRow({ event }: AdminEventRowProps) {
         <Link
           href={`/admin/events/${event.id}`}
           aria-label={`Edit ${event.title}`}
-          className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#eef4ff] via-[#dbe6ff] to-white ring-1 ring-[#c9d7f4] sm:size-28 sm:aspect-square"
+          className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#eef4ff] via-[#dbe6ff] to-white ring-1 ring-[#c9d7f4] sm:aspect-square sm:size-28"
         >
           {event.cover_image_url ? (
             <Image
@@ -31,7 +31,7 @@ export function AdminEventRow({ event }: AdminEventRowProps) {
               className="object-cover"
             />
           ) : (
-            <span className="absolute inset-0 grid place-items-center font-headline text-3xl font-extrabold text-[#004ac6]/40">
+            <span className="font-headline absolute inset-0 grid place-items-center text-3xl font-extrabold text-[#004ac6]/40">
               {event.title.charAt(0).toUpperCase()}
             </span>
           )}
@@ -68,7 +68,19 @@ export function AdminEventRow({ event }: AdminEventRowProps) {
             ) : null}
           </div>
 
-          {event.speaker_name ? (
+          {event.speakers.length > 0 ? (
+            <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold text-slate-700 sm:text-sm">
+              <span className="text-slate-500">Speakers:</span>
+              {event.speakers.map((speaker, idx) => (
+                <span key={speaker.id} className="text-slate-900">
+                  {speaker.name}
+                  {idx < event.speakers.length - 1 ? (
+                    <span className="text-slate-400">,</span>
+                  ) : null}
+                </span>
+              ))}
+            </p>
+          ) : event.speaker_name ? (
             <p className="mt-2 text-xs font-semibold text-slate-700 sm:text-sm">
               Speaker: <span className="text-slate-900">{event.speaker_name}</span>
             </p>
