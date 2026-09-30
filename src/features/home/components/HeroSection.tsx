@@ -33,7 +33,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative isolate mt-[-25px] overflow-hidden px-6 pt-16 pb-20 sm:px-8 lg:pt-22 lg:pb-24">
+    <section className="relative isolate mt-[-35px] flex min-h-[60vh] flex-col items-center justify-center overflow-hidden px-6 pt-16 pb-12 sm:px-8 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#ffffff_0%,#f8f9ff_48%,#eef4ff_100%)]"
