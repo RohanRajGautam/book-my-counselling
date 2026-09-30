@@ -121,13 +121,13 @@ function FeaturedMentorCard({ mentor, onOpen }: { mentor: FeaturedMentor; onOpen
             </div>
           )}
 
-          <p className="text-[11px] font-extrabold tracking-[0.1em] text-[#737686] uppercase">
+          {/* <p className="text-[11px] font-extrabold tracking-[0.1em] text-[#737686] uppercase">
             Starting at
           </p>
           <p className="mt-1 font-[family-name:var(--font-headline)] text-2xl leading-none font-extrabold text-slate-950">
             NPR {sessionPrice}
             <span className="ml-1 text-sm font-medium text-slate-500">/ per session</span>
-          </p>
+          </p> */}
 
           <button
             type="button"
@@ -280,14 +280,10 @@ function MentorSlider({
     <div>
       <div
         ref={mobileTrackRef}
-        className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] sm:hidden [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] sm:hidden [&::-webkit-scrollbar]:hidden"
       >
         {mentors.map((mentor) => (
-          <div
-            key={mentor.id}
-            data-mentor-card
-            className="w-[84%] shrink-0 snap-start"
-          >
+          <div key={mentor.id} data-mentor-card className="w-[84%] shrink-0 snap-start">
             <FeaturedMentorCard mentor={mentor} onOpen={() => onOpen(mentor)} />
           </div>
         ))}
@@ -324,16 +320,12 @@ function MentorSlider({
           type="button"
           aria-label="Previous mentor"
           onClick={handlePrev}
-          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none active:scale-95"
         >
           <ChevronLeft className="size-5" strokeWidth={2.2} />
         </button>
 
-        <div
-          className="flex items-center gap-2"
-          aria-label="Choose mentor"
-          role="tablist"
-        >
+        <div className="flex items-center gap-2" aria-label="Choose mentor" role="tablist">
           {mentors.map((mentor, index) => (
             <button
               key={mentor.id}
@@ -345,7 +337,7 @@ function MentorSlider({
                 scrollMobileTo(index)
                 jumpDesktopTo(index)
               }}
-              className="h-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 aria-[selected=true]:w-7 aria-[selected=true]:bg-[#004ac6] aria-[selected=false]:w-1.5 aria-[selected=false]:bg-slate-300"
+              className="h-1.5 rounded-full transition-all focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none aria-[selected=false]:w-1.5 aria-[selected=false]:bg-slate-300 aria-[selected=true]:w-7 aria-[selected=true]:bg-[#004ac6]"
             />
           ))}
         </div>
@@ -354,7 +346,7 @@ function MentorSlider({
           type="button"
           aria-label="Next mentor"
           onClick={handleNext}
-          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/30"
+          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-[#004ac6]/30 focus-visible:outline-none active:scale-95"
         >
           <ChevronRight className="size-5" strokeWidth={2.2} />
         </button>
