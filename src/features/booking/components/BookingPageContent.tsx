@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FormInput } from '@/features/booking/components/FormInput'
@@ -79,13 +80,30 @@ export function BookingPageContent() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [bookingCompleteOpen, setBookingCompleteOpen] = useState(false)
   const [isFree, setIsFree] = useState(false)
-  const handlePaymentSuccess = useCallback(() => setBookingCompleteOpen(true), [])
 
   // Promo code state — one applied code per booking.
   const [promoInput, setPromoInput] = useState('')
   const [appliedPromo, setAppliedPromo] = useState<PromoCodeValidationResponse | null>(null)
   const [promoError, setPromoError] = useState<string | null>(null)
   const { mutate: validatePromo, isPending: isValidatingPromo } = useValidatePromoCode()
+  const queryClient = useQueryClient()
+
+  // Invalidate availability caches whenever this booking flow resolves a
+  // booking — both on success (the slot is now taken) and on error
+  // (e.g. payment timeout → user goes back, sees stale state).
+  const invalidateAvailabilityCaches = useCallback(() => {
+    if (!mentorId) return
+    queryClient.invalidateQueries({ queryKey: ['mentor-availability', mentorId] })
+    queryClient.invalidateQueries({ queryKey: ['mentor-bookable-units', mentorId] })
+    queryClient.invalidateQueries({ queryKey: ['my-availability'] })
+  }, [queryClient, mentorId])
+
+  const handlePaymentSuccess = useCallback(() => {
+    // Payment-confirmed path runs the same cache bust — the booking may be
+    // CONFIRMED in DB but the picker cache still holds the pre-payment view.
+    invalidateAvailabilityCaches()
+    setBookingCompleteOpen(true)
+  }, [invalidateAvailabilityCaches])
 
   const handlePromoApply = useCallback(() => {
     const code = promoInput.trim()
@@ -168,6 +186,13 @@ export function BookingPageContent() {
 
     setIsSubmitting(true)
     try {
+      // When a package is selected, session_start is REQUIRED (the chosen
+      // unit's start_time) and session_end must NOT be sent — the backend
+      // derives it as session_start + package.duration_minutes. The URL
+      // still carries sessionEnd for display in the order summary, but we
+      // strip it here. Event flow uses now+1h as a placeholder; the CFF
+      // no-slot flow passes whatever the mentee typed in.
+      const hasPackage = !!packageId && !isEvent
       const result = await createGuestBooking({
         full_name: formData.fullName,
         email: formData.email,
@@ -175,10 +200,12 @@ export function BookingPageContent() {
         mentor_id: isEvent ? '00000000-0000-0000-0000-000000000000' : mentorId!,
         slot_id: isEvent ? '00000000-0000-0000-0000-000000000000' : (slotId ?? undefined),
         package_id: packageId ?? undefined,
-        session_start: isEvent ? new Date().toISOString() : (sessionStart ?? undefined),
+        session_start: isEvent
+          ? new Date().toISOString()
+          : (sessionStart ?? undefined),
         session_end: isEvent
           ? new Date(Date.now() + 3600000).toISOString()
-          : (sessionEnd ?? undefined),
+          : (hasPackage ? undefined : (sessionEnd ?? undefined)),
         goals: formData.message,
         current_school: formData.school || undefined,
         guardian_phone: formData.guardianPhone || undefined,
@@ -190,11 +217,18 @@ export function BookingPageContent() {
       setBookingId(result.booking_id)
       if (isFreeBooking(result)) {
         setIsFree(true)
+        // Free booking auto-confirms on the server — bust caches so the
+        // slot is gone by the time the user navigates back.
+        invalidateAvailabilityCaches()
         setBookingCompleteOpen(true)
       } else {
         setBookingAmount(parseFloat(result.agreed_price))
       }
     } catch (err: unknown) {
+      // Even on failure (e.g. payment timeout that left a PENDING+unpaid row
+      // visible briefly) invalidate so a stale UI can't keep offering a slot
+      // that's already locked server-side.
+      invalidateAvailabilityCaches()
       let msg = 'Failed to create booking. Please try again.'
       if (err && typeof err === 'object') {
         const axiosErr = err as {
