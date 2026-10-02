@@ -258,10 +258,14 @@ export function ProfileSessionAvailabilityCard() {
     createBulk(
       { slots: payload },
       {
-        onSuccess: (created) => {
+        onSuccess: (response) => {
+          const created = response.items.length
+          const serverConflicts = response.conflicts.length
           const messages: string[] = []
-          messages.push(`Added ${created.length} slot${created.length !== 1 ? 's' : ''}.`)
-          if (overlapCount > 0) {
+          messages.push(`Added ${created} slot${created !== 1 ? 's' : ''}.`)
+          if (serverConflicts > 0) {
+            messages.push(`${serverConflicts} were rejected by the server.`)
+          } else if (overlapCount > 0) {
             messages.push(`${overlapCount} overlapped existing availability.`)
           }
           if (pastCount > 0) {
