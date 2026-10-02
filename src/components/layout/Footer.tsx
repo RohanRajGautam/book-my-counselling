@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Globe, MessageCircle, Mail, ArrowUpRight } from 'lucide-react'
+import { FaLinkedin } from 'react-icons/fa6'
+import { SiFacebook, SiInstagram, SiYoutube } from 'react-icons/si'
 
 const PLATFORM_LINKS = [
   { href: '/privacy', label: 'Privacy Policy' },
@@ -81,25 +82,40 @@ export function Footer() {
             </p>
             <div className="mt-4 flex items-center gap-2.5">
               <Link
-                href="#"
-                aria-label="Website"
+                href="https://www.linkedin.com/company/book-your-counselling/posts/?feedView=all"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
                 className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
               >
-                <Globe className="size-4" />
+                <FaLinkedin className="size-4" />
               </Link>
               <Link
-                href="#"
-                aria-label="Chat"
+                href="https://www.instagram.com/bookyourcounselling/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
                 className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
               >
-                <MessageCircle className="size-4" />
+                <SiInstagram className="size-4" />
               </Link>
               <Link
-                href="mailto:hello@bookyourcounselling.com"
-                aria-label="Email"
+                href="https://www.youtube.com/@BookYourCounselling"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
                 className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
               >
-                <Mail className="size-4" />
+                <SiYoutube className="size-4" />
+              </Link>
+              <Link
+                href="https://www.facebook.com/profile.php?id=61589360643675"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-blue-surface)] text-[var(--brand-blue)] transition hover:bg-[var(--brand-blue-soft)] hover:text-[var(--brand-blue-hover)]"
+              >
+                <SiFacebook className="size-4" />
               </Link>
             </div>
           </div>
