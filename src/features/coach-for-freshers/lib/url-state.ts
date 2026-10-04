@@ -55,6 +55,7 @@ export function buildCoachForFreshersSearchParams(filters: CoachForFreshersFilte
   const params = new URLSearchParams()
 
   if (filters.category) params.set('category', filters.category)
+  if (filters.jobTitle.trim()) params.set('q', filters.jobTitle.trim())
   if (filters.availableThisWeek) params.set('available', 'this-week')
   if (filters.sortBy && filters.sortBy !== 'rating') params.set('sort', filters.sortBy)
   if (page > 1) params.set('page', String(page))

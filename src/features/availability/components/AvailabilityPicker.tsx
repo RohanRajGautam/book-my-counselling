@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { CalendarOff, ChevronLeft, ChevronRight } from 'lucide-react'
-import type { AvailabilitySlotResponse } from '../types/availability.types'
+import type { BookableUnit } from '../types/availability.types'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -11,23 +11,14 @@ interface DayOption {
   dayName: string // "Sat"
   dayNum: string // "15"
   monthShort: string // "Jan"
-  slots: SlicedSlot[]
-}
-
-interface SlicedSlot {
-  id: string
-  parentSlotId: string
-  start_time: string
-  end_time: string
-  is_booked: boolean
+  units: BookableUnit[]
 }
 
 interface Props {
-  slots: AvailabilitySlotResponse[]
+  units: BookableUnit[]
   disabled: boolean
-  selectedSlotId: string | null
-  packageDurationMinutes?: number
-  onSelect: (slicedSlotId: string, parentSlotId: string, startTime: string, endTime: string) => void
+  selectedUnitId: string | null
+  onSelect: (unit: BookableUnit) => void
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -48,109 +39,41 @@ function formatTime(iso: string): string {
   })
 }
 
-function sliceSlots(slots: AvailabilitySlotResponse[], durationMinutes?: number): SlicedSlot[] {
-  if (!durationMinutes) {
-    return slots.map((s) => ({
-      id: s.id,
-      parentSlotId: s.id,
-      start_time: s.start_time,
-      end_time: s.end_time,
-      is_booked: s.is_booked || (s.booked_intervals?.length ?? 0) > 0,
-    }))
-  }
-
-  const sliced: SlicedSlot[] = []
-  for (const slot of slots) {
-    const start = new Date(slot.start_time)
-    const end = new Date(slot.end_time)
-
-    if (end.getTime() - start.getTime() <= durationMinutes * 60000) {
-      const isBooked =
-        slot.is_booked ||
-        (slot.booked_intervals?.some((b) => {
-          const bStart = new Date(b.start).getTime()
-          const bEnd = new Date(b.end).getTime()
-          return bStart < end.getTime() && bEnd > start.getTime()
-        }) ??
-          false)
-
-      sliced.push({
-        id: slot.id,
-        parentSlotId: slot.id,
-        start_time: slot.start_time,
-        end_time: slot.end_time,
-        is_booked: isBooked,
-      })
-      continue
-    }
-
-    let currentStart = start
-    while (currentStart.getTime() + durationMinutes * 60000 <= end.getTime()) {
-      const currentEnd = new Date(currentStart.getTime() + durationMinutes * 60000)
-
-      const isBooked =
-        slot.is_booked ||
-        (slot.booked_intervals?.some((b) => {
-          const bStart = new Date(b.start).getTime()
-          const bEnd = new Date(b.end).getTime()
-          return bStart < currentEnd.getTime() && bEnd > currentStart.getTime()
-        }) ??
-          false)
-
-      sliced.push({
-        id: `${slot.id}_${currentStart.toISOString()}`,
-        parentSlotId: slot.id,
-        start_time: currentStart.toISOString(),
-        end_time: currentEnd.toISOString(),
-        is_booked: isBooked,
-      })
-      currentStart = currentEnd
-    }
-  }
-  return sliced
-}
-
 // ── Component ────────────────────────────────────────────────────────────────
 
 const DAYS_VISIBLE = 5
 
 export function AvailabilityPicker({
-  slots,
+  units,
   disabled,
-  selectedSlotId,
-  packageDurationMinutes,
+  selectedUnitId,
   onSelect,
 }: Props) {
   const [dayOffset, setDayOffset] = useState(0)
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null)
 
-  const effectiveSlots = useMemo(
-    () => sliceSlots(slots, packageDurationMinutes),
-    [slots, packageDurationMinutes]
-  )
-
   const days: DayOption[] = useMemo(() => {
-    const map = new Map<string, SlicedSlot[]>()
-    for (const slot of effectiveSlots) {
-      const key = toLocalDateKey(slot.start_time)
+    const map = new Map<string, BookableUnit[]>()
+    for (const unit of units) {
+      const key = toLocalDateKey(unit.start_time)
       if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(slot)
+      map.get(key)!.push(unit)
     }
     return [...map.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([dateKey, daySlots]) => {
+      .map(([dateKey, dayUnits]) => {
         const d = new Date(`${dateKey}T12:00:00`)
         return {
           dateKey,
           dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
           dayNum: String(d.getDate()),
           monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
-          slots: daySlots.sort(
+          units: dayUnits.sort(
             (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
           ),
         }
       })
-  }, [effectiveSlots])
+  }, [units])
 
   const visibleDays = days.slice(dayOffset, dayOffset + DAYS_VISIBLE)
   const canPrev = dayOffset > 0
@@ -192,19 +115,13 @@ export function AvailabilityPicker({
                 disabled={disabled}
                 onClick={() => {
                   setSelectedDateKey(day.dateKey)
-                  if (selectedSlotId) {
-                    const slotDay = toLocalDateKey(
-                      effectiveSlots.find((s) => s.id === selectedSlotId)?.start_time ?? ''
+                  if (selectedUnitId) {
+                    const unitDay = toLocalDateKey(
+                      units.find((u) => u.id === selectedUnitId)?.start_time ?? ''
                     )
-                    if (slotDay !== day.dateKey) {
-                      const found = effectiveSlots.find((s) => s.id === selectedSlotId)
-                      if (found)
-                        onSelect(
-                          selectedSlotId,
-                          found.parentSlotId,
-                          found.start_time,
-                          found.end_time
-                        )
+                    if (unitDay !== day.dateKey) {
+                      const found = units.find((u) => u.id === selectedUnitId)
+                      if (found) onSelect(found)
                     }
                   }
                 }}
@@ -248,24 +165,22 @@ export function AvailabilityPicker({
 
       {/* ── Time slots for selected day ────────────────────────────────────── */}
       {activeDay ? (
-        activeDay.slots.length === 0 ? (
+        activeDay.units.length === 0 ? (
           <NoSlotsBanner />
         ) : (
           <div className="grid grid-cols-2 gap-3 px-[44px] sm:grid-cols-3 xl:grid-cols-4">
-            {activeDay.slots.map((slot) => {
-              const isSelected = selectedSlotId === slot.id
-              const label = `${formatTime(slot.start_time)} - ${formatTime(slot.end_time)}`
+            {activeDay.units.map((unit) => {
+              const isSelected = selectedUnitId === unit.id
+              const label = `${formatTime(unit.start_time)} - ${formatTime(unit.end_time)}`
 
               return (
                 <button
-                  key={slot.id}
+                  key={unit.id}
                   type="button"
-                  disabled={disabled || slot.is_booked}
-                  onClick={() =>
-                    onSelect(slot.id, slot.parentSlotId, slot.start_time, slot.end_time)
-                  }
+                  disabled={disabled || unit.is_booked}
+                  onClick={() => onSelect(unit)}
                   className={`flex items-center justify-center rounded-lg border px-3 py-4 text-sm font-medium transition disabled:cursor-not-allowed ${
-                    slot.is_booked
+                    unit.is_booked
                       ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-60'
                       : isSelected
                         ? 'border-[#004ac6] bg-[#004ac6] text-white'
