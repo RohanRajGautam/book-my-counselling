@@ -6,7 +6,7 @@ import { X, Check, Link, Globe, ChevronRight, CalendarPlus, Building2, Star, Che
 import { toast } from 'sonner'
 import { ProfileModalSkeleton } from '@/components/ui/skeleton'
 import { useMentorProfile } from '@/features/mentors/hooks/useMentorProfile'
-import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
+import { useMentorAvailability, useMentorBookableUnits } from '@/features/availability/hooks/useMentorAvailability'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
 import { MentorReviewsSection } from '@/features/reviews/components/MentorReviewsSection'
 import { getInitials } from '@/features/mentors/components/MentorCard'
@@ -115,6 +115,14 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
     selection.mentorId === resolvedMentorId ? selection.sessionStart : null
   const selectedSessionEnd = selection.mentorId === resolvedMentorId ? selection.sessionEnd : null
   const selectedPackageId = selection.mentorId === resolvedMentorId ? selection.packageId : null
+  // When a package is selected, drive the picker from bookable-units so the
+  // server's package-fit + overlap checks are the source of truth. When no
+  // package is picked, show raw slots (the picker is hidden behind an
+  // overlay in that state so this branch is only used as a graceful fallback).
+  const { data: bookableUnits = [] } = useMentorBookableUnits(
+    isOpen && selectedPackageId ? resolvedMentorId : null,
+    selectedPackageId,
+  )
   const linkedinHref = mentor?.linkedin_url || '#'
   const portfolioHref = mentor?.website_url || '#'
   const hasAvailability = availability.length > 0
@@ -524,19 +532,16 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
 
               <div className="relative">
                 <AvailabilityPicker
-                  slots={availability}
+                  units={selectedPackageId ? bookableUnits : []}
                   disabled={!selectedPackageId}
-                  selectedSlotId={selectedSlotId}
-                  packageDurationMinutes={
-                    packages.find((p) => p.id === selectedPackageId)?.duration_minutes
-                  }
-                  onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>
+                  selectedUnitId={selectedSlotId}
+                  onSelect={(unit) =>
                     setSelection({
                       mentorId: resolvedMentorId,
-                      slicedSlotId: selectedSlotId === slicedSlotId ? null : slicedSlotId,
-                      parentSlotId: selectedSlotId === slicedSlotId ? null : parentSlotId,
-                      sessionStart: selectedSlotId === slicedSlotId ? null : startTime,
-                      sessionEnd: selectedSlotId === slicedSlotId ? null : endTime,
+                      slicedSlotId: selectedSlotId === unit.id ? null : unit.id,
+                      parentSlotId: selectedSlotId === unit.id ? null : unit.parent_slot_id,
+                      sessionStart: selectedSlotId === unit.id ? null : unit.start_time,
+                      sessionEnd: selectedSlotId === unit.id ? null : unit.end_time,
                       packageId: selectedPackageId,
                     })
                   }

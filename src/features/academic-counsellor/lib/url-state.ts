@@ -61,6 +61,7 @@ export function buildAcademicCounsellorSearchParams(filters: AcademicFilters, pa
 
   filters.academicCategory.forEach((category) => params.append('category', category))
   filters.academicSubcategory.forEach((subcategory) => params.append('subcategory', subcategory))
+  if (filters.jobTitle.trim()) params.set('q', filters.jobTitle.trim())
   if (filters.availableThisWeek) params.set('available', 'this-week')
   if (filters.sortBy && filters.sortBy !== 'rating') params.set('sort', filters.sortBy)
   if (page > 1) params.set('page', String(page))

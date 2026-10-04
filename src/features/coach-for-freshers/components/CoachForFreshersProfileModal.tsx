@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 
 import { ProfileModalSkeleton } from '@/components/ui/skeleton'
 import { AvailabilityPicker } from '@/features/availability/components/AvailabilityPicker'
-import { useMentorAvailability } from '@/features/availability/hooks/useMentorAvailability'
+import { useMentorAvailability, useMentorBookableUnits } from '@/features/availability/hooks/useMentorAvailability'
 import { getInitials } from '@/features/mentors/components/MentorCard'
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { displayTagName } from '@/features/mentors/utils/mentors.utils'
@@ -57,6 +57,13 @@ export function CoachForFreshersProfileModal({
   )
   const { data: availability = [], isPending: isAvailabilityLoading } = useMentorAvailability(
     isOpen ? resolvedMentorId : null
+  )
+  // When a package is selected, drive the picker from server-validated
+  // bookable units so the package's duration and overlap checks stay
+  // authoritative on the client.
+  const { data: bookableUnits = [] } = useMentorBookableUnits(
+    isOpen && selection.packageId ? resolvedMentorId : null,
+    selection.packageId,
   )
 
   const activePackages = useMemo(
@@ -490,17 +497,16 @@ export function CoachForFreshersProfileModal({
 
                   <div className="relative">
                     <AvailabilityPicker
-                      slots={availability}
+                      units={selection.packageId ? bookableUnits : []}
                       disabled={!selection.packageId}
-                      selectedSlotId={selection.slicedSlotId}
-                      packageDurationMinutes={selectedPackage?.duration_minutes}
-                      onSelect={(slicedSlotId, parentSlotId, startTime, endTime) =>
+                      selectedUnitId={selection.slicedSlotId}
+                      onSelect={(unit) =>
                         setSelection((current) => ({
                           packageId: current.packageId,
-                          slicedSlotId: current.slicedSlotId === slicedSlotId ? null : slicedSlotId,
-                          parentSlotId: current.slicedSlotId === slicedSlotId ? null : parentSlotId,
-                          sessionStart: current.slicedSlotId === slicedSlotId ? null : startTime,
-                          sessionEnd: current.slicedSlotId === slicedSlotId ? null : endTime,
+                          slicedSlotId: current.slicedSlotId === unit.id ? null : unit.id,
+                          parentSlotId: current.slicedSlotId === unit.id ? null : unit.parent_slot_id,
+                          sessionStart: current.slicedSlotId === unit.id ? null : unit.start_time,
+                          sessionEnd: current.slicedSlotId === unit.id ? null : unit.end_time,
                         }))
                       }
                     />
