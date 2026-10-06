@@ -30,39 +30,6 @@ export async function getAdminMentors(params: {
   return res.data
 }
 
-/**
- * Walk every page of `/admin/mentors` and return the flattened list of
- * mentors whose user has an `avatar_url`. Used by the bulk welcome-card
- * download — the admin wants one ZIP, not 20 mentors per page click.
- *
- * The backend paginates at 20 by default, so for ~hundreds of mentors this
- * is a few round-trips at `pageSize=100`. Each call is independent; failures
- * short-circuit and we surface whatever we got back so the caller can decide.
- */
-export async function getAllMentorsWithAvatars(params: {
-  isVerified?: boolean
-  isRejected?: boolean
-}): Promise<AdminMentorProfile[]> {
-  const pageSize = 100
-  const collected: AdminMentorProfile[] = []
-  let page = 1
-  // Hard cap so a misconfigured backend can't loop us forever.
-  for (let safety = 0; safety < 50; safety += 1) {
-    const res = await getAdminMentors({
-      isVerified: params.isVerified,
-      isRejected: params.isRejected,
-      page,
-      pageSize,
-    })
-    for (const mentor of res.items) {
-      if (mentor.user.avatar_url) collected.push(mentor)
-    }
-    if (!res.has_next || res.items.length === 0) break
-    page += 1
-  }
-  return collected
-}
-
 export async function updateAdminUserProfile(
   userId: string,
   payload: AdminUserProfileUpdate
@@ -153,19 +120,22 @@ export async function reindexElasticsearch(): Promise<{ message: string }> {
 
 /**
  * Returns the parsed `filename="..."` value from a `Content-Disposition`
- * header. Falls back to a UTC-dated `approved_mentors_YYYYMMDD.csv` when
- * the header is missing or unparseable — matches the backend's default.
+ * header. Falls back to `<defaultNamePrefix>_YYYYMMDD.csv` (UTC) when the
+ * header is missing or unparseable — matches the backend's default.
  */
-function filenameFromDisposition(disposition: string | null | undefined): string {
+function filenameFromDisposition(
+  disposition: string | null | undefined,
+  defaultNamePrefix: string
+): string {
   if (disposition) {
     const match = disposition.match(/filename="?([^";]+)"?/i)
     if (match?.[1]) return match[1]
   }
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-  return `approved_mentors_${today}.csv`
+  return `${defaultNamePrefix}_${today}.csv`
 }
 
-export interface ApprovedMentorsCsv {
+export interface MentorCsv {
   blob: Blob
   filename: string
 }
@@ -181,13 +151,30 @@ export interface ApprovedMentorsCsv {
  *
  * Doc: `GET /api/v1/admin/mentors/export`.
  */
-export async function downloadApprovedMentorsCsv(): Promise<ApprovedMentorsCsv> {
+export async function downloadApprovedMentorsCsv(): Promise<MentorCsv> {
   const res = await apiClient.get<Blob>('/admin/mentors/export', {
     responseType: 'blob',
   })
   return {
     blob: res.data,
-    filename: filenameFromDisposition(res.headers['content-disposition']),
+    filename: filenameFromDisposition(res.headers['content-disposition'], 'approved_mentors'),
+  }
+}
+
+/**
+ * Downloads every mentor with at least one paid (confirmed or completed)
+ * booking as a single CSV file with per-mentor session counts and revenue
+ * totals. Same response-shape contract as `downloadApprovedMentorsCsv`.
+ *
+ * Doc: `GET /api/v1/admin/mentors/export-paid`.
+ */
+export async function downloadPaidMentorsCsv(): Promise<MentorCsv> {
+  const res = await apiClient.get<Blob>('/admin/mentors/export-paid', {
+    responseType: 'blob',
+  })
+  return {
+    blob: res.data,
+    filename: filenameFromDisposition(res.headers['content-disposition'], 'paid_mentors'),
   }
 }
 
