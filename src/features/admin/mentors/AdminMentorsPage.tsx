@@ -15,8 +15,8 @@ import { AdminMentorFilterTabs } from './components/AdminMentorFilterTabs'
 import { AdminMentorSearchBar } from './components/AdminMentorSearchBar'
 import { AdminMentorCard } from './components/AdminMentorCard'
 import { AdminMentorPagination } from './components/AdminMentorPagination'
-import { BulkDownloadWelcomeCardsButton } from './components/BulkDownloadWelcomeCardsButton'
 import { DownloadApprovedMentorsCsvButton } from './components/DownloadApprovedMentorsCsvButton'
+import { DownloadPaidMentorsCsvButton } from './components/DownloadPaidMentorsCsvButton'
 
 const VALID_TAB_IDS = ADMIN_MENTOR_TABS.map((t) => t.id) as readonly AdminMentorTabId[]
 
@@ -116,10 +116,6 @@ export function AdminMentorsPage() {
   }
 
   const total = data?.total ?? 0
-  // Rough hint of how many mentors on this page have a profile picture —
-  // the bulk button itself fetches every page server-side, so this is just
-  // a label hint, not a disabled-when-zero gate.
-  const avatarsOnPage = data?.items.filter((m) => m.user.avatar_url).length ?? 0
   const showRemindAll = tabId === 'without_availability'
 
   return (
@@ -131,7 +127,7 @@ export function AdminMentorsPage() {
           action={
             <>
               <DownloadApprovedMentorsCsvButton />
-              <BulkDownloadWelcomeCardsButton availableCount={avatarsOnPage} />
+              <DownloadPaidMentorsCsvButton />
               {showRemindAll && total > 0 ? (
                 <Button
                   size="sm"
