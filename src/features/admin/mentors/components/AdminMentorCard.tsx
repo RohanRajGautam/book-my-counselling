@@ -11,7 +11,6 @@ import {
   Check,
   ChevronDown,
   Copy,
-  Download,
   Globe,
   GraduationCap,
   Link2,
@@ -32,7 +31,6 @@ import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { downloadWelcomeCard } from '@/features/welcome-card/lib/buildWelcomeCard'
 
 import { useFeatureMentor, useRejectMentor, useVerifyMentor } from '../hooks/useAdminMentors'
 import { AdminMentorProfile } from '../../types/admin.types'
@@ -59,7 +57,6 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
   const { mutate: reject, isPending: rejecting } = useRejectMentor()
   const { mutate: feature } = useFeatureMentor()
   const isActing = verifying || rejecting
-  const [downloading, setDownloading] = useState(false)
   const [emailCopied, setEmailCopied] = useState(false)
 
   const handleVerify = () => {
@@ -94,22 +91,6 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
     void navigator.clipboard.writeText(mentor.user.email)
     setEmailCopied(true)
     window.setTimeout(() => setEmailCopied(false), 1600)
-  }
-
-  const handleDownloadWelcomeCard = async () => {
-    setDownloading(true)
-    try {
-      await downloadWelcomeCard({
-        full_name: mentor.user.full_name,
-        title: mentor.title,
-        company: mentor.company,
-        avatar_url: avatarUrl,
-      })
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not build the card.')
-    } finally {
-      setDownloading(false)
-    }
   }
 
   const hourlyRate = Number(mentor.hourly_rate)
@@ -307,21 +288,6 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
         >
           <Pencil className="size-3.5" strokeWidth={2.4} />
           Edit
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-          disabled={downloading}
-          onClick={handleDownloadWelcomeCard}
-          aria-label={`Download welcome card for ${mentor.user.full_name}`}
-        >
-          {downloading ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <Download className="size-3.5" strokeWidth={2.4} />
-          )}
-          Welcome card
         </Button>
         {!mentor.is_verified && !mentor.is_rejected ? (
           <Button
