@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { CalendarDays, MapPin, Plus } from 'lucide-react'
+import { CalendarDays, History, MapPin, Plus, Sparkles } from 'lucide-react'
 
 import { formatEventDate } from '../lib/events.utils'
 import type { EventSummaryResponse } from '../types/events.types'
@@ -15,20 +15,27 @@ export function EventCard({ event }: EventCardProps) {
   // the first one as the headline. A +N badge appears if there are more.
   const headline = event.speakers[0]
   const extraCount = event.speakers.length - 1
+  const isPast = event.is_completed
 
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="group relative block h-full rounded-[22px] border border-[#d9e3f6]/70 bg-white p-2 shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 ring-[#004ac6]/5 transition hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(0,74,198,0.16)]"
+      className={`group relative block h-full rounded-[22px] border bg-white p-2 shadow-[0_18px_50px_rgba(18,28,42,0.08)] ring-1 transition hover:-translate-y-0.5 ${
+        isPast
+          ? 'border-slate-200/80 ring-slate-200/40 hover:shadow-[0_28px_70px_rgba(18,28,42,0.12)]'
+          : 'border-[#d9e3f6]/70 ring-[#004ac6]/5 hover:shadow-[0_28px_70px_rgba(0,74,198,0.16)]'
+      }`}
     >
-      <div className="relative h-44 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#eef4ff] via-[#dbe6ff] to-white sm:h-56">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] bg-gradient-to-br from-[#eef4ff] via-[#dbe6ff] to-white">
         {event.cover_image_url ? (
           <Image
             src={event.cover_image_url}
             alt={event.title}
             fill
             sizes="(min-width: 1280px) 360px, (min-width: 768px) 45vw, 90vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className={`object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03] ${
+              isPast ? 'saturate-[0.7] opacity-90' : ''
+            }`}
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center">
@@ -37,6 +44,15 @@ export function EventCard({ event }: EventCardProps) {
             </span>
           </div>
         )}
+        <span
+          aria-hidden="true"
+          className={`absolute inset-0 bg-gradient-to-t ${
+            isPast
+              ? 'from-slate-900/35 via-slate-900/5 to-transparent'
+              : 'from-[#003ea8]/10 via-transparent to-transparent'
+          }`}
+        />
+        <StatusBadge isPast={isPast} />
       </div>
 
       <div className="flex h-full flex-col px-4 pt-3.5 pb-4 sm:px-5 sm:pt-5">
@@ -94,5 +110,32 @@ export function EventCard({ event }: EventCardProps) {
         <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{event.description}</p>
       </div>
     </Link>
+  )
+}
+
+interface StatusBadgeProps {
+  isPast: boolean
+}
+
+/**
+ * Visual tag overlaid on the cover image so users can tell at a glance
+ * whether an event is bookable or has already wrapped. Past events get a
+ * muted slate treatment; upcoming events get a vibrant blue chip with a
+ * sparkle to read as "live / happening soon".
+ */
+function StatusBadge({ isPast }: StatusBadgeProps) {
+  if (isPast) {
+    return (
+      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-white uppercase shadow-sm backdrop-blur">
+        <History className="size-3" aria-hidden="true" />
+        Past Event
+      </span>
+    )
+  }
+  return (
+    <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-[#004ac6] px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-white uppercase shadow-[0_8px_22px_rgba(0,74,198,0.35)]">
+      <Sparkles className="size-3" aria-hidden="true" />
+      Upcoming
+    </span>
   )
 }
