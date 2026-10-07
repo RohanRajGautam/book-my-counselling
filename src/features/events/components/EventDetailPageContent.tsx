@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 
 import { usePublicEventBySlug } from '../hooks/useEvents'
 
-import { EventCoverBanner, EventHero } from './EventDetailSections'
+import { EventHero } from './EventDetailSections'
 import { EventAboutSection } from './EventAboutSection'
 import { EventBookingForm } from './EventBookingForm'
 import { EventCompaniesStrip } from './EventCompaniesStrip'
@@ -54,12 +54,11 @@ export function EventDetailPageContent({ slug }: EventDetailPageContentProps) {
 
   const isBookable = !event.is_completed
   const externalFormHref = event.form_link?.trim() ?? null
+  const reserveAnchor = '#reserve'
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f8ff] pt-10 pb-20">
-      <EventHero event={event} />
-
-      <EventCoverBanner event={event} />
+      <EventHero event={event} externalFormHref={externalFormHref} reserveAnchor={reserveAnchor} />
 
       <EventAboutSection event={event} />
 
