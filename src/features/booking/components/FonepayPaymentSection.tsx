@@ -7,10 +7,16 @@ import { PaymentStatusDisplay } from './PaymentStatusDisplay'
 import { QRDisplay } from './QRDisplay'
 import { useFonepayPayment } from '../hooks/useFonepayPayment'
 
+export interface PaymentSuccessMeeting {
+  meetingLink: string | null
+  meetingPreparing: boolean
+  meetingErrorFallback: boolean
+}
+
 interface FonepayPaymentSectionProps {
   bookingId: string
   amount: number
-  onSuccess?: () => void
+  onSuccess?: (meeting: PaymentSuccessMeeting) => void
 }
 
 export function FonepayPaymentSection({
@@ -23,14 +29,19 @@ export function FonepayPaymentSection({
     qrData,
     error,
     timeRemaining,
+    meetingLink,
+    meetingPreparing,
+    meetingErrorFallback,
     startPayment,
     cancelPayment,
     retryPayment,
   } = useFonepayPayment(bookingId)
 
   useEffect(() => {
-    if (step === 'SUCCESS') onSuccess?.()
-  }, [step, onSuccess])
+    if (step === 'SUCCESS') {
+      onSuccess?.({ meetingLink, meetingPreparing, meetingErrorFallback })
+    }
+  }, [step, meetingLink, meetingPreparing, meetingErrorFallback, onSuccess])
 
   return (
     <div className="rounded-[24px] bg-white p-8 shadow-[0_8px_24px_rgba(18,28,42,0.06)]">
