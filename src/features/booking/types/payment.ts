@@ -29,12 +29,41 @@ export type PaymentStep =
 
 export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'error'
 
+export type MeetingProvider = 'google_meet' | null
+
+/**
+ * The five meeting fields the backend now surfaces on the payment status
+ * endpoint (and most booking responses). All nullable — `meeting_link` is
+ * the only one mentees act on, but the other four power the polling +
+ * fallback messaging + admin retry flow.
+ *
+ * When `MEETING_PROVIDER=disabled` server-side, every field comes back as
+ * `null` — frontend must NOT render the meeting block in that case (the
+ * booking-confirmed modal still shows, just without the link UI).
+ */
+export interface MeetingFields {
+  meeting_link: string | null
+  meeting_id: string | null
+  meeting_provider: MeetingProvider
+  meeting_error: string | null
+  meeting_attempts?: number
+}
+
 export interface PaymentStatus {
   transaction_id: string
   status: 'pending' | 'success' | 'failed' | 'expired'
   fonepay_transaction_id?: string | null
   paid_at?: string | null
   amount: number
+  /** Mentee-side: id of the booking this transaction settled. */
+  booking_id?: string | null
+  /** Auto-created Google Meet link. Only populated once creation completes. */
+  meeting_link?: string | null
+  meeting_id?: string | null
+  meeting_provider?: MeetingProvider
+  /** Populated when meeting creation failed (after exhausting retries). */
+  meeting_error?: string | null
+  meeting_attempts?: number
 }
 
 export interface PaymentError {

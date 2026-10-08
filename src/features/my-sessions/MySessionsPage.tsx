@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CalendarCheck2, Clock, Timer, Wallet } from 'lucide-react'
+import { CalendarCheck2, Copy, ExternalLink, Timer, Video, Wallet, X as XIcon } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
@@ -201,9 +201,20 @@ function SessionCard({
   const subject = [booking.topic, booking.current_school].filter(Boolean).join(' · ')
   const visuals = visualsFor(activeStatus, joinable)
   const isLive = activeStatus === 'confirmed' && joinable
+  const meetingMissing =
+    !booking.meeting_link &&
+    (booking.meeting_attempts >= 5 || (booking.meeting_error?.length ?? 0) > 0)
 
   const handleConfirm = () => updateStatus({ bookingId: booking.id, status: 'confirmed' })
   const handleComplete = () => updateStatus({ bookingId: booking.id, status: 'completed' })
+  const handleCopyMeeting = async () => {
+    if (!booking.meeting_link) return
+    try {
+      await navigator.clipboard.writeText(booking.meeting_link)
+    } catch {
+      /* clipboard unavailable — silently ignore */
+    }
+  }
 
   return (
     <article
@@ -244,6 +255,49 @@ function SessionCard({
         />
         <MetaStat icon={Wallet} label="Earning" value={`NPR ${booking.mentor_earning}`} />
       </div>
+
+      {/* Meeting link — copyable chip + Open anchor when present, red
+          "Missing link" badge when attempts exhausted or backend errored.
+          Cancelled bookings expose the link as read-only text only. */}
+      {booking.meeting_link && activeStatus !== 'cancelled' ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-blue-50 p-3 ring-1 ring-blue-100">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-white text-[#0755d8] ring-1 ring-blue-100">
+            <Video className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold tracking-[0.14em] text-blue-700 uppercase">
+              Google Meet
+            </p>
+            <button
+              type="button"
+              onClick={handleCopyMeeting}
+              className="flex w-full items-center gap-2 truncate text-left font-mono text-xs font-semibold text-slate-800"
+              title="Copy meeting link"
+            >
+              <span className="min-w-0 truncate">{booking.meeting_link}</span>
+              <Copy className="size-3 shrink-0 text-blue-500" />
+            </button>
+          </div>
+          <a
+            href={booking.meeting_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-blue-600 px-4 text-xs font-bold text-white shadow-sm hover:bg-blue-700"
+          >
+            Open
+            <ExternalLink className="size-3" />
+          </a>
+        </div>
+      ) : meetingMissing ? (
+        <div className="flex items-center gap-2 rounded-2xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 ring-1 ring-amber-100">
+          <XIcon className="size-3.5" />
+          An admin will email you the meeting link shortly.
+        </div>
+      ) : booking.meeting_link && activeStatus === 'cancelled' ? (
+        <p className="rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-100">
+          Meeting link was shared with the mentee ({booking.meeting_link.replace(/^https?:\/\//, '')}).
+        </p>
+      ) : null}
 
       <div className="flex flex-wrap gap-2 max-sm:[&>button]:flex-1">
         {activeStatus === 'pending' && (

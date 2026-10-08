@@ -1,4 +1,5 @@
 import apiClient from '@/lib/api/api-client'
+import type { MeetingProvider } from '../types/payment'
 
 export interface GuestBookingPayload {
   // Mentee contact
@@ -37,11 +38,38 @@ export interface GuestBookingResult {
   mentor_name: string
   package_title: string | null
   payment_status: string
+  /** Auto-created Google Meet link. Null while in-flight. */
+  meeting_link: string | null
+  meeting_id: string | null
+  meeting_provider: MeetingProvider
+  meeting_error: string | null
+  meeting_attempts: number
 }
 
 export async function createGuestBooking(
   payload: GuestBookingPayload
 ): Promise<GuestBookingResult> {
   const response = await apiClient.post<GuestBookingResult>('/bookings/guest', payload)
+  return response.data
+}
+
+/**
+ * Response shape for `GET /bookings/{id}` — the mentee's source-of-truth
+ * booking detail. Today this exists to read `meeting_link` after a 100%-off
+ * promo booking (no Fonepay WS push), and after a page refresh mid-flow.
+ */
+export interface BookingDetail {
+  id: string
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  payment_status: 'unpaid' | 'paid' | 'refunded' | 'failed'
+  meeting_link: string | null
+  meeting_id: string | null
+  meeting_provider: MeetingProvider
+  meeting_error: string | null
+  meeting_attempts: number
+}
+
+export async function getBookingDetail(bookingId: string): Promise<BookingDetail> {
+  const response = await apiClient.get<BookingDetail>(`/bookings/${bookingId}`)
   return response.data
 }

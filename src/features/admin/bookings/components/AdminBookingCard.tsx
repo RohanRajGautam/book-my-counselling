@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { Copy, ExternalLink, Video, X, X as XIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { AdminBookingRow } from '../../types/admin.types'
@@ -59,6 +59,61 @@ function PriceBreakdown({ booking }: { booking: AdminBookingRow }) {
   )
 }
 
+function MeetingLinkRow({ booking }: { booking: AdminBookingRow }) {
+  const missing =
+    !booking.meeting_link &&
+    (booking.meeting_attempts >= 5 || (booking.meeting_error?.length ?? 0) > 0)
+
+  if (booking.meeting_link && booking.status !== 'cancelled') {
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(booking.meeting_link!)
+      } catch {
+        /* clipboard unavailable — silently ignore */
+      }
+    }
+    return (
+      <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 p-2 ring-1 ring-blue-100">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white text-[#0755d8] ring-1 ring-blue-100">
+          <Video className="size-3.5" />
+        </span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex min-w-0 flex-1 items-center gap-2 truncate text-left font-mono text-xs font-semibold text-slate-800"
+          title="Copy meeting link"
+        >
+          <span className="min-w-0 truncate">{booking.meeting_link}</span>
+          <Copy className="size-3 shrink-0 text-blue-500" />
+        </button>
+        <a
+          href={booking.meeting_link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-8 items-center gap-1 rounded-lg bg-blue-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-blue-700"
+        >
+          Open
+          <ExternalLink className="size-3" />
+        </a>
+      </div>
+    )
+  }
+
+  if (missing) {
+    return (
+      <p className="mt-3 inline-flex items-start gap-1.5 rounded-lg bg-rose-50 px-2 py-1.5 text-xs font-bold text-rose-700 ring-1 ring-rose-100">
+        <XIcon className="mt-0.5 size-3 shrink-0" />
+        <span>
+          Meeting link wasn&apos;t generated automatically. Please create one manually and email it to
+          both the mentee and mentor.
+        </span>
+      </p>
+    )
+  }
+
+  return null
+}
+
 export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
   const [cancelOpen, setCancelOpen] = useState(false)
   const canCancel = booking.status === 'pending' || booking.status === 'confirmed'
@@ -110,6 +165,7 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
             </p>
             <p className="mt-1 text-xs text-slate-500">{formatDateTime(booking.session_start)}</p>
             <PriceBreakdown booking={booking} />
+            <MeetingLinkRow booking={booking} />
             <p className="mt-2 font-mono text-[10px] uppercase text-slate-300">
               ID {booking.id}
             </p>
