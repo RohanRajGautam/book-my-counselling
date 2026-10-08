@@ -43,6 +43,13 @@ export interface MentorBooking {
   cancelled_at: string | null
   mentee: MenteePublic
   has_review: boolean
+  // ── Auto-generated Google Meet meeting (null when disabled / not yet created)
+  meeting_link: string | null
+  meeting_id: string | null
+  meeting_provider: 'google_meet' | null
+  meeting_error: string | null
+  /** Server-side counter (0..5). ≥5 means the link will not auto-create. */
+  meeting_attempts: number
 }
 
 /**

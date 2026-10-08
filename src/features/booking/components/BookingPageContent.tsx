@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -10,6 +10,7 @@ import { FormSelect } from '@/features/booking/components/FormSelect'
 import { FormTextarea } from '@/features/booking/components/FormTextarea'
 import { OrderSummary } from '@/features/booking/components/OrderSummary'
 import { FonepayPaymentSection } from '@/features/booking/components/FonepayPaymentSection'
+import type { PaymentSuccessMeeting } from '@/features/booking/components/FonepayPaymentSection'
 import { BookingCompleteModal } from '@/features/booking/components/BookingCompleteModal'
 import { CalendlySection } from '@/features/booking/components/CalendlySection'
 import {
@@ -20,7 +21,9 @@ import {
 import { EDUCATION_LEVEL_OPTIONS } from '@/features/booking/lib/booking.constants'
 import { useMentor } from '@/features/mentors/hooks/useMentor'
 import { useMentorPackages } from '@/features/service-packages/hooks/useMentorPackages'
-import { createGuestBooking, type GuestBookingResult } from '@/features/booking/api/bookingApi'
+import { createGuestBooking } from '@/features/booking/api/bookingApi'
+import type { GuestBookingResult } from '@/features/booking/api/bookingApi'
+import { makeBookingDetailFetcher, pollMeetingWith } from '@/features/booking/lib/meetingStatus'
 import { FEATURED_EVENT } from '@/features/home/lib/featuredEvent'
 import { PromoCodeInput } from '@/features/promo-codes/components/PromoCodeInput'
 import { useValidatePromoCode } from '@/features/promo-codes/hooks/useValidatePromoCode'
@@ -81,6 +84,28 @@ export function BookingPageContent() {
   const [bookingCompleteOpen, setBookingCompleteOpen] = useState(false)
   const [isFree, setIsFree] = useState(false)
 
+  // Meeting-link state shared by both flows. Defaults match the modal's
+  // "block hidden" state: no link, no skeleton, no email fallback. The modal
+  // opts into the block by setting at least one of these truthy.
+  const [meetingLink, setMeetingLink] = useState<string | null>(null)
+  const [meetingPreparing, setMeetingPreparing] = useState(false)
+  const [meetingErrorFallback, setMeetingErrorFallback] = useState(false)
+  const meetingPollAbortRef = useRef<AbortController | null>(null)
+
+  const resetMeetingState = useCallback(() => {
+    meetingPollAbortRef.current?.abort()
+    meetingPollAbortRef.current = null
+    setMeetingLink(null)
+    setMeetingPreparing(false)
+    setMeetingErrorFallback(false)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      meetingPollAbortRef.current?.abort()
+    }
+  }, [])
+
   // Promo code state — one applied code per booking.
   const [promoInput, setPromoInput] = useState('')
   const [appliedPromo, setAppliedPromo] = useState<PromoCodeValidationResponse | null>(null)
@@ -98,12 +123,88 @@ export function BookingPageContent() {
     queryClient.invalidateQueries({ queryKey: ['my-availability'] })
   }, [queryClient, mentorId])
 
-  const handlePaymentSuccess = useCallback(() => {
-    // Payment-confirmed path runs the same cache bust — the booking may be
-    // CONFIRMED in DB but the picker cache still holds the pre-payment view.
-    invalidateAvailabilityCaches()
-    setBookingCompleteOpen(true)
-  }, [invalidateAvailabilityCaches])
+  const handlePaymentSuccess = useCallback(
+    (meeting: PaymentSuccessMeeting) => {
+      // Payment-confirmed path runs the same cache bust — the booking may be
+      // CONFIRMED in DB but the picker cache still holds the pre-payment view.
+      invalidateAvailabilityCaches()
+      // Adopt the meeting fields the WS-driven hook surfaced. The hook
+      // continues to poll in the background; the page is just the renderer.
+      setMeetingLink(meeting.meetingLink)
+      setMeetingPreparing(meeting.meetingPreparing)
+      setMeetingErrorFallback(meeting.meetingErrorFallback)
+      setBookingCompleteOpen(true)
+    },
+    [invalidateAvailabilityCaches],
+  )
+
+  /**
+   * Free-booking path — no Fonepay WS push. Read `meeting_link` straight
+   * from the booking detail endpoint and poll if it's not ready yet. The
+   * initial POST response is consulted first so the link can render
+   * synchronously when creation finished before the response returned.
+   */
+  const startFreeBookingMeetingPolling = useCallback(
+    (bookingId: string, result: GuestBookingResult) => {
+      resetMeetingState()
+      // Fast win: link already on the POST response.
+      if (result.meeting_link) {
+        setMeetingLink(result.meeting_link)
+        return
+      }
+      if (result.meeting_error) {
+        setMeetingErrorFallback(true)
+        return
+      }
+      // In-flight — poll.
+      const ac = new AbortController()
+      meetingPollAbortRef.current = ac
+      const fetcher = makeBookingDetailFetcher(bookingId)
+      setMeetingPreparing(true)
+      void (async () => {
+        const first = await fetcher()
+        if (ac.signal.aborted) return
+        if (first?.meetingLink) {
+          setMeetingLink(first.meetingLink)
+          setMeetingPreparing(false)
+          return
+        }
+        if (first?.meetingError) {
+          setMeetingErrorFallback(true)
+          setMeetingPreparing(false)
+          return
+        }
+        await pollMeetingWith(
+          fetcher,
+          (r) => {
+            if (ac.signal.aborted) return
+            if (r.meetingLink) {
+              setMeetingLink(r.meetingLink)
+              setMeetingPreparing(false)
+              return
+            }
+            if (r.meetingError) {
+              setMeetingErrorFallback(true)
+              setMeetingPreparing(false)
+              return
+            }
+            if (r.meetingAttempts >= 5) {
+              setMeetingErrorFallback(true)
+              setMeetingPreparing(false)
+            }
+          },
+          5,
+          2000,
+          ac.signal,
+        )
+        if (!ac.signal.aborted) {
+          setMeetingPreparing(false)
+          setMeetingErrorFallback(true)
+        }
+      })()
+    },
+    [resetMeetingState],
+  )
 
   const handlePromoApply = useCallback(() => {
     const code = promoInput.trim()
@@ -220,6 +321,9 @@ export function BookingPageContent() {
         // Free booking auto-confirms on the server — bust caches so the
         // slot is gone by the time the user navigates back.
         invalidateAvailabilityCaches()
+        // No Fonepay WS push on the free path — read the meeting link from
+        // the booking detail endpoint and start the same polling loop.
+        startFreeBookingMeetingPolling(result.booking_id, result)
         setBookingCompleteOpen(true)
       } else {
         setBookingAmount(parseFloat(result.agreed_price))
@@ -521,13 +625,19 @@ export function BookingPageContent() {
 
       <BookingCompleteModal
         open={bookingCompleteOpen}
-        onClose={() => setBookingCompleteOpen(false)}
+        onClose={() => {
+          setBookingCompleteOpen(false)
+          resetMeetingState()
+        }}
         bookingId={bookingId}
         mentor={orderSummaryMentor}
         session={orderSummarySession}
         price={appliedPromo ? Number(appliedPromo.final_amount) : orderSummaryPrice}
         breakdown={promoBreakdown}
         freeBooking={isFree}
+        meetingLink={meetingLink}
+        meetingPreparing={meetingPreparing}
+        meetingErrorFallback={meetingErrorFallback}
       />
     </main>
   )

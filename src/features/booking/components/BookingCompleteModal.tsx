@@ -4,9 +4,22 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
-import { Calendar, Clock, Copy, Hash, TimerReset, Video, X } from 'lucide-react'
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Copy,
+  ExternalLink,
+  Hash,
+  Loader2,
+  Mail,
+  TimerReset,
+  Video,
+  X,
+} from 'lucide-react'
 
 import { getInitials } from '@/features/mentors/components/MentorCard'
+import { formatJoinCountdown, isMeetingJoinable } from '@/features/meetings/lib/meetingFormat'
 
 type Mentor = {
   name: string
@@ -37,6 +50,24 @@ interface BookingCompleteModalProps {
   }
   /** True when the booking was confirmed for free via a 100%-off promo. */
   freeBooking?: boolean
+  /**
+   * Auto-generated Google Meet link for this booking. `null` (or omitted)
+   * while the backend is still creating the meeting, or when the meeting
+   * provider is disabled. The modal renders the meeting block only when at
+   * least one of `meetingLink`, `meetingPreparing`, `meetingErrorFallback`
+   * is set — leaving all three off is how the parent opts out for the
+   * `MEETING_PROVIDER=disabled` case.
+   */
+  meetingLink?: string | null
+  /** True while the parent is polling for the link. Renders a skeleton. */
+  meetingPreparing?: boolean
+  /**
+   * True after polling gave up (5 attempts, no link, no error).
+   * Renders a softer "we'll email you" message so the modal never blocks.
+   */
+  meetingErrorFallback?: boolean
+  /** Display label — "Google Meet" today; future-proofed for new providers. */
+  meetingProviderLabel?: string
 }
 
 const overlayVariants: Variants = {
@@ -112,6 +143,10 @@ export function BookingCompleteModal({
   priceLabel,
   breakdown,
   freeBooking = false,
+  meetingLink,
+  meetingPreparing,
+  meetingErrorFallback,
+  meetingProviderLabel = 'Google Meet',
 }: BookingCompleteModalProps) {
   const router = useRouter()
 
@@ -135,6 +170,16 @@ export function BookingCompleteModal({
   const formattedPrice =
     priceLabel ?? `NPR ${price.toLocaleString('en-NP', { minimumFractionDigits: 2 })}`
 
+  // Defer the "Join the meeting" CTA until the session is within Google's
+  // 15-min early-join window. Snapshot of `now` — the modal mounts shortly
+  // after payment, so the countdown is correct at that moment; if the user
+  // keeps the modal open across the join window, closing + reopening (or
+  // pulling the link from the emailed confirmation) is the fallback.
+  const sessionStart = session?.startTime ?? null
+  const joinable = isMeetingJoinable(sessionStart)
+  const joinCountdown = joinable ? '' : formatJoinCountdown(sessionStart)
+  const hasScheduledStart = !!sessionStart
+
   const handleCopyBookingId = async () => {
     if (!bookingId) return
     try {
@@ -143,6 +188,20 @@ export function BookingCompleteModal({
       /* clipboard unavailable — silently ignore */
     }
   }
+
+  const handleCopyMeetingLink = async () => {
+    if (!meetingLink) return
+    try {
+      await navigator.clipboard.writeText(meetingLink)
+    } catch {
+      /* clipboard unavailable — silently ignore */
+    }
+  }
+
+  // Meeting block visibility — opt-in via any of these three signals. The
+  // "MEETING_PROVIDER=disabled" case leaves all three off, so the block
+  // doesn't render at all.
+  const meetingBlockActive = !!meetingLink || !!meetingPreparing || !!meetingErrorFallback
 
   return (
     <AnimatePresence>
@@ -348,11 +407,97 @@ export function BookingCompleteModal({
                 )}
               </motion.div>
 
+              {meetingBlockActive && (
+                <motion.div
+                  custom={3}
+                  variants={rowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="rounded-[24px] bg-[var(--brand-blue-surface)] p-3 ring-1 ring-[var(--brand-blue-soft)]"
+                  aria-label="Meeting link"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-[24px] bg-white text-[var(--brand-blue)] ring-1 ring-[var(--brand-blue-soft)]">
+                      <Video className="size-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">Your meeting</p>
+                      {meetingLink ? (
+                        <p className="flex items-center gap-1.5 text-xs text-[#434655]">
+                          <CheckCircle2 className="size-3 shrink-0 text-emerald-600" />
+                          {meetingProviderLabel} · ready to join
+                        </p>
+                      ) : meetingErrorFallback ? (
+                        <p className="text-xs text-[#434655]">
+                          An admin will email you the link shortly.
+                        </p>
+                      ) : (
+                        <p className="text-xs text-[#434655]">Preparing your meeting link…</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {meetingLink ? (
+                    <div className="mt-3 space-y-2 border-t border-[var(--brand-blue-soft)] pt-3">
+                      {joinable ? (
+                        <a
+                          href={meetingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group inline-flex w-full items-center justify-center gap-2 rounded-[24px] bg-gradient-to-br from-[#004ac6] to-[#2563eb] px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(7,85,216,0.18)] transition hover:from-[#003fa8] hover:to-[#1d4ed8]"
+                        >
+                          Join the meeting
+                          <ExternalLink className="size-3.5" />
+                        </a>
+                      ) : (
+                        <div
+                          aria-disabled="true"
+                          className="inline-flex w-full cursor-not-allowed flex-col items-center justify-center gap-0.5 rounded-[24px] bg-[var(--brand-blue-soft)] px-5 py-2.5 text-center"
+                        >
+                          <p className="flex items-center gap-2 text-sm font-bold text-[var(--brand-blue)]">
+                            <Clock className="size-3.5" />
+                            {joinCountdown || 'Not joinable yet'}
+                          </p>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleCopyMeetingLink}
+                        className="flex w-full items-center gap-2 truncate rounded-[24px] bg-white/70 px-3 py-2 text-left font-mono text-xs text-[var(--brand-blue)] ring-1 ring-[var(--brand-blue-soft)] transition hover:bg-white"
+                      >
+                        <span className="min-w-0 flex-1 truncate">{meetingLink}</span>
+                        <Copy className="size-3 shrink-0" />
+                      </button>
+                      <p className="flex items-center gap-1.5 text-xs text-[#737686]">
+                        <Mail className="size-3 shrink-0" />
+                        We&apos;ve also emailed this link to your inbox.
+                      </p>
+                    </div>
+                  ) : meetingErrorFallback ? (
+                    <p className="mt-3 rounded-[24px] bg-white/70 px-3 py-2.5 text-xs leading-5 text-[#434655] ring-1 ring-[var(--brand-blue-soft)]">
+                      An admin will email you the meeting link within a few minutes.
+                    </p>
+                  ) : (
+                    <div className="mt-3 space-y-2 border-t border-[var(--brand-blue-soft)] pt-3">
+                      <div
+                        aria-disabled="true"
+                        className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-[24px] bg-gradient-to-br from-[#004ac6]/60 to-[#2563eb]/60 px-5 py-2.5 text-sm font-bold text-white opacity-70"
+                      >
+                        <Loader2 className="size-3.5 animate-spin" />
+                        Preparing…
+                      </div>
+                      <div className="h-3 w-3/4 animate-pulse rounded bg-white/70" />
+                      <p className="text-xs text-[#737686]">This usually takes a few seconds.</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
               {bookingId && (
                 <motion.button
                   type="button"
                   onClick={handleCopyBookingId}
-                  custom={3}
+                  custom={4}
                   variants={rowVariants}
                   initial="hidden"
                   animate="visible"
