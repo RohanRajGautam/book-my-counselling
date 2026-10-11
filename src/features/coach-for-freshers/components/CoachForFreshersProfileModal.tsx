@@ -73,6 +73,24 @@ export function CoachForFreshersProfileModal({
         .sort((a, b) => a.duration_minutes - b.duration_minutes),
     [packages]
   )
+  // Default-select the Standard Counselling Package once packages load.
+  // Gated by a ref so the auto-select doesn't fight the user if they
+  // explicitly toggle their choice.
+  const hasAutoSelectedPackage = useRef(false)
+  useEffect(() => {
+    if (hasAutoSelectedPackage.current) return
+    if (!isOpen || !resolvedMentorId) return
+    if (activePackages.length === 0) return
+
+    const standard =
+      activePackages.find((p) => p.title === 'Standard Counselling Package') ??
+      activePackages.find((p) => p.duration_minutes === 60)
+
+    hasAutoSelectedPackage.current = true
+
+    if (!standard) return
+    setSelection((prev) => ({ ...prev, packageId: standard.id }))
+  }, [isOpen, resolvedMentorId, activePackages])
   const selectedPackage = activePackages.find((item) => item.id === selection.packageId) ?? null
   const hasAvailability = availability.length > 0
   const initials = getInitials(mentor?.user?.full_name ?? '')

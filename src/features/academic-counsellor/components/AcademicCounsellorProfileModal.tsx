@@ -139,6 +139,32 @@ export function AcademicCounsellorProfileModal({ isOpen, onClose, mentorId }: Pr
 
   const isInitialLoading = isMentorLoading || isPackagesLoading || isAvailabilityLoading
 
+  // Default-select the Standard Counselling Package once packages load.
+  // Gated by a ref so the auto-select doesn't fight the user if they
+  // explicitly toggle their choice.
+  const hasAutoSelectedPackage = useRef(false)
+  useEffect(() => {
+    if (hasAutoSelectedPackage.current) return
+    if (!isOpen || !resolvedMentorId) return
+    if (packages.length === 0) return
+
+    const standard =
+      packages.find((p) => p.title === 'Standard Counselling Package') ??
+      packages.find((p) => p.duration_minutes === 60)
+
+    hasAutoSelectedPackage.current = true
+
+    if (!standard) return
+    setSelection({
+      mentorId: resolvedMentorId,
+      slicedSlotId: null,
+      parentSlotId: null,
+      sessionStart: null,
+      sessionEnd: null,
+      packageId: standard.id,
+    })
+  }, [isOpen, resolvedMentorId, packages])
+
   // When the bottom CTA says "Choose a Package", clicking it should jump the
   // user straight to the packages list rather than sitting at the bottom of
   // the modal. The packages section sits inside the right column's scroll
