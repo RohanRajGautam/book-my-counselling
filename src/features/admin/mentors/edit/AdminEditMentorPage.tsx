@@ -3,14 +3,21 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, ArrowLeft, CalendarPlus, Loader2, RefreshCw } from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CalendarDays,
+  CalendarPlus,
+  Loader2,
+  RefreshCw,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
   useAdminSetMentorLogo,
   useAdminSetUserAvatar,
-  useMentorFromAdminListCache,
+  useMentorProfileFromAdminListCache,
   useUpdateAdminUserProfile,
 } from '@/features/admin/mentors/hooks/useAdminMentors'
 import { useTags } from '@/features/tags/hooks/useTags'
@@ -87,22 +94,30 @@ type InitialSnapshot = {
 }
 
 type AdminEditMentorPageProps = {
-  userId: string
+  /**
+   * `MentorProfile.id` (NOT the user id). The route segment is `[mentorId]`
+   * and the slug is shared with `/admin/mentors/[mentorId]/availability` —
+   * Next.js requires the same slug name for sibling dynamic routes.
+   */
+  mentorId: string
 }
 
-export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
+export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
   const router = useRouter()
-  const { mutate: updateProfile, isPending } = useUpdateAdminUserProfile(userId)
-  const { mutateAsync: uploadAvatar } = useAdminSetUserAvatar(userId)
   const { data: catalogTags = [] } = useTags()
   const { ids: academicIds, isLoading: academicIdsLoading } = useAllAcademicSubcategoryIds()
-  const cachedMentor = useMentorFromAdminListCache(userId)
-  // The logo endpoint takes the mentor profile id, not the user id. The hook
-  // is always called (rules of hooks) but `cachedMentor.id` is what we want
-  // once the cache is populated; the trailing `userId` fallback only covers
-  // the brief pre-load window and is never exercised by the upload handler
-  // (the card only renders once `cachedMentor` is loaded).
-  const uploadMentorLogoMutate = useAdminSetMentorLogo(cachedMentor?.id ?? userId)
+  const cachedMentor = useMentorProfileFromAdminListCache(mentorId)
+  // The profile/avatar endpoints take the user id, not the mentor profile id.
+  // The hook is always called (rules of hooks) but `cachedMentor.user_id` is
+  // what we want once the cache is populated; the trailing `mentorId`
+  // fallback only covers the brief pre-load window and is never exercised
+  // by the upload handlers (the cards only render once `cachedMentor` is
+  // loaded).
+  const userIdForProfileHooks = cachedMentor?.user_id ?? mentorId
+  const { mutate: updateProfile, isPending } = useUpdateAdminUserProfile(userIdForProfileHooks)
+  const { mutateAsync: uploadAvatar } = useAdminSetUserAvatar(userIdForProfileHooks)
+  // The logo endpoint takes the mentor profile id directly.
+  const uploadMentorLogoMutate = useAdminSetMentorLogo(cachedMentor?.id ?? mentorId)
 
   const [activeTab, setActiveTab] = useState<AdminCreateMentorTab>('general-info')
 
@@ -386,20 +401,30 @@ export function AdminEditMentorPage({ userId }: AdminEditMentorPageProps) {
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200/60 bg-white px-3 py-2 shadow-sm sm:px-4">
             <p className="text-xs font-medium text-slate-500">
               Need to record a session for{' '}
-              <span className="font-bold text-slate-700">
-                {cachedMentor.user.full_name}
-              </span>
-              ?
+              <span className="font-bold text-slate-700">{cachedMentor.user.full_name}</span>?
             </p>
-            <Button
-              type="button"
-              size="sm"
-              className="gap-1.5 rounded-lg bg-[#0755d8] px-4 py-5 font-bold text-white shadow-sm hover:bg-blue-700"
-              onClick={() => setRecordSessionOpen(true)}
-            >
-              <CalendarPlus className="size-3.5" strokeWidth={2.6} />
-              Record session for this mentor
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="gap-1.5 rounded-lg border-slate-300 bg-white px-4 py-5 font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                nativeButton={false}
+                render={<Link href={`/admin/mentors/${cachedMentor.id}/availability`} />}
+              >
+                <CalendarDays className="size-3.5" strokeWidth={2.4} />
+                Manage availability
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                className="gap-1.5 rounded-lg bg-[#0755d8] px-4 py-5 font-bold text-white shadow-sm hover:bg-blue-700"
+                onClick={() => setRecordSessionOpen(true)}
+              >
+                <CalendarPlus className="size-3.5" strokeWidth={2.6} />
+                Record session
+              </Button>
+            </div>
           </div>
         ) : null}
 
