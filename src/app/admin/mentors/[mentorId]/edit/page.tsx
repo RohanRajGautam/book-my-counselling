@@ -4,15 +4,15 @@ import { AdminEditMentorFallback } from '@/features/admin/mentors/edit/component
 import { AdminEditMentorPage } from '@/features/admin/mentors/edit/AdminEditMentorPage'
 
 type AdminEditMentorRoutePageProps = {
-  params: Promise<{ userId: string }>
+  params: Promise<{ mentorId: string }>
 }
 
 export default async function AdminEditMentorRoutePage({ params }: AdminEditMentorRoutePageProps) {
-  const { userId } = await params
+  const { mentorId } = await params
 
   return (
     <Suspense fallback={<AdminEditMentorFallback />}>
-      <AdminEditMentorPage userId={userId} />
+      <AdminEditMentorPage mentorId={mentorId} />
     </Suspense>
   )
 }

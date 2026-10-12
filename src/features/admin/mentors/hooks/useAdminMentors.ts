@@ -185,39 +185,42 @@ function updateMentorInAdminCaches(
 
 // ── Admin profile (read + update) ─────────────────────────────────────────
 
-function findMentorInAdminListCache(
+/**
+ * Looks up a mentor by `MentorProfile.id` (not `user_id`) from whatever pages
+ * of the admin mentor list are currently cached. The backend doesn't expose
+ * `GET /admin/users/{id}` — the Edit + Availability buttons always originate
+ * from a mentor card, so the data is in cache from `useAdminMentors`.
+ * Subscribes to the query cache via `useSyncExternalStore` so it re-reads
+ * whenever the cache mutates (e.g. after `useUpdateAdminUserProfile`
+ * invalidates the list).
+ *
+ * Returns `undefined` for direct-URL access where the mentor isn't in cache;
+ * the edit page renders a "go back to mentors list" fallback in that case.
+ */
+export function useMentorProfileFromAdminListCache(
+  mentorProfileId: string
+): AdminMentorProfile | undefined {
+  const qc = useQueryClient()
+  return useSyncExternalStore(
+    (onChange) => qc.getQueryCache().subscribe(onChange),
+    () => findMentorByProfileIdInAdminListCache(qc, mentorProfileId),
+    () => undefined
+  )
+}
+
+function findMentorByProfileIdInAdminListCache(
   qc: ReturnType<typeof useQueryClient>,
-  userId: string
+  mentorProfileId: string
 ): AdminMentorProfile | undefined {
   const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
     queryKey: ADMIN_MENTORS_KEY,
   })
   for (const [, data] of queries) {
     if (!data) continue
-    const found = data.items.find((m) => m.user_id === userId)
+    const found = data.items.find((m) => m.id === mentorProfileId)
     if (found) return found
   }
   return undefined
-}
-
-/**
- * Looks up a mentor by `user_id` from whatever pages of the admin mentor list
- * are currently cached. The backend doesn't expose `GET /admin/users/{id}` —
- * the Edit button always originates from a mentor card, so the data is in
- * cache from `useAdminMentors`. Subscribes to the query cache via
- * `useSyncExternalStore` so it re-reads whenever the cache mutates (e.g.
- * after `useUpdateAdminUserProfile` invalidates the list).
- *
- * Returns `undefined` for direct-URL access where the mentor isn't in cache;
- * the edit page renders a "go back to mentors list" fallback in that case.
- */
-export function useMentorFromAdminListCache(userId: string): AdminMentorProfile | undefined {
-  const qc = useQueryClient()
-  return useSyncExternalStore(
-    (onChange) => qc.getQueryCache().subscribe(onChange),
-    () => findMentorInAdminListCache(qc, userId),
-    () => undefined
-  )
 }
 
 /**
@@ -258,10 +261,7 @@ export function useUpdateAdminUserEmail(userId: string) {
   })
 }
 
-function updateUserEmailInAdminCaches(
-  qc: ReturnType<typeof useQueryClient>,
-  user: UserResponse
-) {
+function updateUserEmailInAdminCaches(qc: ReturnType<typeof useQueryClient>, user: UserResponse) {
   const queries = qc.getQueriesData<PaginatedResponse<AdminMentorProfile>>({
     queryKey: ADMIN_MENTORS_KEY,
   })

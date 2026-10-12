@@ -1,18 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { PaginatedResponse } from '@/lib/api/api.types'
 import {
-  getMentorAvailability,
-  getMentorBookableUnits,
-  getMyAvailabilitySlots,
+  adminCreateSlot,
+  adminCreateSlotsBulk,
+  adminDeleteSlot,
+  adminDeleteSlotsBulk,
+  adminListMentorAvailability,
+  AdminAvailabilityListParams,
   createSlotsBulk,
   deleteSlot,
   deleteSlotsBulk,
+  getMentorAvailability,
+  getMentorBookableUnits,
+  getMyAvailabilitySlots,
 } from '../api/availability.api'
 import type {
   AvailabilitySlotResponse,
   BookableUnit,
   BulkSlotCreatePayload,
   BulkSlotCreateResponse,
+  SingleSlotCreatePayload,
 } from '../types/availability.types'
+import { MessageResponse } from '@/features/auth/types/auth.types'
 
 // Returns raw, server-validated availability rows. Use this only for the
 // mentor-only "my availability" / settings view where partial bookings matter.
@@ -33,10 +42,7 @@ export function useMentorAvailability(mentorId: string | null) {
 // is exactly one booking — `is_booked: true` means another confirmed booking
 // already covers that window. The deterministic id keeps selection state
 // across refetches stable.
-export function useMentorBookableUnits(
-  mentorId: string | null,
-  packageId: string | null,
-) {
+export function useMentorBookableUnits(mentorId: string | null, packageId: string | null) {
   return useQuery<BookableUnit[]>({
     queryKey: ['mentor-bookable-units', mentorId, packageId],
     queryFn: () => getMentorBookableUnits(mentorId!, packageId!),
@@ -87,4 +93,72 @@ export function useDeleteSlotsBulk() {
       qc.invalidateQueries({ queryKey: ['mentor-bookable-units'] })
     },
   })
+}
+
+// ── Admin: manage any mentor's availability ──────────────────────────────
+//
+// Query keys are scoped per `mentorId` so a mutation on mentor A never
+// invalidates mentor B's list. Mutations also invalidate the public
+// `mentor-availability` / `mentor-bookable-units` (mentee-facing views) and
+// the admin mentor-list caches that surface the "missing availability" tab,
+// so the admin's other screens reflect the change immediately.
+
+const adminAvailabilityKey = (mentorId: string | null, params: AdminAvailabilityListParams) =>
+  ['admin', 'mentor-availability', mentorId, params] as const
+
+export function useAdminMentorAvailability(
+  mentorId: string | null,
+  params: AdminAvailabilityListParams = {}
+) {
+  return useQuery<PaginatedResponse<AvailabilitySlotResponse>>({
+    queryKey: adminAvailabilityKey(mentorId, params),
+    queryFn: () => adminListMentorAvailability(mentorId!, params),
+    enabled: !!mentorId,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useAdminCreateSlot(mentorId: string) {
+  return useMutation<AvailabilitySlotResponse, Error, SingleSlotCreatePayload>({
+    mutationFn: (payload) => adminCreateSlot(mentorId, payload),
+  })
+}
+
+export function useAdminCreateSlotsBulk(mentorId: string) {
+  const qc = useQueryClient()
+  return useMutation<BulkSlotCreateResponse, Error, BulkSlotCreatePayload>({
+    mutationFn: (payload) => adminCreateSlotsBulk(mentorId, payload),
+    onSuccess: () => invalidateAdminAvailability(qc, mentorId),
+  })
+}
+
+export function useAdminDeleteSlot(mentorId: string) {
+  const qc = useQueryClient()
+  return useMutation<MessageResponse, Error, string>({
+    mutationFn: (slotId) => adminDeleteSlot(mentorId, slotId),
+    onSuccess: () => invalidateAdminAvailability(qc, mentorId),
+  })
+}
+
+export function useAdminDeleteSlotsBulk(mentorId: string) {
+  const qc = useQueryClient()
+  return useMutation<MessageResponse, Error, string[]>({
+    mutationFn: (slotIds) => adminDeleteSlotsBulk(mentorId, slotIds),
+    onSuccess: () => invalidateAdminAvailability(qc, mentorId),
+  })
+}
+
+function invalidateAdminAvailability(qc: ReturnType<typeof useQueryClient>, mentorId: string) {
+  // Admin list for this mentor.
+  qc.invalidateQueries({ queryKey: ['admin', 'mentor-availability', mentorId] })
+  // Public mentee-facing views hit the same slots.
+  qc.invalidateQueries({ queryKey: ['mentor-availability', mentorId] })
+  qc.invalidateQueries({ queryKey: ['mentor-bookable-units', mentorId] })
+  // The "missing availability" admin tab and the underlying admin mentors
+  // list re-render the badge counts.
+  qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
+  qc.invalidateQueries({ queryKey: ['admin', 'reminders'] })
+  // Mentor search + per-mentor detail caches are busted server-side too.
+  qc.invalidateQueries({ queryKey: ['mentors'] })
+  qc.invalidateQueries({ queryKey: ['mentor'] })
 }

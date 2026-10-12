@@ -8,6 +8,7 @@ import {
   Bell,
   Building2,
   CalendarClock,
+  CalendarDays,
   Check,
   ChevronDown,
   Copy,
@@ -52,7 +53,12 @@ function joinedLabel(iso: string): string {
   return `Joined ${month} ${d.getFullYear()}`
 }
 
-export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder }: AdminMentorCardProps) {
+export function AdminMentorCard({
+  mentor,
+  tabId,
+  onSendReminder,
+  sendingReminder,
+}: AdminMentorCardProps) {
   const { mutate: verify, isPending: verifying } = useVerifyMentor()
   const { mutate: reject, isPending: rejecting } = useRejectMentor()
   const { mutate: feature } = useFeatureMentor()
@@ -174,7 +180,9 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
                   type="button"
                   onClick={handleCopyEmail}
                   title={emailCopied ? 'Copied!' : `Copy ${mentor.user.email}`}
-                  aria-label={emailCopied ? 'Email copied' : `Copy mentor email ${mentor.user.email}`}
+                  aria-label={
+                    emailCopied ? 'Email copied' : `Copy mentor email ${mentor.user.email}`
+                  }
                   className="ml-0.5 inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-bold text-slate-500 transition hover:bg-slate-100 hover:text-blue-700 sm:text-[11px]"
                 >
                   {emailCopied ? (
@@ -283,7 +291,7 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
           variant="outline"
           className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
           nativeButton={false}
-          render={<Link href={`/admin/mentors/${mentor.user_id}/edit`} />}
+          render={<Link href={`/admin/mentors/${mentor.id}/edit`} />}
           aria-label={`Edit ${mentor.user.full_name}`}
         >
           <Pencil className="size-3.5" strokeWidth={2.4} />
@@ -359,6 +367,17 @@ export function AdminMentorCard({ mentor, tabId, onSendReminder, sendingReminder
             Remind
           </Button>
         ) : null}
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+          nativeButton={false}
+          render={<Link href={`/admin/mentors/${mentor.id}/availability`} />}
+          aria-label={`Manage availability for ${mentor.user.full_name}`}
+        >
+          <CalendarDays className="size-3.5" strokeWidth={2.4} />
+          Availability
+        </Button>
       </div>
     </article>
   )
