@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Copy, ExternalLink, Video, X, X as XIcon } from 'lucide-react'
+import { Calendar, Clock, Copy, ExternalLink, Video, X, X as XIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { AdminBookingRow } from '../../types/admin.types'
@@ -163,7 +163,18 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
               <span className="text-slate-400"> with </span>
               <span className="font-bold">{booking.mentor.full_name}</span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">{formatDateTime(booking.session_start)}</p>
+            <dl className="mt-1 grid gap-1 text-xs">
+              <div className="flex flex-wrap items-center gap-x-1.5">
+                <Calendar className="size-3.5 shrink-0 text-blue-600" />
+                <dt className="font-semibold text-slate-700">Session at:</dt>
+                <dd className="font-bold text-slate-950">{formatDateTime(booking.session_start)}</dd>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-1.5 text-slate-500">
+                <Clock className="size-3 shrink-0 text-slate-400" />
+                <dt className="font-medium text-slate-500">Booking created on:</dt>
+                <dd>{formatDateTime(booking.created_at)}</dd>
+              </div>
+            </dl>
             <PriceBreakdown booking={booking} />
             <MeetingLinkRow booking={booking} />
             <p className="mt-2 font-mono text-[10px] uppercase text-slate-300">
