@@ -1,13 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { CalendarCheck2, Copy, ExternalLink, Timer, Video, Wallet, X as XIcon } from 'lucide-react'
+import {
+  CalendarCheck2,
+  CalendarClock,
+  Copy,
+  ExternalLink,
+  Timer,
+  Video,
+  Wallet,
+  X as XIcon,
+} from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useMentorBookings } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 import { useUpdateBookingStatus } from '@/features/mentor-dashboard/hooks/useMentorBookings'
 import { MentorBooking } from '@/features/mentor-dashboard/types/mentor-dashboard.types'
 import { BookingStatus } from '@/features/mentor-dashboard/types/booking-status'
+import { isReschedulable } from '@/features/booking-reschedule/lib/eligibility'
+import { BookingRescheduleModal } from '@/features/booking-reschedule/components/BookingRescheduleModal'
+import { RescheduledPill } from '@/features/booking-reschedule/components/RescheduledPill'
 
 const STATUS_TABS: { label: string; value: BookingStatus | undefined }[] = [
   { label: 'Upcoming', value: 'confirmed' },
@@ -196,6 +208,7 @@ function SessionCard({
   activeStatus: BookingStatus | undefined
 }) {
   const { mutate: updateStatus, isPending } = useUpdateBookingStatus()
+  const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const joinable = isJoinable(booking.session_start)
   const initials = getInitials(booking.mentee.full_name)
   const subject = [booking.topic, booking.current_school].filter(Boolean).join(' · ')
@@ -204,6 +217,7 @@ function SessionCard({
   const meetingMissing =
     !booking.meeting_link &&
     (booking.meeting_attempts >= 5 || (booking.meeting_error?.length ?? 0) > 0)
+  const canReschedule = isReschedulable(booking)
 
   const handleConfirm = () => updateStatus({ bookingId: booking.id, status: 'confirmed' })
   const handleComplete = () => updateStatus({ bookingId: booking.id, status: 'completed' })
@@ -214,6 +228,10 @@ function SessionCard({
     } catch {
       /* clipboard unavailable — silently ignore */
     }
+  }
+  const handleJoin = () => {
+    if (!booking.meeting_link) return
+    window.open(booking.meeting_link, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -238,7 +256,14 @@ function SessionCard({
             </p>
           </div>
         </div>
-        <StatusPill visuals={visuals} />
+        <div className="flex shrink-0 items-start gap-2">
+          <RescheduledPill
+            created_at={booking.created_at}
+            updated_at={booking.updated_at}
+            status={booking.status}
+          />
+          <StatusPill visuals={visuals} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-x-5 gap-y-4 border-t border-slate-100 pt-4 sm:grid-cols-3">
@@ -312,14 +337,15 @@ function SessionCard({
         )}
         {activeStatus === 'confirmed' && (
           <>
-            {joinable && (
+            {joinable && booking.meeting_link ? (
               <Button
                 size="sm"
                 className="h-9 rounded-full bg-blue-600 px-5 font-bold text-white shadow-sm shadow-blue-200 hover:bg-blue-700"
+                onClick={handleJoin}
               >
                 Join now
               </Button>
-            )}
+            ) : null}
             <Button
               size="sm"
               className="h-9 rounded-full bg-blue-600 px-5 font-bold text-white hover:bg-blue-700"
@@ -343,7 +369,42 @@ function SessionCard({
             <RefundBadge paymentStatus={booking.payment_status} />
           </div>
         )}
+        {canReschedule &&
+        activeStatus !== 'completed' &&
+        activeStatus !== 'cancelled' ? (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-9 gap-1.5 rounded-full border-blue-200 px-4 text-blue-700 hover:bg-blue-50"
+            onClick={() => setRescheduleOpen(true)}
+            disabled={isPending}
+          >
+            <CalendarClock className="size-3.5" />
+            Reschedule
+          </Button>
+        ) : null}
       </div>
+
+      {rescheduleOpen ? (
+        <BookingRescheduleModal
+          booking={{
+            id: booking.id,
+            status: booking.status,
+            slot_id: booking.slot_id,
+            package_id: booking.package_id,
+            session_start: booking.session_start,
+            session_end: booking.session_end,
+            mentor_id: booking.mentor_id,
+            // mentor_name is unused in the mentor-triggered flow (the modal
+            // prints "your calendar" in the subtitle and the mentee's name in
+            // the title). Pass an empty string so the type contract holds.
+            mentor_name: '',
+            mentee_first_name:
+              booking.mentee.full_name.split(' ')[0] || booking.mentee.full_name,
+          }}
+          onClose={() => setRescheduleOpen(false)}
+        />
+      ) : null}
     </article>
   )
 }

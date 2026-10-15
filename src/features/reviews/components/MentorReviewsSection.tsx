@@ -144,8 +144,28 @@ function buildHistogram(reviews: ReviewResponse[]): Histogram {
 
 function ReviewRow({ review }: { review: ReviewResponse }) {
   const comment = review.comment?.trim()
+  const hasComment = comment !== undefined && comment.length > 0
   const [isExpanded, setIsExpanded] = useState(false)
-  const isLong = comment !== undefined && comment.length > 220
+
+  if (!hasComment) {
+    // Rating-only — no comment to anchor the avatar/name/date against, so
+    // show just the star row. Keeps the review's contribution to the
+    // average visible without a half-empty identity column.
+    return (
+      <li className="flex items-center gap-2 px-5 py-3 sm:px-6">
+        <div className="flex items-center gap-0.5 text-amber-500">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              className={`size-3.5 ${star <= review.rating ? 'fill-amber-400' : 'text-[#dee9fc]'}`}
+            />
+          ))}
+        </div>
+      </li>
+    )
+  }
+
+  const isLong = comment.length > 220
   const visibleComment = isLong && !isExpanded ? `${comment.slice(0, 220).trimEnd()}…` : comment
 
   return (

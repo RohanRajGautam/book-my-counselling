@@ -163,6 +163,16 @@ export interface AdminBookingRow {
   id: string
   status: AdminBookingStatus
   payment_status: AdminPaymentStatus
+  /** Bound availability-slot id when the booking was made via the slot
+   *  flow. Null for legacy "event-style" bookings (e.g. AI skills for SEE
+   *  and +2) that were never anchored to a real availability window — the
+   *  reschedule action's only failure mode that the UI must mirror. */
+  slot_id: string | null
+  /** Mentor's service-package id when the booking was made through the
+   *  package flow. Null for legacy "duration-only" bookings — the
+   *  reschedule modal falls back to the raw availability endpoint for
+   *  these (no sub-unit selection). */
+  package_id: string | null
   topic: string | null
   /** Net price the mentee paid (post-discount). */
   agreed_price: string
@@ -179,6 +189,7 @@ export interface AdminBookingRow {
   session_start: string
   session_end: string
   created_at: string
+  updated_at: string
   cancelled_at: string | null
   cancellation_reason: string | null
   mentee: AdminBookingMentee
