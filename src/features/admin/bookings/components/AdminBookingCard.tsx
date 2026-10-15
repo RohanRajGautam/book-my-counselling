@@ -1,12 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Clock, Copy, ExternalLink, Video, X, X as XIcon } from 'lucide-react'
+import {
+  Calendar,
+  CalendarClock,
+  Clock,
+  Copy,
+  ExternalLink,
+  Video,
+  X,
+  X as XIcon,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { AdminBookingRow } from '../../types/admin.types'
 import { PAYMENT_BADGE, STATUS_BADGE } from '../lib/bookingBadges'
 import { formatDateTime, formatNPR } from '../../lib/format'
+import { isReschedulable } from '@/features/booking-reschedule/lib/eligibility'
+import { BookingRescheduleModal } from '@/features/booking-reschedule/components/BookingRescheduleModal'
+import { RescheduledPill } from '@/features/booking-reschedule/components/RescheduledPill'
 import { cn } from '@/lib/utils'
 import { AdminCancelBookingModal } from './AdminCancelBookingModal'
 
@@ -116,7 +128,9 @@ function MeetingLinkRow({ booking }: { booking: AdminBookingRow }) {
 
 export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
   const [cancelOpen, setCancelOpen] = useState(false)
+  const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const canCancel = booking.status === 'pending' || booking.status === 'confirmed'
+  const canReschedule = isReschedulable(booking)
 
   return (
     <>
@@ -148,6 +162,11 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
                   Refund {booking.refund.status}
                 </span>
               ) : null}
+              <RescheduledPill
+                created_at={booking.created_at}
+                updated_at={booking.updated_at}
+                status={booking.status}
+              />
             </div>
             <p className="mt-1 text-sm text-slate-700">
               <span className="font-bold">
@@ -188,6 +207,17 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-2">
+            {canReschedule ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50"
+                onClick={() => setRescheduleOpen(true)}
+              >
+                <CalendarClock className="size-3.5" />
+                Reschedule
+              </Button>
+            ) : null}
             {canCancel ? (
               <Button
                 size="sm"
@@ -211,6 +241,25 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
         <AdminCancelBookingModal
           booking={booking}
           onClose={() => setCancelOpen(false)}
+        />
+      ) : null}
+
+      {rescheduleOpen ? (
+        <BookingRescheduleModal
+          booking={{
+            id: booking.id,
+            status: booking.status,
+            slot_id: booking.slot_id,
+            package_id: booking.package_id,
+            session_start: booking.session_start,
+            session_end: booking.session_end,
+            mentor_id: booking.mentor.id,
+            mentor_name: booking.mentor.full_name,
+            mentee_first_name:
+              booking.mentee.full_name.split(' ')[0] || booking.mentee.full_name,
+          }}
+          onClose={() => setRescheduleOpen(false)}
+          triggeredByAdmin
         />
       ) : null}
     </>
