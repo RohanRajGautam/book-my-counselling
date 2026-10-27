@@ -143,6 +143,23 @@ export interface AdminBookingMentee {
   id: string
   full_name: string
   email: string
+  /** Contact number on the mentee's account. Null for accounts created
+   *  before the phone column existed and for mentees who never gave one. */
+  phone: string | null
+}
+
+/** The intake the mentee filled in on the booking form. Snapshot of the
+ *  booking row — it reflects the form at booking time, not the mentee's
+ *  current profile. */
+export interface AdminBookingMenteeInfo {
+  goals: string
+  current_school: string | null
+  preparation_notes: string | null
+  /** IANA identifier (e.g. "Asia/Kathmandu") — not a UTC offset. */
+  mentee_timezone: string | null
+  /** Parent/guardian number. Distinct from `AdminBookingMentee.phone`. */
+  guardian_phone: string | null
+  notes: string | null
 }
 
 export interface AdminBookingMentor {
@@ -193,6 +210,7 @@ export interface AdminBookingRow {
   cancelled_at: string | null
   cancellation_reason: string | null
   mentee: AdminBookingMentee
+  mentee_info: AdminBookingMenteeInfo
   mentor: AdminBookingMentor
   refund: AdminBookingRefundSummary | null
   // ── Auto-generated Google Meet meeting (null when disabled / not yet created)

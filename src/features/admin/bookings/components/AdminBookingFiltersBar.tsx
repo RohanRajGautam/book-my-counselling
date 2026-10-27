@@ -1,14 +1,8 @@
 'use client'
 
 import { Search, X } from 'lucide-react'
-import {
-  BOOKING_PAYMENT_OPTIONS,
-  BOOKING_STATUS_OPTIONS,
-} from '../lib/bookingBadges'
-import {
-  AdminBookingStatus,
-  AdminPaymentStatus,
-} from '../../types/admin.types'
+import { BOOKING_PAYMENT_OPTIONS, BOOKING_STATUS_OPTIONS } from '../lib/bookingBadges'
+import { AdminBookingStatus, AdminPaymentStatus } from '../../types/admin.types'
 
 export interface AdminBookingFiltersBarProps {
   q: string
@@ -30,19 +24,19 @@ export function AdminBookingFiltersBar({
   return (
     <div className="grid gap-3 rounded-2xl bg-white p-4 shadow-sm sm:grid-cols-[1fr_auto_auto]">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by mentee email/name, mentor name, or booking ID prefix…"
-          className="h-11 w-full rounded-xl bg-slate-50 pl-10 pr-10 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
+          placeholder="Search by mentee name, email, or phone, mentor name, or booking ID prefix…"
+          className="h-11 w-full rounded-xl bg-slate-50 pr-10 pl-10 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-200"
         />
         {q ? (
           <button
             type="button"
             onClick={() => setQ('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700"
             aria-label="Clear search"
           >
             <X className="size-4" />
