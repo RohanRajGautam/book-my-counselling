@@ -55,6 +55,19 @@ export interface MentorListResponse {
   tags: TagResponse[]
 }
 
+/**
+ * The mentor's own user block — `UserPublic` plus the contact number they
+ * set on their account.
+ *
+ * Only the self-only mentor endpoints return this. Public mentor responses
+ * keep `UserPublic`, which has no phone: a mentor's number is not for
+ * mentees, other mentors, or the public.
+ */
+export interface MentorSelfUser extends UserPublic {
+  /** Contact number on the mentor's account. Null when never set. */
+  phone: string | null
+}
+
 export interface MentorResponse {
   id: string
   user_id: string
@@ -85,4 +98,16 @@ export interface MentorResponse {
   created_at: string
   is_professional_counselor: boolean
   is_academic_counselor: boolean
+}
+
+/**
+ * A mentor's own profile, with the contact number on the user block.
+ *
+ * Returned by the self-only endpoints (`POST /mentors/profile`,
+ * `GET`/`PUT /mentors/profile/me`, `POST /mentors/profile/logo`) so the
+ * profile form can pre-fill the number and confirm the save. Identical to
+ * `MentorResponse` apart from `user.phone`.
+ */
+export interface MentorSelfResponse extends Omit<MentorResponse, 'user'> {
+  user: MentorSelfUser
 }

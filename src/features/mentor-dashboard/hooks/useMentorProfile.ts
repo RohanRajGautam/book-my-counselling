@@ -6,7 +6,8 @@ import {
   updateMyMentorProfile,
   uploadMyCompanyLogo,
 } from '../api/mentor-dashboard.api'
-import { MentorResponse } from '@/features/mentors/types/mentors.types'
+import { MentorSelfResponse } from '@/features/mentors/types/mentors.types'
+import type { UserResponse } from '@/features/auth/types/auth.types'
 import { MentorProfileCreate, MentorProfileUpdate } from '../types/mentor-dashboard.types'
 
 export const MENTOR_PROFILE_KEY = ['mentor', 'profile', 'me']
@@ -51,8 +52,21 @@ export function useUpdateMentorProfile() {
 
   return useMutation({
     mutationFn: (data: MentorProfileUpdate) => updateMyMentorProfile(data),
-    onSuccess: () => {
+    onSuccess: (profile) => {
+      // The PUT response carries the denormalized rating counters rather
+      // than the live aggregates, so patch only the field this save owns
+      // and let the invalidation refetch the rest.
+      queryClient.setQueryData<MentorSelfResponse>(MENTOR_PROFILE_KEY, (current) =>
+        current ? { ...current, user: { ...current.user, phone: profile.user.phone } } : current
+      )
       queryClient.invalidateQueries({ queryKey: MENTOR_PROFILE_KEY })
+      // The contact number is an account-level column, so mirror it into the
+      // auth cache too. `useCurrentUser` treats that entry as fresh for five
+      // minutes and doesn't refetch on window focus, so without this the
+      // account surfaces would keep showing the old number.
+      queryClient.setQueryData<UserResponse>(['auth', 'me'], (current) =>
+        current ? { ...current, phone: profile.user.phone } : current
+      )
     },
   })
 }
@@ -67,7 +81,7 @@ export function useUpdateMentorProfile() {
  */
 export function useUploadMyCompanyLogo() {
   const queryClient = useQueryClient()
-  return useMutation<MentorResponse, Error, File>({
+  return useMutation<MentorSelfResponse, Error, File>({
     mutationFn: (file) => uploadMyCompanyLogo(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MENTOR_PROFILE_KEY })
