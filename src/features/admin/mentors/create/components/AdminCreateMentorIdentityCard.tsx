@@ -28,6 +28,15 @@ type Props = {
   title?: string
   /** Override the icon shown next to the heading. */
   icon?: React.ComponentType<{ className?: string }>
+  /**
+   * Contact number on the user's own account. Rendered only when
+   * `onPhoneChange` is passed — the create flow doesn't collect one.
+   */
+  phone?: string
+  onPhoneChange?: (next: string) => void
+  phoneError?: string
+  /** Helper copy under the phone field. */
+  phoneHint?: string
 }
 
 export function AdminCreateMentorIdentityCard({
@@ -42,6 +51,10 @@ export function AdminCreateMentorIdentityCard({
   description = "Create the login account. We'll generate a temporary password and show it once after submission.",
   title = 'Account Identity',
   icon: Icon = UserPlus,
+  phone = '',
+  onPhoneChange,
+  phoneError,
+  phoneHint,
 }: Props) {
   return (
     <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.04)] sm:p-8">
@@ -86,6 +99,17 @@ export function AdminCreateMentorIdentityCard({
               : undefined
           }
         />
+        {onPhoneChange ? (
+          <Field
+            label="Phone Number"
+            type="tel"
+            value={phone}
+            placeholder="e.g. +977 9812345678"
+            onChange={onPhoneChange}
+            error={phoneError}
+            hint={phoneHint}
+          />
+        ) : null}
       </div>
     </section>
   )
@@ -100,6 +124,7 @@ function Field({
   error,
   readOnly = false,
   readOnlyHint,
+  hint,
   action,
 }: {
   label: string
@@ -110,6 +135,7 @@ function Field({
   error?: string
   readOnly?: boolean
   readOnlyHint?: string
+  hint?: string
   action?: { label: string; onClick: () => void }
 }) {
   return (
@@ -152,6 +178,8 @@ function Field({
         <p className="mt-1.5 text-xs font-bold text-red-600">{error}</p>
       ) : readOnlyHint ? (
         <p className="mt-1.5 text-xs font-bold text-slate-500">{readOnlyHint}</p>
+      ) : hint ? (
+        <p className="mt-1.5 text-xs font-medium text-slate-400">{hint}</p>
       ) : null}
     </label>
   )

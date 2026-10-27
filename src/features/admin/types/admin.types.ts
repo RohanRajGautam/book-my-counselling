@@ -11,13 +11,15 @@ export interface AdminMentorProfile {
   user_id: string
   /**
    * Mentor user summary. Matches the backend's admin-only `AdminMentorListUser`
-   * schema — `email` is included so the admin list can show, copy, or link to
-   * it directly. Public mentor endpoints still omit email.
+   * schema — `email` and `phone` are included so the admin list can show, copy,
+   * or link to them directly. Public mentor endpoints still omit both.
    */
   user: {
     id: string
     full_name: string
     email: string
+    /** Contact number on the mentor's account. Null when never set. */
+    phone: string | null
     avatar_url: string | null
     role: string
   }
@@ -60,6 +62,8 @@ export interface AdminUserProfileResponse {
 export interface AdminUserUpdate {
   full_name?: string | null
   avatar_url?: string | null
+  /** Contact number. An empty string clears it. */
+  phone?: string | null
 }
 
 export interface AdminMentorProfileUpdate {

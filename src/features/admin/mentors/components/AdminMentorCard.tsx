@@ -19,6 +19,7 @@ import {
   Mail,
   MessageSquare,
   Pencil,
+  Phone,
   RotateCcw,
   Sparkles,
   Star,
@@ -64,6 +65,7 @@ export function AdminMentorCard({
   const { mutate: feature } = useFeatureMentor()
   const isActing = verifying || rejecting
   const [emailCopied, setEmailCopied] = useState(false)
+  const [phoneCopied, setPhoneCopied] = useState(false)
 
   const handleVerify = () => {
     verify(mentor.id, {
@@ -97,6 +99,13 @@ export function AdminMentorCard({
     void navigator.clipboard.writeText(mentor.user.email)
     setEmailCopied(true)
     window.setTimeout(() => setEmailCopied(false), 1600)
+  }
+
+  const handleCopyPhone = () => {
+    if (!mentor.user.phone) return
+    void navigator.clipboard.writeText(mentor.user.phone)
+    setPhoneCopied(true)
+    window.setTimeout(() => setPhoneCopied(false), 1600)
   }
 
   const hourlyRate = Number(mentor.hourly_rate)
@@ -191,6 +200,35 @@ export function AdminMentorCard({
                     <Copy className="size-3" strokeWidth={2.4} />
                   )}
                   <span className="hidden sm:inline">{emailCopied ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+            ) : null}
+
+            {mentor.user.phone ? (
+              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-slate-600 sm:text-xs">
+                <Phone className="size-3.5 shrink-0 text-slate-400" aria-hidden />
+                <a
+                  href={`tel:${mentor.user.phone}`}
+                  className="truncate font-semibold text-slate-700 hover:text-blue-700 hover:underline"
+                  title={`Call ${mentor.user.phone}`}
+                >
+                  {mentor.user.phone}
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyPhone}
+                  title={phoneCopied ? 'Copied!' : `Copy ${mentor.user.phone}`}
+                  aria-label={
+                    phoneCopied ? 'Phone copied' : `Copy mentor phone ${mentor.user.phone}`
+                  }
+                  className="ml-0.5 inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-bold text-slate-500 transition hover:bg-slate-100 hover:text-blue-700 sm:text-[11px]"
+                >
+                  {phoneCopied ? (
+                    <Check className="size-3" strokeWidth={2.6} />
+                  ) : (
+                    <Copy className="size-3" strokeWidth={2.4} />
+                  )}
+                  <span className="hidden sm:inline">{phoneCopied ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
             ) : null}

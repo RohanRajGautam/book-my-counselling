@@ -88,6 +88,12 @@ const EMPTY_BIO: AdminCreateMentorBioForm = {
 
 type InitialSnapshot = {
   fullName: string
+  /**
+   * The contact number last known to be on the account. Seeded from the admin
+   * mentor list, which carries the stored number, and refreshed from the save
+   * response.
+   */
+  phone: string
   general: AdminCreateMentorGeneralInfoForm
   counselling: AdminCounsellingForm
   bio: AdminCreateMentorBioForm
@@ -123,6 +129,9 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
 
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
+  // Contact number. Seeded from the admin mentor list, which carries the
+  // stored number, so the admin can see what is on file before changing it.
+  const [phone, setPhone] = useState('')
   const [general, setGeneral] = useState<AdminCreateMentorGeneralInfoForm>(EMPTY_GENERAL)
   const [counselling, setCounselling] = useState<AdminCounsellingForm>(EMPTY_COUNSELLING)
   const [bio, setBio] = useState<AdminCreateMentorBioForm>(EMPTY_BIO)
@@ -182,6 +191,7 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
 
     setFullName(cachedMentor.user.full_name)
     setEmail(cachedMentor.user.email)
+    setPhone(cachedMentor.user.phone ?? '')
     setGeneral({
       title: cachedMentor.title,
       company: cachedMentor.company ?? '',
@@ -206,6 +216,7 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
     })
     setSnapshot({
       fullName: cachedMentor.user.full_name,
+      phone: cachedMentor.user.phone ?? '',
       general: {
         title: cachedMentor.title,
         company: cachedMentor.company ?? '',
@@ -240,6 +251,7 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
     if (!snapshot) return []
     return validateUpdateMentorForm({
       fullName,
+      phone,
       title: general.title,
       company: general.company,
       yearsOfExperience: general.yearsOfExperience,
@@ -257,7 +269,7 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
       academicTags: counselling.academicTags,
       industryIds: counselling.industryIds,
     })
-  }, [fullName, general, bio, counselling, snapshot])
+  }, [fullName, phone, general, bio, counselling, snapshot])
 
   const showError = (field: string) => submitAttempted && fieldHasError(errors, field)
   const firstErrorMessage = errors[0]?.message
@@ -276,6 +288,7 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
 
     const payload = buildUpdatePayload({
       fullName,
+      phone,
       general,
       counselling,
       bio,
@@ -300,8 +313,12 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
     }
 
     updateProfile(payload, {
-      onSuccess: () => {
+      onSuccess: (updated) => {
         toast.success('Mentor updated.')
+        // The save response carries the account's phone, so the field can
+        // show what's now on file.
+        const savedPhone = updated.user.phone ?? ''
+        setPhone(savedPhone)
         // The list cache is invalidated by the hook; reseed from the freshly
         // refetched mentor so the snapshot tracks the new server state.
         setSnapshot((cur) =>
@@ -309,6 +326,7 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
             ? {
                 ...cur,
                 fullName: fullName.trim(),
+                phone: savedPhone,
                 general,
                 counselling,
                 bio,
@@ -455,6 +473,14 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
                   /* email is read-only on edit; no-op */
                 }}
                 onFullNameChange={setFullName}
+                phone={phone}
+                onPhoneChange={setPhone}
+                phoneHint="Clearing it removes the number from the account."
+                phoneError={
+                  showError('phone')
+                    ? 'Phone number must be between 7 and 50 characters.'
+                    : undefined
+                }
                 emailReadOnly
                 emailEditAction={{ label: 'Change', onClick: () => setEmailDialogOpen(true) }}
                 title="Profile Identity"
@@ -586,17 +612,26 @@ export function AdminEditMentorPage({ mentorId }: AdminEditMentorPageProps) {
 
 function buildUpdatePayload(args: {
   fullName: string
+  phone: string
   general: AdminCreateMentorGeneralInfoForm
   counselling: AdminCounsellingForm
   bio: AdminCreateMentorBioForm
   snapshot: InitialSnapshot
   catalogTags: { id: string; slug: string }[]
 }): AdminUserProfileUpdate {
-  const { fullName, general, counselling, bio, snapshot, catalogTags } = args
+  const { fullName, phone, general, counselling, bio, snapshot, catalogTags } = args
   const out: AdminUserProfileUpdate = {}
 
   if (fullName.trim() !== snapshot.fullName.trim()) {
     out.user = { ...(out.user ?? {}), full_name: fullName.trim() }
+  }
+
+  // The mentor list carries the stored number, so the admin sees what is on
+  // file. An unchanged field is not sent at all; a changed one is sent, and
+  // an emptied one is sent as `null` to clear the number.
+  const phoneTrim = phone.trim()
+  if (phoneTrim !== snapshot.phone.trim()) {
+    out.user = { ...(out.user ?? {}), phone: phoneTrim || null }
   }
 
   const profile: AdminMentorProfileUpdate = {}
