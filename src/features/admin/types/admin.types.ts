@@ -11,13 +11,15 @@ export interface AdminMentorProfile {
   user_id: string
   /**
    * Mentor user summary. Matches the backend's admin-only `AdminMentorListUser`
-   * schema — `email` is included so the admin list can show, copy, or link to
-   * it directly. Public mentor endpoints still omit email.
+   * schema — `email` and `phone` are included so the admin list can show, copy,
+   * or link to them directly. Public mentor endpoints still omit both.
    */
   user: {
     id: string
     full_name: string
     email: string
+    /** Contact number on the mentor's account. Null when never set. */
+    phone: string | null
     avatar_url: string | null
     role: string
   }
@@ -60,6 +62,8 @@ export interface AdminUserProfileResponse {
 export interface AdminUserUpdate {
   full_name?: string | null
   avatar_url?: string | null
+  /** Contact number. An empty string clears it. */
+  phone?: string | null
 }
 
 export interface AdminMentorProfileUpdate {
@@ -143,6 +147,23 @@ export interface AdminBookingMentee {
   id: string
   full_name: string
   email: string
+  /** Contact number on the mentee's account. Null for accounts created
+   *  before the phone column existed and for mentees who never gave one. */
+  phone: string | null
+}
+
+/** The intake the mentee filled in on the booking form. Snapshot of the
+ *  booking row — it reflects the form at booking time, not the mentee's
+ *  current profile. */
+export interface AdminBookingMenteeInfo {
+  goals: string
+  current_school: string | null
+  preparation_notes: string | null
+  /** IANA identifier (e.g. "Asia/Kathmandu") — not a UTC offset. */
+  mentee_timezone: string | null
+  /** Parent/guardian number. Distinct from `AdminBookingMentee.phone`. */
+  guardian_phone: string | null
+  notes: string | null
 }
 
 export interface AdminBookingMentor {
@@ -193,6 +214,7 @@ export interface AdminBookingRow {
   cancelled_at: string | null
   cancellation_reason: string | null
   mentee: AdminBookingMentee
+  mentee_info: AdminBookingMenteeInfo
   mentor: AdminBookingMentor
   refund: AdminBookingRefundSummary | null
   // ── Auto-generated Google Meet meeting (null when disabled / not yet created)

@@ -155,6 +155,7 @@ export const MAX_YEARS_OF_EXPERIENCE = 60
 
 export type UpdateMentorForm = {
   fullName: string
+  phone: string
   title: string
   company: string
   yearsOfExperience: string
@@ -186,6 +187,14 @@ export function validateUpdateMentorForm(form: UpdateMentorForm): ValidationErro
     errors.push({ field: 'fullName', message: 'Full name is required.' })
   } else if (fullName.length < 2) {
     errors.push({ field: 'fullName', message: 'Name must be at least 2 characters.' })
+  }
+
+  const phoneTrim = form.phone.trim()
+  if (phoneTrim && (phoneTrim.length < 7 || phoneTrim.length > 50)) {
+    errors.push({
+      field: 'phone',
+      message: 'Phone number must be between 7 and 50 characters.',
+    })
   }
 
   const title = form.title.trim()

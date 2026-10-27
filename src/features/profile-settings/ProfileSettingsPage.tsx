@@ -88,10 +88,16 @@ export function ProfileSettingsPage() {
   const [professionalBio, setProfessionalBio] = useState<ProfessionalBioForm>(DEFAULT_BIO)
   const [counselling, setCounselling] = useState<CounsellingType>(DEFAULT_COUNSELLING)
   const [packages, setPackages] = useState<PackagesForm>(DEFAULT_PACKAGES)
+  // The contact number is an account-level column. The profile form owns the
+  // field and saves it in the same request as the rest of the profile.
+  const [phone, setPhone] = useState('')
+  // The stored value the field was last seeded from.
+  const [seededPhoneSource, setSeededPhoneSource] = useState('')
+  const [phoneError, setPhoneError] = useState<string | undefined>(undefined)
 
   const { data: profile, isLoading: profileLoading } = useMentorProfile()
   const { data: currentUser } = useCurrentUser()
-  const { mutate: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
+  const { mutateAsync: updateProfile, isPending: isSaving } = useUpdateMentorProfile()
   const { mutateAsync: uploadCompanyLogo } = useUploadMyCompanyLogo()
   const { data: myPackages = [] } = useMyPackages()
   const { mutate: upsertPackages, isPending: isSavingPackages } = useUpsertMentorPackages()
@@ -182,6 +188,21 @@ export function ProfileSettingsPage() {
     })
   }
 
+  // The stored number, read from the same account column the profile
+  // endpoint writes. The profile response is the source of truth;
+  // /auth/me is the fallback for a mentor without a profile.
+  const savedPhone = profile?.user?.phone ?? currentUser?.phone ?? ''
+
+  // Seed the field from the stored number. Seeded during render rather than
+  // in an effect so a late-arriving response can't clobber a typed edit —
+  // the source only changes when the server's value actually changes.
+  if (savedPhone !== seededPhoneSource) {
+    setSeededPhoneSource(savedPhone)
+    setPhone(savedPhone)
+  }
+
+  const phoneChanged = phone.trim() !== savedPhone.trim()
+
   // "Has the user actually changed anything they'd want to save?" — drives the
   // Save button's disabled state and short-circuits handleSave so we never
   // hit the API with a no-op payload. The logo upload flag is folded in
@@ -190,6 +211,7 @@ export function ProfileSettingsPage() {
     if (companyLogoUploadedInSession) return true
     if (!cleanSnapshot) return false
     return (
+      phoneChanged ||
       !equalsGeneralInfo(cleanSnapshot.generalInfo, generalInfo) ||
       !equalsProfessionalBio(cleanSnapshot.professionalBio, professionalBio) ||
       !equalsCounselling(cleanSnapshot.counselling, counselling) ||
@@ -202,9 +224,10 @@ export function ProfileSettingsPage() {
     counselling,
     packages,
     companyLogoUploadedInSession,
+    phoneChanged,
   ])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // No-op guard: if nothing has changed we don't want to fire the mutation
     // (the server would happily 200 it and we'd show a misleading "Profile
     // updated" toast). The button is also disabled in this state, but this
@@ -217,6 +240,13 @@ export function ProfileSettingsPage() {
       handleSavePackages()
       return
     }
+
+    const trimmedPhone = phone.trim()
+    if (trimmedPhone && (trimmedPhone.length < 7 || trimmedPhone.length > 50)) {
+      setPhoneError('Enter a valid phone number (7–50 characters).')
+      return
+    }
+    setPhoneError(undefined)
 
     const yearsNum = generalInfo.experience.trim()
       ? parseInt(generalInfo.experience.trim(), 10)
@@ -245,6 +275,13 @@ export function ProfileSettingsPage() {
       is_academic_counselor: counselling.is_academic_counselor,
       is_professional_counselor: counselling.is_professional_counselor,
       industry_ids: counselling.industry_ids,
+    }
+
+    // The contact number is an account-level column but rides along with the
+    // profile save. Three states: omit the key to leave the stored number
+    // untouched, `null` to clear it, a value to set it.
+    if (phoneChanged) {
+      payload.phone = trimmedPhone || null
     }
 
     // Map selected tag slugs (coaching_services + academic_tags) → backend tag IDs.
@@ -290,22 +327,22 @@ export function ProfileSettingsPage() {
       }
     }
 
-    updateProfile(payload, {
-      onSuccess: () => {
-        // Avatar / company logo (if any) already saved via their own mutations.
-        // Tailor the success copy so the user doesn't see a generic "Profile
-        // updated" right after a logo upload that didn't change any field.
-        if (companyLogoUploadedInSession) {
-          toast.success('Profile and company logo are up to date.')
-        } else {
-          toast.success('Profile updated successfully.')
-        }
-      },
-      onError: (err: unknown) => {
-        const msg = extractApiError(err) ?? 'Failed to save profile. Please try again.'
-        toast.error(msg)
-      },
-    })
+    try {
+      await updateProfile(payload)
+    } catch (err: unknown) {
+      const msg = extractApiError(err) ?? 'Failed to save profile. Please try again.'
+      toast.error(msg)
+      return
+    }
+
+    // Avatar / company logo (if any) already saved via their own mutations.
+    // Tailor the success copy so the user doesn't see a generic "Profile
+    // updated" right after a logo upload that didn't change any field.
+    if (companyLogoUploadedInSession) {
+      toast.success('Profile and company logo are up to date.')
+    } else {
+      toast.success('Profile updated successfully.')
+    }
   }
 
   const handleCompanyLogoUpload = async (file: File) => {
@@ -363,11 +400,7 @@ export function ProfileSettingsPage() {
   return (
     <div className="min-h-svh bg-[#f8f9ff] pb-28 text-slate-950 md:pb-0">
       <div className="mx-auto w-full max-w-[1180px] space-y-3 px-3 py-5 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <ProfileSettingsHeader
-          onSave={handleSave}
-          isSaving={isSavingAny}
-          hasChanges={hasChanges}
-        />
+        <ProfileSettingsHeader onSave={handleSave} isSaving={isSavingAny} hasChanges={hasChanges} />
         <div className="sticky top-16 z-10 -mx-3 bg-[#f8f9ff]/95 px-3 py-2 backdrop-blur md:static md:mx-0 md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
           <ProfileSettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
@@ -380,6 +413,12 @@ export function ProfileSettingsPage() {
                 onChange={setGeneralInfo}
                 readOnlyName={currentUser?.full_name}
                 readOnlyEmail={currentUser?.email}
+                phone={phone}
+                onPhoneChange={(next) => {
+                  setPhone(next)
+                  if (phoneError) setPhoneError(undefined)
+                }}
+                phoneError={phoneError}
               />
               <ProfileCounsellingCard
                 value={counselling}
@@ -518,7 +557,10 @@ function sameProfessionalCategories(
   const right = normalize(b)
   return left.every((cat, index) => {
     const other = right[index]
-    return other !== undefined && cat.category_id === other.category_id &&
+    return (
+      other !== undefined &&
+      cat.category_id === other.category_id &&
       sameStringSet(cat.subcategory_ids, other.subcategory_ids)
+    )
   })
 }

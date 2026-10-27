@@ -178,6 +178,14 @@ export interface MentorProfileUpdate {
   subcategory_ids?: string[]
   // Sending professional_categories replaces the mentor's existing set; omitting it leaves them untouched.
   professional_categories?: ProfessionalCategoryWithSubs[]
+  /**
+   * Contact number, written to the mentor's user row rather than the profile
+   * row. 7–50 characters, trimmed server-side.
+   *
+   * Three states: omit the key to leave the stored number untouched, send
+   * `null` (or an empty string) to clear it, send a value to set it.
+   */
+  phone?: string | null
 }
 
 export interface ServicePackage {

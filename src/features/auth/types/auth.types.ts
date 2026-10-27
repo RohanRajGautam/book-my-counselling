@@ -8,6 +8,9 @@ export interface UserResponse {
   is_active: boolean
   is_verified: boolean
   avatar_url: string | null
+  /** Contact number on the account. Null for accounts created before the
+   *  phone column existed and for users who never supplied one. */
+  phone: string | null
   created_at: string
   // Populated when the backend includes the OAuth accounts linked to this
   // user (e.g. on /auth/me). Optional because the field is added by the
@@ -33,6 +36,8 @@ export interface RegisterPayload {
   password: string
   full_name: string
   role?: 'mentor' | 'mentee'
+  /** Optional contact number, 7–50 characters. Omit to leave it unset. */
+  phone?: string | null
 }
 
 export interface ForgotPasswordPayload {
