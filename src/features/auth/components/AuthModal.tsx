@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react'
+import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, Phone, User } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '../hooks/useAuth'
 import { ResetPasswordFlow } from './ResetPasswordFlow'
@@ -20,9 +20,7 @@ export function AuthModal() {
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-200">
             <Lock className="size-6 text-white" />
           </div>
-          <h1 className="font-headline text-2xl font-extrabold text-slate-950">
-            Mentor Portal
-          </h1>
+          <h1 className="font-headline text-2xl font-extrabold text-slate-950">Mentor Portal</h1>
           <p className="mt-1 text-sm font-medium text-slate-500">
             Sign in to access your dashboard
           </p>
@@ -44,17 +42,10 @@ export function AuthModal() {
 
           <div className="p-8">
             {tab === 'login' && (
-              <LoginForm
-                onSuccess={() => {}}
-                onForgotPassword={() => setTab('reset')}
-              />
+              <LoginForm onSuccess={() => {}} onForgotPassword={() => setTab('reset')} />
             )}
-            {tab === 'register' && (
-              <RegisterForm onSwitchToLogin={() => setTab('login')} />
-            )}
-            {tab === 'reset' && (
-              <ResetPasswordFlow onBackToLogin={() => setTab('login')} />
-            )}
+            {tab === 'register' && <RegisterForm onSwitchToLogin={() => setTab('login')} />}
+            {tab === 'reset' && <ResetPasswordFlow onBackToLogin={() => setTab('login')} />}
           </div>
         </div>
 
@@ -80,9 +71,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={`py-4 text-sm font-extrabold transition-colors ${
-        active
-          ? 'border-b-2 border-blue-600 text-blue-600'
-          : 'text-slate-400 hover:text-slate-700'
+        active ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-400 hover:text-slate-700'
       }`}
     >
       {children}
@@ -141,7 +130,7 @@ function LoginForm({
         <label className="block">
           <FieldLabel>Password</FieldLabel>
           <div className="relative mt-2">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">
+            <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
               <Lock className="size-4 text-slate-400" />
             </span>
             <input
@@ -151,12 +140,12 @@ function LoginForm({
               placeholder="••••••••"
               autoComplete="current-password"
               required
-              className="h-12 w-full rounded-2xl bg-[#f0f4ff] pl-11 pr-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200"
+              className="h-12 w-full rounded-2xl bg-[#f0f4ff] pr-11 pl-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -203,6 +192,7 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const { registerMutation } = useAuth()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -211,15 +201,29 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const hasDigit = /\d/.test(password)
   const passwordValid = hasMinLength && hasUpper && hasDigit
   const showRules = password.length > 0
+  // The backend accepts 7–50 characters; an empty value simply leaves the
+  // number unset.
+  const trimmedPhone = phone.trim()
+  const phoneValid = !trimmedPhone || (trimmedPhone.length >= 7 && trimmedPhone.length <= 50)
   const canSubmit =
-    !!fullName.trim() && !!email.trim() && passwordValid && !registerMutation.isPending
+    !!fullName.trim() &&
+    !!email.trim() &&
+    passwordValid &&
+    phoneValid &&
+    !registerMutation.isPending
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!canSubmit) return
 
     registerMutation.mutate(
-      { full_name: fullName.trim(), email: email.trim(), password, role: 'mentor' },
+      {
+        full_name: fullName.trim(),
+        email: email.trim(),
+        password,
+        role: 'mentor',
+        phone: trimmedPhone || undefined,
+      },
       {
         onSuccess: () => {
           toast.success('Account created! Please sign in.')
@@ -256,10 +260,28 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
       />
 
       <div>
+        <InputField
+          label="Phone number"
+          type="tel"
+          value={phone}
+          onChange={setPhone}
+          placeholder="+977 9812345678"
+          icon={<Phone className="size-4 text-slate-400" />}
+          autoComplete="tel"
+          optional
+        />
+        {trimmedPhone && !phoneValid ? (
+          <p className="mt-2 text-xs font-medium text-rose-600">
+            Enter between 7 and 50 characters.
+          </p>
+        ) : null}
+      </div>
+
+      <div>
         <label className="block">
           <FieldLabel>Password</FieldLabel>
           <div className="relative mt-2">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">
+            <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
               <Lock className="size-4 text-slate-400" />
             </span>
             <input
@@ -271,12 +293,12 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
               required
               aria-invalid={showRules && !passwordValid}
               aria-describedby="register-password-rules"
-              className="h-12 w-full rounded-2xl bg-[#f0f4ff] pl-11 pr-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-rose-200"
+              className="h-12 w-full rounded-2xl bg-[#f0f4ff] pr-11 pl-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-rose-200"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -330,7 +352,7 @@ function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500">
+    <span className="text-xs font-extrabold tracking-[0.12em] text-slate-500 uppercase">
       {children}
     </span>
   )
@@ -344,6 +366,7 @@ function InputField({
   placeholder,
   icon,
   autoComplete,
+  optional = false,
 }: {
   label: string
   type: string
@@ -352,20 +375,28 @@ function InputField({
   placeholder: string
   icon: React.ReactNode
   autoComplete?: string
+  optional?: boolean
 }) {
   return (
     <label className="block">
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel>
+        {label}
+        {optional ? (
+          <span className="ml-1 font-medium tracking-normal text-slate-400 normal-case">
+            (Optional)
+          </span>
+        ) : null}
+      </FieldLabel>
       <div className="relative mt-2">
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">{icon}</span>
+        <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">{icon}</span>
         <input
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          required
-          className="h-12 w-full rounded-2xl bg-[#f0f4ff] pl-11 pr-4 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200"
+          required={!optional}
+          className="h-12 w-full rounded-2xl bg-[#f0f4ff] pr-4 pl-11 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-blue-200"
         />
       </div>
     </label>
@@ -387,14 +418,8 @@ function extractErrorMessage(err: unknown): string | null {
 
 function Rule({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   return (
-    <li
-      className={`flex items-center gap-2 ${
-        ok ? 'text-emerald-600' : 'text-slate-400'
-      }`}
-    >
-      <CheckCircle2
-        className={`size-3.5 ${ok ? 'text-emerald-500' : 'text-slate-300'}`}
-      />
+    <li className={`flex items-center gap-2 ${ok ? 'text-emerald-600' : 'text-slate-400'}`}>
+      <CheckCircle2 className={`size-3.5 ${ok ? 'text-emerald-500' : 'text-slate-300'}`} />
       <span>{children}</span>
     </li>
   )
