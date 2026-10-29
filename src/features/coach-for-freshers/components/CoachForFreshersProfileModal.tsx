@@ -51,7 +51,9 @@ export function CoachForFreshersProfileModal({
 
   const isOpen = Boolean(mentorId)
   const { data: mentor, isPending: isMentorLoading } = useMentor(isOpen ? mentorId : null)
-  const resolvedMentorId = mentor?.id ?? mentorId
+  // The id prop can be a slug, which the backend rejects on the id-scoped
+  // endpoints. Wait for the resolved uuid before firing those queries.
+  const resolvedMentorId = mentor?.id ?? null
   const { data: packages = [], isPending: isPackagesLoading } = useMentorPackages(
     isOpen ? resolvedMentorId : null
   )

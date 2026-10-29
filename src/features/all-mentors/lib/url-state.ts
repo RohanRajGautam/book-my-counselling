@@ -1,7 +1,4 @@
-import {
-  COACH_FOR_FRESHERS_CATEGORIES,
-  isCoachForFreshersCategory,
-} from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import { isCoachForFreshersCategory } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 
 import type { Vendor } from '../types/filters.types'
 import type { AllMentorsFilters, SortBy } from '../types/filters.types'
@@ -54,11 +51,11 @@ export function parseAllMentorsSearchParams(params: AllMentorsSearchParams): Par
   const sortBy = parseSort(getParamValue(params, 'sort'))
   const vendor = parseVendor(getParamValue(params, 'vendor'))
 
-  const academicCategory =
-    vendor === 'academic' ? getParamValues(params, 'category') : []
-  const academicSubcategory =
-    vendor === 'academic' && academicCategory.length > 0 ? getParamValues(params, 'subcategory') : []
-  const cffCategory = vendor === 'coach-for-freshers' ? parseCffCategory(getParamValue(params, 'cff')) : null
+  // Categories are read regardless of the vendor tab: a category click scopes
+  // the listing to that vendor on its own, so the URL has to carry it.
+  const academicCategory = getParamValues(params, 'category')
+  const academicSubcategory = getParamValues(params, 'subcategory')
+  const cffCategory = parseCffCategory(getParamValue(params, 'cff'))
 
   const filters: Partial<AllMentorsFilters> = {
     jobTitle: search,
@@ -81,13 +78,9 @@ export function buildAllMentorsSearchParams(filters: AllMentorsFilters, page: nu
   const params = new URLSearchParams()
 
   if (filters.vendor) params.set('vendor', filters.vendor)
-  if (filters.vendor === 'academic') {
-    filters.academicCategory.forEach((category) => params.append('category', category))
-    filters.academicSubcategory.forEach((subcategory) => params.append('subcategory', subcategory))
-  }
-  if (filters.vendor === 'coach-for-freshers' && filters.cffCategory) {
-    params.set('cff', filters.cffCategory)
-  }
+  filters.academicCategory.forEach((category) => params.append('category', category))
+  filters.academicSubcategory.forEach((subcategory) => params.append('subcategory', subcategory))
+  if (filters.cffCategory) params.set('cff', filters.cffCategory)
   if (filters.jobTitle.trim()) params.set('q', filters.jobTitle.trim())
   if (filters.availableThisWeek) params.set('available', 'this-week')
   if (filters.sortBy && filters.sortBy !== 'rating') params.set('sort', filters.sortBy)

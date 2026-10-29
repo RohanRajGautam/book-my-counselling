@@ -7,6 +7,10 @@ import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { MentorCardSkeleton } from '@/components/ui/skeleton'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 import { RequestMentorEmptyState } from '@/features/mentor-match-requests/components/RequestMentorForm'
+import {
+  MENTOR_PROFILE_ORIGIN_ALL_MENTORS,
+  MENTOR_PROFILE_ORIGIN_PARAM,
+} from '@/features/mentors/lib/profile-origin'
 import { getMentorProfileSlug } from '@/features/mentors/utils/mentors.utils'
 import { COACH_FOR_FRESHERS_GROUP_TAG } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 
@@ -14,16 +18,31 @@ import { ALL_MENTORS_PER_PAGE } from '../api/all-mentors.api'
 import { useAllMentorsFilters } from '../context/AllMentorsFiltersContext'
 import { useAllMentors } from '../hooks/useAllMentors'
 import { buildAllMentorsSearchParams } from '../lib/url-state'
+import { getAllMentorsScope, type AllMentorsScope } from '../lib/vendor-scope'
 
 function isCoachForFreshersMentor(mentor: { is_academic_counselor: boolean; tags?: string[] }) {
   if (mentor.is_academic_counselor) return false
   return Boolean(mentor.tags?.includes(COACH_FOR_FRESHERS_GROUP_TAG))
 }
 
+// A mentor can be both an academic counsellor and a coach for freshers, and
+// the two profiles show different services. The active scope decides which
+// one opens; without a scope, the mentor's own type wins and academic
+// counsellors stay academic.
+function getMentorProfileBase(
+  mentor: { is_academic_counselor: boolean; tags?: string[] },
+  scope: AllMentorsScope
+) {
+  if (scope === 'coach-for-freshers') return '/coach-for-freshers'
+  if (scope === 'academic') return '/academic-counsellor'
+  return isCoachForFreshersMentor(mentor) ? '/coach-for-freshers' : '/academic-counsellor'
+}
+
 export function AllMentorsResults() {
   const router = useRouter()
   const { filters, currentPage, setCurrentPage } = useAllMentorsFilters()
   const { data, isLoading, isFetching, isError } = useAllMentors(filters, currentPage)
+  const scope = getAllMentorsScope(filters)
 
   const totalPages = data?.total_pages ?? 1
   const currentMentors = data?.items ?? []
@@ -71,10 +90,11 @@ export function AllMentorsResults() {
 
   const getMentorHref = (mentor: (typeof currentMentors)[number]) => {
     const params = buildAllMentorsSearchParams(filters, currentPage)
+    // Marks where the profile was opened from, so closing the modal returns
+    // to this listing instead of the academic / coach-for-freshers listing.
+    params.set(MENTOR_PROFILE_ORIGIN_PARAM, MENTOR_PROFILE_ORIGIN_ALL_MENTORS)
     const queryString = params.toString()
-    const base = isCoachForFreshersMentor(mentor)
-      ? `/coach-for-freshers/${getMentorProfileSlug(mentor)}`
-      : `/academic-counsellor/${getMentorProfileSlug(mentor)}`
+    const base = `${getMentorProfileBase(mentor, scope)}/${getMentorProfileSlug(mentor)}`
 
     return `${base}${queryString ? `?${queryString}` : ''}`
   }
@@ -117,7 +137,7 @@ export function AllMentorsResults() {
         }`}
       >
         {displayMentors.map((mentor) => {
-          const isCoach = isCoachForFreshersMentor(mentor)
+          const isCoach = getMentorProfileBase(mentor, scope) === '/coach-for-freshers'
           return (
             <MentorCardWithPackages
               key={mentor.id}
