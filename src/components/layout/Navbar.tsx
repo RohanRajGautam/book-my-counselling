@@ -3,7 +3,16 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ArrowRight, CalendarDays, ChevronDown, GraduationCap, Info, Menu, X } from 'lucide-react'
+import {
+  ArrowRight,
+  CalendarDays,
+  ChevronDown,
+  Compass,
+  GraduationCap,
+  Info,
+  Menu,
+  X,
+} from 'lucide-react'
 import {
   getStoredCoachForFreshersSearchParams,
   subscribeToStoredCoachForFreshersParams,
@@ -23,6 +32,11 @@ const navItems = [
     icon: CalendarDays,
   },
   {
+    href: '/mentors',
+    label: 'Explore Mentors',
+    icon: Compass,
+  },
+  {
     href: '/academic-counsellor',
     label: 'Academic Counsellor',
     icon: GraduationCap,
@@ -40,6 +54,11 @@ const coachNavItems = [
     icon: GraduationCap,
   },
 ]
+
+// "Explore Mentors" (/mentors) is the public mentor directory for now, so the
+// Academic Counsellor and Coach for Freshers entries are hidden from the nav.
+// Both landing pages stay in the codebase — remove a href here to restore it.
+const HIDDEN_NAV_HREFS = ['/academic-counsellor', '/coach-for-freshers']
 
 const CFF_FORWARDED_PARAMS = ['q', 'search', 'category', 'available', 'sort'] as const
 
@@ -91,8 +110,7 @@ export function Navbar() {
   )
 
   const coachForFreshersQuery = useMemo(
-    () =>
-      onCoachForFreshersPath ? mergeCoachForFreshersSearch(searchParams, storedParams) : null,
+    () => (onCoachForFreshersPath ? mergeCoachForFreshersSearch(searchParams, storedParams) : null),
     [onCoachForFreshersPath, searchParams, storedParams]
   )
 
@@ -140,9 +158,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav
-        className="fixed top-0 z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88"
-      >
+      <nav className="fixed top-0 z-50 w-full border-b border-[#c3c6d7]/20 bg-white/88 shadow-[0_8px_24px_rgba(18,28,42,0.06)] backdrop-blur-md dark:bg-slate-900/88">
         <div className="mx-auto flex max-w-[1380px] items-center justify-between px-4 py-4 sm:px-8">
           <div>
             <Link
@@ -154,54 +170,58 @@ export function Navbar() {
           </div>
 
           <div className="hidden gap-8 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
-                  isActive(item)
-                    ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                    : 'text-slate-600 dark:text-slate-400'
-                } `}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems
+              .filter((item) => !HIDDEN_NAV_HREFS.includes(item.href))
+              .map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
+                    isActive(item)
+                      ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                      : 'text-slate-600 dark:text-slate-400'
+                  } `}
+                >
+                  {item.label}
+                </Link>
+              ))}
 
-            {coachNavItems.map((item) => {
-              const active = isCoachActive(item)
-              const mainHref = withQuery(item.href, coachForFreshersQuery)
-              return (
-                <div key={item.href} className="group relative">
-                  <Link
-                    href={mainHref}
-                    className={`flex items-center gap-1 font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
-                      active
-                        ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                        : 'text-slate-600 dark:text-slate-400'
-                    } `}
-                  >
-                    {item.navLabel}
-                    <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
-                  </Link>
+            {coachNavItems
+              .filter((item) => !HIDDEN_NAV_HREFS.includes(item.href))
+              .map((item) => {
+                const active = isCoachActive(item)
+                const mainHref = withQuery(item.href, coachForFreshersQuery)
+                return (
+                  <div key={item.href} className="group relative">
+                    <Link
+                      href={mainHref}
+                      className={`flex items-center gap-1 font-[family-name:var(--font-headline)] font-semibold tracking-tight transition-colors hover:text-blue-500 ${
+                        active
+                          ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                          : 'text-slate-600 dark:text-slate-400'
+                      } `}
+                    >
+                      {item.navLabel}
+                      <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
+                    </Link>
 
-                  <div className="pointer-events-none absolute top-full right-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
-                    <div className="space-y-1 overflow-hidden rounded-xl border border-slate-100/80 bg-white p-2 ring-1 ring-[#004ac6]/5 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5">
-                      {item.services.map((service) => (
-                        <Link
-                          key={service.href}
-                          href={withQuery(service.href, coachForFreshersQuery)}
-                          className="group/item relative flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-3 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
-                        >
-                          <span className="flex-1">{service.label}</span>
-                          <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
-                        </Link>
-                      ))}
+                    <div className="pointer-events-none absolute top-full right-0 z-50 w-64 pt-3 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+                      <div className="space-y-1 overflow-hidden rounded-xl border border-slate-100/80 bg-white p-2 ring-1 ring-[#004ac6]/5 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/5">
+                        {item.services.map((service) => (
+                          <Link
+                            key={service.href}
+                            href={withQuery(service.href, coachForFreshersQuery)}
+                            className="group/item relative flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-3 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-all hover:bg-[#004ac6]/10 hover:text-[#004ac6] hover:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:hover:shadow-[inset_2px_0_0_0_#3b82f6]"
+                          >
+                            <span className="flex-1">{service.label}</span>
+                            <ArrowRight className="size-3.5 -translate-x-1 text-[#004ac6] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 dark:text-blue-300" />
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
           </div>
 
           <button
@@ -250,61 +270,22 @@ export function Navbar() {
         } top-[84px]`}
       >
         <div className="flex flex-col gap-1 p-2">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const active = isActive(item)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                }}
-                className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
-                  active
-                    ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
-                    : 'text-[#27313f] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <span
-                  className={`grid size-9 shrink-0 place-items-center rounded-lg transition ${
-                    active
-                      ? 'bg-[#004ac6] text-white shadow-[0_6px_14px_rgba(0,74,198,0.25)]'
-                      : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:text-[#004ac6] dark:bg-slate-800 dark:text-slate-300'
-                  }`}
-                >
-                  <Icon className="size-4" aria-hidden="true" />
-                </span>
-                <span className="flex-1">{item.label}</span>
-                <ArrowRight
-                  className={`size-4 transition ${
-                    active
-                      ? 'text-[#004ac6]'
-                      : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
-                  }`}
-                  aria-hidden="true"
-                />
-              </Link>
-            )
-          })}
-
-          {coachNavItems.map((item) => {
-            const Icon = item.icon
-            const active = isCoachActive(item)
-            const mainHref = withQuery(item.href, coachForFreshersQuery)
-
-            return (
-              <div
-                key={item.href}
-                className="rounded-xl border border-slate-100 dark:border-slate-800"
-              >
+          {navItems
+            .filter((item) => !HIDDEN_NAV_HREFS.includes(item.href))
+            .map((item) => {
+              const Icon = item.icon
+              const active = isActive(item)
+              return (
                 <Link
-                  href={mainHref}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`group mb-2 flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`group flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
                     active
                       ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
-                      : 'text-[#000000] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+                      : 'text-[#27313f] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   <span
@@ -316,7 +297,7 @@ export function Navbar() {
                   >
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
-                  <span className="flex-1">{item.navLabel}</span>
+                  <span className="flex-1">{item.label}</span>
                   <ArrowRight
                     className={`size-4 transition ${
                       active
@@ -326,23 +307,66 @@ export function Navbar() {
                     aria-hidden="true"
                   />
                 </Link>
+              )
+            })}
 
-                <div className="space-y-1 px-3 pb-3">
-                  {item.services.map((service) => (
-                    <Link
-                      key={service.href}
-                      href={withQuery(service.href, coachForFreshersQuery)}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-4 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-colors hover:bg-[#004ac6]/10 hover:text-[#004ac6] active:bg-[#004ac6]/15 active:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:active:bg-[#3b82f6]/20 dark:active:shadow-[inset_2px_0_0_0_#3b82f6]"
+          {coachNavItems
+            .filter((item) => !HIDDEN_NAV_HREFS.includes(item.href))
+            .map((item) => {
+              const Icon = item.icon
+              const active = isCoachActive(item)
+              const mainHref = withQuery(item.href, coachForFreshersQuery)
+
+              return (
+                <div
+                  key={item.href}
+                  className="rounded-xl border border-slate-100 dark:border-slate-800"
+                >
+                  <Link
+                    href={mainHref}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`group mb-2 flex items-center gap-3 rounded-xl px-3 py-3.5 font-[family-name:var(--font-headline)] text-base font-bold transition ${
+                      active
+                        ? 'bg-[#eff4ff] text-[#004ac6] dark:bg-[#004ac6]/15 dark:text-blue-300'
+                        : 'text-[#000000] hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <span
+                      className={`grid size-9 shrink-0 place-items-center rounded-lg transition ${
+                        active
+                          ? 'bg-[#004ac6] text-white shadow-[0_6px_14px_rgba(0,74,198,0.25)]'
+                          : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:text-[#004ac6] dark:bg-slate-800 dark:text-slate-300'
+                      }`}
                     >
-                      <span className="flex-1">{service.label}</span>
-                      <ArrowRight className="size-3.5 text-[#004ac6] dark:text-blue-300" />
-                    </Link>
-                  ))}
+                      <Icon className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="flex-1">{item.navLabel}</span>
+                    <ArrowRight
+                      className={`size-4 transition ${
+                        active
+                          ? 'text-[#004ac6]'
+                          : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </Link>
+
+                  <div className="space-y-1 px-3 pb-3">
+                    {item.services.map((service) => (
+                      <Link
+                        key={service.href}
+                        href={withQuery(service.href, coachForFreshersQuery)}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="group/item flex items-center gap-3 overflow-hidden rounded-md bg-[#004ac6]/[0.04] px-4 py-2.5 text-sm font-extrabold tracking-tight text-[#1e3a8a] transition-colors hover:bg-[#004ac6]/10 hover:text-[#004ac6] active:bg-[#004ac6]/15 active:shadow-[inset_2px_0_0_0_#004ac6] dark:bg-[#3b82f6]/[0.06] dark:text-blue-200/90 dark:hover:bg-[#3b82f6]/15 dark:hover:text-blue-300 dark:active:bg-[#3b82f6]/20 dark:active:shadow-[inset_2px_0_0_0_#3b82f6]"
+                      >
+                        <span className="flex-1">{service.label}</span>
+                        <ArrowRight className="size-3.5 text-[#004ac6] dark:text-blue-300" />
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
 
           {/* Divider */}
           <div className="my-1 h-px bg-slate-100 dark:bg-slate-800" aria-hidden="true" />
