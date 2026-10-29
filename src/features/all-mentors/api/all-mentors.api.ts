@@ -4,6 +4,7 @@ import { Mentor } from '@/features/mentors/types/mentors.types'
 import { normalizeSearchMentor } from '@/features/mentors/utils/mentors.utils'
 
 import { COACH_FOR_FRESHERS_GROUP_TAG } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
+import { getAllMentorsScope } from '../lib/vendor-scope'
 import type { AllMentorsFilters, SortBy } from '../types/filters.types'
 
 export const ALL_MENTORS_PER_PAGE = 12
@@ -41,13 +42,9 @@ export async function getAllMentors(
   // list. This lets users click "IT" (or "Bachelors") with no tab selected
   // and still see only the matching vendor's mentors — the sidebar stays in
   // the "both visible" state because `filters.vendor` is unchanged.
-  const hasAcademicFilters =
-    filters.academicCategory.length > 0 || filters.academicSubcategory.length > 0
+  const scope = getAllMentorsScope(filters)
 
-  const wantAcademic = filters.vendor === 'academic' || hasAcademicFilters
-  const wantCff = filters.vendor === 'coach-for-freshers' || Boolean(filters.cffCategory)
-
-  if (wantAcademic) {
+  if (scope === 'academic') {
     params.is_academic_counselor = true
     if (filters.academicCategory.length > 0) params.academic_categories = filters.academicCategory
     if (filters.academicSubcategory.length > 0) {
@@ -55,7 +52,7 @@ export async function getAllMentors(
     }
   }
 
-  if (wantCff) {
+  if (scope === 'coach-for-freshers') {
     params.tags = COACH_FOR_FRESHERS_GROUP_TAG
     if (filters.cffCategory) params.professional_categories = filters.cffCategory
   }

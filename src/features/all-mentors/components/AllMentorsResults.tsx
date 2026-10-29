@@ -14,16 +14,31 @@ import { ALL_MENTORS_PER_PAGE } from '../api/all-mentors.api'
 import { useAllMentorsFilters } from '../context/AllMentorsFiltersContext'
 import { useAllMentors } from '../hooks/useAllMentors'
 import { buildAllMentorsSearchParams } from '../lib/url-state'
+import { getAllMentorsScope, type AllMentorsScope } from '../lib/vendor-scope'
 
 function isCoachForFreshersMentor(mentor: { is_academic_counselor: boolean; tags?: string[] }) {
   if (mentor.is_academic_counselor) return false
   return Boolean(mentor.tags?.includes(COACH_FOR_FRESHERS_GROUP_TAG))
 }
 
+// A mentor can be both an academic counsellor and a coach for freshers, and
+// the two profiles show different services. The active scope decides which
+// one opens; without a scope, the mentor's own type wins and academic
+// counsellors stay academic.
+function getMentorProfileBase(
+  mentor: { is_academic_counselor: boolean; tags?: string[] },
+  scope: AllMentorsScope
+) {
+  if (scope === 'coach-for-freshers') return '/coach-for-freshers'
+  if (scope === 'academic') return '/academic-counsellor'
+  return isCoachForFreshersMentor(mentor) ? '/coach-for-freshers' : '/academic-counsellor'
+}
+
 export function AllMentorsResults() {
   const router = useRouter()
   const { filters, currentPage, setCurrentPage } = useAllMentorsFilters()
   const { data, isLoading, isFetching, isError } = useAllMentors(filters, currentPage)
+  const scope = getAllMentorsScope(filters)
 
   const totalPages = data?.total_pages ?? 1
   const currentMentors = data?.items ?? []
@@ -72,9 +87,7 @@ export function AllMentorsResults() {
   const getMentorHref = (mentor: (typeof currentMentors)[number]) => {
     const params = buildAllMentorsSearchParams(filters, currentPage)
     const queryString = params.toString()
-    const base = isCoachForFreshersMentor(mentor)
-      ? `/coach-for-freshers/${getMentorProfileSlug(mentor)}`
-      : `/academic-counsellor/${getMentorProfileSlug(mentor)}`
+    const base = `${getMentorProfileBase(mentor, scope)}/${getMentorProfileSlug(mentor)}`
 
     return `${base}${queryString ? `?${queryString}` : ''}`
   }
@@ -117,7 +130,7 @@ export function AllMentorsResults() {
         }`}
       >
         {displayMentors.map((mentor) => {
-          const isCoach = isCoachForFreshersMentor(mentor)
+          const isCoach = getMentorProfileBase(mentor, scope) === '/coach-for-freshers'
           return (
             <MentorCardWithPackages
               key={mentor.id}
