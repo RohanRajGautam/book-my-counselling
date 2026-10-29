@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -11,10 +11,6 @@ import {
   useAllMentorsAcademicCategories,
   useAllMentorsAcademicSubcategories,
 } from '../hooks/useAllMentorsCategories'
-
-function toggleId(ids: string[], id: string) {
-  return ids.includes(id) ? ids.filter((current) => current !== id) : [...ids, id]
-}
 
 function VendorTab({
   label,
@@ -33,13 +29,13 @@ function VendorTab({
       onClick={onClick}
       title={title ?? label}
       aria-pressed={active}
-      className={`flex min-h-[44px] flex-1 items-center justify-center rounded-md px-2 py-2 text-center text-sm leading-tight font-extrabold transition-colors focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none ${
+      className={`flex min-h-[52px] min-w-0 flex-1 items-center gap-2 rounded-md px-3 py-2 text-left text-sm leading-tight font-extrabold transition-colors focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none ${
         active
           ? 'bg-[#4b63e9] text-white shadow-sm ring-1 ring-[#cfe0ff] ring-inset'
           : 'border border-[var(--color-surface-container-high)] bg-white text-[var(--color-on-surface-variant)] hover:border-[#cfe0ff] hover:bg-[#f8fbff] hover:text-[var(--foreground)]'
       }`}
     >
-      <span className="min-w-0 whitespace-normal">{label}</span>
+      <span className="min-w-0 flex-1 whitespace-normal">{label}</span>
     </button>
   )
 }
@@ -49,6 +45,7 @@ interface AcademicCategoryRowProps {
   categoryName: string
   isExpanded: boolean
   onToggleExpanded: (id: string) => void
+  onResetExpanded: (id: string) => void
 }
 
 function AcademicCategoryRow({
@@ -56,6 +53,7 @@ function AcademicCategoryRow({
   categoryName,
   isExpanded,
   onToggleExpanded,
+  onResetExpanded,
 }: AcademicCategoryRowProps) {
   const { filters, updateFilters } = useAllMentorsFilters()
   const isSelected = filters.academicCategory.includes(categoryName)
@@ -110,7 +108,7 @@ function AcademicCategoryRow({
         }
       }
 
-      if (isExpanded) onToggleExpanded(categoryId)
+      if (isExpanded) onResetExpanded(categoryId)
 
       updateFilters({
         academicCategory: filters.academicCategory.filter((name) => name !== categoryName),
@@ -118,6 +116,7 @@ function AcademicCategoryRow({
           (name) => !removedSubcategories.has(name)
         ),
         academicSubcategoryParents: nextParents,
+        cffCategory: null,
       })
       return
     }
@@ -125,6 +124,7 @@ function AcademicCategoryRow({
     if (!isExpanded) onToggleExpanded(categoryId)
     updateFilters({
       academicCategory: [...filters.academicCategory, categoryName],
+      cffCategory: null,
     })
   }
 
@@ -138,6 +138,7 @@ function AcademicCategoryRow({
       updateFilters({
         academicSubcategory: filters.academicSubcategory.filter((name) => name !== subcategoryName),
         academicSubcategoryParents: nextParents,
+        cffCategory: null,
       })
       return
     }
@@ -151,6 +152,7 @@ function AcademicCategoryRow({
         ...filters.academicSubcategoryParents,
         [subcategoryName]: categoryName,
       },
+      cffCategory: null,
     })
   }
 
@@ -249,23 +251,38 @@ function AcademicCategoryRow({
 }
 
 export function AllMentorsFiltersSidebar() {
-  const { filters, updateFilter, selectVendor } = useAllMentorsFilters()
-  const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([])
+  const { filters, updateFilter, updateFilters, selectVendor } = useAllMentorsFilters()
+  // A selected category expands on its own so its subcategories stay visible.
+  // The override map holds the user's explicit open/close choice for a category.
+  const [expansionOverrides, setExpansionOverrides] = useState<Record<string, boolean>>({})
   const { data: categories = [], isLoading } = useAllMentorsAcademicCategories()
-  const initialExpandDoneRef = useRef(false)
 
-  useEffect(() => {
-    if (initialExpandDoneRef.current || categories.length === 0) return
-    initialExpandDoneRef.current = true
-    const selectedIds = filters.academicCategory
-      .map((name) => categories.find((category) => category.name === name)?.id)
-      .filter((id): id is string => Boolean(id))
-    if (selectedIds.length === 0) return
-    setExpandedCategoryIds((prev) => Array.from(new Set([...prev, ...selectedIds])))
-  }, [categories, filters.academicCategory])
+  const selectedCategoryIds = useMemo(
+    () =>
+      new Set(
+        categories
+          .filter((category) => filters.academicCategory.includes(category.name))
+          .map((category) => category.id)
+      ),
+    [categories, filters.academicCategory]
+  )
+
+  const isCategoryExpanded = (categoryId: string) =>
+    expansionOverrides[categoryId] ?? selectedCategoryIds.has(categoryId)
 
   const toggleExpandedCategory = (categoryId: string) =>
-    setExpandedCategoryIds((current) => toggleId(current, categoryId))
+    setExpansionOverrides((prev) => ({
+      ...prev,
+      [categoryId]: !isCategoryExpanded(categoryId),
+    }))
+
+  const resetExpandedCategory = (categoryId: string) =>
+    setExpansionOverrides((prev) => {
+      if (!(categoryId in prev)) return prev
+      const next = { ...prev }
+      delete next[categoryId]
+      return next
+    })
 
   return (
     <aside className="px-4 py-10 lg:sticky lg:top-[73px] lg:min-h-[calc(100vh-73px)]">
@@ -314,8 +331,9 @@ export function AllMentorsFiltersSidebar() {
                   key={category.id}
                   categoryId={category.id}
                   categoryName={category.name}
-                  isExpanded={expandedCategoryIds.includes(category.id)}
+                  isExpanded={isCategoryExpanded(category.id)}
                   onToggleExpanded={toggleExpandedCategory}
+                  onResetExpanded={resetExpandedCategory}
                 />
               ))}
 
@@ -346,7 +364,14 @@ export function AllMentorsFiltersSidebar() {
                   <button
                     key={category}
                     type="button"
-                    onClick={() => updateFilter('cffCategory', isSelected ? null : category)}
+                    onClick={() =>
+                      updateFilters({
+                        cffCategory: isSelected ? null : category,
+                        academicCategory: [],
+                        academicSubcategory: [],
+                        academicSubcategoryParents: {},
+                      })
+                    }
                     aria-pressed={isSelected}
                     className={`mx-2 my-1.5 flex min-h-[52px] w-[calc(100%-1rem)] items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-extrabold transition-colors focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none ${
                       isSelected
@@ -356,7 +381,9 @@ export function AllMentorsFiltersSidebar() {
                   >
                     <span
                       className={`flex size-5 shrink-0 items-center justify-center rounded-md text-white ring-1 transition-all ring-inset ${
-                        isSelected ? 'scale-110 bg-[#0053db] ring-[#0053db]' : 'bg-white ring-[#cfd9ea]'
+                        isSelected
+                          ? 'scale-110 bg-[#0053db] ring-[#0053db]'
+                          : 'bg-white ring-[#cfd9ea]'
                       }`}
                     >
                       {isSelected && <Check className="size-3.5" strokeWidth={3.5} />}
