@@ -1,8 +1,14 @@
 import { AcademicCounsellorProfile } from '@/features/academic-counsellor/components/AcademicCounsellorProfile'
 import {
-  loadAcademicCounsellorState,
+  parseAcademicCounsellorSearchParams,
   type AcademicCounsellorSearchParams,
 } from '@/features/academic-counsellor/lib/url-state'
+import {
+  buildReturnPath,
+  MENTOR_PROFILE_ORIGIN_ALL_MENTORS,
+  MENTOR_PROFILE_ORIGIN_PARAM,
+  readProfileOrigin,
+} from '@/features/mentors/lib/profile-origin'
 
 type AcademicCounsellorProfilePageProps = {
   params: Promise<{ mentorId: string }>
@@ -14,13 +20,21 @@ export default async function AcademicCounsellorProfilePage({
   searchParams,
 }: AcademicCounsellorProfilePageProps) {
   const { mentorId } = await params
-  const { filters, page } = await loadAcademicCounsellorState(searchParams)
+  const rawSearchParams = await searchParams
+  const { filters, page } = parseAcademicCounsellorSearchParams(rawSearchParams)
+
+  const origin = readProfileOrigin(rawSearchParams)
+  const returnTo =
+    origin === MENTOR_PROFILE_ORIGIN_ALL_MENTORS
+      ? buildReturnPath('/mentors', rawSearchParams, [MENTOR_PROFILE_ORIGIN_PARAM])
+      : undefined
 
   return (
     <AcademicCounsellorProfile
       mentorSlugOrId={mentorId}
       initialFilters={filters}
       initialPage={page}
+      returnTo={returnTo}
     />
   )
 }

@@ -7,6 +7,10 @@ import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { MentorCardSkeleton } from '@/components/ui/skeleton'
 import { MentorCardWithPackages } from '@/features/mentors/components/MentorCardWithPackages'
 import { RequestMentorEmptyState } from '@/features/mentor-match-requests/components/RequestMentorForm'
+import {
+  MENTOR_PROFILE_ORIGIN_ALL_MENTORS,
+  MENTOR_PROFILE_ORIGIN_PARAM,
+} from '@/features/mentors/lib/profile-origin'
 import { getMentorProfileSlug } from '@/features/mentors/utils/mentors.utils'
 import { COACH_FOR_FRESHERS_GROUP_TAG } from '@/features/coach-for-freshers/types/coach-for-freshers.types'
 
@@ -86,6 +90,9 @@ export function AllMentorsResults() {
 
   const getMentorHref = (mentor: (typeof currentMentors)[number]) => {
     const params = buildAllMentorsSearchParams(filters, currentPage)
+    // Marks where the profile was opened from, so closing the modal returns
+    // to this listing instead of the academic / coach-for-freshers listing.
+    params.set(MENTOR_PROFILE_ORIGIN_PARAM, MENTOR_PROFILE_ORIGIN_ALL_MENTORS)
     const queryString = params.toString()
     const base = `${getMentorProfileBase(mentor, scope)}/${getMentorProfileSlug(mentor)}`
 

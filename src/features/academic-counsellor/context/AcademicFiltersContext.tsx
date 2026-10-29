@@ -48,10 +48,12 @@ export function AcademicFiltersProvider({
   children,
   initialFilters,
   initialPage = 1,
+  syncUrl = true,
 }: {
   children: ReactNode
   initialFilters?: Partial<AcademicFilters>
   initialPage?: number
+  syncUrl?: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -110,6 +112,8 @@ export function AcademicFiltersProvider({
   }
 
   useEffect(() => {
+    if (!syncUrl) return
+
     if (syncTimer.current) clearTimeout(syncTimer.current)
     syncTimer.current = setTimeout(() => {
       const params = buildAcademicCounsellorSearchParams(filters, currentPage)
@@ -124,7 +128,7 @@ export function AcademicFiltersProvider({
     return () => {
       if (syncTimer.current) clearTimeout(syncTimer.current)
     }
-  }, [filters, currentPage, pathname, router])
+  }, [filters, currentPage, pathname, router, syncUrl])
 
   return (
     <AcademicFiltersContext.Provider

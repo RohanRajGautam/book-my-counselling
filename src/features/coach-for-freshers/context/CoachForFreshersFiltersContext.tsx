@@ -34,9 +34,9 @@ interface CoachForFreshersFiltersContextValue {
   setCurrentPage: (page: number) => void
 }
 
-const CoachForFreshersFiltersContext = createContext<CoachForFreshersFiltersContextValue | undefined>(
-  undefined
-)
+const CoachForFreshersFiltersContext = createContext<
+  CoachForFreshersFiltersContextValue | undefined
+>(undefined)
 
 type LocalState = {
   urlStateKey: string
@@ -52,10 +52,12 @@ export function CoachForFreshersFiltersProvider({
   children,
   initialFilters,
   initialPage = 1,
+  syncUrl = true,
 }: {
   children: ReactNode
   initialFilters?: Partial<CoachForFreshersFilters>
   initialPage?: number
+  syncUrl?: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -117,6 +119,8 @@ export function CoachForFreshersFiltersProvider({
   }
 
   useEffect(() => {
+    if (!syncUrl) return
+
     if (syncTimer.current) clearTimeout(syncTimer.current)
     syncTimer.current = setTimeout(() => {
       const params = buildCoachForFreshersSearchParams(filters, currentPage)
@@ -131,7 +135,7 @@ export function CoachForFreshersFiltersProvider({
     return () => {
       if (syncTimer.current) clearTimeout(syncTimer.current)
     }
-  }, [filters, currentPage, pathname, router])
+  }, [filters, currentPage, pathname, router, syncUrl])
 
   // Mirror filter state into localStorage so the navbar (which lives in a
   // sibling layout) can compose its hrefs from a synchronous source. This runs
