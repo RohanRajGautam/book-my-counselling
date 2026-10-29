@@ -29,12 +29,19 @@ function VendorTab({
       onClick={onClick}
       title={title ?? label}
       aria-pressed={active}
-      className={`flex min-h-[52px] min-w-0 flex-1 items-center gap-2 rounded-md px-3 py-2 text-left text-sm leading-tight font-extrabold transition-colors focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none ${
+      className={`flex min-h-[52px] w-full min-w-0 items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm leading-tight font-extrabold transition-colors focus-visible:ring-2 focus-visible:ring-[var(--brand-blue)]/30 focus-visible:outline-none ${
         active
           ? 'bg-[#4b63e9] text-white shadow-sm ring-1 ring-[#cfe0ff] ring-inset'
           : 'border border-[var(--color-surface-container-high)] bg-white text-[var(--color-on-surface-variant)] hover:border-[#cfe0ff] hover:bg-[#f8fbff] hover:text-[var(--foreground)]'
       }`}
     >
+      <span
+        className={`flex size-5 shrink-0 items-center justify-center rounded-md text-white ring-1 transition-all ring-inset ${
+          active ? 'scale-110 bg-[#0053db] ring-[#0053db]' : 'bg-white ring-[#cfd9ea]'
+        }`}
+      >
+        {active && <Check className="size-3.5" strokeWidth={3.5} />}
+      </span>
       <span className="min-w-0 flex-1 whitespace-normal">{label}</span>
     </button>
   )
@@ -300,7 +307,7 @@ export function AllMentorsFiltersSidebar() {
           </h3>
         </div>
 
-        <div className="flex gap-2 px-3 pt-3 pb-3">
+        <div className="flex flex-col gap-2 px-3 pt-3 pb-3">
           <VendorTab
             label="Academic Counsellors"
             active={filters.vendor === 'academic'}
