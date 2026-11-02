@@ -1,10 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { PaginatedResponse } from '@/lib/api/api.types'
 import {
   adminCancelBooking,
+  adminCompleteBooking,
   adminCreateBookingOnBehalf,
   searchAdminBookings,
 } from '../api/bookings.api'
 import {
+  AdminBookingRow,
   AdminBookingStatus,
   AdminCreateBookingRequest,
   AdminPaymentStatus,
@@ -47,6 +50,51 @@ export function useAdminCancelBooking() {
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'revenue'] })
     },
   })
+}
+
+/**
+ * Marks a booking session as completed on the mentor's behalf.
+ *
+ * The returned row is swapped into every cached page of the admin bookings
+ * list, so the UI updates in place — the list is deliberately NOT
+ * invalidated, which would trigger a refetch.
+ */
+export function useAdminCompleteBooking() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (bookingId: string) => adminCompleteBooking(bookingId),
+    onSuccess: (updated, bookingId) => {
+      replaceBookingInAdminCaches(qc, updated, bookingId)
+      // The mentor's session count went up by one.
+      void qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
+      void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
+    },
+  })
+}
+
+/**
+ * Swaps a single booking row into every cached page of the admin bookings
+ * list. The lists are cached per filter set, so patch every matching cache
+ * entry.
+ */
+function replaceBookingInAdminCaches(
+  qc: ReturnType<typeof useQueryClient>,
+  updated: AdminBookingRow,
+  bookingId: string,
+) {
+  const queries = qc.getQueriesData<PaginatedResponse<AdminBookingRow>>({
+    queryKey: ADMIN_BOOKINGS_KEY,
+  })
+  for (const [key, data] of queries) {
+    if (!data) continue
+    let changed = false
+    const items = data.items.map((b) => {
+      if (b.id !== bookingId) return b
+      changed = true
+      return updated
+    })
+    if (changed) qc.setQueryData(key, { ...data, items })
+  }
 }
 
 /**

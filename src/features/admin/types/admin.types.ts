@@ -213,6 +213,10 @@ export interface AdminBookingRow {
   updated_at: string
   cancelled_at: string | null
   cancellation_reason: string | null
+  /** When the session was closed out. Null until the booking reaches
+   *  `completed` — either the mentor marked it done or an admin did
+   *  through POST /admin/bookings/{id}/complete. */
+  completed_at: string | null
   mentee: AdminBookingMentee
   mentee_info: AdminBookingMenteeInfo
   mentor: AdminBookingMentor

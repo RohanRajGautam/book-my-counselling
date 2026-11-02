@@ -5,6 +5,7 @@ import {
   Calendar,
   CalendarClock,
   Check,
+  CheckCircle2,
   Clock,
   Copy,
   ExternalLink,
@@ -23,6 +24,7 @@ import { BookingRescheduleModal } from '@/features/booking-reschedule/components
 import { RescheduledPill } from '@/features/booking-reschedule/components/RescheduledPill'
 import { cn } from '@/lib/utils'
 import { AdminCancelBookingModal } from './AdminCancelBookingModal'
+import { AdminMarkCompleteBookingModal } from './AdminMarkCompleteBookingModal'
 
 function parseAmount(raw: string): number {
   const n = parseFloat(raw)
@@ -221,8 +223,10 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
 
 export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
   const [cancelOpen, setCancelOpen] = useState(false)
+  const [completeOpen, setCompleteOpen] = useState(false)
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const canCancel = booking.status === 'pending' || booking.status === 'confirmed'
+  const canComplete = booking.status === 'pending' || booking.status === 'confirmed'
   const canReschedule = isReschedulable(booking)
 
   return (
@@ -284,6 +288,13 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
                 <dt className="font-medium text-slate-500">Booking created on:</dt>
                 <dd>{formatDateTime(booking.created_at)}</dd>
               </div>
+              {booking.completed_at ? (
+                <div className="flex flex-wrap items-center gap-x-1.5 text-slate-500">
+                  <Check className="size-3 shrink-0 text-emerald-600" />
+                  <dt className="font-medium text-slate-500">Completed on:</dt>
+                  <dd>{formatDateTime(booking.completed_at)}</dd>
+                </div>
+              ) : null}
             </dl>
             <PriceBreakdown booking={booking} />
             <MeetingLinkRow booking={booking} />
@@ -308,6 +319,17 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
                 Reschedule
               </Button>
             ) : null}
+            {canComplete ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                onClick={() => setCompleteOpen(true)}
+              >
+                <CheckCircle2 className="size-3.5" />
+                Mark as complete
+              </Button>
+            ) : null}
             {canCancel ? (
               <Button
                 size="sm"
@@ -329,6 +351,10 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
 
       {cancelOpen ? (
         <AdminCancelBookingModal booking={booking} onClose={() => setCancelOpen(false)} />
+      ) : null}
+
+      {completeOpen ? (
+        <AdminMarkCompleteBookingModal booking={booking} onClose={() => setCompleteOpen(false)} />
       ) : null}
 
       {rescheduleOpen ? (

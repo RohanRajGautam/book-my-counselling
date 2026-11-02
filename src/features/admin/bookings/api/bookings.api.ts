@@ -40,6 +40,26 @@ export async function adminCancelBooking(
 }
 
 /**
+ * Marks a booking session as completed. Idempotent — completing an
+ * already-completed booking is a no-op that returns the existing row (the
+ * mentor's session count is not bumped twice and the mentee is not emailed
+ * twice).
+ *
+ * A cancelled booking cannot be completed (400). Returns the full admin
+ * booking row so the caller can swap it into the list without a refetch.
+ *
+ * Doc: `POST /api/v1/admin/bookings/{booking_id}/complete`.
+ */
+export async function adminCompleteBooking(
+  bookingId: string,
+): Promise<AdminBookingRow> {
+  const res = await apiClient.post<AdminBookingRow>(
+    `/admin/bookings/${bookingId}/complete`,
+  )
+  return res.data
+}
+
+/**
  * Records a mentor session that happened (or will happen) outside the normal
  * booking flow. Returns the same `AdminBookingRow` shape as the rest of the
  * admin bookings UI; backend auto-derives `status` from `session_start`
