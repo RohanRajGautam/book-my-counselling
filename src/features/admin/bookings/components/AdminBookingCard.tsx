@@ -38,7 +38,7 @@ function PriceBreakdown({ booking }: { booking: AdminBookingRow }) {
   const platformEarning = parseAmount(booking.platform_earning)
 
   return (
-    <dl className="mt-3 grid gap-1 rounded-xl bg-slate-50 p-3 text-xs">
+    <dl className="grid gap-1 rounded-xl bg-slate-50 p-3 text-xs">
       <div className="flex items-center justify-between gap-2">
         <dt className="text-slate-500">Original price</dt>
         <dd className="font-extrabold text-slate-800">{formatNPR(original, { cents: true })}</dd>
@@ -91,7 +91,7 @@ function MeetingLinkRow({ booking }: { booking: AdminBookingRow }) {
       }
     }
     return (
-      <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 p-2 ring-1 ring-blue-100">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-blue-50 p-2 ring-1 ring-blue-100">
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white text-[#0755d8] ring-1 ring-blue-100">
           <Video className="size-3.5" />
         </span>
@@ -119,7 +119,7 @@ function MeetingLinkRow({ booking }: { booking: AdminBookingRow }) {
 
   if (missing) {
     return (
-      <p className="mt-3 inline-flex items-start gap-1.5 rounded-lg bg-rose-50 px-2 py-1.5 text-xs font-bold text-rose-700 ring-1 ring-rose-100">
+      <p className="inline-flex items-start gap-1.5 rounded-lg bg-rose-50 px-2 py-1.5 text-xs font-bold text-rose-700 ring-1 ring-rose-100">
         <XIcon className="mt-0.5 size-3 shrink-0" />
         <span>
           Meeting link wasn&apos;t generated automatically. Please create one manually and email it
@@ -178,7 +178,7 @@ function MenteePhoneRow({ phone }: { phone: string | null }) {
 
 function MenteeInfoBlock({ info }: { info: AdminBookingMenteeInfo }) {
   return (
-    <div className="mt-3 rounded-xl bg-slate-50 p-3 text-xs">
+    <div className="rounded-xl bg-slate-50 p-3 text-xs">
       <p className="font-extrabold text-slate-700">Mentee details</p>
 
       {info.goals ? (
@@ -232,79 +232,37 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
   return (
     <>
       <article className="rounded-2xl bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-headline text-base font-extrabold text-slate-950">
-                {booking.topic || 'Untitled session'}
-              </p>
-              <span
-                className={cn(
-                  'rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase',
-                  STATUS_BADGE[booking.status]
-                )}
-              >
-                {booking.status}
-              </span>
-              <span
-                className={cn(
-                  'rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase',
-                  PAYMENT_BADGE[booking.payment_status]
-                )}
-              >
-                {booking.payment_status}
-              </span>
-              {booking.refund && booking.refund.status !== 'processed' ? (
-                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold text-amber-700 uppercase">
-                  Refund {booking.refund.status}
-                </span>
-              ) : null}
-              <RescheduledPill
-                created_at={booking.created_at}
-                updated_at={booking.updated_at}
-                status={booking.status}
-              />
-            </div>
-            <p className="mt-1 text-sm text-slate-700">
-              <span className="font-bold">{booking.mentee.full_name || '(no name)'}</span>{' '}
-              <span className="text-slate-400">·</span>{' '}
-              <a href={`mailto:${booking.mentee.email}`} className="text-blue-600 hover:underline">
-                {booking.mentee.email}
-              </a>
-              <span className="text-slate-400"> with </span>
-              <span className="font-bold">{booking.mentor.full_name}</span>
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <p className="font-headline text-base font-extrabold text-slate-950">
+              {booking.topic || 'Untitled session'}
             </p>
-            <MenteePhoneRow phone={booking.mentee.phone} />
-            <dl className="mt-1 grid gap-1 text-xs">
-              <div className="flex flex-wrap items-center gap-x-1.5">
-                <Calendar className="size-3.5 shrink-0 text-blue-600" />
-                <dt className="font-semibold text-slate-700">Session at:</dt>
-                <dd className="font-bold text-slate-950">
-                  {formatDateTime(booking.session_start)}
-                </dd>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-1.5 text-slate-500">
-                <Clock className="size-3 shrink-0 text-slate-400" />
-                <dt className="font-medium text-slate-500">Booking created on:</dt>
-                <dd>{formatDateTime(booking.created_at)}</dd>
-              </div>
-              {booking.completed_at ? (
-                <div className="flex flex-wrap items-center gap-x-1.5 text-slate-500">
-                  <Check className="size-3 shrink-0 text-emerald-600" />
-                  <dt className="font-medium text-slate-500">Completed on:</dt>
-                  <dd>{formatDateTime(booking.completed_at)}</dd>
-                </div>
-              ) : null}
-            </dl>
-            <PriceBreakdown booking={booking} />
-            <MeetingLinkRow booking={booking} />
-            {booking.mentee_info ? <MenteeInfoBlock info={booking.mentee_info} /> : null}
-            <p className="mt-2 font-mono text-[10px] text-slate-300 uppercase">ID {booking.id}</p>
-            {booking.cancellation_reason ? (
-              <p className="mt-2 text-xs text-slate-500 italic">
-                Cancelled: {booking.cancellation_reason}
-              </p>
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase',
+                STATUS_BADGE[booking.status]
+              )}
+            >
+              {booking.status}
+            </span>
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase',
+                PAYMENT_BADGE[booking.payment_status]
+              )}
+            >
+              {booking.payment_status}
+            </span>
+            {booking.refund && booking.refund.status !== 'processed' ? (
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold text-amber-700 uppercase">
+                Refund {booking.refund.status}
+              </span>
             ) : null}
+            <RescheduledPill
+              created_at={booking.created_at}
+              updated_at={booking.updated_at}
+              status={booking.status}
+            />
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -347,6 +305,51 @@ export function AdminBookingCard({ booking }: { booking: AdminBookingRow }) {
             )}
           </div>
         </div>
+
+        <div className="mt-3 min-w-0">
+          <p className="text-sm text-slate-700">
+            <span className="font-bold">{booking.mentee.full_name || '(no name)'}</span>{' '}
+            <span className="text-slate-400">·</span>{' '}
+            <a href={`mailto:${booking.mentee.email}`} className="text-blue-600 hover:underline">
+              {booking.mentee.email}
+            </a>
+            <span className="text-slate-400"> with </span>
+            <span className="font-bold">{booking.mentor.full_name}</span>
+          </p>
+          <MenteePhoneRow phone={booking.mentee.phone} />
+          <dl className="mt-1 grid gap-1 text-xs">
+            <div className="flex flex-wrap items-center gap-x-1.5">
+              <Calendar className="size-3.5 shrink-0 text-blue-600" />
+              <dt className="font-semibold text-slate-700">Session at:</dt>
+              <dd className="font-bold text-slate-950">{formatDateTime(booking.session_start)}</dd>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-1.5 text-slate-500">
+              <Clock className="size-3 shrink-0 text-slate-400" />
+              <dt className="font-medium text-slate-500">Booking created on:</dt>
+              <dd>{formatDateTime(booking.created_at)}</dd>
+            </div>
+            {booking.completed_at ? (
+              <div className="flex flex-wrap items-center gap-x-1.5 text-slate-500">
+                <Check className="size-3 shrink-0 text-emerald-600" />
+                <dt className="font-medium text-slate-500">Completed on:</dt>
+                <dd>{formatDateTime(booking.completed_at)}</dd>
+              </div>
+            ) : null}
+          </dl>
+        </div>
+
+        <div className="mt-3 min-w-0 space-y-3">
+          <PriceBreakdown booking={booking} />
+          <MeetingLinkRow booking={booking} />
+          {booking.mentee_info ? <MenteeInfoBlock info={booking.mentee_info} /> : null}
+        </div>
+
+        <p className="mt-2 font-mono text-[10px] text-slate-300 uppercase">ID {booking.id}</p>
+        {booking.cancellation_reason ? (
+          <p className="mt-2 text-xs text-slate-500 italic">
+            Cancelled: {booking.cancellation_reason}
+          </p>
+        ) : null}
       </article>
 
       {cancelOpen ? (
