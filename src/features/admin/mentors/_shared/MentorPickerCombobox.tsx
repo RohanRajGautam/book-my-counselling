@@ -32,6 +32,11 @@ export interface MentorPickerComboboxProps {
   inputId?: string
   /** Placeholder for the search input. */
   placeholder?: string
+  /**
+   * Accessible label for the button that clears the current selection.
+   * Callers that clear to navigate somewhere else should say so here.
+   */
+  clearLabel?: string
 }
 
 function projectMentor(m: AdminMentorProfile): AdminMentorPickerOption {
@@ -72,6 +77,7 @@ export function MentorPickerCombobox({
   required = true,
   inputId = 'record-session-mentor',
   placeholder = 'Search by name, email, or title…',
+  clearLabel = 'Change mentor',
 }: MentorPickerComboboxProps) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -173,7 +179,7 @@ export function MentorPickerCombobox({
             onClick={handleClear}
             disabled={disabled}
             className="grid size-8 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
-            aria-label="Change mentor"
+            aria-label={clearLabel}
           >
             <X className="size-4" />
           </button>

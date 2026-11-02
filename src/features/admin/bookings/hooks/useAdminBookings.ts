@@ -12,6 +12,10 @@ import {
   AdminCreateBookingRequest,
   AdminPaymentStatus,
 } from '../../types/admin.types'
+import {
+  MENTOR_SESSION_SUMMARY_KEY,
+  MENTOR_SESSIONS_KEY,
+} from '../../mentor-sessions/lib/queryKeys'
 
 export interface UseAdminBookingsParams {
   q?: string
@@ -45,6 +49,8 @@ export function useAdminCancelBooking() {
       adminCancelBooking(id, reason),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ADMIN_BOOKINGS_KEY })
+      void qc.invalidateQueries({ queryKey: MENTOR_SESSIONS_KEY })
+      void qc.invalidateQueries({ queryKey: MENTOR_SESSION_SUMMARY_KEY })
       void qc.invalidateQueries({ queryKey: ['admin', 'refunds'] })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'revenue'] })
@@ -68,23 +74,31 @@ export function useAdminCompleteBooking() {
       // The mentor's session count went up by one.
       void qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
       void qc.invalidateQueries({ queryKey: ['admin', 'analytics', 'stats'] })
+      // The mentor's "still open" count dropped by one.
+      void qc.invalidateQueries({ queryKey: MENTOR_SESSION_SUMMARY_KEY })
     },
   })
 }
 
 /**
  * Swaps a single booking row into every cached page of the admin bookings
- * list. The lists are cached per filter set, so patch every matching cache
- * entry.
+ * list and every cached page of a mentor's own session list — the same
+ * booking can sit in both. The lists are cached per filter set, so patch
+ * every matching cache entry.
  */
 function replaceBookingInAdminCaches(
   qc: ReturnType<typeof useQueryClient>,
   updated: AdminBookingRow,
   bookingId: string,
 ) {
-  const queries = qc.getQueriesData<PaginatedResponse<AdminBookingRow>>({
-    queryKey: ADMIN_BOOKINGS_KEY,
-  })
+  const queries = [
+    ...qc.getQueriesData<PaginatedResponse<AdminBookingRow>>({
+      queryKey: ADMIN_BOOKINGS_KEY,
+    }),
+    ...qc.getQueriesData<PaginatedResponse<AdminBookingRow>>({
+      queryKey: MENTOR_SESSIONS_KEY,
+    }),
+  ]
   for (const [key, data] of queries) {
     if (!data) continue
     let changed = false

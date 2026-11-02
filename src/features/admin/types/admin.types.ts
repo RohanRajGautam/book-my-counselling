@@ -285,6 +285,48 @@ export interface AdminMentorPickerOption {
   hourly_rate: string | null
 }
 
+// ── Mentor Sessions ───────────────────────────────────────────────────────
+
+/**
+ * Counts of one mentor's platform bookings, grouped by status.
+ * Covers the mentor's whole history — not the current page or filter.
+ */
+export interface MentorBookingCounts {
+  total: number
+  pending: number
+  confirmed: number
+  completed: number
+  cancelled: number
+  /** `pending + confirmed` — the sessions that can still be marked complete. */
+  unclosed: number
+}
+
+/**
+ * Counts of one mentor's admin-recorded outside sessions.
+ * An outside session is either `scheduled` (still open) or `completed`, so
+ * there is no `unclosed` field here — `scheduled` plays that role.
+ */
+export interface MentorOutsideSessionCounts {
+  total: number
+  scheduled: number
+  completed: number
+}
+
+/** Response from `GET /admin/mentors/{id}/sessions/summary`. */
+export interface MentorSessionSummary {
+  mentor_id: string
+  bookings: MentorBookingCounts
+  outside_sessions: MentorOutsideSessionCounts
+}
+
+/**
+ * Sort order for a mentor's session list.
+ * - `session` — newest session first (the default)
+ * - `session_asc` — oldest session first
+ * - `created` — newest booking first
+ */
+export type MentorSessionSort = 'session' | 'session_asc' | 'created'
+
 // ── Outside Sessions ──────────────────────────────────────────────────────
 
 /**
