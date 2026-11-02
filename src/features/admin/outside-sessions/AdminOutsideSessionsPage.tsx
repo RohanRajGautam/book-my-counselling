@@ -6,7 +6,7 @@ import { Plus, ScrollText } from 'lucide-react'
 import { AdminPageHeader } from '../layout/AdminPageHeader'
 import { AdminMentorPagination } from '../mentors/components/AdminMentorPagination'
 import { Button } from '@/components/ui/button'
-import { OutsideSessionRow, OutsideSessionStatus } from '../types/admin.types'
+import { OutsideSessionRow, OutsideSessionStatus, AdminMentorPickerOption } from '../types/admin.types'
 import { useOutsideSessions } from './hooks/useOutsideSessions'
 import { OutsideSessionsFiltersBar } from './components/OutsideSessionsFiltersBar'
 import { OutsideSessionCard } from './components/OutsideSessionCard'
@@ -28,6 +28,8 @@ export function AdminOutsideSessionsPage() {
   const [q, setQ] = useState('')
   const debouncedQ = useDebouncedValue(q, 350)
   const [status, setStatus] = useState<OutsideSessionStatus | 'all'>('all')
+  const [mentorId, setMentorId] = useState('')
+  const [mentor, setMentor] = useState<AdminMentorPickerOption | null>(null)
   const [page, setPage] = useState(1)
 
   const [recordOpen, setRecordOpen] = useState(false)
@@ -37,7 +39,7 @@ export function AdminOutsideSessionsPage() {
   )
 
   // Reset to page 1 on filter change — done during render (no cascading effect).
-  const filtersSignature = `${debouncedQ}|${status}`
+  const filtersSignature = `${debouncedQ}|${status}|${mentorId}`
   const [prevFilters, setPrevFilters] = useState(filtersSignature)
   if (prevFilters !== filtersSignature) {
     setPrevFilters(filtersSignature)
@@ -47,11 +49,12 @@ export function AdminOutsideSessionsPage() {
   const { data, isLoading, isFetching } = useOutsideSessions({
     q: debouncedQ.trim() || undefined,
     status: status === 'all' ? undefined : status,
+    mentorId: mentorId || undefined,
     page,
   })
 
   const rows = data?.items ?? []
-  const hasFilters = !!debouncedQ || status !== 'all'
+  const hasFilters = !!debouncedQ || status !== 'all' || mentorId !== ''
 
   return (
     <div className="min-h-svh overflow-x-hidden bg-[#f8f9ff] text-slate-950">
@@ -78,6 +81,10 @@ export function AdminOutsideSessionsPage() {
           setQ={setQ}
           status={status}
           setStatus={setStatus}
+          mentorId={mentorId}
+          setMentorId={setMentorId}
+          mentor={mentor}
+          setMentor={setMentor}
         />
 
         <section

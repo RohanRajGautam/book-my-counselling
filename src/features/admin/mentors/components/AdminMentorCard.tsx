@@ -9,6 +9,7 @@ import {
   Building2,
   CalendarClock,
   CalendarDays,
+  CalendarRange,
   Check,
   ChevronDown,
   Copy,
@@ -415,6 +416,21 @@ export function AdminMentorCard({
         >
           <CalendarDays className="size-3.5" strokeWidth={2.4} />
           Availability
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5 rounded-lg border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+          nativeButton={false}
+          render={
+            <Link
+              href={`/admin/mentors/${mentor.id}/sessions?name=${encodeURIComponent(mentor.user.full_name)}`}
+            />
+          }
+          aria-label={`View sessions for ${mentor.user.full_name}`}
+        >
+          <CalendarRange className="size-3.5" strokeWidth={2.4} />
+          Sessions
         </Button>
       </div>
     </article>

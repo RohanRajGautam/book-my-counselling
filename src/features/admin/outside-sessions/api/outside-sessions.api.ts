@@ -16,6 +16,8 @@ import {
 export interface AdminListOutsideSessionsParams {
   q?: string
   status?: OutsideSessionStatus
+  /** Narrow to one mentor (the `MentorProfile.id`). */
+  mentorId?: string
   page?: number
   pageSize?: number
 }
@@ -30,6 +32,7 @@ export async function adminListOutsideSessions(
       params: {
         q: params.q || undefined,
         status: params.status,
+        mentor_id: params.mentorId,
         page: params.page ?? 1,
         page_size: params.pageSize ?? 20,
       },

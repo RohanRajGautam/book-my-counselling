@@ -13,6 +13,8 @@ export async function searchAdminBookings(params: {
   q?: string
   status?: AdminBookingStatus
   paymentStatus?: AdminPaymentStatus
+  /** Narrow to one mentor (the `MentorProfile.id`). */
+  mentorId?: string
   page?: number
   pageSize?: number
 }): Promise<PaginatedResponse<AdminBookingRow>> {
@@ -21,6 +23,7 @@ export async function searchAdminBookings(params: {
       q: params.q || undefined,
       status: params.status,
       payment_status: params.paymentStatus,
+      mentor_id: params.mentorId,
       page: params.page ?? 1,
       page_size: params.pageSize ?? 20,
     },
@@ -35,6 +38,26 @@ export async function adminCancelBooking(
   const res = await apiClient.post<AdminBookingRow>(
     `/admin/bookings/${bookingId}/cancel`,
     { cancellation_reason: cancellationReason },
+  )
+  return res.data
+}
+
+/**
+ * Marks a booking session as completed. Idempotent — completing an
+ * already-completed booking is a no-op that returns the existing row (the
+ * mentor's session count is not bumped twice and the mentee is not emailed
+ * twice).
+ *
+ * A cancelled booking cannot be completed (400). Returns the full admin
+ * booking row so the caller can swap it into the list without a refetch.
+ *
+ * Doc: `POST /api/v1/admin/bookings/{booking_id}/complete`.
+ */
+export async function adminCompleteBooking(
+  bookingId: string,
+): Promise<AdminBookingRow> {
+  const res = await apiClient.post<AdminBookingRow>(
+    `/admin/bookings/${bookingId}/complete`,
   )
   return res.data
 }

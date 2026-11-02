@@ -213,6 +213,10 @@ export interface AdminBookingRow {
   updated_at: string
   cancelled_at: string | null
   cancellation_reason: string | null
+  /** When the session was closed out. Null until the booking reaches
+   *  `completed` — either the mentor marked it done or an admin did
+   *  through POST /admin/bookings/{id}/complete. */
+  completed_at: string | null
   mentee: AdminBookingMentee
   mentee_info: AdminBookingMenteeInfo
   mentor: AdminBookingMentor
@@ -281,6 +285,48 @@ export interface AdminMentorPickerOption {
   hourly_rate: string | null
 }
 
+// ── Mentor Sessions ───────────────────────────────────────────────────────
+
+/**
+ * Counts of one mentor's platform bookings, grouped by status.
+ * Covers the mentor's whole history — not the current page or filter.
+ */
+export interface MentorBookingCounts {
+  total: number
+  pending: number
+  confirmed: number
+  completed: number
+  cancelled: number
+  /** `pending + confirmed` — the sessions that can still be marked complete. */
+  unclosed: number
+}
+
+/**
+ * Counts of one mentor's admin-recorded outside sessions.
+ * An outside session is either `scheduled` (still open) or `completed`, so
+ * there is no `unclosed` field here — `scheduled` plays that role.
+ */
+export interface MentorOutsideSessionCounts {
+  total: number
+  scheduled: number
+  completed: number
+}
+
+/** Response from `GET /admin/mentors/{id}/sessions/summary`. */
+export interface MentorSessionSummary {
+  mentor_id: string
+  bookings: MentorBookingCounts
+  outside_sessions: MentorOutsideSessionCounts
+}
+
+/**
+ * Sort order for a mentor's session list.
+ * - `session` — newest session first (the default)
+ * - `session_asc` — oldest session first
+ * - `created` — newest booking first
+ */
+export type MentorSessionSort = 'session' | 'session_asc' | 'created'
+
 // ── Outside Sessions ──────────────────────────────────────────────────────
 
 /**
@@ -330,6 +376,46 @@ export interface OutsideSessionRow {
   mentee_name: string
   mentee_email: string
   created_by_admin_id: string
+}
+
+// ── Reviews ───────────────────────────────────────────────────────────────
+
+/** The mentee who wrote the review. Carries the email (unlike the public
+ *  `UserPublic` shape) — admin moderation needs to identify the reviewer. */
+export interface AdminReviewReviewer {
+  id: string
+  full_name: string
+  email: string | null
+  avatar_url: string | null
+}
+
+/** The mentor the review is about, flattened from the mentor's user account.
+ *  `id` is the mentor profile id (NOT the user id) — the same id space as
+ *  `AdminMentorProfile.id`. */
+export interface AdminReviewMentor {
+  id: string
+  full_name: string
+  email: string | null
+  title: string | null
+}
+
+/** One row from `GET /admin/reviews`. Field names mirror the backend's
+ *  `AdminReviewRow` schema verbatim. */
+export interface AdminReviewRow {
+  id: string
+  mentor_id: string
+  reviewer_id: string
+  /** Exactly one of these is set — the source the review was written against
+   *  (a platform booking, or an admin-recorded outside session). */
+  booking_id: string | null
+  outside_session_id: string | null
+  rating: number
+  /** Null for rating-only reviews. */
+  comment: string | null
+  reviewer: AdminReviewReviewer
+  mentor: AdminReviewMentor
+  created_at: string
+  updated_at: string
 }
 
 /**
