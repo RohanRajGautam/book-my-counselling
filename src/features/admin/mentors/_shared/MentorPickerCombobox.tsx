@@ -24,6 +24,14 @@ export interface MentorPickerComboboxProps {
    * renders the chosen mentor without needing a search.
    */
   initialMentor?: AdminMentorPickerOption
+  /** Label above the input. */
+  label?: string
+  /** Render the red required asterisk next to the label. */
+  required?: boolean
+  /** DOM id for the input — must be unique per page. */
+  inputId?: string
+  /** Placeholder for the search input. */
+  placeholder?: string
 }
 
 function projectMentor(m: AdminMentorProfile): AdminMentorPickerOption {
@@ -60,6 +68,10 @@ export function MentorPickerCombobox({
   error,
   disabled,
   initialMentor,
+  label = 'Mentor',
+  required = true,
+  inputId = 'record-session-mentor',
+  placeholder = 'Search by name, email, or title…',
 }: MentorPickerComboboxProps) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -126,10 +138,10 @@ export function MentorPickerCombobox({
   return (
     <div className="relative">
       <label
-        htmlFor="record-session-mentor"
+        htmlFor={inputId}
         className="mb-1 block text-[11px] font-extrabold tracking-wide text-slate-500 uppercase"
       >
-        Mentor <span className="text-red-600">*</span>
+        {label} {required ? <span className="text-red-600">*</span> : null}
       </label>
 
       {hasExactSelection ? (
@@ -171,7 +183,7 @@ export function MentorPickerCombobox({
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <input
             ref={inputRef}
-            id="record-session-mentor"
+            id={inputId}
             type="text"
             autoComplete="off"
             spellCheck={false}
@@ -183,7 +195,7 @@ export function MentorPickerCombobox({
             }}
             onFocus={() => setOpen(true)}
             onBlur={() => window.setTimeout(() => setOpen(false), 120)}
-            placeholder="Search by name, email, or title…"
+            placeholder={placeholder}
             role="combobox"
             aria-expanded={open}
             aria-controls={listboxId}

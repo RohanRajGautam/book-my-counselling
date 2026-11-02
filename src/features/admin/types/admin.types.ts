@@ -332,6 +332,46 @@ export interface OutsideSessionRow {
   created_by_admin_id: string
 }
 
+// ── Reviews ───────────────────────────────────────────────────────────────
+
+/** The mentee who wrote the review. Carries the email (unlike the public
+ *  `UserPublic` shape) — admin moderation needs to identify the reviewer. */
+export interface AdminReviewReviewer {
+  id: string
+  full_name: string
+  email: string | null
+  avatar_url: string | null
+}
+
+/** The mentor the review is about, flattened from the mentor's user account.
+ *  `id` is the mentor profile id (NOT the user id) — the same id space as
+ *  `AdminMentorProfile.id`. */
+export interface AdminReviewMentor {
+  id: string
+  full_name: string
+  email: string | null
+  title: string | null
+}
+
+/** One row from `GET /admin/reviews`. Field names mirror the backend's
+ *  `AdminReviewRow` schema verbatim. */
+export interface AdminReviewRow {
+  id: string
+  mentor_id: string
+  reviewer_id: string
+  /** Exactly one of these is set — the source the review was written against
+   *  (a platform booking, or an admin-recorded outside session). */
+  booking_id: string | null
+  outside_session_id: string | null
+  rating: number
+  /** Null for rating-only reviews. */
+  comment: string | null
+  reviewer: AdminReviewReviewer
+  mentor: AdminReviewMentor
+  created_at: string
+  updated_at: string
+}
+
 /**
  * Request body for `POST /admin/outside-sessions`. All money fields are
  * verbatim strings (Decimal); mentor_share and platform_share may be
