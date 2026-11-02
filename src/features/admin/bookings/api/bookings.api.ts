@@ -13,6 +13,8 @@ export async function searchAdminBookings(params: {
   q?: string
   status?: AdminBookingStatus
   paymentStatus?: AdminPaymentStatus
+  /** Narrow to one mentor (the `MentorProfile.id`). */
+  mentorId?: string
   page?: number
   pageSize?: number
 }): Promise<PaginatedResponse<AdminBookingRow>> {
@@ -21,6 +23,7 @@ export async function searchAdminBookings(params: {
       q: params.q || undefined,
       status: params.status,
       payment_status: params.paymentStatus,
+      mentor_id: params.mentorId,
       page: params.page ?? 1,
       page_size: params.pageSize ?? 20,
     },

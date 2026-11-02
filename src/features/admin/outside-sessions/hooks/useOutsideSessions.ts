@@ -13,19 +13,22 @@ import {
 export interface UseOutsideSessionsParams {
   q?: string
   status?: OutsideSessionStatus
+  /** Narrow to one mentor (the `MentorProfile.id`). */
+  mentorId?: string
   page?: number
 }
 
 export const OUTSIDE_SESSIONS_KEY = ['admin', 'outside-sessions'] as const
 
 export function useOutsideSessions(params: UseOutsideSessionsParams) {
-  const { q, status, page = 1 } = params
+  const { q, status, mentorId, page = 1 } = params
   return useQuery({
-    queryKey: [...OUTSIDE_SESSIONS_KEY, q ?? '', status ?? 'all', page],
+    queryKey: [...OUTSIDE_SESSIONS_KEY, q ?? '', status ?? 'all', mentorId ?? '', page],
     queryFn: () =>
       adminListOutsideSessions({
         q: q?.trim() || undefined,
         status,
+        mentorId,
         page,
       } satisfies AdminListOutsideSessionsParams),
     placeholderData: keepPreviousData,
@@ -37,6 +40,9 @@ export function useOutsideSessions(params: UseOutsideSessionsParams) {
  * Records a new outside session. On success, invalidates the list + any
  * single-row views. Does NOT touch bookings / analytics — outside sessions
  * don't count toward revenue or the bookings dashboard per spec.
+ *
+ * The server bumps `mentor.total_sessions` when the session already started,
+ * so the mentors list is invalidated too.
  */
 export function useCreateOutsideSession() {
   const qc = useQueryClient()
@@ -45,6 +51,7 @@ export function useCreateOutsideSession() {
       adminCreateOutsideSession(payload),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: OUTSIDE_SESSIONS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
     },
   })
 }
@@ -60,6 +67,7 @@ export function useCompleteOutsideSession() {
       adminCompleteOutsideSession(sessionId),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: OUTSIDE_SESSIONS_KEY })
+      void qc.invalidateQueries({ queryKey: ['admin', 'mentors'] })
     },
   })
 }

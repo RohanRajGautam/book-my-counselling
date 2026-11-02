@@ -11,6 +11,7 @@ import { AdminBookingCard } from './components/AdminBookingCard'
 import { AdminMentorPagination } from '../mentors/components/AdminMentorPagination'
 import {
   AdminBookingStatus,
+  AdminMentorPickerOption,
   AdminPaymentStatus,
 } from '../types/admin.types'
 
@@ -28,12 +29,14 @@ export function AdminBookingsPage() {
   const debouncedQ = useDebouncedValue(q, 350)
   const [status, setStatus] = useState<AdminBookingStatus | 'all'>('all')
   const [paymentStatus, setPaymentStatus] = useState<AdminPaymentStatus | 'all'>('all')
+  const [mentorId, setMentorId] = useState('')
+  const [mentor, setMentor] = useState<AdminMentorPickerOption | null>(null)
   const [page, setPage] = useState(1)
 
   // Reset to page 1 whenever any filter changes. Doing this during render
   // (instead of in an effect) avoids a cascading re-render — the standard
   // pattern for "reset state when a prop/state changes".
-  const filtersSignature = `${debouncedQ}|${status}|${paymentStatus}`
+  const filtersSignature = `${debouncedQ}|${status}|${paymentStatus}|${mentorId}`
   const [prevFilters, setPrevFilters] = useState(filtersSignature)
   if (prevFilters !== filtersSignature) {
     setPrevFilters(filtersSignature)
@@ -44,13 +47,15 @@ export function AdminBookingsPage() {
     q: debouncedQ.trim() || undefined,
     status: status === 'all' ? undefined : status,
     paymentStatus: paymentStatus === 'all' ? undefined : paymentStatus,
+    mentorId: mentorId || undefined,
     page,
   })
 
   const { data: stats, isLoading: statsLoading } = useAdminStats()
 
   const rows = data?.items ?? []
-  const hasFilters = !!debouncedQ || status !== 'all' || paymentStatus !== 'all'
+  const hasFilters =
+    !!debouncedQ || status !== 'all' || paymentStatus !== 'all' || mentorId !== ''
   const lifetimeTotal = stats?.total_bookings ?? 0
   const filteredTotal = data?.total
 
@@ -82,6 +87,10 @@ export function AdminBookingsPage() {
           setStatus={setStatus}
           paymentStatus={paymentStatus}
           setPaymentStatus={setPaymentStatus}
+          mentorId={mentorId}
+          setMentorId={setMentorId}
+          mentor={mentor}
+          setMentor={setMentor}
         />
 
         <section

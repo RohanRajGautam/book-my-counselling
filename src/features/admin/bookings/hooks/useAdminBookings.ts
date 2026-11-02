@@ -21,22 +21,25 @@ export interface UseAdminBookingsParams {
   q?: string
   status?: AdminBookingStatus
   paymentStatus?: AdminPaymentStatus
+  /** Narrow to one mentor (the `MentorProfile.id`). */
+  mentorId?: string
   page?: number
 }
 
 export const ADMIN_BOOKINGS_KEY = ['admin', 'bookings'] as const
 
 export function useAdminBookings(params: UseAdminBookingsParams) {
-  const { q, status, paymentStatus, page = 1 } = params
+  const { q, status, paymentStatus, mentorId, page = 1 } = params
   return useQuery({
     queryKey: [
       ...ADMIN_BOOKINGS_KEY,
       q ?? '',
       status ?? 'all',
       paymentStatus ?? 'all',
+      mentorId ?? '',
       page,
     ],
-    queryFn: () => searchAdminBookings({ q, status, paymentStatus, page }),
+    queryFn: () => searchAdminBookings({ q, status, paymentStatus, mentorId, page }),
     placeholderData: keepPreviousData,
     staleTime: 15 * 1000,
   })
